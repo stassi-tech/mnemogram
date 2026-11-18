@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v14';
+const APP_VERSION = 'v17';
 
 const $ = (id) => document.getElementById(id);
 
@@ -100,7 +100,61 @@ const BUTTON_ROWS_2 = {
     { titre: 'Pronom', codes: ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int'] }],
   invariables: [['NP'], ['Av'], ['P'], ['CC'], ['CS'], ['I', 'O']],
 };
-const NATURE_BY_CODE = Object.fromEntries([...NATURES, ...NATURES_DETAIL].map((n) => [n.code, n]));
+/* v15 : JEU 3 — les fonctions des mots dans le groupe verbal (boutons rouges : le rouge est la couleur des fonctions).
+   « formule » = la question à se poser (elle est écrite dans la « Fiche fonction des mots ») ;
+   « q » fabrique cette question avec le verbe de la phrase, pour la correction. */
+const FONCTIONS = [
+  { code: 'F.suj', court: 'Sujet', nom: 'Sujet', article: 'le sujet', groupe: 'fnom',
+    exemples: 'verbe + qui est-ce qui ? = sujet',
+    explication: "Le sujet dit qui fait l'action, ou de qui l'on parle. On le trouve en posant la question « qui est-ce qui ? » devant le verbe : *Qui est-ce qui dort ?* → *le chat*.",
+    q: (v) => `Qui est-ce qui ${v} ?` },
+  { code: 'F.cod', court: 'COD', nom: "Complément d'objet direct (COD)", article: 'un COD', groupe: 'fnom',
+    exemples: 'verbe d\'action + quoi ? = COD',
+    explication: "Le COD complète le verbe directement, sans petit mot entre les deux. On le trouve avec la question « quoi ? » (ou « qui ? ») après le verbe : *La fille mange quoi ?* → *une pomme*.",
+    q: (v) => `${v} + quoi ?` },
+  { code: 'F.coi', court: 'COI', nom: "Complément d'objet indirect (COI)", article: 'un COI', groupe: 'fnom',
+    exemples: 'verbe d\'action + de quoi ? à quoi ? = COI',
+    explication: "Le COI complète le verbe avec un petit mot entre les deux (*à*, *de*). On le trouve avec la question « à quoi ? » ou « de quoi ? » après le verbe : *Je parle à qui ?* → *à mon ami*.",
+    q: (v, p) => `${v} + ${p === 'de' || p === 'd\'' ? 'de qui ? de quoi' : 'à qui ? à quoi'} ?` },
+  { code: 'F.cos', court: 'COS', nom: "Complément d'objet second (COS)", article: 'un COS', groupe: 'fnom',
+    exemples: 'verbe + COD + de quoi ? à quoi ? = COS',
+    explication: "Le COS vient en plus du COD : on donne quelque chose à quelqu'un. On le trouve avec « à qui ? » ou « à quoi ? » après le verbe et le COD : *Je donne une pomme à qui ?* → *à ma sœur*.",
+    q: (v) => `${v} + quelque chose + à qui ?` },
+  { code: 'F.att', court: 'Attribut du sujet', nom: 'Attribut du sujet', article: 'un attribut du sujet', groupe: 'fnom',
+    exemples: 'verbe d\'état + quoi ? = attribut du sujet',
+    explication: "L'attribut du sujet vient après un verbe d'état (être, paraître, sembler, devenir, rester) et dit ce qu'est le sujet : *L'éléphant est quoi ?* → *un animal*.",
+    q: (v) => `${v} + quoi ?` },
+  { code: 'F.ccl', court: 'CC de lieu', nom: 'Complément circonstanciel de lieu', article: 'un complément circonstanciel de lieu', groupe: 'fnom',
+    exemples: 'verbe + où ? = CC de lieu',
+    remarque: "Les compléments circonstanciels (on dit aussi compléments de phrase) peuvent souvent être déplacés ou supprimés : *Sur la terrasse, le chat dort.*",
+    explication: "Le complément circonstanciel de lieu dit où se passe l'action : *Le chat dort où ?* → *sur la terrasse*. Un adverbe peut l'être aussi : *ici*, *dehors*, *loin*.",
+    q: (v) => `${v} + où ?` },
+  { code: 'F.cct', court: 'CC de temps', nom: 'Complément circonstanciel de temps', article: 'un complément circonstanciel de temps', groupe: 'fnom',
+    exemples: 'verbe + quand ? = CC de temps',
+    explication: "Le complément circonstanciel de temps dit quand se passe l'action : *Les oiseaux chantent quand ?* → *le matin*. Un adverbe peut l'être aussi : *demain*, *bientôt*, *souvent*.",
+    q: (v) => `${v} + quand ?` },
+  { code: 'F.ccm', court: 'CC de manière', nom: 'Complément circonstanciel de manière', article: 'un complément circonstanciel de manière', groupe: 'fnom',
+    exemples: 'verbe + comment ? = CC de manière',
+    explication: "Le complément circonstanciel de manière dit comment se passe l'action : *Le camion roule comment ?* → *lentement*.",
+    q: (v) => `${v} + comment ?` },
+  { code: 'F.ccc', court: 'CC de cause', nom: 'Complément circonstanciel de cause', article: 'un complément circonstanciel de cause', groupe: 'fnom',
+    exemples: 'verbe + pourquoi ? = CC de cause',
+    explication: "Le complément circonstanciel de cause dit pourquoi l'action se passe : *Le bébé pleure pourquoi ?* → *de faim*.",
+    q: (v) => `${v} + pourquoi ?` },
+  { code: 'F.mod', court: 'Modifie le sens', nom: 'Modifie le sens', article: 'un adverbe qui modifie le sens', groupe: 'fadv',
+    exemples: 'adverbe + verbe, adjectif ou adverbe = modifie le sens',
+    explication: "L'adverbe modifie le sens d'un verbe, d'un adjectif ou d'un autre adverbe : *très bon*, *ne… pas*. Si on l'enlève, la phrase reste juste, mais elle ne veut plus dire la même chose.",
+    remarque: "Ce sont les adverbes interrogatifs, de négation (*ne… pas*, *ne… plus*) et de quantité (*trop*, *assez*, *très*). Les adverbes de circonstance (*demain*, *joyeusement*, *ici*), eux, sont compléments circonstanciels.\nL'adverbe peut ainsi être complément circonstanciel de lieu (*ici*), de temps (*demain*) ou de manière (*vite*).",
+    q: () => '' },
+];
+/* Les fonctions proposées selon la nature : le nom commun, le nom propre et le pronom ont toutes les fonctions
+   du nom ; l'adverbe modifie le sens ou est complément circonstanciel ; les autres natures n'ont pas de fonction ici. */
+const FONCTIONS_PAR_NATURE = {
+  N: ['F.suj', 'F.cod', 'F.coi', 'F.cos', 'F.att', 'F.ccl', 'F.cct', 'F.ccm', 'F.ccc'],
+  Av: ['F.mod', 'F.ccl', 'F.cct', 'F.ccm'],
+};
+FONCTIONS_PAR_NATURE.NP = FONCTIONS_PAR_NATURE.N; FONCTIONS_PAR_NATURE.Pr = FONCTIONS_PAR_NATURE.N;
+const NATURE_BY_CODE = Object.fromEntries([...NATURES, ...NATURES_DETAIL, ...FONCTIONS].map((n) => [n.code, n]));
 /* Les deux jeux. « priorite » : natures demandées au moins une fois par partie ; le reste des 20 questions
    est tiré au hasard parmi « reste ». « reponse » : la nature attendue pour une étiquette de mot. */
 const GAMES = {
@@ -117,7 +171,17 @@ const GAMES = {
       'D.int': ['Pr.int'], 'Pr.int': ['D.int', 'Pr.rel'], 'D.def': ['Pr.per'], 'Pr.per': ['D.def'],
       'Pr.rel': ['Pr.int', 'CS'], 'CS': ['Pr.rel'],
     } },
+  /* v15 : jeu 3. On ne demande que des mots qui ont une fonction dans le groupe verbal (nom, nom propre,
+     pronom, adverbe) : pas d'adjectif (il ira dans le jeu 4). Une question = la nature (0,5 point) puis la
+     fonction (0,5 point). */
+  fonctions: { titre: 'Natures et fonctions des mots dans le groupe verbal', type: 'Natures et fonctions (groupe verbal), niveau 3', rows: BUTTON_ROWS,
+    reponse: (tag) => tag.split('.')[0], niveau: 3,
+    /* les 20 questions se répartissent entre les fonctions (au moins une fois chacune), puis au hasard */
+    priorite: ['suj', 'suj', 'suj', 'cod', 'cod', 'cod', 'ccl', 'ccl', 'cct', 'cct', 'ccm', 'ccm', 'mod', 'mod', 'coi', 'cos', 'att', 'ccc'],
+    reste: ['suj', 'cod', 'ccl', 'cct', 'ccm', 'coi', 'cos'],
+    cle: (m) => m.fn || null },
 };
+GAMES.natures.niveau = 1; GAMES.natures2.niveau = 2;
 let currentGame = GAMES.natures;
 const answerCodeOf = (tag) => currentGame.reponse(tag);
 
@@ -137,79 +201,79 @@ const answerCodeOf = (tag) => currentGame.reponse(tag);
    colle au précédent (préfères -tu = « préfères-tu »).
    ------------------------------------------------------------ */
 const PHRASES = [
-  'Le/D.def chat/N de/P mon/D.pos voisin/N dort/VA tranquillement/Av sur/P la/D.def terrasse/N .',
-  'La/D.def petite/A fille/N mange/VA une/D.ind pomme/N rouge/A .',
-  'Mon/D.pos frère/N et/CC ma/D.pos sœur/N jouent/VA dans/P le/D.def jardin/N .',
-  'Oh/I ! Le/D.def gâteau/N est/VE très/Av bon/A .',
-  'Quand/CS il/Pr.per pleut/VA , nous/Pr.per jouons/VA à/P la/D.def maison/N .',
-  'Le/D.def chien/N aboie/VA car/CC il/Pr.per entend/VA un/D.ind bruit/N .',
-  'Aïe/I ! Cette/D.dem porte/N est/VE lourde/A .',
-  'Le/D.def soleil/N brille/VA dans/P le/D.def ciel/N bleu/A .',
-  'Mon/D.pos papa/N prépare/VA une/D.ind soupe/N chaude/A .',
-  'Les/D.def oiseaux/N chantent/VA joyeusement/Av le/D.def matin/N .',
-  'Tu/Pr.per lis/VA un/D.ind livre/N ou/CC tu/Pr.per dessines/VA ?',
-  'Elle/Pr.per porte/VA une/D.ind jolie/A robe/N verte/A .',
-  'Le/D.def bébé/N pleure/VA car/CC il/Pr.per veut/VA son/D.pos biberon/N .',
-  'Nous/Pr.per allons/VA à/P l\'/D.def école/N avec/P nos/D.pos amis/N .',
-  'Bravo/I ! Tu/Pr.per gagnes/VA la/D.def course/N .',
-  'Le/D.def lapin/N mange/VA une/D.ind carotte/N et/CC une/D.ind salade/N .',
-  'Ce/D.dem gros/A camion/N roule/VA lentement/Av .',
-  'Si/CS tu/Pr.per veux/VA , nous/Pr.per jouerons/VA ensemble/Av .',
-  'Lorsque/CS la/D.def cloche/N sonne/VA , les/D.def élèves/N sortent/VA .',
-  'Ma/D.pos grand-mère/N tricote/VA une/D.ind écharpe/N pour/P moi/Pr.per .',
-  'Le/D.def poisson/N nage/VA vite/Av dans/P l\'/D.def eau/N froide/A .',
-  'Hourra/I ! Les/D.def vacances/N commencent/VA demain/Av .',
-  'Le/D.def ciel/N est/VE gris/A mais/CC il/Pr.per ne/Av pleut/VA pas/Av .',
-  'Je/Pr.per cherche/VA mon/D.pos ballon/N sous/P le/D.def lit/N .',
-  'La/D.def maîtresse/N raconte/VA une/D.ind belle/A histoire/N .',
-  'Comme/CS la/D.def nuit/N tombe/VA , j\'/Pr.per allume/VA la/D.def lampe/N .',
-  'Mon/D.pos chat/N noir/A dort/VA souvent/Av sur/P le/D.def canapé/N .',
-  'Nous/Pr.per mangeons/VA des/D.ind fraises/N sucrées/A avec/P Léa/NP .',
-  'Le/D.def cheval/N galope/VA dans/P la/D.def prairie/N verte/A .',
-  'Chut/I ! Le/D.def bébé/N dort/VA .',
-  'Paul/NP ouvre/VA la/D.def fenêtre/N et/CC regarde/VA le/D.def jardin/N .',
-  'Elle/Pr.per sourit/VA quand/CS elle/Pr.per voit/VA son/D.pos ami/N .',
-  'Les/D.def enfants/N courent/VA dans/P la/D.def cour/N .',
-  'Ce/D.dem petit/A garçon/N est/VE gentil/A .',
-  'Le/D.def train/N arrive/VA bientôt/Av à/P la/D.def gare/N .',
-  'Je/Pr.per mets/VA mes/D.pos bottes/N car/CC il/Pr.per pleut/VA .',
-  'Ouf/I ! Nous/Pr.per arrivons/VA enfin/Av .',
-  'La/D.def souris/N se/Pr.per cache/VA derrière/P le/D.def placard/N .',
-  'Mon/D.pos ami/N habite/VA une/D.ind grande/A maison/N blanche/A .',
-  'Le/D.def vent/N souffle/VA fort/Av cette/D.dem nuit/N .',
-  'Puisque/CS tu/Pr.per es/VE sage/A , tu/Pr.per choisis/VA un/D.ind bonbon/N .',
-  'La/D.def lune/N éclaire/VA doucement/Av la/D.def forêt/N .',
-  'Je/Pr.per bois/VA un/D.ind grand/A verre/N de/P lait/N .',
-  'Ils/Pr.per jouent/VA avec/P un/D.ind ballon/N jaune/A .',
-  'Hé/I ! Tu/Pr.per oublies/VA ton/D.pos cartable/N .',
-  'Ma/D.pos tante/N arrive/VA ce/D.dem soir/N avec/P son/D.pos chien/N .',
-  'L\'/D.def éléphant/N est/VE un/D.ind animal/N énorme/A .',
-  'Nous/Pr.per partons/VA maintenant/Av ou/CC nous/Pr.per attendons/VA Léa/NP ?',
-  'Lorsque/CS le/D.def chat/N dort/VA , la/D.def souris/N danse/VA .',
-  'Je/Pr.per ne/Av trouve/VA pas/Av mes/D.pos lunettes/N .',
-  'Il/Pr.per pleut/VA , donc/CC je/Pr.per prends/VA mon/D.pos parapluie/N .',
-  'Quand/CS la/D.def nuit/N tombe/VA , les/D.def étoiles/N brillent/VA .',
-  'Le/D.def boulanger/N fabrique/VA le/D.def pain/N très/Av tôt/Av .',
-  'Ma/D.pos sœur/N chante/VA une/D.ind chanson/N avec/P moi/Pr.per .',
-  'Boum/O ! Le/D.def vase/N tombe/VA par/P terre/N .',
+  'Le/D.def chat/N=suj de/P mon/D.pos voisin/N dort/VA tranquillement/Av=ccm sur/P la/D.def terrasse/N=ccl .',
+  'La/D.def petite/A fille/N=suj mange/VA une/D.ind pomme/N=cod rouge/A .',
+  'Mon/D.pos frère/N=suj et/CC ma/D.pos sœur/N=suj jouent/VA dans/P le/D.def jardin/N=ccl .',
+  'Oh/I ! Le/D.def gâteau/N=suj est/VE très/Av=mod bon/A .',
+  'Quand/CS il/Pr.per pleut/VA , nous/Pr.per=suj jouons/VA à/P la/D.def maison/N=ccl .',
+  'Le/D.def chien/N=suj aboie/VA car/CC il/Pr.per=suj entend/VA un/D.ind bruit/N=cod .',
+  'Aïe/I ! Cette/D.dem porte/N=suj est/VE lourde/A .',
+  'Le/D.def soleil/N=suj brille/VA dans/P le/D.def ciel/N=ccl bleu/A .',
+  'Mon/D.pos papa/N=suj prépare/VA une/D.ind soupe/N=cod chaude/A .',
+  'Les/D.def oiseaux/N=suj chantent/VA joyeusement/Av=ccm le/D.def matin/N=cct .',
+  'Tu/Pr.per=suj lis/VA un/D.ind livre/N=cod ou/CC tu/Pr.per=suj dessines/VA ?',
+  'Elle/Pr.per=suj porte/VA une/D.ind jolie/A robe/N=cod verte/A .',
+  'Le/D.def bébé/N=suj pleure/VA car/CC il/Pr.per=suj veut/VA son/D.pos biberon/N=cod .',
+  'Nous/Pr.per=suj allons/VA à/P l\'/D.def école/N=ccl avec/P nos/D.pos amis/N .',
+  'Bravo/I ! Tu/Pr.per=suj gagnes/VA la/D.def course/N=cod .',
+  'Le/D.def lapin/N=suj mange/VA une/D.ind carotte/N=cod et/CC une/D.ind salade/N=cod .',
+  'Ce/D.dem gros/A camion/N=suj roule/VA lentement/Av=ccm .',
+  'Si/CS tu/Pr.per=suj veux/VA , nous/Pr.per=suj jouerons/VA ensemble/Av=ccm .',
+  'Lorsque/CS la/D.def cloche/N=suj sonne/VA , les/D.def élèves/N=suj sortent/VA .',
+  'Ma/D.pos grand-mère/N=suj tricote/VA une/D.ind écharpe/N=cod pour/P moi/Pr.per .',
+  'Le/D.def poisson/N=suj nage/VA vite/Av=ccm dans/P l\'/D.def eau/N=ccl froide/A .',
+  'Hourra/I ! Les/D.def vacances/N=suj commencent/VA demain/Av=cct .',
+  'Le/D.def ciel/N=suj est/VE gris/A mais/CC il/Pr.per ne/Av=mod pleut/VA pas/Av=mod .',
+  'Je/Pr.per=suj cherche/VA mon/D.pos ballon/N=cod sous/P le/D.def lit/N=ccl .',
+  'La/D.def maîtresse/N=suj raconte/VA une/D.ind belle/A histoire/N=cod .',
+  'Comme/CS la/D.def nuit/N=suj tombe/VA , j\'/Pr.per=suj allume/VA la/D.def lampe/N=cod .',
+  'Mon/D.pos chat/N=suj noir/A dort/VA souvent/Av=cct sur/P le/D.def canapé/N=ccl .',
+  'Nous/Pr.per=suj mangeons/VA des/D.ind fraises/N=cod sucrées/A avec/P Léa/NP .',
+  'Le/D.def cheval/N=suj galope/VA dans/P la/D.def prairie/N=ccl verte/A .',
+  'Chut/I ! Le/D.def bébé/N=suj dort/VA .',
+  'Paul/NP=suj ouvre/VA la/D.def fenêtre/N=cod et/CC regarde/VA le/D.def jardin/N=cod .',
+  'Elle/Pr.per=suj sourit/VA quand/CS elle/Pr.per=suj voit/VA son/D.pos ami/N=cod .',
+  'Les/D.def enfants/N=suj courent/VA dans/P la/D.def cour/N=ccl .',
+  'Ce/D.dem petit/A garçon/N=suj est/VE gentil/A .',
+  'Le/D.def train/N=suj arrive/VA bientôt/Av=cct à/P la/D.def gare/N=ccl .',
+  'Je/Pr.per=suj mets/VA mes/D.pos bottes/N=cod car/CC il/Pr.per pleut/VA .',
+  'Ouf/I ! Nous/Pr.per=suj arrivons/VA enfin/Av=cct .',
+  'La/D.def souris/N=suj se/Pr.per cache/VA derrière/P le/D.def placard/N=ccl .',
+  'Mon/D.pos ami/N=suj habite/VA une/D.ind grande/A maison/N blanche/A .',
+  'Le/D.def vent/N=suj souffle/VA fort/Av=ccm cette/D.dem nuit/N=cct .',
+  'Puisque/CS tu/Pr.per=suj es/VE sage/A , tu/Pr.per=suj choisis/VA un/D.ind bonbon/N=cod .',
+  'La/D.def lune/N=suj éclaire/VA doucement/Av=ccm la/D.def forêt/N=cod .',
+  'Je/Pr.per=suj bois/VA un/D.ind grand/A verre/N=cod de/P lait/N .',
+  'Ils/Pr.per=suj jouent/VA avec/P un/D.ind ballon/N jaune/A .',
+  'Hé/I ! Tu/Pr.per=suj oublies/VA ton/D.pos cartable/N=cod .',
+  'Ma/D.pos tante/N=suj arrive/VA ce/D.dem soir/N=cct avec/P son/D.pos chien/N .',
+  'L\'/D.def éléphant/N=suj est/VE un/D.ind animal/N=att énorme/A .',
+  'Nous/Pr.per=suj partons/VA maintenant/Av=cct ou/CC nous/Pr.per=suj attendons/VA Léa/NP=cod ?',
+  'Lorsque/CS le/D.def chat/N=suj dort/VA , la/D.def souris/N=suj danse/VA .',
+  'Je/Pr.per=suj ne/Av=mod trouve/VA pas/Av=mod mes/D.pos lunettes/N=cod .',
+  'Il/Pr.per pleut/VA , donc/CC je/Pr.per=suj prends/VA mon/D.pos parapluie/N=cod .',
+  'Quand/CS la/D.def nuit/N=suj tombe/VA , les/D.def étoiles/N=suj brillent/VA .',
+  'Le/D.def boulanger/N=suj fabrique/VA le/D.def pain/N=cod très/Av=mod tôt/Av=cct .',
+  'Ma/D.pos sœur/N=suj chante/VA une/D.ind chanson/N=cod avec/P moi/Pr.per .',
+  'Boum/O ! Le/D.def vase/N=suj tombe/VA par/P terre/N=ccl .',
   /* Verbes d'état */
-  'Le/D.def chat/N semble/VE fatigué/A .',
-  'Ma/D.pos sœur/N devient/VE très/Av grande/A .',
-  'Tu/Pr.per parais/VE content/A aujourd\'hui/Av .',
-  'Les/D.def fleurs/N restent/VE fraîches/A .',
-  'Le/D.def lion/N paraît/VE calme/A dans/P sa/D.pos cage/N .',
+  'Le/D.def chat/N=suj semble/VE fatigué/A .',
+  'Ma/D.pos sœur/N=suj devient/VE très/Av=mod grande/A .',
+  'Tu/Pr.per=suj parais/VE content/A aujourd\'hui/Av=cct .',
+  'Les/D.def fleurs/N=suj restent/VE fraîches/A .',
+  'Le/D.def lion/N=suj paraît/VE calme/A dans/P sa/D.pos cage/N=ccl .',
   /* Noms propres */
-  'Paris/NP est/VE une/D.ind grande/A ville/N .',
-  'Marie/NP lit/VA un/D.ind livre/N avec/P Hugo/NP .',
-  'Le/D.def chien/N de/P Lucie/NP est/VE noir/A .',
-  'La/D.def Loire/NP traverse/VA la/D.def ville/N de/P Tours/NP .',
+  'Paris/NP=suj est/VE une/D.ind grande/A ville/N=att .',
+  'Marie/NP=suj lit/VA un/D.ind livre/N=cod avec/P Hugo/NP .',
+  'Le/D.def chien/N=suj de/P Lucie/NP est/VE noir/A .',
+  'La/D.def Loire/NP=suj traverse/VA la/D.def ville/N=cod de/P Tours/NP .',
   /* Onomatopées */
-  'Crac/O ! La/D.def branche/N casse/VA .',
-  'Miaou/O ! Le/D.def chat/N réclame/VA son/D.pos lait/N .',
-  'Tic-tac/O ! L\'/D.def horloge/N sonne/VA midi/N .',
-  'Atchoum/O ! Mon/D.pos frère/N est/VE malade/A .',
-  'Ouaf/O ! Le/D.def chien/N court/VA vers/P la/D.def porte/N .',
-  'Ding-dong/O ! Mon/D.pos ami/N sonne/VA à/P la/D.def porte/N .',
+  'Crac/O ! La/D.def branche/N=suj casse/VA .',
+  'Miaou/O ! Le/D.def chat/N=suj réclame/VA son/D.pos lait/N=cod .',
+  'Tic-tac/O ! L\'/D.def horloge/N=suj sonne/VA midi/N .',
+  'Atchoum/O ! Mon/D.pos frère/N=suj est/VE malade/A .',
+  'Ouaf/O ! Le/D.def chien/N=suj court/VA vers/P la/D.def porte/N=ccl .',
+  'Ding-dong/O ! Mon/D.pos ami/N=suj sonne/VA à/P la/D.def porte/N .',
 
   /* v9 : phrases pour le jeu 2 (déterminants et pronoms en détail) */
   /* déterminants numéraux */
@@ -291,6 +355,25 @@ const PHRASES = [
   'Je/Pr.per sais/VA que/CS tu/Pr.per viens/VA .',
   'Le/D.def gâteau/N que/Pr.rel tu/Pr.per manges/VA est/VE bon/A .',
   'Qui/Pr.int connaît/VA l\'/D.def enfant/N qui/Pr.rel chante/VA ?',
+  /* v15 : phrases en plus pour le jeu 3 (COI, COS, CC de cause, adverbes de lieu, pronoms compléments) */
+  'Je/Pr.per=suj parle/VA à/P mon/D.pos ami/N=coi .',
+  'Le/D.def chien/N=suj obéit/VA à/P son/D.pos maître/N=coi .',
+  'Léa/NP=suj pense/VA à/P ses/D.pos vacances/N=coi .',
+  'Nous/Pr.per=suj parlons/VA de/P notre/D.pos voyage/N=coi .',
+  'Je/Pr.per=suj donne/VA une/D.ind pomme/N=cod à/P ma/D.pos sœur/N=cos .',
+  'Mon/D.pos papa/N=suj offre/VA un/D.ind livre/N=cod à/P Joseph/NP=cos .',
+  'La/D.def maîtresse/N=suj prête/VA un/D.ind crayon/N=cod à/P Hugo/NP=cos .',
+  'Je/Pr.per=suj lui/Pr.per=cos donne/VA un/D.ind bonbon/N=cod .',
+  'Je/Pr.per=suj lui/Pr.per=coi parle/VA souvent/Av=cct .',
+  'Je/Pr.per=suj le/Pr.per=cod vois/VA dans/P le/D.def jardin/N=ccl .',
+  'Ma/D.pos maman/N=suj nous/Pr.per=cod appelle/VA .',
+  'Le/D.def bébé/N=suj pleure/VA de/P faim/N=ccc .',
+  'Je/Pr.per=suj tremble/VA de/P froid/N=ccc .',
+  'Paul/NP=suj rougit/VA de/P honte/N=ccc .',
+  'Le/D.def chat/N=suj dort/VA ici/Av=ccl .',
+  'Mon/D.pos ami/N=suj habite/VA loin/Av=ccl .',
+  'Nous/Pr.per=suj jouons/VA dehors/Av=ccl .',
+  'Le/D.def lion/N=suj marche/VA avec/P prudence/N=ccm .',
 ];
 
 /* Découpe une phrase en mots : { texte, tag } (tag vide pour la ponctuation). */
@@ -298,7 +381,9 @@ function parsePhrase(src) {
   return src.split(' ').map((tok) => {
     const i = tok.lastIndexOf('/');
     if (i <= 0) return { texte: tok, tag: '' };
-    return { texte: tok.slice(0, i).replace(/_/g, ' '), tag: tok.slice(i + 1) };
+    /* v15 : « mot/N=cod » : la nature (N) puis, après « = », la fonction dans le groupe verbal (jeu 3). */
+    const [tag, fn] = tok.slice(i + 1).split('=');
+    return { texte: tok.slice(0, i).replace(/_/g, ' '), tag, fn: fn || '' };
   });
 }
 const PARSED = PHRASES.map(parsePhrase);
@@ -664,7 +749,8 @@ function buildQuestions() {
   const natures = buildNatureSequence();
   const used = new Set();
   return natures.map((code) => {
-    let candidats = PARSED.map((mots, p) => ({ p, idx: mots.map((m, i) => (answerCodeOf(m.tag) === code ? i : -1)).filter((i) => i >= 0) }))
+    const cle = currentGame.cle || ((m) => answerCodeOf(m.tag));
+    let candidats = PARSED.map((mots, p) => ({ p, idx: mots.map((m, i) => (m.tag && cle(m) === code ? i : -1)).filter((i) => i >= 0) }))
       .filter((c) => c.idx.length);
     const libres = candidats.filter((c) => !used.has(c.p));
     if (libres.length) candidats = libres;
@@ -674,7 +760,10 @@ function buildQuestions() {
     if (piege) candidats = candidats.flatMap((c) => (PARSED[c.p].some((m) => piege.includes(m.tag)) ? [c, c, c] : [c]));
     const c = pick(candidats);
     used.add(c.p);
-    return { phrase: c.p, mot: pick(c.idx), code };
+    const mot = pick(c.idx);
+    /* jeu 3 : la question garde la nature (code) et la fonction (fn) du mot */
+    if (currentGame.cle) return { phrase: c.p, mot, code: answerCodeOf(PARSED[c.p][mot].tag), fn: `F.${code}` };
+    return { phrase: c.p, mot, code };
   });
 }
 
@@ -685,20 +774,32 @@ function buildNatureButtons() {
     : `<div class="nature-subgroup"><span class="nature-subtitle">${row.titre}</span><div class="nature-row nature-row-7">` + row.codes.map((c) => btn(c, true)).join('') + '</div></div>').join('');
   $('nat-buttons-variables').innerHTML = html('variables');
   $('nat-buttons-invariables').innerHTML = html('invariables');
-  document.querySelectorAll('.nature-button').forEach((b) => b.addEventListener('click', () => answer(b.dataset.code, b)));
+  $('nat-buttons-fonctions').innerHTML = '';
+  document.querySelectorAll('#nat-nature-column .nature-button').forEach((b) => b.addEventListener('click', () => answer(b.dataset.code, b)));
 }
 
 function openGame(id) {
   currentGame = GAMES[id];
   $('natures-panel').classList.toggle('game2', id === 'natures2');
+  $('natures-panel').classList.toggle('game3', id === 'fonctions');
+  $('nat-ready-explanation').innerHTML = id === 'fonctions'
+    ? 'Dans chaque phrase, un mot clignote. Trouve d\'abord sa <strong>nature</strong> parmi les boutons verts : les autres natures disparaissent, et ses <strong>fonctions</strong> possibles apparaissent sur des boutons rouges. La bonne nature rapporte 0,5 point, la bonne fonction 0,5 point. Si tu te trompes, tu as droit à un deuxième essai.'
+    : 'Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.';
   buildNatureButtons();
   $('nat-game-title').textContent = currentGame.titre;
   showPanel('natures');
   $('nat-ready-screen').classList.remove('hidden');
   $('nat-quiz-grid').classList.add('hidden');
   $('nat-progress-label').textContent = `Question 1 / ${NB_QUESTIONS}`;
-  $('nat-score-label').textContent = '0 bonne réponse';
+  $('nat-score-label').textContent = scoreLabel(0);
   $('nat-progress-bar').style.width = '0';
+}
+/* v15 : les points du jeu 3 vont de 0,5 en 0,5 : on les écrit avec une virgule (14,5). */
+const fmtPts = (n) => String(Math.round((n || 0) * 10) / 10).replace('.', ',');
+const isG3 = () => currentGame === GAMES.fonctions;
+function scoreLabel(n) {
+  if (isG3()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''}`;
+  return `${n} bonne${n > 1 ? 's' : ''} réponse${n > 1 ? 's' : ''}`;
 }
 function startGame() {
   game.questions = buildQuestions();
@@ -711,7 +812,7 @@ function startGame() {
 
 function updateProgress() {
   $('nat-progress-label').textContent = `Question ${game.index + 1} / ${game.questions.length}`;
-  $('nat-score-label').textContent = `${game.score} bonne${game.score > 1 ? 's' : ''} réponse${game.score > 1 ? 's' : ''}`;
+  $('nat-score-label').textContent = scoreLabel(game.score);
   $('nat-progress-bar').style.width = `${(game.index / game.questions.length) * 100}%`;
 }
 
@@ -724,7 +825,12 @@ function showQuestion() {
   $('nat-character-stage').innerHTML = '';
   $('nat-correction').classList.add('hidden');
   $('nat-verdict-square').className = 'verdict-square';
-  document.querySelectorAll('.nature-button').forEach((b) => { b.disabled = false; b.classList.remove('wrong', 'correct', 'faded'); });
+  document.querySelectorAll('.nature-button').forEach((b) => { b.disabled = false; b.classList.remove('wrong', 'correct', 'faded', 'gone'); });
+  document.querySelectorAll('#nat-nature-column .gone').forEach((el) => el.classList.remove('gone'));
+  game.step = 'nature'; game.essaisFn = 0; game.natureOk = false;
+  $('nat-fn-column').classList.add('hidden');
+  $('nat-buttons-fonctions').innerHTML = '';
+  $('nat-instruction').textContent = 'Quelle est la nature du mot qui clignote ?';
   updateProgress();
 }
 
@@ -784,11 +890,17 @@ function showCharacter(camp, nature) {
 function explanationSpoken() {
   const q = game.questions[game.index];
   const n = NATURE_BY_CODE[q.code];
+  if (q.fn) {
+    const f = NATURE_BY_CODE[q.fn];
+    const quest = questionFonction(q);
+    return `${PARSED[q.phrase][q.mot].texte} est ${n.article}. Sa fonction : ${f.nom.replace(/\s*\(.*\)/, '').toLowerCase()}. ${quest.replace(/ \+ /g, ' ')} ${f.explication.replace(/\*/g, '')}`.replace(/\bCO([DIS])\b/g, 'C O $1');
+  }
   return `${PARSED[q.phrase][q.mot].texte} est ${n.article}. ${n.explication}`;
 }
 
 function answer(code, btn) {
   if (game.fini) return;
+  if (isG3()) { answerNature3(code, btn); return; }
   const q = game.questions[game.index];
   const bonne = NATURE_BY_CODE[q.code];
   const mot = PARSED[q.phrase][q.mot];
@@ -810,6 +922,111 @@ function answer(code, btn) {
   }
 }
 
+/* ------------------------------------------------------------
+   v15 : JEU 3 — d'abord la nature (boutons verts), puis la fonction (boutons rouges)
+   ------------------------------------------------------------ */
+const estVerbe = (m) => m.tag === 'VA' || m.tag === 'VE';
+/* Le verbe dont dépend le mot : celui qui suit pour un sujet (ou un pronom complément placé devant le verbe :
+   « je le vois »), celui qui précède pour un complément. */
+function verbeDe(q) {
+  const mots = PARSED[q.phrase], i = q.mot;
+  const avant = q.fn === 'F.suj' || (q.code === 'Pr' && ['F.cod', 'F.coi', 'F.cos'].includes(q.fn));
+  const chercher = (pas) => { for (let k = i + pas; k >= 0 && k < mots.length; k += pas) if (estVerbe(mots[k])) return mots[k].texte; return ''; };
+  return (avant ? chercher(1) || chercher(-1) : chercher(-1) || chercher(1)).toLowerCase();
+}
+/* La question à se poser, écrite avec le verbe de la phrase : « Qui est-ce qui dort ? », « Mange quoi ? »… */
+function questionFonction(q) {
+  const f = NATURE_BY_CODE[q.fn]; const v = verbeDe(q);
+  if (!v || !f.q) return '';
+  const mots = PARSED[q.phrase]; let p = '';
+  for (let k = q.mot - 1; k >= 0 && !estVerbe(mots[k]); k--) if (mots[k].tag === 'P') { p = mots[k].texte.toLowerCase(); break; }
+  return f.q(v, p);
+}
+function natureFound3(reussi) {
+  const q = game.questions[game.index];
+  const pn = game.parNature[q.code] || (game.parNature[q.code] = { c: 0, p: 0 });
+  pn.p += 1; if (reussi) pn.c += 1;
+  game.natureOk = reussi;
+  /* les autres natures disparaissent ; la colonne des fonctions apparaît à côté */
+  document.querySelectorAll('#nat-nature-column .nature-button').forEach((b) => { b.disabled = true; if (!b.classList.contains('correct')) b.classList.add('gone'); });
+  document.querySelectorAll('#nat-nature-column .nature-row').forEach((r) => { if (!r.querySelector('.nature-button:not(.gone)')) r.classList.add('gone'); });
+  ['variables', 'invariables'].forEach((g) => { if (!$(`nat-buttons-${g}`).querySelector('.nature-button:not(.gone)')) $(`nat-title-${g}`).classList.add('gone'); });
+  game.step = 'fn'; game.essaisFn = 0;
+  const codes = FONCTIONS_PAR_NATURE[q.code] || [];
+  $('nat-buttons-fonctions').innerHTML = codes.map((c) => `<button type="button" class="nature-button fonction-button" data-code="${c}">${NATURE_BY_CODE[c].court}</button>`).join('');
+  $('nat-buttons-fonctions').querySelectorAll('.fonction-button').forEach((b) => b.addEventListener('click', () => answerFn3(b.dataset.code, b)));
+  $('nat-fn-column').classList.remove('hidden');
+  $('nat-instruction').textContent = 'Et quelle est sa fonction ?';
+  $('nat-score-label').textContent = scoreLabel(game.score);
+}
+function answerNature3(code, btn) {
+  if (game.step !== 'nature') return;
+  const q = game.questions[game.index];
+  const bonne = NATURE_BY_CODE[q.code];
+  const mot = PARSED[q.phrase][q.mot];
+  if (code === q.code) {
+    if (game.essais === 0) game.score += 0.5;
+    btn.classList.add('correct');
+    natureFound3(game.essais === 0);
+    showCharacter('good', bonne);
+  } else {
+    if (game.essais === 0) game.erreurs.push({ mot: mot.texte, bonne: bonne.article, choisie: NATURE_BY_CODE[code].article, codeBonne: q.code, codeChoisi: code, phrase: phraseTexte(PARSED[q.phrase]), etape: 'nature' });
+    game.essais += 1;
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    if (game.essais >= 2) {
+      document.querySelector(`#nat-nature-column .nature-button[data-code="${q.code}"]`).classList.add('correct');
+      natureFound3(false);
+    }
+    showCharacter('bad', NATURE_BY_CODE[code]);
+  }
+}
+function answerFn3(code, btn) {
+  if (game.fini || game.step !== 'fn') return;
+  const q = game.questions[game.index];
+  const bonne = NATURE_BY_CODE[q.fn];
+  const mot = PARSED[q.phrase][q.mot];
+  if (code === q.fn) {
+    if (game.essaisFn === 0) game.score += 0.5;
+    btn.classList.add('correct');
+    finishQuestion3(game.essaisFn === 0);
+    showCharacter('good', bonne);
+  } else {
+    if (game.essaisFn === 0) game.erreurs.push({ mot: mot.texte, bonne: bonne.article, choisie: NATURE_BY_CODE[code].article, codeBonne: q.fn, codeChoisi: code, phrase: phraseTexte(PARSED[q.phrase]), etape: 'fonction' });
+    game.essaisFn += 1;
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    if (game.essaisFn >= 2) {
+      document.querySelector(`.fonction-button[data-code="${q.fn}"]`).classList.add('correct');
+      finishQuestion3(false);
+    }
+    showCharacter('bad', NATURE_BY_CODE[code]);
+  }
+}
+function finishQuestion3(reussi) {
+  const q = game.questions[game.index];
+  const nature = NATURE_BY_CODE[q.code], f = NATURE_BY_CODE[q.fn], mot = PARSED[q.phrase][q.mot];
+  const pn = game.parNature[q.fn] || (game.parNature[q.fn] = { c: 0, p: 0 });
+  pn.p += 1; if (reussi) pn.c += 1;
+  game.step = 'fini';
+  document.querySelectorAll('.fonction-button').forEach((b) => {
+    b.disabled = true;
+    if (!b.classList.contains('correct') && !b.classList.contains('wrong')) b.classList.add('faded');
+  });
+  document.querySelector('.sentence .w.target')?.classList.add('found');
+  const quest = questionFonction(q);
+  const rich = (t) => esc(t).replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  $('nat-correction-details').innerHTML = nbspFr(`« <strong>${mot.texte}</strong> » est ${nature.article}. Sa fonction : <strong class="fn-red">${esc(f.nom.charAt(0).toLowerCase() + f.nom.slice(1))}</strong>.`
+    + (quest ? `<br>La question à se poser : « ${esc(quest)} »` : '')
+    + `<br><span class="formule">${esc(f.exemples)}</span><br>${f.explicationHtml || rich(f.explication)}`);
+  $('nat-correction').classList.remove('hidden');
+  const tout = reussi && game.natureOk, rien = !reussi && !game.natureOk;
+  $('nat-verdict-square').className = `verdict-square ${tout ? 'correct' : rien ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = game.index + 1 < game.questions.length ? 'Suivant →' : 'Voir mon résultat →';
+  $('nat-score-label').textContent = scoreLabel(game.score);
+  $('nat-progress-bar').style.width = `${((game.index + 1) / game.questions.length) * 100}%`;
+}
+
 function finishQuestion(reussi, nature, mot) {
   /* v11 : pour le bilan, on compte chaque nature : demandée (p) et trouvée du premier coup (c). */
   const pn = game.parNature[nature.code] || (game.parNature[nature.code] = { c: 0, p: 0 });
@@ -823,7 +1040,7 @@ function finishQuestion(reussi, nature, mot) {
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${reussi ? 'correct' : 'wrong'}`;
   $('nat-next-button').textContent = game.index + 1 < game.questions.length ? 'Suivant →' : 'Voir mon résultat →';
-  $('nat-score-label').textContent = `${game.score} bonne${game.score > 1 ? 's' : ''} réponse${game.score > 1 ? 's' : ''}`;
+  $('nat-score-label').textContent = scoreLabel(game.score);
   $('nat-progress-bar').style.width = `${((game.index + 1) / game.questions.length) * 100}%`;
 }
 
@@ -839,7 +1056,7 @@ function showResults() {
   const id = content ? pick(['bonaccord', 'virgule']) : pick(['rature', 'gribouille']);
   const pe = playerProfile?.enfant?.photo;
   $('results-character').innerHTML = characterSvg(id) + (pe ? `<img class="results-photo" src="${pe}" alt="" />` : '');
-  $('results-title').textContent = `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
+  $('results-title').textContent = isG3() ? `${fmtPts(s)} point${s >= 2 ? 's' : ''} sur ${n}` : `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
   const E = playerProfile?.enfant?.prenom;
   const adultes = (playerProfile?.adultes || []).filter((a) => a.lien);
   const a = adultes.length ? pick(adultes) : null;
@@ -851,7 +1068,7 @@ function showResults() {
   if (!sorciers) $('results-character').innerHTML = pe ? `<img class="results-photo" src="${pe}" alt="" />` : '';
   const texte = sorciers ? `${CHARACTERS[id].nom} : « ${parole} »` : (s === n ? 'Un sans-faute : bravo !' : content ? 'Très bien : encore une partie, et vous les connaîtrez toutes.' : 'Rejouez : chaque partie aide à mieux les reconnaître.');
   $('results-text').textContent = texte;
-  lastResult = { jeu: currentGame.type, niveau: currentGame === GAMES.natures2 ? 2 : 1, score: s, total: n, erreurs: game.erreurs.slice(), parNature: game.parNature, date: new Date().toISOString() };
+  lastResult = { jeu: currentGame.type, niveau: currentGame.niveau || 1, score: s, total: n, erreurs: game.erreurs.slice(), parNature: game.parNature, date: new Date().toISOString() };
   saveScore(lastResult);
   renderSendBox();
   showPanel('results');
@@ -885,7 +1102,8 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    `Mon score : ${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}.`,
+    niveauOf(r) === 3 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (0,5 point pour la bonne nature et 0,5 point pour la bonne fonction, trouvées du premier coup).`
+      : `Mon score : ${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}.`,
   ];
   if (r.erreurs.length) {
     lignes.push('', 'Mes erreurs :');
@@ -900,7 +1118,7 @@ function renderSendBox() {
   if (!optEnvoi(playerProfile)) { box.innerHTML = ''; return; }
   box.innerHTML = sendBoxHtml('esend', 'Envoyer mon score à :').replace('dans ta fiche (ci-dessus)', 'dans « Mon compte » 👤');
   const E = playerProfile?.enfant?.prenom;
-  wireSendBox('esend', () => `${E ? E + ' : ' : ''}mon score sur MNEMOGRAM (${lastResult.score}/${lastResult.total})`, async () => scoreMessage(lastResult));
+  wireSendBox('esend', () => `${E ? E + ' : ' : ''}mon score sur MNEMOGRAM (${fmtPts(lastResult.score)}/${lastResult.total})`, async () => scoreMessage(lastResult));
 }
 
 /* ------------------------------------------------------------
@@ -910,9 +1128,15 @@ function renderSendBox() {
    fenêtre 📖, et le jeu y lit les explications (lignes « explication ») : ce qui est écrit dans la fiche est ce
    qui s'affiche sous les boutons et ce que dit la voix. Si la fiche ne peut pas être lue (fichier ouvert
    directement sur l'ordinateur, réseau coupé), le jeu garde ses explications de départ. */
-async function loadFiche() {
+/* v17 : deux fiches, dont les noms de fichiers suivent les titres : « Fiche nature des mots » = fiche-nature.html,
+   « Fiche fonction des mots » = fiche-fonction.html (avec la formule de chaque fonction). Le jeu lit les deux.
+   Tant que les nouveaux fichiers ne sont pas sur GitHub, il se rabat sur les anciens noms. */
+const FICHE_ANCIEN_NOM = { 'fiche-nature.html': 'fiche.html', 'fiche-fonction.html': 'fiche-fonctions.html' };
+async function loadFiche() { await Promise.all(['fiche-nature.html', 'fiche-fonction.html'].map(loadUneFiche)); }
+async function loadUneFiche(nom) {
   try {
-    const r = await fetch(`fiche.html?v=${Date.now()}`, { cache: 'no-store' });
+    let r = await fetch(`${nom}?v=${Date.now()}`, { cache: 'no-store' });
+    if (!r.ok && FICHE_ANCIEN_NOM[nom]) r = await fetch(`${FICHE_ANCIEN_NOM[nom]}?v=${Date.now()}`, { cache: 'no-store' });
     if (!r.ok) return;
     const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
     doc.querySelectorAll('[data-code]').forEach((sec) => {
@@ -927,11 +1151,17 @@ async function loadFiche() {
     });
   } catch (e) { /* on garde les explications intégrées */ }
 }
+function showFiche(nom) {
+  $('fiche-frame').src = `${nom}?v=${Date.now()}`;
+  document.querySelectorAll('.fiche-tab').forEach((b) => b.classList.toggle('on', b.dataset.fiche === nom));
+}
 function openFiche() {
-  const f = $('fiche-frame');
-  f.src = `fiche.html?v=${Date.now()}`;
+  /* pendant le jeu des fonctions, la fiche des fonctions s'ouvre d'abord ; l'autre reste à un clic */
+  const enJeu3 = isG3() && !$('natures-panel').classList.contains('hidden');
+  showFiche(enJeu3 ? 'fiche-fonction.html' : 'fiche-nature.html');
   $('fiche-modal').classList.remove('hidden');
 }
+document.querySelectorAll('.fiche-tab').forEach((b) => b.addEventListener('click', () => showFiche(b.dataset.fiche)));
 
 /* ------------------------------------------------------------
    COMPTES (Firebase, le même service que Mnemart)
@@ -1191,7 +1421,7 @@ function openProfile(first) {
 
 /* v10 : nom du type d'exercice ; les scores enregistrés avant la v10 portaient d'autres noms. */
 function scoreType(jeu) {
-  if (/niveau [12]/.test(jeu || '')) return jeu;
+  if (/niveau [123]/.test(jeu || '')) return jeu;
   if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
   return 'Reconnaissance des natures, niveau 1';
 }
@@ -1225,7 +1455,7 @@ async function renderScoreHistory() {
   box.innerHTML = '<p class="send-title">Derniers scores</p><ul class="score-list">' + scores.slice(0, 10).map((r) => {
     const d = new Date(r.date);
     const quand = isNaN(d) ? '' : d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    return `<li><span>${esc(scoreType(r.jeu))}</span><span>${quand}</span><strong>${r.score} / ${r.total}</strong><button type="button" class="score-del" data-id="${esc(r._id)}" title="Effacer ce score" aria-label="Effacer ce score">✕</button></li>`;
+    return `<li><span>${esc(scoreType(r.jeu))}</span><span>${quand}</span><strong>${fmtPts(r.score)} / ${r.total}</strong><button type="button" class="score-del" data-id="${esc(r._id)}" title="Effacer ce score" aria-label="Effacer ce score">✕</button></li>`;
   }).join('') + '</ul>';
   /* v8 : chaque score peut être effacé (après confirmation). */
   box.querySelectorAll('.score-del').forEach((b) => b.addEventListener('click', async () => {
@@ -1239,7 +1469,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -1276,7 +1506,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2].map((n) => {
+  const niveaux = [1, 2, 3].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -1297,6 +1527,9 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
+const NIVEAU_TITRE = { 1: 'Reconnaissance des natures, niveau 1', 2: 'Reconnaissance des natures, niveau 2', 3: 'Natures et fonctions (groupe verbal), niveau 3' };
+/* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
+const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
   const A = analyseScores(scores);
   const E = playerProfile?.enfant || {};
@@ -1306,7 +1539,7 @@ function buildBilan(scores) {
   const line = (label, pct) => `<div class="rp-line"><span class="rp-line-label">${esc(label)}</span>${bar(pct)}<span class="rp-line-pct">${pct} %</span></div>`;
   const cards = A.niveaux.map((r) => `
     <div class="rp-card">
-      <div class="rp-card-title">Reconnaissance des natures, niveau ${r.n}</div>
+      <div class="rp-card-title">${esc(NIVEAU_TITRE[r.n])}</div>
       <div class="rp-card-big">${r.avg} %</div>
       <div class="rp-card-sub">moyenne sur ${r.count} partie${r.count > 1 ? 's' : ''}</div>
       ${r.diff !== undefined ? `<div class="rp-card-trend ${r.diff > 0 ? 'up' : r.diff < 0 ? 'down' : ''}">${r.diff > 0 ? '▲ +' + r.diff : r.diff < 0 ? '▼ ' + r.diff : '= stable'} pts<br><span>${r.early} % au début → ${r.recent} % récemment</span></div>` : ''}
@@ -1316,13 +1549,14 @@ function buildBilan(scores) {
   const defis = [];
   aRevoir.slice(0, 2).forEach((x) => defis.push(`Revoir ${NATURE_BY_CODE[x.code]?.article || x.nom} (${x.pct} %) : relis sa définition dans la fiche 📖, puis rejoue.`));
   A.confusions.slice(0, 2).forEach((c) => defis.push(`Ne pas confondre ${c.bonne} et ${c.choisie} (${c.n} fois).`));
+  if (!defis.length && A.niveaux.some((r) => r.n === 2) && !A.niveaux.some((r) => r.n === 3)) defis.push('Essayer le jeu des fonctions : trouver la nature, puis la fonction des mots dans le groupe verbal !');
   if (!defis.length) defis.push(A.niveaux.some((r) => r.n === 2) ? 'Continuer à jouer au niveau 2 pour connaître par cœur toutes les sortes de déterminants et de pronoms.' : 'Essayer le niveau 2 : les sept sortes de déterminants et les sept sortes de pronoms t\'attendent !');
   const intro = taux >= 80 ? `Bravo ! Tu as trouvé ${taux} % des réponses du premier coup : tu connais très bien les natures des mots.`
     : taux >= 60 ? `Tu as trouvé ${taux} % des réponses du premier coup : c'est un beau travail. Continue, les natures deviennent de plus en plus faciles à reconnaître.`
     : `Tu as trouvé ${taux} % des réponses du premier coup. Chaque partie t'aide à mieux reconnaître les mots : l'important est de continuer.`;
   const natHtml = A.parNature.length ? `<div class="rp-cols">
-      <div class="rp-col"><h3>Les natures bien connues</h3>${reussies.length ? reussies.slice(0, 8).map((x) => line(x.nom, x.pct)).join('') : '<p class="rp-empty">Bientôt !</p>'}</div>
-      <div class="rp-col"><h3>Les natures à revoir</h3>${aRevoir.length ? aRevoir.slice(0, 8).map((x) => line(x.nom, x.pct)).join('') : '<p class="rp-empty">Aucune : bravo !</p>'}</div>
+      <div class="rp-col"><h3>Ce que tu connais bien</h3>${reussies.length ? reussies.slice(0, 8).map((x) => line(x.nom, x.pct)).join('') : '<p class="rp-empty">Bientôt !</p>'}</div>
+      <div class="rp-col"><h3>Ce qu'il faut revoir</h3>${aRevoir.length ? aRevoir.slice(0, 8).map((x) => line(x.nom, x.pct)).join('') : '<p class="rp-empty">Aucune : bravo !</p>'}</div>
     </div>` : '';
   const confHtml = A.confusions.length ? `<section class="rp-section"><h3>Les confusions les plus fréquentes</h3><ul class="rp-list">${A.confusions.map((c) => `<li>Réponse « ${esc(c.choisie)} » au lieu de « ${esc(c.bonne)} » : ${c.n} fois</li>`).join('')}</ul></section>` : '';
   return `${bilanCorners()}
@@ -1362,12 +1596,12 @@ function bilanMessage(scores) {
   const E = playerProfile?.enfant?.prenom || '';
   const taux = A.questions ? Math.round((A.bonnes / A.questions) * 100) : 0;
   const l = [`Mon bilan sur MNEMOGRAM : ${A.list.length} partie${A.list.length > 1 ? 's' : ''}, ${taux} % des mots trouvés du premier coup.`, ''];
-  A.niveaux.forEach((r) => l.push(`- Reconnaissance des natures, niveau ${r.n} : ${r.avg} % en moyenne sur ${r.count} partie${r.count > 1 ? 's' : ''}${r.diff !== undefined ? ` (${r.early} % au début, ${r.recent} % récemment)` : ''}.`));
+  A.niveaux.forEach((r) => l.push(`- ${NIVEAU_TITRE[r.n]} : ${r.avg} % en moyenne sur ${r.count} partie${r.count > 1 ? 's' : ''}${r.diff !== undefined ? ` (${r.early} % au début, ${r.recent} % récemment)` : ''}.`));
   const aRevoir = A.parNature.filter((x) => x.pct < 75).sort((a, b) => a.pct - b.pct).slice(0, 4);
   if (aRevoir.length) { l.push('', 'À revoir :'); aRevoir.forEach((x) => l.push(`- ${x.nom} : ${x.pct} %`)); }
-  if (A.confusions.length) { l.push('', 'Mes confusions les plus fréquentes :'); A.confusions.forEach((c) => l.push(`- j'ai répondu ${c.choisie} au lieu d'${c.bonne} (${c.n} fois)`)); }
+  if (A.confusions.length) { l.push('', 'Mes confusions les plus fréquentes :'); A.confusions.forEach((c) => l.push(`- j'ai répondu ${c.choisie} au lieu ${auLieuDe(c.bonne)} (${c.n} fois)`)); }
   l.push('', 'Mes dernières parties :');
-  A.list.slice(-10).reverse().forEach((r) => { const d = new Date(r.date); l.push(`- ${isNaN(d) ? '' : d.toLocaleDateString('fr-FR') + ' : '}${scoreType(r.jeu)}, ${r.score} / ${r.total}`); });
+  A.list.slice(-10).reverse().forEach((r) => { const d = new Date(r.date); l.push(`- ${isNaN(d) ? '' : d.toLocaleDateString('fr-FR') + ' : '}${scoreType(r.jeu)}, ${fmtPts(r.score)} / ${r.total}`); });
   l.push('', E, 'https://stassi-tech.github.io/mnemogram/');
   return l.join('\n');
 }
@@ -1388,7 +1622,7 @@ function scoresMessage(scores) {
   const E = playerProfile?.enfant?.prenom || '';
   const list = scores.slice(0, 10);
   const l = ['Mes derniers scores sur MNEMOGRAM :', ''];
-  list.forEach((r) => { const d = new Date(r.date); l.push(`- ${isNaN(d) ? '' : d.toLocaleDateString('fr-FR') + ' : '}${scoreType(r.jeu)}, ${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}`); });
+  list.forEach((r) => { const d = new Date(r.date); l.push(`- ${isNaN(d) ? '' : d.toLocaleDateString('fr-FR') + ' : '}${scoreType(r.jeu)}, ${niveauOf(r) === 3 ? `${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total}` : `${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}`}`); });
   const last = list[0];
   if (last && (last.erreurs || []).length) {
     l.push('', 'Mes erreurs à la dernière partie :');
@@ -1574,6 +1808,7 @@ loadFiche();
 
 $('open-natures').addEventListener('click', () => openGame('natures'));
 $('open-natures2').addEventListener('click', () => openGame('natures2'));
+$('open-fonctions').addEventListener('click', () => openGame('fonctions'));
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {

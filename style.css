@@ -432,3 +432,35 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 @media (max-width:640px) { .topbar-zone-center { gap:6px; } .global-topbar-button { width:26px; height:26px; font-size:.8rem; } }
 /* v14 : la ligne « Question 1 / 20 » posée sur un bandeau, pour rester lisible sur tous les décors */
 .quiz-panel .progress-row { background:var(--paper); padding:7px 12px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,.12); text-shadow:none !important; }
+
+/* ============================================================
+   v15 : JEU 3 — natures (vert) puis fonctions (rouge : la couleur des fonctions)
+   ============================================================ */
+:root { --fn-red:#c0392b; --fn-red-dark:#8e2a1f; }
+.answer-columns { display:block; }
+.game3 .quiz-grid { grid-template-columns:minmax(0,1fr) minmax(0,1.25fr); }
+.game3 .answer-columns { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:start; }
+.gone { display:none !important; }
+.fonction-title { color:var(--fn-red); }
+.fonction-column .nature-buttons { display:grid; gap:6px; }
+.nature-button.fonction-button { background:var(--fn-red); border-color:var(--fn-red-dark); }
+@media (hover:hover) { .nature-button.fonction-button:hover:not(:disabled) { background:var(--fn-red-dark); } }
+/* dans le jeu 3, une mauvaise réponse devient grise et barrée (le rouge est réservé aux fonctions) */
+.game3 .nature-button.wrong { background:#7d7d7d; border-color:#5a5a5a; text-decoration:line-through; opacity:.85; }
+.nature-button.fonction-button.correct { background:var(--fn-red); border-color:var(--fn-red-dark); box-shadow:0 0 0 3px #ffe066; }
+.fonction-column { animation:fnApparait .35s ease-out; }
+@keyframes fnApparait { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:none; } }
+.verdict-square.half { background:linear-gradient(135deg, var(--ok) 50%, var(--wrong) 50%); }
+.correction-details .fn-red { color:var(--fn-red); }
+.correction-details .formule { display:inline-block; margin:4px 0; padding:2px 8px; border-radius:4px; background:#fbe9e7; color:var(--fn-red-dark); font-weight:700; }
+#open-fonctions { grid-column:1 / -1; }
+@media (max-width:900px) { .home-games-row { grid-template-columns:1fr; } .game3 .quiz-grid { grid-template-columns:1fr; } }
+@media (max-width:520px) { .game3 .answer-columns { gap:8px; } .game3 .nature-button { font-size:.78rem; padding:9px 6px; } }
+/* les deux fiches, en onglets au-dessus de la fiche */
+.fiche-tabs { display:flex; gap:6px; padding:10px 56px 0 14px; background:var(--paper); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.fiche-tab { font:inherit; font-family:Arial,sans-serif; font-weight:700; font-size:.88rem; padding:8px 12px; border:1px solid var(--border); border-bottom:0; border-radius:6px 6px 0 0; background:#f1ece2; color:#65707d; cursor:pointer; }
+.fiche-tab.on { background:#fffdf9; color:#24313f; }
+.nature-button.fonction-button.correct::before { content:"✓ "; }
+.game3 .nature-button.fonction-button.wrong { background:#7d7d7d; border-color:#5a5a5a; }
+.game3 .verdict-square.wrong { background:#7d7d7d; }
+.game3 .verdict-square.half { background:linear-gradient(135deg, var(--ok) 50%, #7d7d7d 50%); }
