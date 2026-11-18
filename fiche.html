@@ -3,43 +3,24 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MNEMOGRAM — La fiche des natures</title>
+<title>MNEMOGRAM — Les natures de mots</title>
 <!--
-  ================================================================================
-  LA FICHE DES NATURES DE MNEMOGRAM (fiche v1)
-  ================================================================================
-  Cette page est le référentiel du jeu. Vous pouvez la modifier librement, avec le
-  Bloc-notes ou n'importe quel éditeur de texte, puis la redéposer sur GitHub à côté
-  de index.html (même nom : fiche.html).
-
-  Elle sert à deux choses :
-   1. Elle s'affiche quand on clique sur 📖 dans le bandeau du jeu.
-   2. Le jeu y lit, pour chaque nature, la phrase « explication » : c'est elle qui
-      s'affiche sous les boutons verts après une réponse, et que la voix lit.
-      Si vous changez une explication ici, le jeu dit la nouvelle explication.
-
-  Pour modifier sans rien casser :
-   - Changez seulement le TEXTE entre les balises, par exemple entre
-     <p class="explication"> et </p>.
-   - Ne touchez pas à  data-code="..."  : c'est ce qui relie chaque bloc à son bouton
-     dans le jeu (N = nom commun, VE = verbe d'état, VA = verbe d'action,
-     A = adjectif qualificatif, D = déterminant, Pr = pronom, NP = nom propre,
-     Av = adverbe, P = préposition, CC = conj. de coordination,
-     CS = conj. de subordination, I = interjection, O = onomatopée).
-   - Vous pouvez ajouter des paragraphes libres (<p>…</p>) où vous voulez :
-     le jeu ne lit que les lignes « explication ».
-   - Pour la voix : pas de tiret entre deux nombres, et écrire les mots en entier.
-  ================================================================================
+  LA FICHE DES NATURES DE MNEMOGRAM
+  Fichier fabriqué par l'atelier de textes MNEMOGRAM (outils\atelier-textes-mnemogram.html).
+  Pour la modifier, utilisez l'atelier plutôt que le Bloc-notes : il refait ce fichier à chaque changement.
+  Le jeu lit, pour chaque nature (data-code), la ligne « explication » : c'est ce qui s'affiche sous les
+  boutons verts et ce que dit la voix.
 -->
 <style>
   body { margin:0; padding:24px 28px 40px; font-family:Arial,sans-serif; color:#24313f; background:#fffdf9; line-height:1.45; }
   h1 { font-family:Georgia,serif; color:#7a5c35; font-size:1.5rem; margin:0 0 6px; }
-  .intro { color:#65707d; font-size:.92rem; margin:0 0 18px; }
+  .intro { color:#65707d; font-size:.92rem; margin:0 0 18px; white-space:pre-line; }
   h2 { font-size:.78rem; letter-spacing:.13em; text-transform:uppercase; color:#9c7a4a; margin:22px 0 8px; }
   .nature { display:grid; grid-template-columns:220px 1fr; gap:4px 16px; padding:10px 0; border-top:1px solid #ded8cc; }
-  .nature .nom { grid-row:span 2; margin:0; font-size:1rem; color:#21693a; }
+  .nature .nom { grid-row:span 3; margin:0; font-size:1rem; color:#21693a; }
   .nature .exemples { margin:0; font-style:italic; color:#65707d; font-size:.88rem; }
   .nature .explication { margin:0; font-size:.95rem; }
+  .nature .remarque { margin:0; font-size:.88rem; color:#7a5c35; white-space:pre-line; }
   @media (max-width:600px) { body { padding:16px; } .nature { grid-template-columns:1fr; } .nature .nom { grid-row:auto; } }
 </style>
 </head>
@@ -48,85 +29,74 @@
   <p class="intro">D'après la fiche « Classe et fonctions des mots ». La nature d'un mot, c'est sa classe : nom, verbe, adjectif… Elle ne change pas, quelle que soit la phrase.</p>
 
   <h2>Les mots variables</h2>
-    <!-- ===== Nom commun ===== -->
     <section class="nature" data-code="N">
       <h3 class="nom">Nom commun</h3>
-      <p class="exemples">un paysage, une couleur, une chaise, une odeur, l&#x27;amitié</p>
-      <p class="explication">Le nom commun désigne une personne, un animal, une chose ou une idée : un chat, une chaise, l&#x27;amitié. Il a souvent un déterminant devant lui.</p>
+      <p class="exemples">paysage, couleur, chaise, odeur, amitié</p>
+      <p class="explication">Le nom commun désigne une personne, un animal, une chose perceptible par les cinq sens: on doit qu'il est concret: chat,  chaise, école... Il peut aussi désigner une idée ou un sentiment, on dit qu'il est abstrait: amitié, justice.... Le nom commun a très souvent un déterminant devant lui.</p>
     </section>
-    <!-- ===== Verbe d&#x27;état ===== -->
     <section class="nature" data-code="VE">
-      <h3 class="nom">Verbe d&#x27;état</h3>
-      <p class="exemples">être, paraître, sembler, devenir, rester, avoir l&#x27;air</p>
-      <p class="explication">Le verbe d&#x27;état dit comment est quelqu&#x27;un ou quelque chose : être, paraître, sembler, devenir, rester.</p>
+      <h3 class="nom">Verbe d'état</h3>
+      <p class="exemples">être, paraître, sembler, devenir, rester, avoir l'air</p>
+      <p class="explication">Le verbe d'état sert à décrire quelqu'un ou quelque chose. Ils sont peu nombreux : être, paraître, sembler, devenir, rester, avoir l'air de..</p>
     </section>
-    <!-- ===== Verbe d&#x27;action ===== -->
     <section class="nature" data-code="VA">
-      <h3 class="nom">Verbe d&#x27;action</h3>
+      <h3 class="nom">Verbe d'action</h3>
       <p class="exemples">manger, tomber, courir</p>
-      <p class="explication">Le verbe d&#x27;action dit ce que l&#x27;on fait : manger, courir, tomber, chanter.</p>
+      <p class="explication">Le verbe d'action montre un événement au centre de la phrase: manger, courir, tomber, chanter.</p>
     </section>
-    <!-- ===== Adjectif qualificatif ===== -->
     <section class="nature" data-code="A">
       <h3 class="nom">Adjectif qualificatif</h3>
       <p class="exemples">maigre, grand, jaune, heureux</p>
-      <p class="explication">L&#x27;adjectif qualificatif décrit : il dit comment est quelqu&#x27;un ou quelque chose (grand, rouge, gentil).</p>
+      <p class="explication">L'adjectif qualificatif décrit quelqu'un ou quelque chose: grand, rouge, gentil...</p>
     </section>
-    <!-- ===== Déterminant ===== -->
     <section class="nature" data-code="D">
       <h3 class="nom">Déterminant</h3>
       <p class="exemples">le, la, les, un, une, des, mon, ma, ce, cette, deux, chaque, quel</p>
-      <p class="explication">Le déterminant se place devant le nom pour l&#x27;annoncer : le, une, mon, ce, des…</p>
+      <p class="explication">Le déterminant se place devant le nom pour le préciser : le, une, mon, ce, des…</p>
     </section>
-    <!-- ===== Pronom ===== -->
     <section class="nature" data-code="Pr">
       <h3 class="nom">Pronom</h3>
       <p class="exemples">je, tu, il, le, en, y, le mien, celui, chacun, qui, que</p>
-      <p class="explication">Le pronom remplace un nom, pour ne pas le répéter : je, tu, il, elle, nous, vous, ils…</p>
+      <p class="explication">Le pronom remplace un nom, pour ne pas le répéter : je, tu, il, elle, le mien, celle-ci, certains....</p>
     </section>
 
   <h2>Les mots invariables</h2>
-    <!-- ===== Nom propre ===== -->
     <section class="nature" data-code="NP">
       <h3 class="nom">Nom propre</h3>
       <p class="exemples">Léa, Paul, Paris, la Loire</p>
-      <p class="explication">Le nom propre est le nom particulier d&#x27;une personne, d&#x27;un animal ou d&#x27;un lieu : Léa, Paris, la Loire. Il commence toujours par une majuscule.</p>
+      <p class="explication">Le nom propre est le nom particulier d'une personne, d'un animal ou d'un lieu : Léa, Paris, la Loire. Il commence toujours par une majuscule.</p>
     </section>
-    <!-- ===== Adverbe ===== -->
     <section class="nature" data-code="Av">
       <h3 class="nom">Adverbe</h3>
       <p class="exemples">demain, joyeusement, bientôt, pourquoi, ne… pas, trop, assez, très</p>
-      <p class="explication">L&#x27;adverbe précise comment, quand ou combien : vite, demain, très, ne… pas.</p>
+      <p class="explication">L'adverbe précise donne une précision sur le déroulement de l'action de la phrase ou sur une description: vite, demain, très, ne… pas.</p>
     </section>
-    <!-- ===== Préposition ===== -->
     <section class="nature" data-code="P">
       <h3 class="nom">Préposition</h3>
       <p class="exemples">à, de, dans, par, pour, sur, avec</p>
-      <p class="explication">La préposition est un petit mot qui sert de lien : à, de, dans, sur, avec, pour, sous…</p>
+      <p class="explication">La préposition est un petit mot qui sert de lien pour des compléments : à, de, dans, sur, avec, pour, sous…</p>
     </section>
-    <!-- ===== Conjonction de coordination ===== -->
     <section class="nature" data-code="CC">
       <h3 class="nom">Conjonction de coordination</h3>
       <p class="exemples">mais, ou, et, donc, or, ni, car</p>
       <p class="explication">La conjonction de coordination relie deux mots ou deux morceaux de phrase : mais, ou, et, donc, or, ni, car.</p>
     </section>
-    <!-- ===== Conjonction de subordination ===== -->
     <section class="nature" data-code="CS">
       <h3 class="nom">Conjonction de subordination</h3>
       <p class="exemples">que, quand, comme, si, lorsque, puisque, parce que</p>
-      <p class="explication">La conjonction de subordination ouvre une deuxième partie de phrase, reliée au verbe principal : quand, si, lorsque, comme, puisque…</p>
+      <p class="explication">La conjonction de subordination ouvre une deuxième partie de phrase, reliée au verbe principal : quand, comme, si, que et tous les composés de que: lorsque, dès que...…</p>
     </section>
-    <!-- ===== Interjection ===== -->
     <section class="nature" data-code="I">
       <h3 class="nom">Interjection</h3>
       <p class="exemples">aïe ! oh ! bravo ! chut ! ouf !</p>
-      <p class="explication">L&#x27;interjection est un cri qui exprime un sentiment : oh ! aïe ! bravo ! ouf !</p>
+      <p class="explication">L'interjection est un cri qui exprime un sentiment : oh ! aïe ! ouf !</p>
     </section>
-    <!-- ===== Onomatopée ===== -->
     <section class="nature" data-code="O">
       <h3 class="nom">Onomatopée</h3>
       <p class="exemples">crac ! boum ! miaou ! atchoum !</p>
-      <p class="explication">L&#x27;onomatopée est un mot qui imite un bruit : boum ! crac ! miaou ! tic-tac !</p>
+      <p class="explication">L'onomatopée est un mot qui imite un bruit : boum ! crac ! miaou ! tic-tac !</p>
     </section>
+
+<script type="application/json" id="fiche-data">{"titre":"Les natures de mots","intro":"D'après la fiche « Classe et fonctions des mots ». La nature d'un mot, c'est sa classe : nom, verbe, adjectif… Elle ne change pas, quelle que soit la phrase.","groupes":{"variables":"Les mots variables","invariables":"Les mots invariables"},"natures":[{"code":"N","groupe":"variables","nom":"Nom commun","exemples":"paysage, couleur, chaise, odeur, amitié","explication":"Le nom commun désigne une personne, un animal, une chose perceptible par les cinq sens: on doit qu'il est concret: chat,  chaise, école... Il peut aussi désigner une idée ou un sentiment, on dit qu'il est abstrait: amitié, justice.... Le nom commun a très souvent un déterminant devant lui.","remarque":""},{"code":"VE","groupe":"variables","nom":"Verbe d'état","exemples":"être, paraître, sembler, devenir, rester, avoir l'air","explication":"Le verbe d'état sert à décrire quelqu'un ou quelque chose. Ils sont peu nombreux : être, paraître, sembler, devenir, rester, avoir l'air de..","remarque":""},{"code":"VA","groupe":"variables","nom":"Verbe d'action","exemples":"manger, tomber, courir","explication":"Le verbe d'action montre un événement au centre de la phrase: manger, courir, tomber, chanter.","remarque":""},{"code":"A","groupe":"variables","nom":"Adjectif qualificatif","exemples":"maigre, grand, jaune, heureux","explication":"L'adjectif qualificatif décrit quelqu'un ou quelque chose: grand, rouge, gentil...","remarque":""},{"code":"D","groupe":"variables","nom":"Déterminant","exemples":"le, la, les, un, une, des, mon, ma, ce, cette, deux, chaque, quel","explication":"Le déterminant se place devant le nom pour le préciser : le, une, mon, ce, des…","remarque":""},{"code":"Pr","groupe":"variables","nom":"Pronom","exemples":"je, tu, il, le, en, y, le mien, celui, chacun, qui, que","explication":"Le pronom remplace un nom, pour ne pas le répéter : je, tu, il, elle, le mien, celle-ci, certains....","remarque":""},{"code":"NP","groupe":"invariables","nom":"Nom propre","exemples":"Léa, Paul, Paris, la Loire","explication":"Le nom propre est le nom particulier d'une personne, d'un animal ou d'un lieu : Léa, Paris, la Loire. Il commence toujours par une majuscule.","remarque":""},{"code":"Av","groupe":"invariables","nom":"Adverbe","exemples":"demain, joyeusement, bientôt, pourquoi, ne… pas, trop, assez, très","explication":"L'adverbe précise donne une précision sur le déroulement de l'action de la phrase ou sur une description: vite, demain, très, ne… pas.","remarque":""},{"code":"P","groupe":"invariables","nom":"Préposition","exemples":"à, de, dans, par, pour, sur, avec","explication":"La préposition est un petit mot qui sert de lien pour des compléments : à, de, dans, sur, avec, pour, sous…","remarque":""},{"code":"CC","groupe":"invariables","nom":"Conjonction de coordination","exemples":"mais, ou, et, donc, or, ni, car","explication":"La conjonction de coordination relie deux mots ou deux morceaux de phrase : mais, ou, et, donc, or, ni, car.","remarque":""},{"code":"CS","groupe":"invariables","nom":"Conjonction de subordination","exemples":"que, quand, comme, si, lorsque, puisque, parce que","explication":"La conjonction de subordination ouvre une deuxième partie de phrase, reliée au verbe principal : quand, comme, si, que et tous les composés de que: lorsque, dès que...…","remarque":""},{"code":"I","groupe":"invariables","nom":"Interjection","exemples":"aïe ! oh ! bravo ! chut ! ouf !","explication":"L'interjection est un cri qui exprime un sentiment : oh ! aïe ! ouf !","remarque":""},{"code":"O","groupe":"invariables","nom":"Onomatopée","exemples":"crac ! boum ! miaou ! atchoum !","explication":"L'onomatopée est un mot qui imite un bruit : boum ! crac ! miaou ! tic-tac !","remarque":""}]}</script>
 </body>
 </html>
