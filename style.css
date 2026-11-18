@@ -332,3 +332,27 @@ h1,h2,h3,p { margin-top:0; }
 .profile-send { margin-top:14px; display:grid; gap:10px; }
 .profile-send:empty { display:none; }
 .bilan-button { justify-self:start; }
+
+/* ---------- v12 : options du compte, envois distincts, mentions légales ---------- */
+.account-option { display:flex !important; align-items:flex-start; gap:10px !important; font-weight:400 !important; line-height:1.45; background:#f7f1e4; border:1px solid var(--border); border-radius:6px; padding:10px 12px; }
+.account-option input { margin-top:3px; flex:0 0 auto; width:18px; height:18px; }
+.account-option b { color:var(--ink); }
+.send-block { display:grid; gap:8px; padding:12px 14px; background:#f3e6c9; border-radius:8px; }
+.send-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.send-row span { flex:1 1 190px; font-family:Arial,sans-serif; font-weight:700; font-size:.9rem; }
+.send-row button { padding:9px 13px; font-size:.86rem; }
+.legal-card { max-width:620px; font-family:Arial,sans-serif; font-size:.92rem; line-height:1.5; }
+.legal-card p { margin:0 0 10px; }
+.copyright-notice .link-label { font-size:.75rem; }
+.adultes-list.no-envoi .f-email-label { display:none; }
+
+/* ---------- v13 : Mes données ---------- */
+.mes-donnees { margin-top:16px; border-top:1px solid var(--border); padding-top:10px; font-family:Arial,sans-serif; font-size:.88rem; }
+.mes-donnees summary { cursor:pointer; color:var(--muted); }
+.mes-donnees-body { display:grid; gap:8px; margin-top:10px; }
+.mes-donnees-body .secondary-button, .mes-donnees-body .danger-button { justify-self:start; padding:9px 13px; font-size:.86rem; }
+.danger-button { display:inline-flex; align-items:center; justify-content:center; cursor:pointer; border-radius:5px; border:1px solid var(--wrong); background:#fff; color:var(--wrong); font-family:Arial,sans-serif; font-weight:700; }
+@media (hover:hover) { .danger-button:hover { background:var(--wrong); color:#fff; } }
+.data-del-account-box { display:grid; gap:8px; padding:10px 12px; background:#fdecea; border:1px solid #f0b4ac; border-radius:6px; }
+.data-del-account-box p { margin:0; color:#8a1f12; line-height:1.4; }
+.data-del-account-box input { padding:9px; border:1px solid #cfc8bc; border-radius:4px; font:inherit; }

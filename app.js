@@ -5,14 +5,14 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v11';
+const APP_VERSION = 'v13';
 
 const $ = (id) => document.getElementById(id);
 
 /* ------------------------------------------------------------
-   LES DIX NATURES (d'après la fiche « Classe et fonctions des mots »)
+   LES DIX NATURES (d'après la fiche « Classe et fonctions des mots »)
    5 natures de mots variables, 5 natures de mots invariables.
-   « explication » : une phrase simple pour un enfant de 7 ans, tirée de la colonne « rôle » de la fiche.
+   « explication » : une phrase simple pour un enfant de 7 ans, tirée de la colonne « rôle » de la fiche.
    ------------------------------------------------------------ */
 const NATURES = [
   { code: 'N',  nom: 'Nom commun', article: 'un nom commun', groupe: 'variables',
@@ -55,8 +55,8 @@ const NATURES = [
     explication: "L'onomatopée est un mot qui imite un bruit : boum ! crac ! miaou ! tic-tac !",
     exemples: 'crac ! boum ! miaou ! atchoum !' },
 ];
-/* v9 : JEU 2 — les sept natures de déterminants et les sept natures de pronoms de la fiche « Classe et fonctions
-   des mots ». « court » = le nom écrit sur le petit bouton (le groupe « Déterminant » ou « Pronom » est écrit au-dessus). */
+/* v9 : JEU 2 — les sept natures de déterminants et les sept natures de pronoms de la fiche « Classe et fonctions
+   des mots ». « court » = le nom écrit sur le petit bouton (le groupe « Déterminant » ou « Pronom » est écrit au-dessus). */
 const NATURES_DETAIL = [
   { code: 'D.def', court: 'Article défini', nom: 'Article défini', article: 'un article défini', groupe: 'details',
     explication: "L'article défini se place devant un nom précis, que l'on connaît : *le*, *la*, *les*, *l'*.", exemples: "le, la, les, l'" },
@@ -101,8 +101,8 @@ const BUTTON_ROWS_2 = {
   invariables: [['NP'], ['Av'], ['P'], ['CC'], ['CS'], ['I', 'O']],
 };
 const NATURE_BY_CODE = Object.fromEntries([...NATURES, ...NATURES_DETAIL].map((n) => [n.code, n]));
-/* Les deux jeux. « priorite » : natures demandées au moins une fois par partie ; le reste des 20 questions
-   est tiré au hasard parmi « reste ». « reponse » : la nature attendue pour une étiquette de mot. */
+/* Les deux jeux. « priorite » : natures demandées au moins une fois par partie ; le reste des 20 questions
+   est tiré au hasard parmi « reste ». « reponse » : la nature attendue pour une étiquette de mot. */
 const GAMES = {
   natures: { titre: 'Reconnaissance des natures de mots 1', type: 'Reconnaissance des natures, niveau 1', rows: BUTTON_ROWS,
     priorite: NATURES.map((n) => n.code), reste: NATURES.map((n) => n.code),
@@ -123,7 +123,7 @@ const answerCodeOf = (tag) => currentGame.reponse(tag);
 
 /* ------------------------------------------------------------
    LES PHRASES
-   Chaque mot est suivi de « / » et du code de sa nature. La ponctuation reste seule.
+   Chaque mot est suivi de « / » et du code de sa nature. La ponctuation reste seule.
    Un mot qui finit par une apostrophe (l', j', n') se colle au mot suivant.
    Codes : N nom commun, VE verbe d'état, VA verbe d'action, A adjectif qualificatif,
            D.def / D.ind (articles défini et indéfini), D.pos, D.dem, D.num, D.idf, D.int (déterminants possessif,
@@ -132,9 +132,9 @@ const answerCodeOf = (tag) => currentGame.reponse(tag);
            numéral, indéfini, interrogatif, relatif),
            NP nom propre, Av adverbe, P préposition, CC conj. de coordination, CS conj. de subordination,
            I interjection, O onomatopée.
-   Dans le jeu 1, tous les D.xxx comptent comme « déterminant » et tous les Pr.xxx comme « pronom ».
-   v9 : un « _ » relie les mots d'un même groupe (le_mien = « le mien ») ; un mot qui commence par « - » se
-   colle au précédent (préfères -tu = « préfères-tu »).
+   Dans le jeu 1, tous les D.xxx comptent comme « déterminant » et tous les Pr.xxx comme « pronom ».
+   v9 : un « _ » relie les mots d'un même groupe (le_mien = « le mien ») ; un mot qui commence par « - » se
+   colle au précédent (préfères -tu = « préfères-tu »).
    ------------------------------------------------------------ */
 const PHRASES = [
   'Le/D.def chat/N de/P mon/D.pos voisin/N dort/VA tranquillement/Av sur/P la/D.def terrasse/N .',
@@ -326,11 +326,11 @@ function phraseTexte(mots) {
    LES QUATRE PERSONNAGES (dessins originaux, dans l'esprit d'une école de sorciers)
    ------------------------------------------------------------ */
 /* Trois sortes de messages par personnage :
-   - « messages » : pour tout le monde (joueur sans compte) ;
-   - « perso » : avec le prénom de l'enfant ({E}) ;
-   - « famille » : avec un adulte de la fiche ({adulte} = « ton papa Marc », {Adulte} = « Ton papa Marc »,
+   - « messages » : pour tout le monde (joueur sans compte) ;
+   - « perso » : avec le prénom de l'enfant ({E}) ;
+   - « famille » : avec un adulte de la fiche ({adulte} = « ton papa Marc », {Adulte} = « Ton papa Marc »,
      {fier} = fier / fière selon l'adulte).
-   {nature} / {Nature} = « un nom », « une préposition »… */
+   {nature} / {Nature} = « un nom », « une préposition »… */
 const CHARACTERS = {
   bonaccord: {
     nom: 'Maître Bonaccord', camp: 'good', voix: 'homme',
@@ -535,11 +535,11 @@ function pickFrenchVoice(prefer) {
 }
 /* ------------------------------------------------------------
    PRONONCIATION (v6) : même principe que Mnemart et son atelier phonétique.
-   PRON_COMMUNE : écritures valables pour toutes les voix (« sœur » → « seur », sinon certaines voix disent « sourd »).
+   PRON_COMMUNE : écritures valables pour toutes les voix (« sœur » → « seur », sinon certaines voix disent « sourd »).
    PRON_PAR_VOIX : écritures propres à une voix, repérée par un morceau de son nom ; '' = lire le mot tel quel.
    Point de départ : les réglages de l'atelier de Mnemart pour les mots que MNEMOGRAM utilise. Les exports de
-   l'atelier MNEMOGRAM (bouton « Copier pour Claude ») viendront compléter ces deux tables.
-   Un nom commun se dit pareil au singulier et au pluriel : régler « sœur » règle aussi « sœurs ».
+   l'atelier MNEMOGRAM (bouton « Copier pour Claude ») viendront compléter ces deux tables.
+   Un nom commun se dit pareil au singulier et au pluriel : régler « sœur » règle aussi « sœurs ».
    ------------------------------------------------------------ */
 const PRON_COMMUNE = {
   'sœur': 'seur',
@@ -613,7 +613,7 @@ function showPanel(name) {
   window.scrollTo(0, 0);
 }
 
-/* Mosaïque de l'accueil : les 12 images du dossier « Allégories grammaire » (4 × 3 sur ordinateur,
+/* Mosaïque de l'accueil : les 12 images du dossier « Allégories grammaire » (4 × 3 sur ordinateur,
    3 × 4 sur smartphone), floutées et pâlies, nettes et agrandies au survol, comme dans Mnemart. */
 /* v8 : les cases dont l'image n'est pas en ligne (Palazzo Trinci, Le Bon usage, Grevisse) reprennent des images
    déjà présentes ailleurs : la fresque de l'accueil, et deux images de la mosaïque, placées loin de leur double. */
@@ -668,7 +668,7 @@ function buildQuestions() {
       .filter((c) => c.idx.length);
     const libres = candidats.filter((c) => !used.has(c.p));
     if (libres.length) candidats = libres;
-    /* v9 : dans le jeu 2, une phrase « piège » (où l'on trouve aussi la nature qu'on confond avec celle-ci :
+    /* v9 : dans le jeu 2, une phrase « piège » (où l'on trouve aussi la nature qu'on confond avec celle-ci :
        mon / le mien, ce / celui-ci, le article / le pronom…) a trois fois plus de chances d'être choisie. */
     const piege = currentGame.pieges && currentGame.pieges[code];
     if (piege) candidats = candidats.flatMap((c) => (PARSED[c.p].some((m) => piege.includes(m.tag)) ? [c, c, c] : [c]));
@@ -729,6 +729,8 @@ function showQuestion() {
 }
 
 const recentMessages = [];
+/* v12 : espaces insécables à la française (guillemets, ! ? : ;), pour qu'un « » ou un ! ne passe jamais seul à la ligne. */
+const nbspFr = (h) => String(h).replace(/« /g, '«\u00a0').replace(/ »/g, '\u00a0»').replace(/ ([!?:;])/g, '\u00a0$1');
 const capitalize = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 /* Choisit un message du personnage : avec une fiche d'enfant, les messages personnalisés reviennent
    souvent (environ 3 fois sur 4), mais pas toujours, pour ne pas lasser. Un adulte différent de la fiche
@@ -753,6 +755,12 @@ function fillMessage(tpl, nature, adulte) {
   return msg;
 }
 function showCharacter(camp, nature) {
+  /* v12 : option « Les sorciers encouragent le joueur » décochée : pas de sorcier ; la voix lit seulement l'explication. */
+  if (!optSorciers(playerProfile)) {
+    $('nat-character-stage').innerHTML = '';
+    if (!$('nat-correction').classList.contains('hidden')) speak(explanationSpoken(), 'femme', 'phrase');
+    return;
+  }
   const ids = Object.keys(CHARACTERS).filter((k) => CHARACTERS[k].camp === camp);
   const id = pick(ids);
   const ch = CHARACTERS[id];
@@ -767,10 +775,10 @@ function showCharacter(camp, nature) {
   recentMessages.push(msg); if (recentMessages.length > 4) recentMessages.shift();
   const stage = $('nat-character-stage');
   stage.className = `character-stage ${camp}`;
-  stage.innerHTML = `<div class="bubble${photo ? ' has-photo' : ''}">${photo ? `<img class="bubble-photo" src="${photo}" alt="" />` : ''}<div><span class="who">${ch.nom}</span>${msg}</div></div>${characterSvg(id)}`;
+  stage.innerHTML = `<div class="bubble${photo ? ' has-photo' : ''}">${photo ? `<img class="bubble-photo" src="${photo}" alt="" />` : ''}<div><span class="who">${ch.nom}</span>${nbspFr(msg)}</div></div>${characterSvg(id)}`;
   speak(msg, ch.voix, camp);
   /* v6 : quand l'explication s'affiche sous les boutons (bonne réponse, ou deuxième erreur), la voix la lit
-     juste après la bulle, à débit normal : « Hourra est une interjection. L'interjection est un cri… » */
+     juste après la bulle, à débit normal : « Hourra est une interjection. L'interjection est un cri… » */
   if (!$('nat-correction').classList.contains('hidden')) speak(explanationSpoken(), 'femme', 'phrase', true);
 }
 function explanationSpoken() {
@@ -811,7 +819,7 @@ function finishQuestion(reussi, nature, mot) {
     if (!b.classList.contains('correct') && !b.classList.contains('wrong')) b.classList.add('faded');
   });
   document.querySelector('.sentence .w.target')?.classList.add('found');
-  $('nat-correction-details').innerHTML = `« <strong>${mot.texte}</strong> » est ${nature.article}.<br>${nature.explicationHtml || esc(nature.explication)}`;
+  $('nat-correction-details').innerHTML = nbspFr(`« <strong>${mot.texte}</strong> » est ${nature.article}.<br>${nature.explicationHtml || esc(nature.explication)}`);
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${reussi ? 'correct' : 'wrong'}`;
   $('nat-next-button').textContent = game.index + 1 < game.questions.length ? 'Suivant →' : 'Voir mon résultat →';
@@ -839,21 +847,23 @@ function showResults() {
   const parole = s === n ? (E ? `Un sans-faute, ${E} ! Tu es un génie de la grammaire !${famille}` : 'Un sans-faute ! Tu es un grand sorcier de la grammaire !')
     : content ? (E ? `Très bien, ${E} ! Encore une partie, et tu les connaîtras toutes par cœur.${famille}` : 'Très bien ! Encore une partie, et tu les connaîtras toutes par cœur.')
     : (E ? `Hum… Ce n'est pas encore ça, ${E}. Mais si tu rejoues, je suis sûr que tu feras mieux !` : 'Hum… Ce n\'est pas encore ça. Mais si tu rejoues, je suis sûr que tu feras mieux !');
-  const texte = `${CHARACTERS[id].nom} : « ${parole} »`;
+  const sorciers = optSorciers(playerProfile);
+  if (!sorciers) $('results-character').innerHTML = pe ? `<img class="results-photo" src="${pe}" alt="" />` : '';
+  const texte = sorciers ? `${CHARACTERS[id].nom} : « ${parole} »` : (s === n ? 'Un sans-faute : bravo !' : content ? 'Très bien : encore une partie, et vous les connaîtrez toutes.' : 'Rejouez : chaque partie aide à mieux les reconnaître.');
   $('results-text').textContent = texte;
   lastResult = { jeu: currentGame.type, niveau: currentGame === GAMES.natures2 ? 2 : 1, score: s, total: n, erreurs: game.erreurs.slice(), parNature: game.parNature, date: new Date().toISOString() };
   saveScore(lastResult);
   renderSendBox();
   showPanel('results');
-  speak(texte.replace(/^[^:]+: /, '').replace(/[«»]/g, ''), CHARACTERS[id].voix, content ? 'good' : 'bad');
+  if (sorciers) speak(texte.replace(/^[^:]+: /, '').replace(/[«»]/g, ''), CHARACTERS[id].voix, content ? 'good' : 'bad');
 }
 
 /* ------------------------------------------------------------
    SCORES : enregistrés dans le compte, et envoyés par e-mail à la famille
-   Pourquoi « par la messagerie de l'appareil » : le site est une simple page (pas de serveur à nous),
+   Pourquoi « par la messagerie de l'appareil » : le site est une simple page (pas de serveur à nous),
    il ne peut donc pas expédier un e-mail tout seul. Le bouton ouvre la messagerie de l'ordinateur ou
    du téléphone avec le message déjà écrit et les adresses déjà remplies : il ne reste qu'à appuyer sur
-   « Envoyer ». Sur téléphone, le bouton « Partager » permet aussi de passer par SMS, WhatsApp, etc.
+   « Envoyer ». Sur téléphone, le bouton « Partager » permet aussi de passer par SMS, WhatsApp, etc.
    ------------------------------------------------------------ */
 let lastResult = null;
 async function saveScore(r) {
@@ -874,12 +884,12 @@ async function loadScores() {
 function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
-    `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
+    `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
     `Mon score : ${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}.`,
   ];
   if (r.erreurs.length) {
     lignes.push('', 'Mes erreurs :');
-    r.erreurs.forEach((e) => lignes.push(`- « ${e.mot} » (${e.phrase}) : c'était ${e.bonne}, et j'avais répondu ${e.choisie}.`));
+    r.erreurs.forEach((e) => lignes.push(`- « ${e.mot} » (${e.phrase}) : c'était ${e.bonne}, et j'avais répondu ${e.choisie}.`));
   } else lignes.push('', 'Aucune erreur !');
   lignes.push('', E ? `${E}` : '', 'https://stassi-tech.github.io/mnemogram/');
   return lignes.join('\n');
@@ -887,7 +897,8 @@ function scoreMessage(r) {
 function renderSendBox() {
   const box = $('results-send');
   if (!currentUser) { box.innerHTML = '<p class="send-hint">Avec un compte, tu pourras envoyer ton score à ta famille.</p>'; return; }
-  box.innerHTML = sendBoxHtml('esend', 'Envoyer mon score à :').replace('dans ta fiche (ci-dessus)', 'dans « Mon compte » 👤');
+  if (!optEnvoi(playerProfile)) { box.innerHTML = ''; return; }
+  box.innerHTML = sendBoxHtml('esend', 'Envoyer mon score à :').replace('dans ta fiche (ci-dessus)', 'dans « Mon compte » 👤');
   const E = playerProfile?.enfant?.prenom;
   wireSendBox('esend', () => `${E ? E + ' : ' : ''}mon score sur MNEMOGRAM (${lastResult.score}/${lastResult.total})`, async () => scoreMessage(lastResult));
 }
@@ -896,7 +907,7 @@ function renderSendBox() {
    FICHE DES NATURES (bouton 📖)
    ------------------------------------------------------------ */
 /* v7 : la fiche est un fichier à part, fiche.html, que Stéphane modifie librement. Elle s'affiche dans la
-   fenêtre 📖, et le jeu y lit les explications (lignes « explication ») : ce qui est écrit dans la fiche est ce
+   fenêtre 📖, et le jeu y lit les explications (lignes « explication ») : ce qui est écrit dans la fiche est ce
    qui s'affiche sous les boutons et ce que dit la voix. Si la fiche ne peut pas être lue (fichier ouvert
    directement sur l'ordinateur, réseau coupé), le jeu garde ses explications de départ. */
 async function loadFiche() {
@@ -939,7 +950,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "489975323244",
   appId: "1:489975323244:web:d7070100f3a0e63cec9649",
 };
-/* Lien de l'adulte avec l'enfant : « ton / ta » et accord de « fier / fière ». */
+/* Lien de l'adulte avec l'enfant : « ton / ta » et accord de « fier / fière ». */
 const LIENS = {
   papa: { label: 'Papa', ton: 'ton papa', f: false },
   maman: { label: 'Maman', ton: 'ta maman', f: true },
@@ -971,7 +982,7 @@ if (firebaseReady) {
   } catch (e) { console.warn('Firebase', e); }
 }
 
-/* Champs de la fiche (servent à l'inscription ET à « Mon compte ») */
+/* Champs de la fiche (servent à l'inscription ET à « Mon compte ») */
 function lienOptions(sel) {
   return '<option value="">— lien —</option>' + Object.entries(LIENS).map(([k, l]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${l.label}</option>`).join('');
 }
@@ -1040,7 +1051,7 @@ function adulteRowHtml(a, n) {
         <label>Prénom (facultatif)<input type="text" class="f-prenom" value="${esc(a?.prenom)}" autocomplete="off" /></label>
         <label>Nom<input type="text" class="f-nom" value="${esc(a?.nom)}" autocomplete="off" /></label>
       </div>
-      <label>E-mail (pour recevoir les scores, facultatif)<input type="email" class="f-email" value="${esc(a?.email)}" autocomplete="off" /></label>
+      <label class="f-email-label">E-mail (pour recevoir les résultats, facultatif)<input type="email" class="f-email" value="${esc(a?.email)}" autocomplete="off" /></label>
     </fieldset>`;
 }
 function profileFieldsHtml(prefix, p, withConsent) {
@@ -1056,12 +1067,23 @@ function profileFieldsHtml(prefix, p, withConsent) {
     </fieldset>
     <div class="adultes-list" id="${prefix}-adultes">${adultes.map((a, i) => adulteRowHtml(a, i + 1)).join('')}</div>
     <button type="button" class="secondary-button add-adulte" id="${prefix}-add-adulte">+ Ajouter un proche (papi, mamie, tonton…)</button>
-    <p class="account-intro" style="margin:0">Les prénoms servent à personnaliser les encouragements des sorciers (« Joseph, tu es un génie de la grammaire ! », « Ton papa Marc sera fier de toi ! »). Les adresses e-mail servent seulement à envoyer les scores.</p>
+    <!-- v12 : deux options à cocher -->
+    <label class="account-option"><input type="checkbox" id="${prefix}-opt-sorciers"${optSorciers(p) ? ' checked' : ''} />
+      <span><b>Les sorciers encouragent le joueur</b> (option plutôt réservée aux enfants).<br>Après chaque réponse, un sorcier apparaît ; les prénoms servent à personnaliser ses encouragements (« Joseph, tu es un génie de la grammaire ! », « Ton papa Marc sera fier de toi ! »).</span></label>
+    <label class="account-option"><input type="checkbox" id="${prefix}-opt-envoi"${optEnvoi(p) ? ' checked' : ''} />
+      <span><b>Envoyer les résultats par e-mail</b>.<br>Les adresses e-mail des proches servent seulement à leur envoyer les scores et le bilan de progression.</span></label>
     ${withConsent ? `<label class="account-consent"><input type="checkbox" id="${prefix}-consent" required /><span>Je suis le parent ou l'adulte responsable de cet enfant, et je crée ce compte pour lui.</span></label>` : ''}`;
 }
-/* Boutons « + Ajouter un proche » et « ✕ » (au moins un proche reste toujours). */
+/* v12 : options du compte. Sans compte, ou pour une fiche plus ancienne, les deux sont actives. */
+function optSorciers(p) { return p?.options?.sorciers !== false; }
+function optEnvoi(p) { return p?.options?.envoi !== false; }
+/* Boutons « + Ajouter un proche » et « ✕ » (au moins un proche reste toujours). */
 function wireAdultes(prefix) {
   const list = $(`${prefix}-adultes`);
+  /* v12 : sans l'option « Envoyer les résultats par e-mail », les cases e-mail des proches sont masquées. */
+  const opt = $(`${prefix}-opt-envoi`);
+  const syncMail = () => list.classList.toggle('no-envoi', !!opt && !opt.checked);
+  opt?.addEventListener('change', syncMail); syncMail();
   const renumber = () => list.querySelectorAll('[data-adulte-row]').forEach((row, i) => {
     row.querySelector('legend').textContent = i === 0 ? 'Un parent ou un proche (facultatif)' : 'Un autre proche';
     row.querySelector('.adulte-remove').classList.toggle('hidden', list.children.length === 1);
@@ -1088,11 +1110,12 @@ function readProfileFields(prefix) {
     photo: row.querySelector('.f-photo').value || '',
   })).filter((a) => a.prenom || a.lien || a.email);
   const photoEnfant = $(`${prefix}-enfant-box`)?.querySelector('.f-photo').value || '';
-  return { enfant: { prenom: v('enfant-prenom'), nom: v('enfant-nom'), photo: photoEnfant }, adultes };
+  return { enfant: { prenom: v('enfant-prenom'), nom: v('enfant-nom'), photo: photoEnfant }, adultes,
+    options: { sorciers: !!$(`${prefix}-opt-sorciers`)?.checked, envoi: !!$(`${prefix}-opt-envoi`)?.checked } };
 }
 function checkProfile(p) {
   if (!p.enfant.prenom) return 'Indiquez le prénom du joueur.';
-  /* v8 : les proches sont facultatifs, leur prénom aussi (« Ton papa sera fier de toi » marche sans prénom). */
+  /* v8 : les proches sont facultatifs, leur prénom aussi (« Ton papa sera fier de toi » marche sans prénom). */
   if (p.adultes.some((a) => a.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email))) return 'Une des adresses e-mail n\'est pas valide.';
   return '';
 }
@@ -1150,7 +1173,7 @@ function openAccount() {
   if (currentUser) openProfile(false);
   else { setAccountMode('login'); $('account-modal').classList.remove('hidden'); }
 }
-/* « Mon compte » : la fiche de l'enfant, modifiable. first = true juste après une connexion sans fiche
+/* « Mon compte » : la fiche de l'enfant, modifiable. first = true juste après une connexion sans fiche
    (par exemple un parent qui avait déjà un compte Mnemart avec la même adresse). */
 function openProfile(first) {
   $('profile-modal-title').textContent = first ? 'La fiche du joueur' : 'Mon compte';
@@ -1172,17 +1195,33 @@ function scoreType(jeu) {
   if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
   return 'Reconnaissance des natures, niveau 1';
 }
-/* « Mes derniers scores », dans la fenêtre Mon compte */
+/* « Mes derniers scores », dans la fenêtre Mon compte */
 async function renderScoreHistory() {
   const box = $('profile-scores');
   if (!box) return;
   box.innerHTML = '';
   const scores = await loadScores();
   if (!scores.length) { box.innerHTML = '<p class="send-hint">Pas encore de score enregistré.</p>'; $('profile-send').innerHTML = ''; return; }
-  /* v11 : bilan de progression et envoi des scores, depuis Mon compte */
-  $('profile-send').innerHTML = `<button type="button" class="primary-button bilan-button" id="open-bilan">🏅 Mon bilan de progression</button>` + sendBoxHtml('psend', 'Envoyer mes scores à :');
+  /* v12 : bilan de progression, puis (si l'option est cochée) deux envois bien distincts :
+     l'envoi des scores (la liste des dernières parties) et l'envoi du bilan de progression (le résumé). */
+  const avecMail = (playerProfile?.adultes || []).filter((a) => a.email);
+  let h = `<div class="send-block"><p class="send-title">🏅 Bilan de progression</p><button type="button" class="primary-button bilan-button" id="open-bilan">Voir mon bilan de progression</button></div>`;
+  if (optEnvoi(playerProfile)) {
+    h += !avecMail.length ? '<p class="send-hint">Pour envoyer tes résultats, ajoute l\'adresse e-mail d\'un proche dans ta fiche (ci-dessus).</p>' : `
+      <div class="send-block"><p class="send-title">✉️ Envoi par e-mail à :</p>
+        <p class="send-hint send-howto">Le message s'ouvre déjà écrit, avec les adresses : il ne reste qu'à cliquer sur « Envoyer ».</p>
+        <div class="send-list" id="psend-list">${avecMail.map((a) => `<label class="send-person"><input type="checkbox" value="${esc(a.email)}" checked />${a.photo ? `<img class="send-photo" src="${a.photo}" alt="" />` : ''}<span>${esc(LIENS[a.lien]?.label || a.email)}${a.prenom ? ' ' + esc(a.prenom) : ''}</span></label>`).join('')}</div>
+        <div class="send-row"><span>Envoi des scores</span><button type="button" class="primary-button" id="pscore-gmail">✉️ Gmail</button><button type="button" class="secondary-button" id="pscore-mail">Autre messagerie</button></div>
+        <div class="send-row"><span>Envoi du bilan de progression</span><button type="button" class="primary-button" id="pbilan-gmail">✉️ Gmail</button><button type="button" class="secondary-button" id="pbilan-mail">Autre messagerie</button></div>
+      </div>`;
+  }
+  $('profile-send').innerHTML = h;
   $('open-bilan').addEventListener('click', openBilan);
-  wireSendBox('psend', bilanSubject, async () => bilanMessage(await loadScores()));
+  if (optEnvoi(playerProfile) && avecMail.length) {
+    const E = playerProfile?.enfant?.prenom;
+    wireSendButtons('psend-list', 'pscore', () => `${E ? E + ' : ' : ''}mes scores sur MNEMOGRAM`, async () => scoresMessage(await loadScores()));
+    wireSendButtons('psend-list', 'pbilan', bilanSubject, async () => bilanMessage(await loadScores()));
+  }
   box.innerHTML = '<p class="send-title">Derniers scores</p><ul class="score-list">' + scores.slice(0, 10).map((r) => {
     const d = new Date(r.date);
     const quand = isNaN(d) ? '' : d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -1198,7 +1237,7 @@ async function renderScoreHistory() {
 }
 
 /* ------------------------------------------------------------
-   v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
+   v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
 const niveauOf = (r) => r.niveau || (/niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
@@ -1285,7 +1324,7 @@ function buildBilan(scores) {
       <div class="rp-col"><h3>Les natures bien connues</h3>${reussies.length ? reussies.slice(0, 8).map((x) => line(x.nom, x.pct)).join('') : '<p class="rp-empty">Bientôt !</p>'}</div>
       <div class="rp-col"><h3>Les natures à revoir</h3>${aRevoir.length ? aRevoir.slice(0, 8).map((x) => line(x.nom, x.pct)).join('') : '<p class="rp-empty">Aucune : bravo !</p>'}</div>
     </div>` : '';
-  const confHtml = A.confusions.length ? `<section class="rp-section"><h3>Les confusions les plus fréquentes</h3><ul class="rp-list">${A.confusions.map((c) => `<li>Réponse « ${esc(c.choisie)} » au lieu de « ${esc(c.bonne)} » : ${c.n} fois</li>`).join('')}</ul></section>` : '';
+  const confHtml = A.confusions.length ? `<section class="rp-section"><h3>Les confusions les plus fréquentes</h3><ul class="rp-list">${A.confusions.map((c) => `<li>Réponse « ${esc(c.choisie)} » au lieu de « ${esc(c.bonne)} » : ${c.n} fois</li>`).join('')}</ul></section>` : '';
   return `${bilanCorners()}
     <div class="rp-frame"></div>
     <div class="rp-inner">
@@ -1317,7 +1356,7 @@ function buildBilan(scores) {
       </div>
     </div>`;
 }
-/* Texte du bilan pour l'e-mail (le PDF du diplôme, lui, s'enregistre avec « Imprimer / Enregistrer en PDF »). */
+/* Texte du bilan pour l'e-mail (le PDF du diplôme, lui, s'enregistre avec « Imprimer / Enregistrer en PDF »). */
 function bilanMessage(scores) {
   const A = analyseScores(scores);
   const E = playerProfile?.enfant?.prenom || '';
@@ -1337,12 +1376,37 @@ function sendBoxHtml(idPrefix, intro) {
   const avecMail = (playerProfile?.adultes || []).filter((a) => a.email);
   if (!avecMail.length) return '<p class="send-hint">Pour envoyer tes scores, ajoute l\'adresse e-mail d\'un proche dans ta fiche (ci-dessus).</p>';
   return `<p class="send-title">${intro}</p>
-    <p class="send-hint send-howto">Le message s'ouvre déjà écrit, avec les adresses : il ne reste qu'à cliquer sur « Envoyer ».</p>
+    <p class="send-hint send-howto">Le message s'ouvre déjà écrit, avec les adresses : il ne reste qu'à cliquer sur « Envoyer ».</p>
     <div class="send-list" id="${idPrefix}-list">${avecMail.map((a) => `<label class="send-person"><input type="checkbox" value="${esc(a.email)}" checked />${a.photo ? `<img class="send-photo" src="${a.photo}" alt="" />` : ''}<span>${esc(LIENS[a.lien]?.label || a.email)}${a.prenom ? ' ' + esc(a.prenom) : ''}</span></label>`).join('')}</div>
     <div class="send-buttons">
       <button type="button" class="primary-button" id="${idPrefix}-gmail">✉️ Envoyer avec Gmail</button>
       <button type="button" class="secondary-button" id="${idPrefix}-mail">Autre messagerie</button>
     </div>`;
+}
+/* Texte de l'« envoi des scores » : les dernières parties, avec les erreurs de la plus récente. */
+function scoresMessage(scores) {
+  const E = playerProfile?.enfant?.prenom || '';
+  const list = scores.slice(0, 10);
+  const l = ['Mes derniers scores sur MNEMOGRAM :', ''];
+  list.forEach((r) => { const d = new Date(r.date); l.push(`- ${isNaN(d) ? '' : d.toLocaleDateString('fr-FR') + ' : '}${scoreType(r.jeu)}, ${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}`); });
+  const last = list[0];
+  if (last && (last.erreurs || []).length) {
+    l.push('', 'Mes erreurs à la dernière partie :');
+    last.erreurs.forEach((e) => l.push(`- « ${e.mot} » (${e.phrase}) : c'était ${e.bonne}, et j'avais répondu ${e.choisie}.`));
+  }
+  l.push('', E, 'https://stassi-tech.github.io/mnemogram/');
+  return l.join('\n');
+}
+function wireSendButtons(listId, idPrefix, getSubject, getBody) {
+  const to = () => [...document.querySelectorAll(`#${listId} input:checked`)].map((c) => c.value);
+  $(`${idPrefix}-gmail`)?.addEventListener('click', async () => {
+    const t = to(); if (!t.length) return;
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(t.join(','))}&su=${encodeURIComponent(getSubject())}&body=${encodeURIComponent(await getBody())}`, '_blank', 'noopener');
+  });
+  $(`${idPrefix}-mail`)?.addEventListener('click', async () => {
+    const t = to(); if (!t.length) return;
+    location.href = `mailto:${t.join(',')}?subject=${encodeURIComponent(getSubject())}&body=${encodeURIComponent(await getBody())}`;
+  });
 }
 function wireSendBox(idPrefix, getSubject, getBody) {
   const to = () => [...document.querySelectorAll(`#${idPrefix}-list input:checked`)].map((c) => c.value);
@@ -1366,8 +1430,58 @@ async function openBilan() {
   const scores = await loadScores();
   if (!scores.length) { sheet.innerHTML = '<p class="rp-loading">Pas encore de score enregistré : termine une partie, et ton bilan apparaîtra ici.</p>'; return; }
   sheet.innerHTML = buildBilan(scores);
-  $('report-send').innerHTML = sendBoxHtml('rsend', 'Envoyer ce bilan à :');
-  wireSendBox('rsend', bilanSubject, async () => bilanMessage(scores));
+  if (optEnvoi(playerProfile)) {
+    $('report-send').innerHTML = sendBoxHtml('rsend', 'Envoi du bilan de progression à :');
+    wireSendBox('rsend', bilanSubject, async () => bilanMessage(scores));
+  }
+}
+
+/* ------------------------------------------------------------
+   v13 : « MES DONNÉES » — chacun efface lui-même ses scores, ses données MNEMOGRAM, ou son compte entier,
+   sans avoir à écrire au contact.
+   Le compte est commun avec MNEMART (même service Firebase) : le supprimer efface aussi les données MNEMART
+   (scores et atelier) et l'accès aux deux sites. Par sécurité, Firebase demande alors le mot de passe.
+   ------------------------------------------------------------ */
+async function deleteCollection(name, filtre) {
+  const snap = await db.collection('users').doc(currentUser.uid).collection(name).get();
+  const docs = filtre ? snap.docs.filter((d) => filtre(d.data(), d.id)) : snap.docs;
+  for (const d of docs) await d.ref.delete();
+  return docs.length;
+}
+function setDataMsg(kind, t) { const el = $('data-msg'); el.className = kind === 'ok' ? 'account-notice' : 'account-error'; el.textContent = t; el.classList.remove('hidden'); }
+function wireMesDonnees() {
+  $('data-del-scores').addEventListener('click', async () => {
+    if (!currentUser || !confirm('Effacer tous les scores MNEMOGRAM de ce compte ? Le bilan de progression repartira de zéro.')) return;
+    try { const n = await deleteCollection('mnemogram', (d) => d.type === 'score'); setDataMsg('ok', `${n} score${n > 1 ? 's' : ''} effacé${n > 1 ? 's' : ''}.`); renderScoreHistory(); }
+    catch (e) { setDataMsg('err', 'Les scores n\'ont pas pu être effacés. Réessayez.'); }
+  });
+  $('data-del-mnemogram').addEventListener('click', async () => {
+    if (!currentUser || !confirm('Effacer toutes vos données MNEMOGRAM : la fiche du joueur, les photos, les proches et tous les scores ?\n\nLe compte lui-même est gardé (vous pourrez toujours vous connecter, ici et sur MNEMART).')) return;
+    try {
+      await deleteCollection('mnemogram');
+      try { localStorage.removeItem(localKey(currentUser.uid)); } catch (e) {}
+      playerProfile = null; updateAccountBar();
+      $('profile-modal').classList.add('hidden');
+      openProfile(true);
+    } catch (e) { setDataMsg('err', 'Les données n\'ont pas pu être effacées. Réessayez.'); }
+  });
+  $('data-del-account').addEventListener('click', () => { $('data-del-account-box').classList.toggle('hidden'); $('data-password').focus(); });
+  $('data-del-account-confirm').addEventListener('click', async () => {
+    const pw = $('data-password').value;
+    if (!pw) { setDataMsg('err', 'Écrivez votre mot de passe pour confirmer.'); return; }
+    if (!confirm('Dernière vérification : supprimer définitivement ce compte, pour MNEMOGRAM ET pour MNEMART ? Cette action ne peut pas être annulée.')) return;
+    try {
+      const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, pw);
+      await currentUser.reauthenticateWithCredential(cred);
+      for (const c of ['mnemogram', 'scores', 'atelier']) { try { await deleteCollection(c); } catch (e) { console.warn('Effacement', c, e); } }
+      try { localStorage.removeItem(localKey(currentUser.uid)); } catch (e) {}
+      await currentUser.delete();
+      $('profile-modal').classList.add('hidden');
+      alert('Votre compte a été supprimé. Merci d\'avoir joué avec MNEMOGRAM !');
+    } catch (e) {
+      setDataMsg('err', e?.code === 'auth/wrong-password' || e?.code === 'auth/invalid-credential' ? 'Mot de passe incorrect : le compte n\'a pas été supprimé.' : 'Le compte n\'a pas pu être supprimé. Réessayez.');
+    }
+  });
 }
 
 function authErrorMessage(error) {
@@ -1399,7 +1513,7 @@ function wireAccount() {
     const email = $('account-email').value.trim();
     const err = $('account-error'), ok = $('account-notice');
     err.classList.add('hidden'); ok.classList.add('hidden');
-    if (!email) { err.textContent = 'Écrivez d\'abord votre adresse e-mail ci-dessus, puis recliquez sur « Mot de passe oublié ? ».'; err.classList.remove('hidden'); return; }
+    if (!email) { err.textContent = 'Écrivez d\'abord votre adresse e-mail ci-dessus, puis recliquez sur « Mot de passe oublié ? ».'; err.classList.remove('hidden'); return; }
     try { await auth.sendPasswordResetEmail(email); ok.textContent = `Un e-mail de réinitialisation a été envoyé à ${email} (pensez à regarder dans les spams).`; ok.classList.remove('hidden'); }
     catch (e) { err.textContent = authErrorMessage(e); err.classList.remove('hidden'); }
   });
@@ -1432,6 +1546,7 @@ function wireAccount() {
     catch (ex) { console.warn(ex); ok.textContent = 'Fiche gardée sur cet appareil (l\'enregistrement en ligne a échoué, il sera retenté à la prochaine modification).'; ok.classList.remove('hidden'); }
   });
   $('profile-logout-button').addEventListener('click', () => { $('profile-modal').classList.add('hidden'); auth.signOut(); });
+  wireMesDonnees();
   auth.onAuthStateChanged(async (user) => {
     currentUser = user;
     playerProfile = null;
@@ -1475,6 +1590,12 @@ $('global-fullscreen-button').addEventListener('click', () => {
 });
 $('global-fiche-button').addEventListener('click', openFiche);
 $('report-close').addEventListener('click', () => $('report-overlay').classList.add('hidden'));
+/* v12 : mentions légales et contact (comme sur Mnemart) */
+$('open-mentions-legales').addEventListener('click', () => $('mentions-modal').classList.remove('hidden'));
+$('open-contact').addEventListener('click', () => $('contact-modal').classList.remove('hidden'));
+['mentions-modal', 'contact-modal'].forEach((id) => {
+  $(id).addEventListener('click', (e) => { if (e.target.id === id || e.target.closest('[data-close]')) $(id).classList.add('hidden'); });
+});
 $('report-print').addEventListener('click', () => window.print());
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('report-overlay').classList.add('hidden'); });
 $('fiche-close').addEventListener('click', () => $('fiche-modal').classList.add('hidden'));

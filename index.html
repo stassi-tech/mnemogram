@@ -14,8 +14,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=11" />
-    <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
+    <link rel="stylesheet" href="style.css?v=13" />
+    <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -84,7 +84,7 @@
             </div>
           </div>
 
-          <p class="copyright-notice">© 2026 MNEMOGRAM, Tours, France</p>
+          <p class="copyright-notice">© 2026 MNEMART, Tours, France — <button type="button" class="link-label" id="open-mentions-legales">mentions légales</button> — <button type="button" class="link-label" id="open-contact">contact</button></p>
         </section>
 
         <!-- ===================== JEU 1 : RECONNAISSANCE DES NATURES ===================== -->
@@ -144,7 +144,7 @@
       </main>
     </div>
 
-    <!-- Fiche des natures (bouton 📖 du bandeau), reprise de la fiche « Classe et fonctions des mots » -->
+    <!-- Fiche des natures (bouton 📖 du bandeau), reprise de la fiche « Classe et fonctions des mots » -->
     <div id="fiche-modal" class="modal-backdrop hidden">
       <div class="modal-card">
         <button type="button" class="modal-close-x" id="fiche-close" aria-label="Fermer" title="Fermer">✕</button>
@@ -175,7 +175,7 @@
       </div>
     </div>
 
-    <!-- ===================== COMPTE : FICHE DE L'ENFANT (« Mon compte ») ===================== -->
+    <!-- ===================== COMPTE : FICHE DE L'ENFANT (« Mon compte ») ===================== -->
     <div id="profile-modal" class="modal-backdrop hidden">
       <div class="modal-card account-card">
         <button type="button" class="modal-close-x" data-close="profile-modal" aria-label="Fermer" title="Fermer">✕</button>
@@ -191,6 +191,42 @@
         <div class="profile-send" id="profile-send"></div>
         <p class="modal-hint" id="profile-email-row"></p>
         <p class="modal-hint"><button type="button" id="profile-logout-button" class="link-label">Se déconnecter</button></p>
+        <!-- v13 : chacun gère lui-même ses données -->
+        <details class="mes-donnees">
+          <summary>Mes données : effacer mes scores ou supprimer mon compte</summary>
+          <div class="mes-donnees-body">
+            <button type="button" class="secondary-button" id="data-del-scores">Effacer tous mes scores</button>
+            <button type="button" class="secondary-button" id="data-del-mnemogram">Effacer mes données MNEMOGRAM (fiche, photos, proches, scores)</button>
+            <button type="button" class="danger-button" id="data-del-account">Supprimer mon compte (MNEMOGRAM et MNEMART)</button>
+            <div class="hidden data-del-account-box" id="data-del-account-box">
+              <p>Le compte est commun à MNEMOGRAM et MNEMART : le supprimer efface toutes les données des deux sites et l'accès à vos deux espaces. Pour confirmer, écrivez votre mot de passe :</p>
+              <input type="password" id="data-password" autocomplete="current-password" />
+              <button type="button" class="danger-button" id="data-del-account-confirm">Supprimer définitivement mon compte</button>
+            </div>
+            <p id="data-msg" class="hidden"></p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- v12 : mentions légales et contact, comme sur Mnemart (même intitulé, même adresse) -->
+    <div id="mentions-modal" class="modal-backdrop hidden">
+      <div class="modal-card legal-card">
+        <button type="button" class="modal-close-x" data-close="mentions-modal" aria-label="Fermer" title="Fermer">✕</button>
+        <h2>Mentions légales</h2>
+        <p>© 2026 MNEMART, Tours, France. Contenu original : les phrases d'exemple, les explications, les jeux et les personnages ne peuvent être ni reproduits ni réutilisés sans autorisation.</p>
+        <p>Site à but non commercial, sans publicité, proposé à titre personnel et éducatif.</p>
+        <p>Les images de la page d'accueil sont issues de Wikimedia Commons et sont utilisées sous leurs licences respectives (domaine public ou Creative Commons selon les fichiers). Les sorciers sont des dessins originaux.</p>
+        <p>Les informations d'un compte (prénoms, photos, adresses e-mail, scores) ne sont visibles que par ce compte et servent seulement au jeu. Chacun peut les effacer lui-même, et supprimer son compte, dans 👤 Mon compte, rubrique « Mes données ».</p>
+        <p>Contact : <a href="mailto:contact@mnemart.fr" class="link-label">contact@mnemart.fr</a></p>
+      </div>
+    </div>
+    <div id="contact-modal" class="modal-backdrop hidden">
+      <div class="modal-card legal-card">
+        <button type="button" class="modal-close-x" data-close="contact-modal" aria-label="Fermer" title="Fermer">✕</button>
+        <h2>Contact</h2>
+        <p>Pour toute question, suggestion ou signalement d'erreur, vous pouvez écrire à l'adresse suivante :</p>
+        <p><a href="mailto:contact@mnemart.fr" class="link-label">contact@mnemart.fr</a></p>
       </div>
     </div>
 
@@ -204,6 +240,6 @@
       <div id="report-send" class="report-send no-print"></div>
     </div>
 
-    <script defer src="app.js?v=11"></script>
+    <script defer src="app.js?v=13"></script>
   </body>
 </html>
