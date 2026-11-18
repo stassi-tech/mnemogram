@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v3';
+const APP_VERSION = 'v4';
 
 const $ = (id) => document.getElementById(id);
 
@@ -15,104 +15,136 @@ const $ = (id) => document.getElementById(id);
    « explication » : une phrase simple pour un enfant de 7 ans, tirée de la colonne « rôle » de la fiche.
    ------------------------------------------------------------ */
 const NATURES = [
-  { code: 'N',  nom: 'Nom',  article: 'un nom', groupe: 'variables', couleur: '#c0504d',
-    explication: "Le nom désigne une personne, un animal, une chose ou une idée : un chat, une chaise, l'amour.",
+  { code: 'N',  nom: 'Nom commun', article: 'un nom commun', groupe: 'variables',
+    explication: "Le nom commun désigne une personne, un animal, une chose ou une idée : un chat, une chaise, l'amitié. Il a souvent un déterminant devant lui.",
     exemples: 'un paysage, une couleur, une chaise, une odeur, l\'amitié' },
-  { code: 'V',  nom: 'Verbe', article: 'un verbe', groupe: 'variables', couleur: '#4f81bd',
-    explication: "Le verbe dit ce que l'on fait (manger, courir) ou ce que l'on est (être, paraître).",
-    exemples: 'verbes d\'état : être, paraître, sembler ; verbes d\'action : manger, tomber, courir' },
-  { code: 'A',  nom: 'Adjectif', article: 'un adjectif', groupe: 'variables', couleur: '#9bbb59',
-    explication: "L'adjectif décrit : il dit comment est quelqu'un ou quelque chose (grand, rouge, gentil).",
+  { code: 'VE', nom: 'Verbe d\'état', article: 'un verbe d\'état', groupe: 'variables',
+    explication: "Le verbe d'état dit comment est quelqu'un ou quelque chose : être, paraître, sembler, devenir, rester.",
+    exemples: 'être, paraître, sembler, devenir, rester, avoir l\'air' },
+  { code: 'VA', nom: 'Verbe d\'action', article: 'un verbe d\'action', groupe: 'variables',
+    explication: "Le verbe d'action dit ce que l'on fait : manger, courir, tomber, chanter.",
+    exemples: 'manger, tomber, courir' },
+  { code: 'A',  nom: 'Adjectif qualificatif', article: 'un adjectif qualificatif', groupe: 'variables',
+    explication: "L'adjectif qualificatif décrit : il dit comment est quelqu'un ou quelque chose (grand, rouge, gentil).",
     exemples: 'maigre, grand, jaune, heureux' },
-  { code: 'D',  nom: 'Déterminant', article: 'un déterminant', groupe: 'variables', couleur: '#8064a2',
+  { code: 'D',  nom: 'Déterminant', article: 'un déterminant', groupe: 'variables',
     explication: "Le déterminant se place devant le nom pour l'annoncer : le, une, mon, ce, des…",
     exemples: 'le, la, les, un, une, des, mon, ma, ce, cette, deux, chaque, quel' },
-  { code: 'Pr', nom: 'Pronom', article: 'un pronom', groupe: 'variables', couleur: '#f79646',
+  { code: 'Pr', nom: 'Pronom', article: 'un pronom', groupe: 'variables',
     explication: "Le pronom remplace un nom, pour ne pas le répéter : je, tu, il, elle, nous, vous, ils…",
     exemples: 'je, tu, il, le, en, y, le mien, celui, chacun, qui, que' },
-  { code: 'Av', nom: 'Adverbe', article: 'un adverbe', groupe: 'invariables', couleur: '#4bacc6',
+  { code: 'NP', nom: 'Nom propre', article: 'un nom propre', groupe: 'invariables',
+    explication: "Le nom propre est le nom particulier d'une personne, d'un animal ou d'un lieu : Léa, Paris, la Loire. Il commence toujours par une majuscule.",
+    exemples: 'Léa, Paul, Paris, la Loire' },
+  { code: 'Av', nom: 'Adverbe', article: 'un adverbe', groupe: 'invariables',
     explication: "L'adverbe précise comment, quand ou combien : vite, demain, très, ne… pas.",
     exemples: 'demain, joyeusement, bientôt, pourquoi, ne… pas, trop, assez, très' },
-  { code: 'P',  nom: 'Préposition', article: 'une préposition', groupe: 'invariables', couleur: '#7f6a4f',
+  { code: 'P',  nom: 'Préposition', article: 'une préposition', groupe: 'invariables',
     explication: "La préposition est un petit mot qui sert de lien : à, de, dans, sur, avec, pour, sous…",
     exemples: 'à, de, dans, par, pour, sur, avec' },
-  { code: 'CC', nom: 'Conjonction de coordination', article: 'une conjonction de coordination', groupe: 'invariables', couleur: '#c4a000',
+  { code: 'CC', nom: 'Conjonction de coordination', article: 'une conjonction de coordination', groupe: 'invariables',
     explication: "La conjonction de coordination relie deux mots ou deux morceaux de phrase : mais, ou, et, donc, or, ni, car.",
     exemples: 'mais, ou, et, donc, or, ni, car' },
-  { code: 'CS', nom: 'Conjonction de subordination', article: 'une conjonction de subordination', groupe: 'invariables', couleur: '#d16aa0',
+  { code: 'CS', nom: 'Conjonction de subordination', article: 'une conjonction de subordination', groupe: 'invariables',
     explication: "La conjonction de subordination ouvre une deuxième partie de phrase, reliée au verbe principal : quand, si, lorsque, comme, puisque…",
     exemples: 'que, quand, comme, si, lorsque, puisque, parce que' },
-  { code: 'I',  nom: 'Interjection', article: 'une interjection', groupe: 'invariables', couleur: '#e05a2b',
-    explication: "L'interjection est un cri qui exprime un sentiment : oh ! aïe ! bravo ! L'onomatopée imite un bruit : crac ! boum !",
-    exemples: 'aïe ! oh ! bravo ! chut ! (onomatopées : crac ! boum !)' },
+  { code: 'I',  nom: 'Interjection', article: 'une interjection', groupe: 'invariables',
+    explication: "L'interjection est un cri qui exprime un sentiment : oh ! aïe ! bravo ! ouf !",
+    exemples: 'aïe ! oh ! bravo ! chut ! ouf !' },
+  { code: 'O',  nom: 'Onomatopée', article: 'une onomatopée', groupe: 'invariables',
+    explication: "L'onomatopée est un mot qui imite un bruit : boum ! crac ! miaou ! tic-tac !",
+    exemples: 'crac ! boum ! miaou ! atchoum !' },
 ];
+/* Disposition des boutons : une ligne par sous-tableau (deux boutons côte à côte quand il y en a deux). */
+const BUTTON_ROWS = {
+  variables: [['N'], ['VE', 'VA'], ['A'], ['D'], ['Pr']],
+  invariables: [['NP'], ['Av'], ['P'], ['CC'], ['CS'], ['I', 'O']],
+};
 const NATURE_BY_CODE = Object.fromEntries(NATURES.map((n) => [n.code, n]));
-/* Un nom propre (NP) est compté comme un nom : la fiche ne fait pas des noms propres une nature à part. */
-const answerCodeOf = (tag) => (tag === 'NP' ? 'N' : tag);
+const answerCodeOf = (tag) => tag;
 
 /* ------------------------------------------------------------
    LES PHRASES
    Chaque mot est suivi de « / » et du code de sa nature. La ponctuation reste seule.
    Un mot qui finit par une apostrophe (l', j', n') se colle au mot suivant.
-   Codes : N nom, NP nom propre, V verbe, A adjectif, D déterminant, Pr pronom,
-           Av adverbe, P préposition, CC conj. de coordination, CS conj. de subordination, I interjection.
+   Codes : N nom commun, VE verbe d'état, VA verbe d'action, A adjectif qualificatif, D déterminant,
+           Pr pronom, NP nom propre, Av adverbe, P préposition, CC conj. de coordination,
+           CS conj. de subordination, I interjection, O onomatopée.
    ------------------------------------------------------------ */
 const PHRASES = [
-  'Le/D chat/N de/P mon/D voisin/N dort/V tranquillement/Av sur/P la/D terrasse/N .',
-  'La/D petite/A fille/N mange/V une/D pomme/N rouge/A .',
-  'Mon/D frère/N et/CC ma/D sœur/N jouent/V dans/P le/D jardin/N .',
-  'Oh/I ! Le/D gâteau/N est/V très/Av bon/A .',
-  'Quand/CS il/Pr pleut/V , nous/Pr restons/V à/P la/D maison/N .',
-  'Le/D chien/N aboie/V car/CC il/Pr a/V peur/N .',
-  'Aïe/I ! Cette/D porte/N est/V lourde/A .',
-  'Le/D soleil/N brille/V dans/P le/D ciel/N bleu/A .',
-  'Mon/D papa/N prépare/V une/D soupe/N chaude/A .',
-  'Les/D oiseaux/N chantent/V joyeusement/Av le/D matin/N .',
-  'Tu/Pr lis/V un/D livre/N ou/CC tu/Pr dessines/V ?',
-  'Elle/Pr porte/V une/D jolie/A robe/N verte/A .',
-  'Le/D bébé/N pleure/V car/CC il/Pr a/V faim/N .',
-  'Nous/Pr allons/V à/P l\'/D école/N avec/P nos/D amis/N .',
-  'Bravo/I ! Tu/Pr as/V gagné/V la/D course/N .',
-  'Le/D lapin/N mange/V une/D carotte/N et/CC une/D salade/N .',
-  'Ce/D gros/A camion/N roule/V lentement/Av .',
-  'Si/CS tu/Pr veux/V , nous/Pr jouerons/V ensemble/Av .',
-  'Lorsque/CS la/D cloche/N sonne/V , les/D élèves/N sortent/V .',
-  'Ma/D grand-mère/N tricote/V une/D écharpe/N pour/P moi/Pr .',
-  'Le/D poisson/N nage/V vite/Av dans/P l\'/D eau/N froide/A .',
-  'Hourra/I ! Les/D vacances/N commencent/V demain/Av .',
-  'Le/D ciel/N est/V gris/A mais/CC il/Pr ne/Av pleut/V pas/Av .',
-  'Je/Pr cherche/V mon/D ballon/N sous/P le/D lit/N .',
-  'La/D maîtresse/N raconte/V une/D belle/A histoire/N .',
-  'Comme/CS il/Pr fait/V nuit/N , j\'/Pr allume/V la/D lampe/N .',
-  'Mon/D chat/N noir/A dort/V souvent/Av sur/P le/D canapé/N .',
-  'Nous/Pr mangeons/V des/D fraises/N sucrées/A avec/P Léa/NP .',
-  'Le/D cheval/N galope/V dans/P la/D prairie/N verte/A .',
-  'Chut/I ! Le/D bébé/N dort/V .',
-  'Paul/NP ouvre/V la/D fenêtre/N et/CC regarde/V le/D jardin/N .',
-  'Elle/Pr sourit/V quand/CS elle/Pr voit/V son/D ami/N .',
-  'Les/D enfants/N courent/V dans/P la/D cour/N .',
-  'Ce/D petit/A garçon/N est/V gentil/A .',
-  'Le/D train/N arrive/V bientôt/Av à/P la/D gare/N .',
-  'Je/Pr mets/V mes/D bottes/N car/CC il/Pr pleut/V .',
-  'Ouf/I ! Nous/Pr sommes/V enfin/Av arrivés/V .',
-  'La/D souris/N se/Pr cache/V derrière/P le/D placard/N .',
-  'Mon/D ami/N habite/V une/D grande/A maison/N blanche/A .',
-  'Le/D vent/N souffle/V fort/Av cette/D nuit/N .',
-  'Puisque/CS tu/Pr es/V sage/A , tu/Pr auras/V un/D bonbon/N .',
-  'La/D lune/N éclaire/V doucement/Av la/D forêt/N .',
-  'Je/Pr bois/V un/D grand/A verre/N de/P lait/N .',
-  'Ils/Pr jouent/V avec/P un/D ballon/N jaune/A .',
-  'Hé/I ! Tu/Pr oublies/V ton/D cartable/N .',
-  'Ma/D tante/N arrive/V ce/D soir/N avec/P son/D chien/N .',
-  'L\'/D éléphant/N est/V un/D animal/N énorme/A .',
-  'Nous/Pr partons/V maintenant/Av ou/CC nous/Pr attendons/V Léa/NP ?',
-  'Lorsque/CS le/D chat/N dort/V , la/D souris/N danse/V .',
-  'Je/Pr ne/Av trouve/V pas/Av mes/D lunettes/N .',
-  'Il/Pr pleut/V , donc/CC je/Pr prends/V mon/D parapluie/N .',
-  'Quand/CS la/D nuit/N tombe/V , les/D étoiles/N brillent/V .',
-  'Le/D boulanger/N fabrique/V le/D pain/N très/Av tôt/Av .',
-  'Ma/D sœur/N chante/V une/D chanson/N avec/P moi/Pr .',
-  'Boum/I ! Le/D vase/N tombe/V par/P terre/N .',
+  'Le/D chat/N de/P mon/D voisin/N dort/VA tranquillement/Av sur/P la/D terrasse/N .',
+  'La/D petite/A fille/N mange/VA une/D pomme/N rouge/A .',
+  'Mon/D frère/N et/CC ma/D sœur/N jouent/VA dans/P le/D jardin/N .',
+  'Oh/I ! Le/D gâteau/N est/VE très/Av bon/A .',
+  'Quand/CS il/Pr pleut/VA , nous/Pr jouons/VA à/P la/D maison/N .',
+  'Le/D chien/N aboie/VA car/CC il/Pr entend/VA un/D bruit/N .',
+  'Aïe/I ! Cette/D porte/N est/VE lourde/A .',
+  'Le/D soleil/N brille/VA dans/P le/D ciel/N bleu/A .',
+  'Mon/D papa/N prépare/VA une/D soupe/N chaude/A .',
+  'Les/D oiseaux/N chantent/VA joyeusement/Av le/D matin/N .',
+  'Tu/Pr lis/VA un/D livre/N ou/CC tu/Pr dessines/VA ?',
+  'Elle/Pr porte/VA une/D jolie/A robe/N verte/A .',
+  'Le/D bébé/N pleure/VA car/CC il/Pr veut/VA son/D biberon/N .',
+  'Nous/Pr allons/VA à/P l\'/D école/N avec/P nos/D amis/N .',
+  'Bravo/I ! Tu/Pr gagnes/VA la/D course/N .',
+  'Le/D lapin/N mange/VA une/D carotte/N et/CC une/D salade/N .',
+  'Ce/D gros/A camion/N roule/VA lentement/Av .',
+  'Si/CS tu/Pr veux/VA , nous/Pr jouerons/VA ensemble/Av .',
+  'Lorsque/CS la/D cloche/N sonne/VA , les/D élèves/N sortent/VA .',
+  'Ma/D grand-mère/N tricote/VA une/D écharpe/N pour/P moi/Pr .',
+  'Le/D poisson/N nage/VA vite/Av dans/P l\'/D eau/N froide/A .',
+  'Hourra/I ! Les/D vacances/N commencent/VA demain/Av .',
+  'Le/D ciel/N est/VE gris/A mais/CC il/Pr ne/Av pleut/VA pas/Av .',
+  'Je/Pr cherche/VA mon/D ballon/N sous/P le/D lit/N .',
+  'La/D maîtresse/N raconte/VA une/D belle/A histoire/N .',
+  'Comme/CS la/D nuit/N tombe/VA , j\'/Pr allume/VA la/D lampe/N .',
+  'Mon/D chat/N noir/A dort/VA souvent/Av sur/P le/D canapé/N .',
+  'Nous/Pr mangeons/VA des/D fraises/N sucrées/A avec/P Léa/NP .',
+  'Le/D cheval/N galope/VA dans/P la/D prairie/N verte/A .',
+  'Chut/I ! Le/D bébé/N dort/VA .',
+  'Paul/NP ouvre/VA la/D fenêtre/N et/CC regarde/VA le/D jardin/N .',
+  'Elle/Pr sourit/VA quand/CS elle/Pr voit/VA son/D ami/N .',
+  'Les/D enfants/N courent/VA dans/P la/D cour/N .',
+  'Ce/D petit/A garçon/N est/VE gentil/A .',
+  'Le/D train/N arrive/VA bientôt/Av à/P la/D gare/N .',
+  'Je/Pr mets/VA mes/D bottes/N car/CC il/Pr pleut/VA .',
+  'Ouf/I ! Nous/Pr arrivons/VA enfin/Av .',
+  'La/D souris/N se/Pr cache/VA derrière/P le/D placard/N .',
+  'Mon/D ami/N habite/VA une/D grande/A maison/N blanche/A .',
+  'Le/D vent/N souffle/VA fort/Av cette/D nuit/N .',
+  'Puisque/CS tu/Pr es/VE sage/A , tu/Pr choisis/VA un/D bonbon/N .',
+  'La/D lune/N éclaire/VA doucement/Av la/D forêt/N .',
+  'Je/Pr bois/VA un/D grand/A verre/N de/P lait/N .',
+  'Ils/Pr jouent/VA avec/P un/D ballon/N jaune/A .',
+  'Hé/I ! Tu/Pr oublies/VA ton/D cartable/N .',
+  'Ma/D tante/N arrive/VA ce/D soir/N avec/P son/D chien/N .',
+  'L\'/D éléphant/N est/VE un/D animal/N énorme/A .',
+  'Nous/Pr partons/VA maintenant/Av ou/CC nous/Pr attendons/VA Léa/NP ?',
+  'Lorsque/CS le/D chat/N dort/VA , la/D souris/N danse/VA .',
+  'Je/Pr ne/Av trouve/VA pas/Av mes/D lunettes/N .',
+  'Il/Pr pleut/VA , donc/CC je/Pr prends/VA mon/D parapluie/N .',
+  'Quand/CS la/D nuit/N tombe/VA , les/D étoiles/N brillent/VA .',
+  'Le/D boulanger/N fabrique/VA le/D pain/N très/Av tôt/Av .',
+  'Ma/D sœur/N chante/VA une/D chanson/N avec/P moi/Pr .',
+  'Boum/O ! Le/D vase/N tombe/VA par/P terre/N .',
+  /* Verbes d'état */
+  'Le/D chat/N semble/VE fatigué/A .',
+  'Ma/D sœur/N devient/VE très/Av grande/A .',
+  'Tu/Pr parais/VE content/A aujourd\'hui/Av .',
+  'Les/D fleurs/N restent/VE fraîches/A .',
+  'Le/D lion/N paraît/VE calme/A dans/P sa/D cage/N .',
+  /* Noms propres */
+  'Paris/NP est/VE une/D grande/A ville/N .',
+  'Marie/NP lit/VA un/D livre/N avec/P Hugo/NP .',
+  'Le/D chien/N de/P Lucie/NP est/VE noir/A .',
+  'La/D Loire/NP traverse/VA la/D ville/N de/P Tours/NP .',
+  /* Onomatopées */
+  'Crac/O ! La/D branche/N casse/VA .',
+  'Miaou/O ! Le/D chat/N réclame/VA son/D lait/N .',
+  'Tic-tac/O ! L\'/D horloge/N sonne/VA midi/N .',
+  'Atchoum/O ! Mon/D frère/N est/VE malade/A .',
+  'Ouaf/O ! Le/D chien/N court/VA vers/P la/D porte/N .',
+  'Ding-dong/O ! Mon/D ami/N sonne/VA à/P la/D porte/N .',
 ];
 
 /* Découpe une phrase en mots : { texte, tag } (tag vide pour la ponctuation). */
@@ -403,11 +435,11 @@ function initMosaic() {
 
 /* ------------------------------------------------------------
    JEU 1 : RECONNAISSANCE DES NATURES
-   10 questions : chacune des 10 natures est demandée une fois, dans un ordre tiré au hasard.
+   13 questions : chacune des 13 natures est demandée une fois, dans un ordre tiré au hasard.
    Mauvaise réponse : un personnage grincheux encourage à recommencer (2e essai).
    Après deux erreurs, la bonne réponse est montrée. Le score compte les réussites du premier coup.
    ------------------------------------------------------------ */
-const NB_QUESTIONS = 10;
+const NB_QUESTIONS = 13;
 const game = { questions: [], index: 0, score: 0, essais: 0, fini: false };
 
 const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -428,8 +460,8 @@ function buildQuestions() {
 }
 
 function buildNatureButtons() {
-  const html = (groupe) => NATURES.filter((n) => n.groupe === groupe)
-    .map((n) => `<button type="button" class="nature-button" data-code="${n.code}">${n.nom}</button>`).join('');
+  const html = (groupe) => BUTTON_ROWS[groupe].map((row) => `<div class="nature-row nature-row-${row.length}">` +
+    row.map((code) => `<button type="button" class="nature-button" data-code="${code}">${NATURE_BY_CODE[code].nom}</button>`).join('') + '</div>').join('');
   $('nat-buttons-variables').innerHTML = html('variables');
   $('nat-buttons-invariables').innerHTML = html('invariables');
   document.querySelectorAll('.nature-button').forEach((b) => b.addEventListener('click', () => answer(b.dataset.code, b)));
@@ -531,8 +563,7 @@ function finishQuestion(reussi, nature, mot) {
     if (!b.classList.contains('correct') && !b.classList.contains('wrong')) b.classList.add('faded');
   });
   document.querySelector('.sentence .w.target')?.classList.add('found');
-  const nomPropre = mot.tag === 'NP' ? ` C'est un <strong>nom propre</strong> : il commence par une majuscule.` : '';
-  $('nat-correction-details').innerHTML = `« <strong>${mot.texte}</strong> » est ${nature.article}.${nomPropre}<br>${nature.explication}`;
+  $('nat-correction-details').innerHTML = `« <strong>${mot.texte}</strong> » est ${nature.article}.<br>${nature.explication}`;
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${reussi ? 'correct' : 'wrong'}`;
   $('nat-next-button').textContent = game.index + 1 < game.questions.length ? 'Suivant →' : 'Voir mon résultat →';
@@ -571,7 +602,7 @@ function showResults() {
 function buildFiche() {
   const bloc = (groupe, titre) => `<p class="fiche-group">${titre}</p>` + NATURES.filter((n) => n.groupe === groupe)
     .map((n) => `<div class="fiche-row"><div><b>${n.nom}</b><br><em>${n.exemples}</em></div><div>${n.explication}</div></div>`).join('');
-  $('fiche-content').innerHTML = bloc('variables', 'Les 5 natures de mots variables') + bloc('invariables', 'Les 5 natures de mots invariables');
+  $('fiche-content').innerHTML = bloc('variables', 'Les mots variables') + bloc('invariables', 'Les mots invariables');
 }
 
 /* ------------------------------------------------------------
