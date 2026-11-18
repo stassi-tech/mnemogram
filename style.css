@@ -499,3 +499,24 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 #global-back-button { font-weight:700; font-size:1.05rem; line-height:1; color:var(--ink); }
 /* v19 : les fenêtres s'ouvrent sous le bandeau, pour que la flèche ← reste cliquable */
 @media screen { .modal-backdrop, .report-overlay { top:var(--topbar-h, 44px); } }
+
+/* ============================================================
+   v21 : JEU 4 — on tire les étiquettes sous les mots (les mots gardent leur couleur)
+   ============================================================ */
+.game4 .sentence { line-height:1.3; word-spacing:0; display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:14px 0; }
+.game4 .sentence .w { position:relative; display:inline-flex; flex-direction:column; align-items:center; cursor:pointer; padding:0 8px; border-radius:4px; }
+.game4 .sentence .w .lab { margin-top:8px; font-family:Arial,sans-serif; font-size:.3em; line-height:1.2; white-space:nowrap; text-align:center; background:var(--nat-green); color:#fff; padding:4px 7px; border-radius:4px; font-weight:700; pointer-events:none; box-shadow:0 2px 5px rgba(0,0,0,.3); animation:fnApparait .25s ease-out; }
+.game4 .character-stage .character { height:min(300px,40vh); }
+.game4 .character-stage .bubble { align-self:center; }
+.game4 .sentence .w .lab.rouge { background:var(--fn-red); }
+.game4 .sentence .w.survol { background:rgba(255,224,102,.28); }
+.game4 .sentence .w.gn-groupe { border-bottom:2px dashed rgba(255,156,143,.85); border-radius:0; }
+.nature-button.tirable { cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; }
+.nature-button.tirable.arme { box-shadow:0 0 0 4px #ffe066; }
+.fantome { position:fixed; z-index:9999; pointer-events:none; transform:translate(-50%,-130%); background:var(--nat-green); color:#fff; font:700 .95rem Arial,sans-serif; padding:8px 12px; border-radius:6px; box-shadow:0 6px 16px rgba(0,0,0,.35); white-space:nowrap; }
+.fantome.rouge { background:var(--fn-red); }
+.game4 .sentence .w.gn-err { color:inherit; }
+.game4 .sentence .pn { margin-left:-6px; margin-right:2px; }
+.game4 .sentence { font-size:.88em; }
+.game4 .sentence .w .lab { font-size:max(.3em, 11px); }
+@media (max-width:640px) { .game4 .sentence { font-size:1.35em; gap:10px 0; } .game4 .sentence .w { padding:0 5px; } }
