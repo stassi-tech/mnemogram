@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v10';
+const APP_VERSION = 'v11';
 
 const $ = (id) => document.getElementById(id);
 
@@ -644,7 +644,7 @@ function initMosaic() {
    Après deux erreurs, la bonne réponse est montrée. Le score compte les réussites du premier coup.
    ------------------------------------------------------------ */
 const NB_QUESTIONS = 20;
-const game = { questions: [], index: 0, score: 0, essais: 0, fini: false, erreurs: [] };
+const game = { questions: [], index: 0, score: 0, essais: 0, fini: false, erreurs: [], parNature: {} };
 
 const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -702,7 +702,7 @@ function openGame(id) {
 }
 function startGame() {
   game.questions = buildQuestions();
-  game.index = 0; game.score = 0; game.fini = false; game.erreurs = [];
+  game.index = 0; game.score = 0; game.fini = false; game.erreurs = []; game.parNature = {};
   showPanel('natures');
   $('nat-ready-screen').classList.add('hidden');
   $('nat-quiz-grid').classList.remove('hidden');
@@ -790,7 +790,7 @@ function answer(code, btn) {
     finishQuestion(true, bonne, mot);
     showCharacter('good', bonne);
   } else {
-    if (game.essais === 0) game.erreurs.push({ mot: mot.texte, bonne: bonne.article, choisie: NATURE_BY_CODE[code].article, phrase: phraseTexte(PARSED[q.phrase]) });
+    if (game.essais === 0) game.erreurs.push({ mot: mot.texte, bonne: bonne.article, choisie: NATURE_BY_CODE[code].article, codeBonne: q.code, codeChoisi: code, phrase: phraseTexte(PARSED[q.phrase]) });
     game.essais += 1;
     btn.classList.add('wrong');
     btn.disabled = true;
@@ -803,6 +803,9 @@ function answer(code, btn) {
 }
 
 function finishQuestion(reussi, nature, mot) {
+  /* v11 : pour le bilan, on compte chaque nature : demandée (p) et trouvée du premier coup (c). */
+  const pn = game.parNature[nature.code] || (game.parNature[nature.code] = { c: 0, p: 0 });
+  pn.p += 1; if (reussi && game.essais === 0) pn.c += 1;
   document.querySelectorAll('.nature-button').forEach((b) => {
     b.disabled = true;
     if (!b.classList.contains('correct') && !b.classList.contains('wrong')) b.classList.add('faded');
@@ -838,7 +841,7 @@ function showResults() {
     : (E ? `Hum… Ce n'est pas encore ça, ${E}. Mais si tu rejoues, je suis sûr que tu feras mieux !` : 'Hum… Ce n\'est pas encore ça. Mais si tu rejoues, je suis sûr que tu feras mieux !');
   const texte = `${CHARACTERS[id].nom} : « ${parole} »`;
   $('results-text').textContent = texte;
-  lastResult = { jeu: currentGame.type, score: s, total: n, erreurs: game.erreurs.slice(), date: new Date().toISOString() };
+  lastResult = { jeu: currentGame.type, niveau: currentGame === GAMES.natures2 ? 2 : 1, score: s, total: n, erreurs: game.erreurs.slice(), parNature: game.parNature, date: new Date().toISOString() };
   saveScore(lastResult);
   renderSendBox();
   showPanel('results');
@@ -883,43 +886,10 @@ function scoreMessage(r) {
 }
 function renderSendBox() {
   const box = $('results-send');
-  if (!currentUser) {
-    box.innerHTML = '<p class="send-hint">Avec un compte, tu pourras envoyer ton score à ta famille.</p>';
-    return;
-  }
-  const avecMail = (playerProfile?.adultes || []).map((a, i) => ({ ...a, i })).filter((a) => a.email);
-  if (!avecMail.length) {
-    box.innerHTML = '<p class="send-hint">Pour envoyer ton score, ajoute l\'adresse e-mail d\'un proche dans « Mon compte » 👤.</p>';
-    return;
-  }
-  box.innerHTML = `<p class="send-title">Envoyer mon score à :</p>
-    <p class="send-hint send-howto">Le message s'ouvre déjà écrit, avec les adresses : il ne reste qu'à cliquer sur « Envoyer ».</p>
-    <div class="send-list">${avecMail.map((a) => `<label class="send-person"><input type="checkbox" value="${esc(a.email)}" checked />${a.photo ? `<img class="send-photo" src="${a.photo}" alt="" />` : ''}<span>${esc(LIENS[a.lien]?.label || a.email)}${a.prenom ? ' ' + esc(a.prenom) : ''}</span></label>`).join('')}</div>
-    <div class="send-buttons">
-      <button type="button" class="primary-button" id="send-gmail-button">✉️ Envoyer avec Gmail</button>
-      <button type="button" class="secondary-button" id="send-mail-button">Autre messagerie</button>
-      ${navigator.share ? '<button type="button" class="secondary-button" id="send-share-button">Partager…</button>' : ''}
-    </div>`;
-  /* v8 : deux façons d'envoyer. « Gmail » ouvre, dans un nouvel onglet, la page « Nouveau message » de Gmail
-     (avec le compte Google déjà connecté sur l'appareil), destinataires, objet et texte déjà remplis : il reste
-     à cliquer sur « Envoyer ». « Autre messagerie » ouvre l'application de messagerie de l'appareil
-     (Outlook, Mail sur iPhone…), de la même façon. */
-  const mailParts = () => {
-    const to = [...box.querySelectorAll('input:checked')].map((c) => c.value);
-    const E = playerProfile?.enfant?.prenom;
-    return { to, sujet: `${E ? E + ' : ' : ''}mon score sur MNEMOGRAM (${lastResult.score}/${lastResult.total})`, corps: scoreMessage(lastResult) };
-  };
-  $('send-gmail-button').addEventListener('click', () => {
-    const m = mailParts(); if (!m.to.length) return;
-    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(m.to.join(','))}&su=${encodeURIComponent(m.sujet)}&body=${encodeURIComponent(m.corps)}`, '_blank', 'noopener');
-  });
-  $('send-mail-button').addEventListener('click', () => {
-    const m = mailParts(); if (!m.to.length) return;
-    location.href = `mailto:${m.to.join(',')}?subject=${encodeURIComponent(m.sujet)}&body=${encodeURIComponent(m.corps)}`;
-  });
-  $('send-share-button')?.addEventListener('click', () => {
-    navigator.share({ title: 'Mon score sur MNEMOGRAM', text: scoreMessage(lastResult) }).catch(() => {});
-  });
+  if (!currentUser) { box.innerHTML = '<p class="send-hint">Avec un compte, tu pourras envoyer ton score à ta famille.</p>'; return; }
+  box.innerHTML = sendBoxHtml('esend', 'Envoyer mon score à :').replace('dans ta fiche (ci-dessus)', 'dans « Mon compte » 👤');
+  const E = playerProfile?.enfant?.prenom;
+  wireSendBox('esend', () => `${E ? E + ' : ' : ''}mon score sur MNEMOGRAM (${lastResult.score}/${lastResult.total})`, async () => scoreMessage(lastResult));
 }
 
 /* ------------------------------------------------------------
@@ -1208,7 +1178,11 @@ async function renderScoreHistory() {
   if (!box) return;
   box.innerHTML = '';
   const scores = await loadScores();
-  if (!scores.length) { box.innerHTML = '<p class="send-hint">Pas encore de score enregistré.</p>'; return; }
+  if (!scores.length) { box.innerHTML = '<p class="send-hint">Pas encore de score enregistré.</p>'; $('profile-send').innerHTML = ''; return; }
+  /* v11 : bilan de progression et envoi des scores, depuis Mon compte */
+  $('profile-send').innerHTML = `<button type="button" class="primary-button bilan-button" id="open-bilan">🏅 Mon bilan de progression</button>` + sendBoxHtml('psend', 'Envoyer mes scores à :');
+  $('open-bilan').addEventListener('click', openBilan);
+  wireSendBox('psend', bilanSubject, async () => bilanMessage(await loadScores()));
   box.innerHTML = '<p class="send-title">Derniers scores</p><ul class="score-list">' + scores.slice(0, 10).map((r) => {
     const d = new Date(r.date);
     const quand = isNaN(d) ? '' : d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -1221,6 +1195,179 @@ async function renderScoreHistory() {
     catch (e) { alert('Le score n\'a pas pu être effacé. Réessayez.'); return; }
     renderScoreHistory();
   }));
+}
+
+/* ------------------------------------------------------------
+   v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
+   ------------------------------------------------------------ */
+const niveauOf = (r) => r.niveau || (/niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
+const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
+const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+function bilanEmblem() {
+  const leaves = [];
+  for (let i = 0; i < 10; i++) {
+    const th = 105 + i * (150 / 9), rad = th * Math.PI / 180;
+    const x = 60 + 45 * Math.cos(rad), y = 60 + 45 * Math.sin(rad), rot = th + (i % 2 ? 28 : -28);
+    leaves.push(`<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="3" ry="7.5" transform="rotate(${rot.toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="url(#rpg)"/>`);
+    leaves.push(`<ellipse cx="${(120 - x).toFixed(1)}" cy="${y.toFixed(1)}" rx="3" ry="7.5" transform="rotate(${(-rot).toFixed(0)} ${(120 - x).toFixed(1)} ${y.toFixed(1)})" fill="url(#rpg)"/>`);
+  }
+  return `<svg class="rp-emblem" viewBox="0 0 120 120" aria-hidden="true">
+    <defs><linearGradient id="rpg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6c978"/><stop offset=".5" stop-color="#b08d4c"/><stop offset="1" stop-color="#7a5c35"/></linearGradient></defs>
+    ${leaves.join('')}
+    <circle cx="60" cy="60" r="31" fill="#fffaf0" stroke="url(#rpg)" stroke-width="3"/>
+    <circle cx="60" cy="60" r="26" fill="none" stroke="#c9a85c" stroke-width=".8"/>
+    <text x="60" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#7a5c35">M</text>
+  </svg>`;
+}
+function bilanCorners() {
+  const c = `<svg viewBox="0 0 60 60" aria-hidden="true"><path d="M2 58 V2 H58" fill="none" stroke="#b08d4c" stroke-width="2.2"/><path d="M9 58 V9 H58" fill="none" stroke="#d9c08a" stroke-width="1"/><path d="M2 2 C20 6 28 14 30 30 C14 28 6 20 2 2 Z" fill="#b08d4c" opacity=".85"/><circle cx="36" cy="36" r="2.4" fill="#b08d4c"/></svg>`;
+  return ['tl', 'tr', 'bl', 'br'].map((p) => `<span class="rp-corner rp-${p}">${c}</span>`).join('');
+}
+function bilanSeal() {
+  return `<svg class="rp-seal" viewBox="0 0 80 80" aria-hidden="true">
+    <defs><radialGradient id="rps" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#f0d98f"/><stop offset=".6" stop-color="#b08d4c"/><stop offset="1" stop-color="#7a5c35"/></radialGradient></defs>
+    <path d="M26 56 L18 78 L30 72 L36 78 L40 58 Z" fill="#8a5449"/><path d="M54 56 L62 78 L50 72 L44 78 L40 58 Z" fill="#a8665a"/>
+    <path d="M40 4 l5 5 7-2 3 7 7 2-1 7 6 4-4 6 3 7-7 3-1 7-7-1-5 6-5-5-7 1-1-7-7-3 3-7-4-6 6-4-1-7 7-2 3-7 7 2z" fill="url(#rps)" transform="translate(0,2)"/>
+    <circle cx="40" cy="38" r="19" fill="none" stroke="#fff3cf" stroke-width="1.2" opacity=".8"/>
+    <text x="40" y="46" text-anchor="middle" font-family="Georgia,serif" font-size="24" font-weight="700" fill="#fff3cf">M</text>
+  </svg>`;
+}
+/* Analyse des scores : réussite par niveau (et progrès), par nature, confusions les plus fréquentes. */
+function analyseScores(scores) {
+  const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
+  const niveaux = [1, 2].map((n) => {
+    const l = list.filter((r) => niveauOf(r) === n);
+    if (!l.length) return null;
+    const res = { n, count: l.length, avg: Math.round(avg(l)) };
+    if (l.length >= 4) { const k = Math.min(5, Math.floor(l.length / 2)); res.early = Math.round(avg(l.slice(0, k))); res.recent = Math.round(avg(l.slice(-k))); res.diff = res.recent - res.early; }
+    return res;
+  }).filter(Boolean);
+  const nat = {};
+  list.forEach((r) => Object.entries(r.parNature || {}).forEach(([code, v]) => { const t = nat[code] || (nat[code] = { c: 0, p: 0 }); t.c += v.c || 0; t.p += v.p || 0; }));
+  const parNature = Object.entries(nat).filter(([, v]) => v.p >= 2).map(([code, v]) => ({ code, nom: NATURE_BY_CODE[code]?.nom || code, pct: Math.round((v.c / v.p) * 100), p: v.p })).sort((a, b) => b.pct - a.pct);
+  const conf = {};
+  list.forEach((r) => (r.erreurs || []).forEach((e) => { const k = `${e.bonne}|${e.choisie}`; conf[k] = (conf[k] || 0) + 1; }));
+  const confusions = Object.entries(conf).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, n]) => { const [bonne, choisie] = k.split('|'); return { bonne, choisie, n }; });
+  return {
+    list, niveaux, parNature, confusions,
+    first: dates[0], last: dates[dates.length - 1],
+    jours: new Set(dates.map((d) => d.toDateString())).size,
+    questions: list.reduce((t, r) => t + (r.total || 0), 0),
+    bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
+  };
+}
+function buildBilan(scores) {
+  const A = analyseScores(scores);
+  const E = playerProfile?.enfant || {};
+  const nom = [E.prenom, E.nom].filter(Boolean).join(' ');
+  const taux = A.questions ? Math.round((A.bonnes / A.questions) * 100) : 0;
+  const bar = (pct) => `<span class="rp-bar"><span style="width:${Math.max(2, Math.min(100, pct))}%"></span></span>`;
+  const line = (label, pct) => `<div class="rp-line"><span class="rp-line-label">${esc(label)}</span>${bar(pct)}<span class="rp-line-pct">${pct} %</span></div>`;
+  const cards = A.niveaux.map((r) => `
+    <div class="rp-card">
+      <div class="rp-card-title">Reconnaissance des natures, niveau ${r.n}</div>
+      <div class="rp-card-big">${r.avg} %</div>
+      <div class="rp-card-sub">moyenne sur ${r.count} partie${r.count > 1 ? 's' : ''}</div>
+      ${r.diff !== undefined ? `<div class="rp-card-trend ${r.diff > 0 ? 'up' : r.diff < 0 ? 'down' : ''}">${r.diff > 0 ? '▲ +' + r.diff : r.diff < 0 ? '▼ ' + r.diff : '= stable'} pts<br><span>${r.early} % au début → ${r.recent} % récemment</span></div>` : ''}
+    </div>`).join('');
+  const reussies = A.parNature.filter((x) => x.pct >= 75);
+  const aRevoir = A.parNature.filter((x) => x.pct < 75).sort((a, b) => a.pct - b.pct);
+  const defis = [];
+  aRevoir.slice(0, 2).forEach((x) => defis.push(`Revoir ${NATURE_BY_CODE[x.code]?.article || x.nom} (${x.pct} %) : relis sa définition dans la fiche 📖, puis rejoue.`));
+  A.confusions.slice(0, 2).forEach((c) => defis.push(`Ne pas confondre ${c.bonne} et ${c.choisie} (${c.n} fois).`));
+  if (!defis.length) defis.push(A.niveaux.some((r) => r.n === 2) ? 'Continuer à jouer au niveau 2 pour connaître par cœur toutes les sortes de déterminants et de pronoms.' : 'Essayer le niveau 2 : les sept sortes de déterminants et les sept sortes de pronoms t\'attendent !');
+  const intro = taux >= 80 ? `Bravo ! Tu as trouvé ${taux} % des réponses du premier coup : tu connais très bien les natures des mots.`
+    : taux >= 60 ? `Tu as trouvé ${taux} % des réponses du premier coup : c'est un beau travail. Continue, les natures deviennent de plus en plus faciles à reconnaître.`
+    : `Tu as trouvé ${taux} % des réponses du premier coup. Chaque partie t'aide à mieux reconnaître les mots : l'important est de continuer.`;
+  const natHtml = A.parNature.length ? `<div class="rp-cols">
+      <div class="rp-col"><h3>Les natures bien connues</h3>${reussies.length ? reussies.slice(0, 8).map((x) => line(x.nom, x.pct)).join('') : '<p class="rp-empty">Bientôt !</p>'}</div>
+      <div class="rp-col"><h3>Les natures à revoir</h3>${aRevoir.length ? aRevoir.slice(0, 8).map((x) => line(x.nom, x.pct)).join('') : '<p class="rp-empty">Aucune : bravo !</p>'}</div>
+    </div>` : '';
+  const confHtml = A.confusions.length ? `<section class="rp-section"><h3>Les confusions les plus fréquentes</h3><ul class="rp-list">${A.confusions.map((c) => `<li>Réponse « ${esc(c.choisie)} » au lieu de « ${esc(c.bonne)} » : ${c.n} fois</li>`).join('')}</ul></section>` : '';
+  return `${bilanCorners()}
+    <div class="rp-frame"></div>
+    <div class="rp-inner">
+      <div class="rp-header">
+        ${bilanEmblem()}
+        <div class="rp-eyebrow">MNEMOGRAM</div>
+        <h2>Bilan de progression</h2>
+        <div class="rp-decor"><span></span><i>❖</i><span></span></div>
+        <div class="rp-award">${nom ? 'est décerné avec félicitations à' : 'est décerné avec félicitations'}</div>
+        ${nom ? `<div class="rp-name">${esc(nom)}</div>` : ''}
+        ${A.first ? `<div class="rp-period">${fmtDate(A.first) === fmtDate(A.last) ? 'le ' + esc(fmtDate(A.first)) : `du ${esc(fmtDate(A.first))} au ${esc(fmtDate(A.last))}`}</div>` : ''}
+      </div>
+      <p class="rp-intro">${esc(intro)}</p>
+      <div class="rp-figures">
+        <div><strong>${A.list.length}</strong><span>partie${A.list.length > 1 ? 's' : ''}</span></div>
+        <div><strong>${A.jours}</strong><span>jour${A.jours > 1 ? 's' : ''} de pratique</span></div>
+        <div><strong>${A.questions}</strong><span>mots reconnus</span></div>
+        <div><strong>${taux} %</strong><span>trouvés du premier coup</span></div>
+      </div>
+      <div class="rp-cards">${cards}</div>
+      ${natHtml}
+      ${confHtml}
+      <section class="rp-section rp-next"><h3>Ton prochain défi</h3><ul class="rp-list">${defis.slice(0, 3).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></section>
+      <p class="rp-closing">${E.prenom ? esc(E.prenom) + ', continue' : 'Continue'} à lire, à observer et à nommer les mots : chaque partie rend ta mémoire plus forte.</p>
+      <div class="rp-bottom">
+        <span class="rp-foot">Établi le ${esc(fmtDate(new Date()))}<br>d'après les scores de ton compte</span>
+        ${bilanSeal()}
+        <span class="rp-foot rp-sign">La grammaire à travers la mémoire<br><strong>MNEMOGRAM</strong></span>
+      </div>
+    </div>`;
+}
+/* Texte du bilan pour l'e-mail (le PDF du diplôme, lui, s'enregistre avec « Imprimer / Enregistrer en PDF »). */
+function bilanMessage(scores) {
+  const A = analyseScores(scores);
+  const E = playerProfile?.enfant?.prenom || '';
+  const taux = A.questions ? Math.round((A.bonnes / A.questions) * 100) : 0;
+  const l = [`Mon bilan sur MNEMOGRAM : ${A.list.length} partie${A.list.length > 1 ? 's' : ''}, ${taux} % des mots trouvés du premier coup.`, ''];
+  A.niveaux.forEach((r) => l.push(`- Reconnaissance des natures, niveau ${r.n} : ${r.avg} % en moyenne sur ${r.count} partie${r.count > 1 ? 's' : ''}${r.diff !== undefined ? ` (${r.early} % au début, ${r.recent} % récemment)` : ''}.`));
+  const aRevoir = A.parNature.filter((x) => x.pct < 75).sort((a, b) => a.pct - b.pct).slice(0, 4);
+  if (aRevoir.length) { l.push('', 'À revoir :'); aRevoir.forEach((x) => l.push(`- ${x.nom} : ${x.pct} %`)); }
+  if (A.confusions.length) { l.push('', 'Mes confusions les plus fréquentes :'); A.confusions.forEach((c) => l.push(`- j'ai répondu ${c.choisie} au lieu d'${c.bonne} (${c.n} fois)`)); }
+  l.push('', 'Mes dernières parties :');
+  A.list.slice(-10).reverse().forEach((r) => { const d = new Date(r.date); l.push(`- ${isNaN(d) ? '' : d.toLocaleDateString('fr-FR') + ' : '}${scoreType(r.jeu)}, ${r.score} / ${r.total}`); });
+  l.push('', E, 'https://stassi-tech.github.io/mnemogram/');
+  return l.join('\n');
+}
+/* Les boutons d'envoi (Gmail / autre messagerie) servent à la fin d'une partie, dans Mon compte et dans le bilan. */
+function sendBoxHtml(idPrefix, intro) {
+  const avecMail = (playerProfile?.adultes || []).filter((a) => a.email);
+  if (!avecMail.length) return '<p class="send-hint">Pour envoyer tes scores, ajoute l\'adresse e-mail d\'un proche dans ta fiche (ci-dessus).</p>';
+  return `<p class="send-title">${intro}</p>
+    <p class="send-hint send-howto">Le message s'ouvre déjà écrit, avec les adresses : il ne reste qu'à cliquer sur « Envoyer ».</p>
+    <div class="send-list" id="${idPrefix}-list">${avecMail.map((a) => `<label class="send-person"><input type="checkbox" value="${esc(a.email)}" checked />${a.photo ? `<img class="send-photo" src="${a.photo}" alt="" />` : ''}<span>${esc(LIENS[a.lien]?.label || a.email)}${a.prenom ? ' ' + esc(a.prenom) : ''}</span></label>`).join('')}</div>
+    <div class="send-buttons">
+      <button type="button" class="primary-button" id="${idPrefix}-gmail">✉️ Envoyer avec Gmail</button>
+      <button type="button" class="secondary-button" id="${idPrefix}-mail">Autre messagerie</button>
+    </div>`;
+}
+function wireSendBox(idPrefix, getSubject, getBody) {
+  const to = () => [...document.querySelectorAll(`#${idPrefix}-list input:checked`)].map((c) => c.value);
+  $(`${idPrefix}-gmail`)?.addEventListener('click', async () => {
+    const t = to(); if (!t.length) return;
+    const body = await getBody();
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(t.join(','))}&su=${encodeURIComponent(getSubject())}&body=${encodeURIComponent(body)}`, '_blank', 'noopener');
+  });
+  $(`${idPrefix}-mail`)?.addEventListener('click', async () => {
+    const t = to(); if (!t.length) return;
+    const body = await getBody();
+    location.href = `mailto:${t.join(',')}?subject=${encodeURIComponent(getSubject())}&body=${encodeURIComponent(body)}`;
+  });
+}
+const bilanSubject = () => `${playerProfile?.enfant?.prenom ? playerProfile.enfant.prenom + ' : ' : ''}mon bilan sur MNEMOGRAM`;
+async function openBilan() {
+  const overlay = $('report-overlay'), sheet = $('report-sheet');
+  sheet.innerHTML = '<p class="rp-loading">Préparation de ton bilan…</p>';
+  $('report-send').innerHTML = '';
+  overlay.classList.remove('hidden');
+  const scores = await loadScores();
+  if (!scores.length) { sheet.innerHTML = '<p class="rp-loading">Pas encore de score enregistré : termine une partie, et ton bilan apparaîtra ici.</p>'; return; }
+  sheet.innerHTML = buildBilan(scores);
+  $('report-send').innerHTML = sendBoxHtml('rsend', 'Envoyer ce bilan à :');
+  wireSendBox('rsend', bilanSubject, async () => bilanMessage(scores));
 }
 
 function authErrorMessage(error) {
@@ -1327,6 +1474,9 @@ $('global-fullscreen-button').addEventListener('click', () => {
   if (document.fullscreenElement) document.exitFullscreen?.(); else document.documentElement.requestFullscreen?.();
 });
 $('global-fiche-button').addEventListener('click', openFiche);
+$('report-close').addEventListener('click', () => $('report-overlay').classList.add('hidden'));
+$('report-print').addEventListener('click', () => window.print());
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('report-overlay').classList.add('hidden'); });
 $('fiche-close').addEventListener('click', () => $('fiche-modal').classList.add('hidden'));
 $('fiche-modal').addEventListener('click', (e) => { if (e.target.id === 'fiche-modal') $('fiche-modal').classList.add('hidden'); });
 if (auth) wireAccount(); else { $('global-account-button').addEventListener('click', () => {}); }
