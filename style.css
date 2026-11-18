@@ -1,0 +1,200 @@
+/* ============================================================
+   MNEMOGRAM — feuille de style
+   Reprend l'interface de Mnemart (ambiance de base « Salon Renoir » : beige / bronze),
+   bandeau fixe en haut, mosaïque floutée à l'accueil, grille de jeu en deux colonnes.
+   ============================================================ */
+:root {
+  --ink:#24313f; --muted:#65707d; --paper:#fffdf9; --canvas:#f1eee7; --border:#ded8cc;
+  --accent:#9c7a4a; --accent-dark:#7a5c35; --cta:#6f4a30; --cta-dark:#4a2f1c;
+  --ok:#15734b; --wrong:#b3392d;
+  --nat-green:#2f8f4e; --nat-green-dark:#21693a;
+}
+* { box-sizing:border-box; }
+button, a, [role="button"] { touch-action:manipulation; }
+button, input { font:inherit; }
+body { margin:0; color:var(--ink); background:radial-gradient(circle at top right,#e7d4bd 0,transparent 32rem),var(--canvas); font-family:Georgia,"Times New Roman",serif; }
+body.in-exercise { background:linear-gradient(160deg,#efe2c6 0%,#e2cfa6 55%,#d6c08f 100%); }
+.hidden { display:none !important; }
+
+/* ---------- Mosaïque de fond (accueil) ---------- */
+.bg-mosaic { position:fixed; inset:0; z-index:0; display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(3,1fr); gap:2px; overflow:hidden; }
+.bg-tile { position:relative; overflow:hidden; background:#c9c1ae; cursor:pointer; }
+.bg-tile::before { content:''; position:absolute; inset:0; pointer-events:none; mix-blend-mode:multiply; opacity:.55; z-index:1; background:#f0e6d2; transition:opacity .35s; }
+.bg-tile:nth-child(even)::before { background:#e8d078; }
+.bg-tile img { width:100%; height:100%; object-fit:cover; display:block; filter:blur(6px) grayscale(.3); opacity:.45; transform:scale(1.15); transition:filter .35s, opacity .35s, transform .35s; -webkit-user-drag:none; user-select:none; }
+.bg-tile.touched { z-index:2; box-shadow:inset 0 0 0 3px var(--accent); }
+.bg-tile.touched::before { opacity:0; }
+.bg-tile.touched img { filter:blur(0) grayscale(0); opacity:1; transform:scale(1.3); }
+@media (hover:hover) {
+  .bg-tile:hover { z-index:2; box-shadow:inset 0 0 0 3px var(--accent); }
+  .bg-tile:hover::before { opacity:0; }
+  .bg-tile:hover img { filter:blur(0) grayscale(0); opacity:1; transform:scale(1.3); }
+}
+
+/* ---------- Bandeau du haut ---------- */
+.topbar-banner { position:fixed; top:0; left:0; right:0; z-index:200; display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--paper); padding:8px 16px; box-shadow:0 2px 8px rgba(0,0,0,.1); min-height:44px; }
+.topbar-zone { flex:1 1 0; display:flex; align-items:center; gap:10px; }
+.topbar-zone-center { justify-content:center; flex:0 0 auto; gap:14px; }
+.global-topbar-button { width:28px; height:28px; border-radius:6px; border:1px solid var(--border); background:var(--paper); font-size:.9rem; cursor:pointer; flex:0 0 auto; padding:0; }
+@media (hover:hover) { .global-topbar-button:hover { border-color:var(--accent); } }
+#global-volume-bars { display:flex; align-items:flex-end; gap:2px; height:22px; cursor:pointer; margin:0 4px; }
+.volume-bar { width:4px; border:none; padding:0; background:#ccc; cursor:pointer; }
+.volume-bar.on { background:var(--accent); }
+.global-version-badge { font-family:Arial,sans-serif; font-size:.7rem; color:#9a958b; }
+
+/* ---------- Cadre général ---------- */
+.app-shell { width:min(1600px, calc(100% - 32px)); margin:0 auto; padding:56px 0 20px; display:flex; min-height:100vh; pointer-events:none; position:relative; z-index:1; }
+.main-content { flex:1 1 0; min-width:0; display:flex; flex-direction:column; }
+.main-content > * { pointer-events:auto; }
+.eyebrow { margin:0 0 7px; font-family:Arial,sans-serif; font-size:.72rem; font-weight:700; letter-spacing:.13em; color:var(--accent); }
+h1,h2,h3,p { margin-top:0; }
+
+/* ---------- Boutons ---------- */
+.primary-button,.secondary-button { display:inline-flex; align-items:center; justify-content:center; cursor:pointer; border-radius:5px; border:0; padding:13px 17px; text-align:center; font-family:Arial,sans-serif; font-weight:700; font-size:.95rem; transition:background .15s, transform .15s; }
+.primary-button { color:#fff; background:var(--cta); }
+.secondary-button { color:var(--accent-dark); background:transparent; border:1px solid var(--accent); }
+@media (hover:hover) {
+  .primary-button:hover { background:var(--cta-dark); transform:translateY(-1px); }
+  .secondary-button:hover { background:#fff; }
+}
+
+/* ---------- Accueil ---------- */
+.welcome-panel { max-width:640px; width:100%; margin:auto; padding:30px 46px; text-align:center; background:rgba(255,253,249,.97); border:1px solid var(--border); box-shadow:0 16px 35px rgba(54,45,31,.08); border-radius:8px; position:relative; z-index:1; }
+.welcome-panel p { color:var(--muted); line-height:1.5; font-size:1.02rem; }
+.app-brand-name { font-weight:700; letter-spacing:.12em; font-size:1.1rem; color:var(--accent) !important; margin:14px 0 4px; }
+.home-eyebrow { font-size:1rem; letter-spacing:.14em; color:var(--muted); line-height:1.6; margin-bottom:6px; }
+.home-tagline { font-weight:400; font-size:1.32rem; line-height:1.3; margin:0 0 14px; color:var(--ink); }
+.home-illustration { margin:0 0 14px; }
+.home-illustration img { display:block; width:100%; height:auto; border-radius:6px; }
+.home-illustration figcaption { margin-top:6px; font-size:.8rem; font-style:italic; color:var(--muted); }
+.intro-banner { background:#f3e6c9; color:var(--ink) !important; padding:14px 20px; border-radius:6px; font-family:Arial,sans-serif; font-size:.92rem !important; font-weight:700; line-height:1.42; text-align:justify; margin-bottom:14px; }
+.home-mode-buttons { display:grid; grid-template-columns:1fr; gap:16px; margin-top:8px; }
+.home-mode-button { padding:20px; border:1px solid var(--cta-dark); border-radius:4px; background:var(--cta); color:#fff; cursor:pointer; text-align:center; transition:background .15s; }
+@media (hover:hover) { .home-mode-button:hover { background:var(--cta-dark); } }
+.home-mode-button .label { display:block; font-family:Arial,sans-serif; font-size:1.05rem; font-weight:700; color:#fff; margin-bottom:4px; }
+.home-mode-button .desc { display:block; font-size:.85rem; color:#f3e6c9; font-style:italic; }
+.copyright-notice { font-family:Arial,sans-serif; font-size:.75rem !important; margin:18px 0 0; }
+
+/* ---------- Jeu ---------- */
+.quiz-panel { width:100%; }
+.progress-row { display:flex; justify-content:space-between; align-items:baseline; gap:12px; font-size:1rem; color:var(--ink); margin:8px 0 6px; }
+.quiz-reference { color:var(--accent-dark); font-weight:700; }
+.score-summary-highlight { font-family:Arial,sans-serif; font-weight:700; font-size:.9rem; }
+.progress-track { height:6px; background:rgba(255,255,255,.7); border-radius:3px; overflow:hidden; margin-bottom:22px; }
+.progress-bar { height:100%; width:0; background:var(--accent); transition:width .3s; }
+.ready-screen { text-align:center; padding:40px 20px; margin-top:16vh; }
+.ready-card { display:inline-block; background:rgba(255,253,249,.94); padding:32px 40px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.18); max-width:520px; }
+.ready-explanation { font-family:Arial,sans-serif; font-size:.92rem; color:#4a4438; line-height:1.45; text-align:left; margin:0 0 18px; }
+.ready-title { font-size:1.15rem; margin:0 0 22px; }
+#nat-start-button { padding:16px 32px; }
+
+.quiz-grid { display:grid; grid-template-columns:minmax(0,1.9fr) minmax(340px,.6fr); background:var(--paper); box-shadow:0 14px 35px rgba(54,45,31,.1); border-radius:8px; overflow:hidden; }
+.artwork-column { display:flex; flex-direction:column; min-width:0; }
+.artwork-card { position:relative; min-height:min(640px,72vh); margin:0; padding:22px; background:#1b1c1e; display:flex; align-items:center; justify-content:center; }
+
+/* Colonne de gauche : la phrase, écrite comme à la craie sur un tableau d'ardoise */
+.sentence-card { flex-direction:column; background:#22352b; background-image:radial-gradient(circle at 30% 20%, rgba(255,255,255,.06), transparent 60%); border:10px solid #7a5530; }
+.sentence { color:#f4f1e6; font-size:clamp(1.6rem,3.2vw,2.7rem); line-height:1.6; text-align:center; max-width:900px; margin:0 0 70px; }
+.sentence .w { display:inline-block; padding:0 2px; border-radius:6px; }
+.sentence .w.target { color:#ffe066; animation:blink 1s ease-in-out infinite; box-shadow:0 0 0 3px rgba(255,224,102,.0); }
+.sentence .w.target.found { animation:none; color:#7fe0a0; text-decoration:underline; text-decoration-thickness:3px; text-underline-offset:6px; }
+@keyframes blink { 0%,100% { opacity:1; background:rgba(255,224,102,.18); } 50% { opacity:.25; background:transparent; } }
+.listen-button { position:absolute; left:22px; bottom:18px; font-family:Arial,sans-serif; font-size:.85rem; color:#f4f1e6; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.3); border-radius:20px; padding:7px 14px; cursor:pointer; }
+@media (hover:hover) { .listen-button:hover { background:rgba(255,255,255,.2); } }
+
+/* Personnage qui apparaît après chaque réponse */
+.character-stage { position:absolute; right:14px; bottom:0; display:flex; align-items:flex-end; gap:6px; pointer-events:none; max-width:70%; }
+.character-stage .character { height:min(300px,40vh); width:auto; animation:pop-in .45s cubic-bezier(.2,1.4,.4,1) both; transform-origin:bottom center; }
+.character-stage .bubble { align-self:flex-start; margin-top:10px; background:#fff; color:#24313f; font-family:Arial,sans-serif; font-weight:700; font-size:1rem; line-height:1.35; padding:12px 16px; border-radius:16px; box-shadow:0 6px 18px rgba(0,0,0,.3); position:relative; max-width:280px; animation:pop-in .45s .15s cubic-bezier(.2,1.4,.4,1) both; }
+.character-stage .bubble::after { content:''; position:absolute; right:-12px; top:22px; border:8px solid transparent; border-left:12px solid #fff; }
+.character-stage .bubble .who { display:block; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; margin-bottom:3px; }
+.character-stage.good .bubble .who { color:var(--ok); }
+.character-stage.bad .bubble .who { color:var(--wrong); }
+@keyframes pop-in { from { opacity:0; transform:translateY(40px) scale(.6); } to { opacity:1; transform:none; } }
+
+/* Colonne de droite : les dix natures */
+.answer-card { padding:20px 24px; }
+.answer-card h2 { font-family:Arial,sans-serif; font-weight:700; font-size:1.2rem; margin:0 0 14px; }
+.nature-group-title { font-family:Arial,sans-serif; font-size:.72rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--accent); margin:12px 0 6px; }
+.nature-buttons { display:grid; grid-template-columns:1fr; gap:5px; }
+.nature-button { display:block; width:100%; text-align:left; padding:8px 14px; border:2px solid var(--nat-green-dark); border-radius:6px; background:var(--nat-green); color:#fff; font-family:Arial,sans-serif; font-weight:700; font-size:.98rem; cursor:pointer; transition:background .15s, transform .1s, opacity .15s; }
+@media (hover:hover) { .nature-button:hover:not(:disabled) { background:var(--nat-green-dark); transform:translateX(3px); } }
+.nature-button:disabled { cursor:default; }
+.nature-button.wrong { background:var(--wrong); border-color:#8a2a22; opacity:.85; }
+.nature-button.correct { background:var(--ok); border-color:#0c4d31; box-shadow:0 0 0 3px #ffe066; }
+.nature-button.faded { opacity:.45; }
+
+.correction-details { margin-top:16px; padding:12px 14px; background:#f3e6c9; border-radius:6px; font-family:Arial,sans-serif; font-size:.9rem; line-height:1.45; color:var(--ink); }
+.correction-details strong { color:var(--accent-dark); }
+.verdict-row { display:flex; gap:12px; align-items:center; margin-top:14px; }
+.verdict-row .primary-button { flex:1; }
+.verdict-square { width:44px; height:44px; border-radius:8px; flex:0 0 auto; background:var(--border); }
+.verdict-square.correct { background:var(--ok); }
+.verdict-square.wrong { background:var(--wrong); }
+
+/* ---------- Résultats ---------- */
+.results-character { display:flex; justify-content:center; margin:6px 0 10px; }
+.results-character svg { height:220px; width:auto; }
+#results-title { font-size:1.5rem; font-weight:500; }
+.results-buttons { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:10px; }
+
+/* ---------- Fiche des natures ---------- */
+.modal-backdrop { position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:20px; }
+.modal-card { position:relative; background:var(--paper); border-radius:10px; max-width:720px; width:100%; max-height:86vh; overflow-y:auto; padding:28px 30px; box-shadow:0 20px 60px rgba(0,0,0,.4); }
+.modal-card h2 { color:var(--accent-dark); font-size:1.4rem; margin:0 40px 14px 0; }
+.modal-close-x { position:absolute; top:12px; right:12px; width:32px; height:32px; border-radius:50%; background:var(--paper); border:1px solid var(--border); color:var(--ink); cursor:pointer; }
+@media (hover:hover) { .modal-close-x:hover { background:var(--wrong); color:#fff; border-color:var(--wrong); } }
+.fiche-group { font-family:Arial,sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--accent); margin:16px 0 6px; }
+.fiche-row { display:grid; grid-template-columns:200px 1fr; gap:12px; padding:9px 0; border-top:1px solid var(--border); font-family:Arial,sans-serif; font-size:.9rem; line-height:1.4; }
+.fiche-row b { color:var(--nat-green-dark); }
+.fiche-row em { color:var(--muted); }
+
+/* ---------- Tablette et smartphone ---------- */
+@media (max-width:900px) {
+  .quiz-grid { grid-template-columns:1fr; }
+  .artwork-card { min-height:auto; }
+  .sentence-card { min-height:46vh; padding:18px 14px; }
+  .sentence { margin-bottom:110px; }
+  .character-stage .character { height:min(190px,26vh); }
+  .character-stage .bubble { font-size:.88rem; max-width:200px; }
+  .nature-buttons { grid-template-columns:1fr 1fr; }
+}
+@media (max-width:640px) {
+  .bg-mosaic { grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(4,1fr); }
+  .bg-tile:hover img, .bg-tile.touched img { transform:none; }
+  .welcome-panel { padding:22px 18px; }
+  .app-shell { width:calc(100% - 16px); }
+  .answer-card { padding:18px 14px; }
+  .nature-button { font-size:.85rem; padding:10px 9px; }
+  .fiche-row { grid-template-columns:1fr; gap:2px; }
+  .progress-row { font-size:.85rem; }
+}
+
+/* ---------- Compte (repris de Mnemart) ---------- */
+.account-hub-slot { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.account-hub-slot.is-disabled { cursor:default; opacity:.6; }
+.account-slot-email { font-family:Arial,sans-serif; font-size:.72rem; color:#f3e6c9; word-break:break-all; }
+.account-connect-switch { position:relative; display:inline-flex; align-items:center; width:42px; height:22px; border-radius:11px; background:rgba(255,255,255,.35); border:1px solid rgba(255,255,255,.6); transition:background .2s, border-color .2s; flex-shrink:0; cursor:pointer; }
+.account-connect-switch.is-connected { background:var(--ok); border-color:var(--ok); }
+.account-connect-knob { position:absolute; top:1px; left:1px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.35); transition:transform .2s; }
+.account-connect-switch.is-connected .account-connect-knob { transform:translateX(20px); }
+.account-card { max-width:560px; }
+.account-intro { font-family:Arial,sans-serif; font-size:.88rem; color:var(--muted); line-height:1.45; margin:-4px 0 12px; }
+.account-form { display:grid; gap:12px; }
+.account-form label { display:grid; gap:5px; font-family:Arial,sans-serif; font-size:.82rem; font-weight:700; color:var(--ink); }
+.account-form input[type=text], .account-form input[type=email], .account-form input[type=password], .account-form select { width:100%; padding:10px; color:#2b2620; border:1px solid #cfc8bc; border-radius:4px; background:#fff; font-family:Arial,sans-serif; font-size:.95rem; }
+.account-form input:focus, .account-form select:focus { outline:2px solid #df947f; border-color:var(--accent); }
+.account-fieldset { border:1px solid var(--border); border-radius:6px; padding:10px 14px 14px; margin:0; display:grid; gap:10px; }
+.account-fieldset legend { font-family:Arial,sans-serif; font-size:.72rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--accent); padding:0 6px; }
+.account-fieldset .hint { font-family:Arial,sans-serif; font-size:.78rem; font-weight:400; color:var(--muted); margin:0; line-height:1.4; }
+.account-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.account-row-3 { display:grid; grid-template-columns:130px 1fr 1fr; gap:10px; }
+.account-consent { display:flex !important; grid-template-columns:none; align-items:flex-start; gap:8px !important; font-weight:400 !important; line-height:1.4; }
+.account-consent input { margin-top:3px; flex:0 0 auto; }
+.account-error { color:var(--wrong); font-family:Arial,sans-serif; font-size:.85rem; margin:0; }
+.account-notice { color:var(--ok); font-family:Arial,sans-serif; font-size:.85rem; margin:0; line-height:1.4; }
+.modal-hint { text-align:center; margin:12px 0 0; font-family:Arial,sans-serif; font-size:.85rem; color:var(--muted); }
+.link-label { background:none; border:0; padding:0; color:var(--accent-dark); text-decoration:underline; cursor:pointer; font-family:Arial,sans-serif; font-size:.88rem; }
+@media (max-width:640px) {
+  .account-row, .account-row-3 { grid-template-columns:1fr; }
+}

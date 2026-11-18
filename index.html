@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Jeux gratuits pour mémoriser les notions fondamentales de grammaire, dès 7 ans." />
+    <title>MNEMOGRAM — La grammaire à travers la mémoire</title>
+    <meta name="theme-color" content="#9c7a4a" />
+    <link rel="stylesheet" href="style.css?v=3" />
+    <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
+    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <!-- Même principe que la mosaïque de Mnemart : 15 cases floutées et pâlies, nettes au survol.
+         Ici pas d'images à télécharger : chaque case est un mot écrit dans la couleur de sa nature. -->
+    <div class="bg-mosaic" aria-hidden="true" id="bg-mosaic"></div>
+
+    <div class="topbar-banner" id="global-topbar">
+      <div class="topbar-zone topbar-zone-left"></div>
+      <div class="topbar-zone topbar-zone-center">
+        <button type="button" id="global-home-button" class="global-topbar-button" aria-label="Retour à l'accueil" title="Retour à l'accueil">🏠</button>
+        <!-- Barres de volume de la voix de synthèse (5 niveaux, comme dans Mnemart) : la voix lit
+             la phrase quand on le demande, et les paroles des sorciers. -->
+        <div id="global-volume-bars" role="group" aria-label="Volume de la voix" title="Volume de la voix">
+          <button type="button" class="volume-bar" data-level="1" style="height:8px"></button>
+          <button type="button" class="volume-bar" data-level="2" style="height:12px"></button>
+          <button type="button" class="volume-bar" data-level="3" style="height:16px"></button>
+          <button type="button" class="volume-bar" data-level="4" style="height:19px"></button>
+          <button type="button" class="volume-bar" data-level="5" style="height:22px"></button>
+        </div>
+        <button type="button" id="global-fullscreen-button" class="global-topbar-button" aria-label="Plein écran" title="Plein écran">⛶</button>
+        <button type="button" id="global-account-button" class="global-topbar-button" aria-label="Mon compte" title="Mon compte">👤</button>
+        <button type="button" id="global-fiche-button" class="global-topbar-button" aria-label="La fiche des natures" title="La fiche des natures">📖</button>
+        <span id="global-version-badge" class="global-version-badge" aria-hidden="true"></span>
+      </div>
+      <div class="topbar-zone topbar-zone-right"></div>
+    </div>
+
+    <div class="app-shell">
+      <main class="main-content">
+
+        <!-- ===================== ACCUEIL ===================== -->
+        <section id="welcome-panel" class="welcome-panel">
+          <p class="app-brand-name">MNEMOGRAM</p>
+          <p class="eyebrow home-eyebrow">La grammaire à travers la mémoire</p>
+          <h1 class="home-tagline">Apprendre la grammaire en jouant,<br>c'est possible.</h1>
+
+          <figure class="home-illustration">
+            <img src="assets/accueil.jpg" alt="La Grammaire apprend à lire à un enfant" />
+            <figcaption>Atelier de Gentile da FABRIANO, <em>La Grammaire</em> (salle des Arts libéraux), 1412 environ, Palazzo Trinci, Foligno.</figcaption>
+          </figure>
+
+          <p class="intro-banner">Maître Bonaccord et Dame Virgule t'attendent pour t'apprendre à reconnaître les mots de la langue française. Attention : Maître Rature et Dame Gribouille, eux, guettent la moindre erreur… Mais ils ne sont pas si méchants : ils veulent seulement que tu recommences !</p>
+
+          <div class="home-mode-buttons">
+            <button type="button" class="home-mode-button" id="open-natures">
+              <span class="label">Reconnaissance des natures</span>
+              <span class="desc">Un mot clignote dans la phrase : quelle est sa nature ?</span>
+            </button>
+            <!-- Bloc compte, repris de Mnemart : libellé + e-mail + interrupteur connecté/déconnecté -->
+            <div class="home-mode-button account-hub-slot" id="home-account-slot" role="button" tabindex="0">
+              <span class="label" id="home-account-label">Se connecter / Créer un compte</span>
+              <span class="account-slot-email hidden" id="home-account-email"></span>
+              <span class="account-connect-switch" id="home-account-switch" role="switch" tabindex="0" aria-checked="false" title="Se connecter">
+                <span class="account-connect-knob"></span>
+              </span>
+            </div>
+          </div>
+
+          <p class="copyright-notice">© 2026 MNEMOGRAM, Tours, France</p>
+        </section>
+
+        <!-- ===================== JEU 1 : RECONNAISSANCE DES NATURES ===================== -->
+        <section id="natures-panel" class="quiz-panel hidden">
+          <div class="progress-row">
+            <span><span class="quiz-reference">Reconnaissance des natures</span> — <span id="nat-progress-label">Question 1 / 10</span></span>
+            <span id="nat-score-label" class="score-summary-highlight">0 bonne réponse</span>
+          </div>
+          <div class="progress-track"><div class="progress-bar" id="nat-progress-bar"></div></div>
+
+          <div id="nat-ready-screen" class="ready-screen">
+            <div class="ready-card">
+              <p class="ready-explanation">Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les dix boutons verts. Si tu te trompes, tu as droit à un deuxième essai.</p>
+              <p class="ready-title">Ce jeu t'attend.</p>
+              <button type="button" class="primary-button" id="nat-start-button">Démarrer le jeu →</button>
+            </div>
+          </div>
+
+          <div class="quiz-grid hidden" id="nat-quiz-grid">
+            <div class="artwork-column">
+              <figure class="artwork-card sentence-card" id="nat-sentence-card">
+                <p class="sentence" id="nat-sentence"></p>
+                <button type="button" class="listen-button" id="nat-listen-button" title="Écouter la phrase">🔊 Écouter la phrase</button>
+                <div class="character-stage" id="nat-character-stage" aria-live="polite"></div>
+              </figure>
+            </div>
+            <section class="answer-card" aria-label="Natures">
+              <h2 id="nat-instruction">Quelle est la nature du mot qui clignote ?</h2>
+              <p class="nature-group-title">Mots variables</p>
+              <div class="nature-buttons" id="nat-buttons-variables"></div>
+              <p class="nature-group-title">Mots invariables</p>
+              <div class="nature-buttons" id="nat-buttons-invariables"></div>
+              <div id="nat-correction" class="hidden">
+                <div class="correction-details" id="nat-correction-details"></div>
+                <div class="verdict-row">
+                  <span id="nat-verdict-square" class="verdict-square"></span>
+                  <button type="button" class="primary-button" id="nat-next-button">Suivant →</button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- ===================== RÉSULTATS ===================== -->
+        <section id="results-panel" class="welcome-panel hidden">
+          <p class="app-brand-name">Partie terminée</p>
+          <div class="results-character" id="results-character"></div>
+          <h2 id="results-title"></h2>
+          <p id="results-text"></p>
+          <div class="results-buttons">
+            <button type="button" class="primary-button" id="results-replay">Rejouer</button>
+            <button type="button" class="secondary-button" id="results-home">Retour à l'accueil</button>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Fiche des natures (bouton 📖 du bandeau), reprise de la fiche « Classe et fonctions des mots » -->
+    <div id="fiche-modal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <button type="button" class="modal-close-x" id="fiche-close" aria-label="Fermer" title="Fermer">✕</button>
+        <h2>Les dix natures de mots</h2>
+        <div id="fiche-content"></div>
+      </div>
+    </div>
+
+
+    <!-- ===================== COMPTE : CONNEXION / INSCRIPTION ===================== -->
+    <div id="account-modal" class="modal-backdrop hidden">
+      <div class="modal-card account-card">
+        <button type="button" class="modal-close-x" data-close="account-modal" aria-label="Fermer" title="Fermer">✕</button>
+        <h2 id="account-modal-title">Se connecter</h2>
+        <form id="account-form" class="account-form">
+          <label>Adresse e-mail d'un parent
+            <input id="account-email" type="email" autocomplete="email" required />
+          </label>
+          <label>Mot de passe
+            <input id="account-password" type="password" autocomplete="current-password" required minlength="6" />
+          </label>
+          <div id="account-register-fields" class="hidden"></div>
+          <p id="account-error" class="account-error hidden"></p>
+          <p id="account-notice" class="account-notice hidden"></p>
+          <button type="submit" class="primary-button" id="account-submit-button">Se connecter</button>
+        </form>
+        <p class="modal-hint" id="account-forgot-row"><button type="button" id="account-forgot-button" class="link-label">Mot de passe oublié ?</button></p>
+        <p class="modal-hint"><button type="button" id="account-toggle-mode" class="link-label">Pas encore de compte ? Créez-en un</button></p>
+      </div>
+    </div>
+
+    <!-- ===================== COMPTE : FICHE DE L'ENFANT (« Mon compte ») ===================== -->
+    <div id="profile-modal" class="modal-backdrop hidden">
+      <div class="modal-card account-card">
+        <button type="button" class="modal-close-x" data-close="profile-modal" aria-label="Fermer" title="Fermer">✕</button>
+        <h2 id="profile-modal-title">Mon compte</h2>
+        <p class="account-intro" id="profile-intro"></p>
+        <form id="profile-form" class="account-form">
+          <div id="profile-fields"></div>
+          <p id="profile-error" class="account-error hidden"></p>
+          <p id="profile-notice" class="account-notice hidden"></p>
+          <button type="submit" class="primary-button">Enregistrer</button>
+        </form>
+        <p class="modal-hint" id="profile-email-row"></p>
+        <p class="modal-hint"><button type="button" id="profile-logout-button" class="link-label">Se déconnecter</button></p>
+      </div>
+    </div>
+
+    <script defer src="app.js?v=3"></script>
+  </body>
+</html>
