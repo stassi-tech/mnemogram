@@ -484,7 +484,16 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .game4 .nature-button.wrong { background:#7d7d7d; border-color:#5a5a5a; text-decoration:line-through; }
 @keyframes gnFlash { 50% { color:var(--fn-red); } }
 #nat-instruction.gn-flash { animation:gnFlash .5s 2; }
-.game4 .answer-columns { grid-template-columns:minmax(0,1.75fr) minmax(0,.75fr); }
+.game4 .answer-columns { display:block; }
+.game4 .nature-group-title { display:none; }
+.game4 #nat-buttons-variables, .game4 #nat-buttons-fonctions { display:grid; gap:10px; max-width:520px; }
+.game4 .nature-button { font-size:1.05rem; padding:12px 16px; }
+.game4 .nature-button.small { font-size:.8rem; padding:8px 2px; }
+.game4 .fonction-column { margin-top:4px; }
+.nature-button.gn-aucun { background:#eef0f3; color:#24313f; border-color:#9aa3ad; }
+@media (hover:hover) { .nature-button.gn-aucun:hover:not(:disabled) { background:#dfe3e8; } }
+.game4 .nature-button { animation:fnApparait .3s ease-out; }
+.game4 .nature-button.cue { animation:fnApparait .3s ease-out, cueBlink 1s ease-in-out .3s infinite; }
 .game4 .quiz-grid { grid-template-columns:minmax(0,1fr) minmax(0,1.35fr); }
 @media (max-width:900px) { .game4 .quiz-grid { grid-template-columns:1fr; } }
 #global-back-button { font-weight:700; font-size:1.05rem; line-height:1; color:var(--ink); }

@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v19';
+const APP_VERSION = 'v20';
 
 const $ = (id) => document.getElementById(id);
 
@@ -121,8 +121,8 @@ const FONCTIONS = [
     explication: "Le COS vient en plus du COD : on donne quelque chose à quelqu'un. On le trouve avec « à qui ? » ou « à quoi ? » après le verbe et le COD : *Je donne une pomme à qui ?* → *à ma sœur*.",
     q: (v) => `${v} + quelque chose + à qui ?` },
   { code: 'F.att', court: 'Attribut du sujet', nom: 'Attribut du sujet', article: 'un attribut du sujet', groupe: 'fnom',
-    exemples: 'verbe d\'état + quoi ? = attribut du sujet',
-    explication: "L'attribut du sujet vient après un verbe d'état (être, paraître, sembler, devenir, rester) et dit ce qu'est le sujet : *L'éléphant est quoi ?* → *un animal*.",
+    exemples: 'verbe d\'état + quoi ? (comment ?) = attribut du sujet',
+    explication: "L'attribut du sujet vient après un verbe d'état (être, paraître, sembler, devenir, rester) et dit ce qu'est le sujet : *L'éléphant est quoi ?* → *un animal*. Un adjectif peut aussi être attribut : *Le chien est comment ?* → *blanc*.",
     q: (v) => `${v} + quoi ?` },
   { code: 'F.ccl', court: 'CC de lieu', nom: 'Complément circonstanciel de lieu', article: 'un complément circonstanciel de lieu', groupe: 'fnom',
     exemples: 'verbe + où ? = CC de lieu',
@@ -144,6 +144,14 @@ const FONCTIONS = [
   { code: 'F.cdn', court: 'Complément du nom', nom: 'Complément du nom', article: 'un complément du nom', groupe: 'fgn',
     exemples: 'nom + de (d\', du) + nom = complément du nom',
     explication: "Le complément du nom complète un nom ; il est relié à lui par un petit mot (*de*, *d'*, *du*) : *le chat de mon voisin*, *un jus d'orange*. Il fait partie du groupe nominal.",
+    q: () => '' },
+  { code: 'F.epi', court: 'Épithète', nom: 'Épithète', article: 'un adjectif épithète', groupe: 'fadj',
+    exemples: 'nom + adjectif collé à lui = épithète',
+    explication: "L'adjectif épithète est tout près du nom, juste avant ou juste après lui : *un chien blanc*, *une petite souris*.",
+    q: () => '' },
+  { code: 'F.app', court: 'Apposé', nom: 'Apposé', article: 'un adjectif apposé', groupe: 'fadj',
+    exemples: 'nom , adjectif , = apposé (séparé par une virgule)',
+    explication: "L'adjectif apposé est séparé du nom (ou du pronom) par au moins une virgule : *Fatigué, le lion dort.*",
     q: () => '' },
   { code: 'F.mod', court: 'Modifie le sens', nom: 'Modifie le sens', article: 'un adverbe qui modifie le sens', groupe: 'fadv',
     exemples: 'adverbe + verbe, adjectif ou adverbe = modifie le sens',
@@ -830,7 +838,7 @@ function openGame(id) {
   $('natures-panel').classList.toggle('game4', id === 'gn');
   $('nat-ready-explanation').innerHTML = id === 'fonctions'
     ? 'Dans chaque phrase, un mot clignote. Trouve d\'abord sa <strong>nature</strong> parmi les boutons verts : les autres natures disparaissent, et ses <strong>fonctions</strong> possibles apparaissent sur des boutons rouges. La bonne nature rapporte 0,5 point, la bonne fonction 0,5 point. Si tu te trompes, tu as droit à un deuxième essai.'
-    : id === 'gn' ? 'Cette fois, ce sont les <strong>boutons</strong> qui clignotent, et c\'est <strong>dans la phrase</strong> que tu cliques. Quand « Nom commun » clignote, clique sur un nom de la phrase. Puis clique sur son <strong>déterminant</strong>, et dis quelle sorte de déterminant c\'est avec les boutons. Si « Adjectif qualificatif » clignote, clique sur l\'adjectif de ce nom ; si « Complément du nom » clignote, clique sur son complément du nom. Et on recommence avec le nom suivant, jusqu\'à ce que tous les noms soient trouvés.'
+    : id === 'gn' ? 'Cette fois, c\'est <strong>dans la phrase</strong> que tu cliques, et les boutons apparaissent l\'un après l\'autre pour te guider. Trouve d\'abord le <strong>nom commun</strong> ou le <strong>pronom</strong> ; puis son <strong>déterminant</strong>, et dis quelle sorte de déterminant c\'est ; puis son <strong>adjectif qualificatif</strong> s\'il y en a un, et sa fonction (épithète, attribut ou apposé) ; enfin son <strong>complément du nom</strong>, s\'il y en a un. S\'il n\'y en a pas, clique sur « Il n\'y en a pas ».'
     : 'Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.';
   buildNatureButtons();
   $('nat-game-title').textContent = currentGame.titre;
@@ -1080,94 +1088,115 @@ function finishQuestion3(reussi) {
 }
 
 /* ------------------------------------------------------------
-   v18 : JEU 4 — LE GROUPE NOMINAL
-   Les groupes nominaux sont trouvés tout seuls dans les phrases déjà écrites : pour chaque nom commun,
-   son déterminant (juste avant, éventuellement avec un adjectif entre les deux), ses adjectifs (collés à lui,
-   avant ou après) et son complément du nom (« de », « d' » ou « du », puis un nom ou un nom propre).
+   v20 : JEU 4 — LE GROUPE NOMINAL (version simplifiée)
+   Une phrase = un seul groupe nominal à analyser, autour d'un seul nom commun ou d'un seul pronom
+   (un autre nom ne peut s'y trouver que comme complément du nom). Les boutons apparaissent l'un après l'autre :
+   1. « Nom commun » et « Pronom » : on clique dans la phrase sur le nom (ou le pronom) ;
+   2. « Déterminant » : on clique sur son déterminant ; puis la barre des déterminants : sa sorte exacte
+      (pour un pronom : directement la barre des pronoms) ;
+   3. « Adjectif qualificatif » : on clique sur l'adjectif (ou « Il n'y en a pas »), puis sa fonction :
+      épithète, attribut ou apposé ;
+   4. « Complément du nom » : on clique dessus (ou « Il n'y en a pas »).
+   Notation des phrases : l'adjectif porte sa fonction (=epi, =att, =app) ; le nom du complément du nom porte =cdn.
    ------------------------------------------------------------ */
-const GN_DEBUT = PHRASES.indexOf('Deux/D.num chats/N jouent/VA dans/P le/D.def jardin/N .');
-const GN_FIN = PHRASES.findIndex((p) => p.startsWith('Je/Pr.per=suj parle/VA'));
-const GN_PLUS = PHRASES.indexOf('La/D.def petite/A maison/N de/P ma/D.pos grand-mère/N est/VE jolie/A .');
+const PHRASES_GN = [
+  'Le/D.def chien/N blanc/A=epi du/P voisin/N=cdn aboie/VA .',
+  'Regarde/VA ce/D.dem joli/A=epi chat/N noir/A=epi !',
+  'Mon/D.pos vélo/N rouge/A=epi roule/VA vite/Av .',
+  'La/D.def maison/N de/P ma/D.pos grand-mère/N=cdn est/VE grande/A=att .',
+  'Fatigué/A=app , le/D.def lion/N dort/VA .',
+  'Une/D.ind petite/A=epi souris/N grise/A=epi passe/VA .',
+  'Le/D.def jardin/N de/P Léa/NP=cdn semble/VE fleuri/A=att .',
+  'Chaque/D.idf élève/N chante/VA .',
+  'Quel/D.int bruit/N étrange/A=epi résonne/VA ?',
+  'Trois/D.num petits/A=epi canards/N nagent/VA .',
+  'Plusieurs/D.idf oiseaux/N du/P jardin/N=cdn chantent/VA .',
+  'Cette/D.dem robe/N de/P soie/N=cdn brille/VA .',
+  'Le/D.def cheval/N , rapide/A=app , galope/VA .',
+  'Notre/D.pos voiture/N est/VE neuve/A=att .',
+  'Un/D.ind verre/N de/P lait/N=cdn tombe/VA .',
+  'Ces/D.dem fleurs/N paraissent/VE fragiles/A=att .',
+  'Joyeux/A=app , le/D.def bébé/N rit/VA .',
+  'Quelques/D.idf feuilles/N jaunes/A=epi tombent/VA .',
+  'Deux/D.num chats/N du/P voisin/N=cdn dorment/VA .',
+  'Regarde/VA la/D.def grande/A=epi tour/N de/P Paris/NP=cdn !',
+  'Ta/D.pos sœur/N semble/VE heureuse/A=att .',
+  /* un seul pronom */
+  'Il/Pr.per semble/VE heureux/A=att .',
+  'Fatiguée/A=app , elle/Pr.per dort/VA .',
+  'Le_mien/Pr.pos est/VE rouge/A=att .',
+  'Chacun/Pr.idf chante/VA .',
+  'Celle-ci/Pr.dem paraît/VE lourde/A=att .',
+  'Personne/Pr.idf ne/Av répond/VA .',
+  'Les_deux/Pr.num sont/VE prêts/A=att .',
+  'Lequel/Pr.int arrive/VA ?',
+];
+const PARSED_GN = PHRASES_GN.map(parsePhrase);
+const motsDe = (q) => (q && q.gn ? PARSED_GN[q.phrase] : PARSED[q.phrase]);
 function analyseGN(mots) {
-  const groupes = [];
-  mots.forEach((m, n) => {
-    if (m.tag !== 'N') return;
-    const g = { n, d: null, dType: '', adj: [], cdn: null };
-    let k = n - 1;
-    while (k >= 0 && mots[k].tag === 'A') { g.adj.unshift(k); k--; }
-    if (k >= 0 && /^D\./.test(mots[k].tag)) { g.d = k; g.dType = mots[k].tag; }
-    let j = n + 1;
-    while (j < mots.length && mots[j].tag === 'A') { g.adj.push(j); j++; }
-    if (j < mots.length && mots[j].tag === 'P' && /^(de|d'|du)$/i.test(mots[j].texte)) {
-      let h = j + 1;
-      while (h < mots.length && (/^D\./.test(mots[h].tag) || mots[h].tag === 'A')) h++;
-      if (h < mots.length && (mots[h].tag === 'N' || mots[h].tag === 'NP')) g.cdn = { debut: j, fin: h };
-    }
-    groupes.push(g);
-  });
-  return groupes;
+  const t = mots.findIndex((m) => (m.tag === 'N' || /^Pr\./.test(m.tag)) && m.fn !== 'cdn');
+  const g = { t, pronom: /^Pr\./.test(mots[t].tag), d: null, dType: '', adj: [], cdn: null };
+  if (!g.pronom) { let k = t - 1; while (k >= 0 && mots[k].tag === 'A') k--; if (k >= 0 && /^D\./.test(mots[k].tag)) { g.d = k; g.dType = mots[k].tag; } }
+  mots.forEach((m, i) => { if (m.tag === 'A' && m.fn) g.adj.push(i); });
+  const c = mots.findIndex((m) => m.fn === 'cdn');
+  if (c >= 0) { let d = c; while (d > 0 && mots[d - 1].tag !== 'P') d--; g.cdn = { debut: d - 1, fin: c }; }
+  return g;
 }
+const ADJ_FN = { epi: 'F.epi', att: 'F.att', app: 'F.app' };
 function buildQuestionsGN() {
-  const pool = [];
-  PHRASES.forEach((p, i) => {
-    if (!((i >= GN_DEBUT && i < GN_FIN) || i >= GN_PLUS)) return;
-    const gs = analyseGN(PARSED[i]);
-    if (!gs.length || gs.length > 3) return;
-    const riche = gs.some((g) => g.adj.length || g.cdn) || gs.some((g) => g.d !== null && !/def|ind/.test(g.dType));
-    pool.push(i); if (riche) pool.push(i, i);
-  });
-  const choisies = [];
-  for (const i of shuffle(pool)) { if (!choisies.includes(i)) choisies.push(i); if (choisies.length >= nbQuestions()) break; }
-  return choisies.map((p) => ({ phrase: p, groupes: analyseGN(PARSED[p]) }));
+  const n = PARSED_GN.map((m, i) => i);
+  /* environ un pronom pour trois noms, et des phrases toutes différentes */
+  const noms = shuffle(n.filter((i) => !analyseGN(PARSED_GN[i]).pronom)), prons = shuffle(n.filter((i) => analyseGN(PARSED_GN[i]).pronom));
+  const nbP = Math.min(prons.length, Math.round(nbQuestions() / 4));
+  const choix = shuffle(prons.slice(0, nbP).concat(noms.slice(0, nbQuestions() - nbP)));
+  return choix.map((p) => ({ gn: true, phrase: p, g: analyseGN(PARSED_GN[p]) }));
 }
-/* les étapes d'un groupe : nom → déterminant (dans la phrase) → sorte de déterminant (boutons) → adjectifs → complément du nom */
-function etapesGroupe(g) {
-  const e = [];
-  if (g.d !== null) e.push('det', 'detnat');
-  g.adj.forEach(() => e.push('adj'));
-  if (g.cdn) e.push('cdn');
-  return e;
-}
-const gnState = { faits: new Set(), g: null, etapes: [], etape: 'nom', essais: 0, reussies: 0, total: 0, adjTrouves: new Set() };
+const gnState = { etape: 'nom', essais: 0, reussies: 0, total: 0, adjFaits: new Set(), adjCourant: null };
 function wordEl(i) { return document.querySelector(`#nat-sentence .w[data-i="${i}"]`); }
 function showQuestionGN() {
   const q = game.questions[game.index];
-  $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], -1);
+  $('nat-sentence').innerHTML = phraseHtml(motsDe(q), -1);
   $('nat-character-stage').innerHTML = '';
   $('nat-correction').classList.add('hidden');
   $('nat-verdict-square').className = 'verdict-square';
-  document.querySelectorAll('.nature-button').forEach((b) => { b.disabled = false; b.classList.remove('wrong', 'correct', 'faded', 'gone'); });
-  document.querySelectorAll('#nat-nature-column .gone').forEach((el) => el.classList.remove('gone'));
-  $('nat-buttons-fonctions').innerHTML = `<button type="button" class="nature-button fonction-button" data-code="F.cdn">${NATURE_BY_CODE['F.cdn'].court}</button>`;
-  $('nat-fn-column').classList.remove('hidden');
-  Object.assign(gnState, { faits: new Set(), g: null, etapes: [], etape: 'nom', essais: 0, reussies: 0, total: 0, adjTrouves: new Set() });
+  Object.assign(gnState, { etape: 'nom', essais: 0, reussies: 0, total: 0, adjFaits: new Set(), adjCourant: null });
   updateProgress();
-  gnCue();
+  gnEtape();
 }
-/* le bouton qui clignote, et la consigne */
-function gnCue() {
-  document.querySelectorAll('.cue').forEach((el) => el.classList.remove('cue'));
-  const q = game.questions[game.index], mots = PARSED[q.phrase], g = gnState.g;
-  const nom = g ? `« ${mots[g.n].texte} »` : '';
-  const sub = document.querySelector('.nature-subgroup[data-titre="Déterminant"]');
-  const consignes = {
-    nom: () => { document.querySelector('#nat-nature-column .nature-button[data-code="N"]').classList.add('cue'); return gnState.faits.size ? 'Clique dans la phrase sur un autre nom commun.' : 'Clique dans la phrase sur un nom commun.'; },
-    det: () => { sub.classList.add('cue'); return `Clique dans la phrase sur le déterminant de ${nom}.`; },
-    detnat: () => { sub.classList.add('cue'); return `Quelle sorte de déterminant est « ${mots[g.d].texte} » ? Clique sur le bon bouton.`; },
-    adj: () => { document.querySelector('#nat-nature-column .nature-button[data-code="A"]').classList.add('cue'); return `Clique dans la phrase sur l'adjectif qualificatif de ${nom}.`; },
-    cdn: () => { document.querySelector('.fonction-button[data-code="F.cdn"]').classList.add('cue'); return `Clique dans la phrase sur le complément du nom de ${nom}.`; },
-  };
-  $('nat-instruction').textContent = consignes[gnState.etape]();
+/* Les boutons de l'étape en cours (les autres disparaissent) et la consigne. */
+function gnEtape() {
+  const q = game.questions[game.index], mots = motsDe(q), g = q.g;
+  const nom = `« ${mots[g.t].texte} »`;
+  const gros = (code, label, cue) => `<button type="button" class="nature-button${cue ? ' cue' : ''}" data-gn="${code}">${label || NATURE_BY_CODE[code].nom}</button>`;
+  const barre = (titre, codes) => `<div class="nature-subgroup"><span class="nature-subtitle">${titre}</span><div class="nature-row nature-row-7">${codes.map((c) => `<button type="button" class="nature-button small" data-gn="${c}">${NATURE_BY_CODE[c].court}</button>`).join('')}</div></div>`;
+  const rouge = (code, label, cue) => `<button type="button" class="nature-button fonction-button${cue ? ' cue' : ''}" data-gn="${code}">${label || NATURE_BY_CODE[code].court}</button>`;
+  const aucun = (label) => `<button type="button" class="nature-button gn-aucun" data-gn="aucun">${label}</button>`;
+  let vert = '', red = '', consigne = '';
+  switch (gnState.etape) {
+    case 'nom': vert = gros('N', null, true) + gros('Pr', null, true); consigne = 'Clique dans la phrase sur le nom commun ou sur le pronom.'; break;
+    case 'det': vert = gros('D', null, true); consigne = `Clique dans la phrase sur le déterminant de ${nom}.`; break;
+    case 'detnat': vert = barre('Déterminant', ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int']); consigne = `Quelle sorte de déterminant est « ${mots[g.d].texte} » ?`; break;
+    case 'prnat': vert = barre('Pronom', ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int']); consigne = `Quelle sorte de pronom est ${nom} ?`; break;
+    case 'adj': vert = gros('A', null, true) + aucun(gnState.adjFaits.size ? 'Il n\'y en a plus' : 'Il n\'y en a pas'); consigne = gnState.adjFaits.size ? `Y a-t-il un autre adjectif qualificatif qui se rapporte à ${nom} ? Clique dessus dans la phrase.` : `Y a-t-il un adjectif qualificatif qui se rapporte à ${nom} ? Clique dessus dans la phrase.`; break;
+    case 'adjfn': red = rouge('F.epi') + rouge('F.att', 'Attribut') + rouge('F.app'); consigne = `Quelle est la fonction de l'adjectif « ${mots[gnState.adjCourant].texte} » ?`; break;
+    case 'cdn': red = rouge('F.cdn', null, true) + aucun('Il n\'y en a pas'); consigne = `${capitalize(nom)} a-t-il un complément du nom ? Clique dessus dans la phrase.`; break;
+    default: break;
+  }
+  $('nat-buttons-variables').innerHTML = vert;
+  $('nat-buttons-invariables').innerHTML = '';
+  $('nat-buttons-fonctions').innerHTML = red;
+  $('nat-fn-column').classList.toggle('hidden', !red);
+  $('nat-nature-column').classList.toggle('hidden', !vert);
+  if (consigne) $('nat-instruction').textContent = consigne;
+  document.querySelectorAll('[data-gn]').forEach((b) => b.addEventListener('click', () => answerBoutonGN(b.dataset.gn, b)));
 }
 function gnMarque(i, cls) { const el = wordEl(i); if (el) el.classList.add(cls); }
 function gnErreur(el, attendu, choisi) {
   const q = game.questions[game.index];
-  /* un clic dans la phrase : « achète » était un verbe d'action, et je l'avais pris pour un nom commun ;
-     un clic sur un bouton : « quatre » était un déterminant numéral, et j'avais répondu article défini */
-  if (gnState.essais === 0) game.erreurs.push(el ? { mot: choisi.texte, bonne: choisi.article, choisie: attendu, phrase: phraseTexte(PARSED[q.phrase]), etape: gnState.etape }
-    : { mot: choisi.texte, bonne: attendu, choisie: choisi.article, phrase: phraseTexte(PARSED[q.phrase]), etape: gnState.etape });
+  if (gnState.essais === 0) game.erreurs.push(el ? { mot: choisi.texte, bonne: choisi.article, choisie: attendu, phrase: phraseTexte(motsDe(q)), etape: gnState.etape }
+    : { mot: choisi.texte, bonne: attendu, choisie: choisi.article, phrase: phraseTexte(motsDe(q)), etape: gnState.etape });
   gnState.essais += 1;
-  if (el) { el.classList.remove('gn-err'); void el.offsetWidth; el.classList.add('gn-err'); }
+  if (el && el.classList) { el.classList.remove('gn-err'); void el.offsetWidth; el.classList.add('gn-err'); }
   showCharacter('bad', null);
   return gnState.essais >= 2;
 }
@@ -1177,89 +1206,96 @@ function gnCompte(c) {
   gnState.total += 1; if (gnState.essais === 0) gnState.reussies += 1;
   gnState.essais = 0;
 }
-function gnSuite() {
-  const g = gnState.g;
-  if (gnState.etapes.length) { gnState.etape = gnState.etapes.shift(); gnCue(); return; }
-  /* groupe terminé */
-  gnState.faits.add(g.n); gnState.g = null;
-  const q = game.questions[game.index];
-  if (q.groupes.every((x) => gnState.faits.has(x.n))) { finishQuestionGN(); return; }
-  showCharacter('good', null);
-  gnState.etape = 'nom'; gnCue();
-}
+function gnVers(etape) { gnState.etape = etape; if (etape === 'fini') finishQuestionGN(); else gnEtape(); }
+const natOf = (m) => NATURE_BY_CODE[m.tag] || NATURE_BY_CODE[m.tag.split('.')[0]] || { article: m.texte };
 function clicMotGN(i, el) {
-  if (game.fini || gnState.etape === 'detnat' || gnState.etape === 'fini') return;
-  const q = game.questions[game.index], mots = PARSED[q.phrase], g = gnState.g;
-  const nat = (k) => NATURE_BY_CODE[mots[k].tag] || NATURE_BY_CODE[mots[k].tag.split('.')[0]] || { article: mots[k].texte };
-  const choisi = { texte: mots[i].texte, article: nat(i).article };
-  if (gnState.etape === 'nom') {
-    const cible = q.groupes.find((x) => x.n === i && !gnState.faits.has(x.n));
-    let pris = cible;
-    if (!cible && gnErreur(el, 'un nom commun', choisi)) pris = q.groupes.find((x) => !gnState.faits.has(x.n));
-    if (!pris) return;
-    gnCompte('N'); gnState.g = pris; gnState.etapes = etapesGroupe(pris);
-    gnMarque(pris.n, 'gn-n'); gnSuite(); return;
-  }
-  if (gnState.etape === 'det') {
-    if (i === g.d || gnErreur(el, `le déterminant de « ${mots[g.n].texte} »`, choisi)) { gnCompte('D'); gnMarque(g.d, 'gn-d'); gnSuite(); }
-    return;
-  }
-  if (gnState.etape === 'adj') {
-    const restants = g.adj.filter((k) => !gnState.adjTrouves.has(k));
-    let pris = restants.includes(i) ? i : null;
-    if (pris === null && gnErreur(el, `un adjectif qualificatif de « ${mots[g.n].texte} »`, choisi)) pris = restants[0];
-    if (pris === null) return;
-    gnState.adjTrouves.add(pris); gnCompte('A'); gnMarque(pris, 'gn-a'); gnSuite(); return;
-  }
-  if (gnState.etape === 'cdn') {
-    if ((i >= g.cdn.debut && i <= g.cdn.fin) || gnErreur(el, `le complément du nom de « ${mots[g.n].texte} »`, choisi)) {
-      gnCompte('F.cdn'); for (let k = g.cdn.debut; k <= g.cdn.fin; k++) gnMarque(k, 'gn-c'); gnSuite();
+  if (game.fini) return;
+  const q = game.questions[game.index], mots = motsDe(q), g = q.g;
+  const choisi = { texte: mots[i].texte, article: natOf(mots[i]).article };
+  const e = gnState.etape;
+  if (e === 'nom') {
+    if (i === g.t || gnErreur(el, 'un nom commun ou un pronom', choisi)) {
+      gnCompte(g.pronom ? 'Pr' : 'N'); gnMarque(g.t, 'gn-n');
+      gnVers(g.pronom ? 'prnat' : g.d !== null ? 'det' : 'adj');
     }
+  } else if (e === 'det') {
+    if (i === g.d || gnErreur(el, 'un déterminant', choisi)) { gnCompte('D'); gnMarque(g.d, 'gn-d'); gnVers('detnat'); }
+  } else if (e === 'adj') {
+    const restants = g.adj.filter((k) => !gnState.adjFaits.has(k));
+    let pris = restants.includes(i) ? i : null;
+    if (pris === null && gnErreur(el, 'un adjectif qualificatif', choisi)) pris = restants[0] ?? null;
+    if (pris === null) { if (!restants.length && gnState.essais >= 2) { gnCompte('A'); gnVers('cdn'); } return; }
+    gnCompte('A'); gnState.adjFaits.add(pris); gnState.adjCourant = pris; gnMarque(pris, 'gn-a'); gnVers('adjfn');
+  } else if (e === 'cdn') {
+    if (g.cdn && i >= g.cdn.debut && i <= g.cdn.fin) { gnCompte('F.cdn'); for (let k = g.cdn.debut; k <= g.cdn.fin; k++) gnMarque(k, 'gn-c'); gnVers('fini'); return; }
+    if (gnErreur(el, 'un complément du nom', choisi)) {
+      gnCompte('F.cdn'); if (g.cdn) for (let k = g.cdn.debut; k <= g.cdn.fin; k++) gnMarque(k, 'gn-c'); gnVers('fini');
+    }
+  } else {
+    $('nat-instruction').classList.remove('gn-flash'); void $('nat-instruction').offsetWidth; $('nat-instruction').classList.add('gn-flash');
   }
 }
 function answerBoutonGN(code, btn) {
-  if (gnState.etape !== 'detnat') { $('nat-instruction').classList.remove('gn-flash'); void $('nat-instruction').offsetWidth; $('nat-instruction').classList.add('gn-flash'); return; }
-  const q = game.questions[game.index], mots = PARSED[q.phrase], g = gnState.g;
-  if (code === g.dType) {
-    btn.classList.add('correct'); gnCompte(g.dType);
-    setTimeout(() => { btn.classList.remove('correct'); document.querySelectorAll('#nat-nature-column .nature-button.wrong').forEach((b) => b.classList.remove('wrong')); }, 900);
-    gnSuite(); return;
+  if (game.fini) return;
+  const q = game.questions[game.index], mots = motsDe(q), g = q.g, e = gnState.etape;
+  const montrer = (c) => document.querySelector(`[data-gn="${c}"]`)?.classList.add('correct');
+  const fauxBouton = (attendu, choisiArticle, mot) => { btn.classList.add('wrong'); btn.disabled = true; return gnErreur(null, attendu, { texte: mot, article: choisiArticle }); };
+  if (e === 'detnat' || e === 'prnat') {
+    const bon = e === 'detnat' ? g.dType : mots[g.t].tag, mot = mots[e === 'detnat' ? g.d : g.t].texte;
+    if (code === bon || fauxBouton(NATURE_BY_CODE[bon].article, NATURE_BY_CODE[code].article, mot)) {
+      if (code === bon) btn.classList.add('correct'); else montrer(bon);
+      gnCompte(bon); setTimeout(() => gnVers('adj'), 700);
+    }
+    return;
   }
-  btn.classList.add('wrong');
-  if (gnErreur(null, NATURE_BY_CODE[g.dType].article, { texte: mots[g.d].texte, article: NATURE_BY_CODE[code].article })) {
-    const ok = document.querySelector(`#nat-nature-column .nature-button[data-code="${g.dType}"]`);
-    ok.classList.add('correct'); gnCompte(g.dType);
-    setTimeout(() => { ok.classList.remove('correct'); document.querySelectorAll('#nat-nature-column .nature-button.wrong').forEach((b) => b.classList.remove('wrong')); }, 1200);
-    gnSuite();
+  if (e === 'adjfn') {
+    const bon = ADJ_FN[mots[gnState.adjCourant].fn], mot = mots[gnState.adjCourant].texte;
+    if (code === bon || fauxBouton(NATURE_BY_CODE[bon].article, NATURE_BY_CODE[code].article, mot)) {
+      if (code === bon) btn.classList.add('correct'); else montrer(bon);
+      gnCompte(bon); setTimeout(() => gnVers('adj'), 700);
+    }
+    return;
   }
-  else setTimeout(() => btn.classList.remove('wrong'), 900);
+  if (code === 'aucun' && e === 'adj') {
+    const restants = g.adj.filter((k) => !gnState.adjFaits.has(k));
+    if (!restants.length) { gnCompte('A'); gnVers('cdn'); return; }
+    if (fauxBouton('il y avait encore un adjectif qualificatif', 'il n\'y en a pas', '—')) { gnCompte('A'); const k = restants[0]; gnState.adjFaits.add(k); gnState.adjCourant = k; gnMarque(k, 'gn-a'); gnVers('adjfn'); }
+    return;
+  }
+  if (code === 'aucun' && e === 'cdn') {
+    if (!g.cdn) { gnCompte('F.cdn'); gnVers('fini'); return; }
+    if (fauxBouton('il y avait un complément du nom', 'il n\'y en a pas', '—')) { gnCompte('F.cdn'); for (let k = g.cdn.debut; k <= g.cdn.fin; k++) gnMarque(k, 'gn-c'); gnVers('fini'); }
+    return;
+  }
+  /* les autres boutons (Nom commun, Déterminant, Adjectif, Complément du nom) montrent ce qu'il faut chercher : on clique dans la phrase */
+  $('nat-instruction').classList.remove('gn-flash'); void $('nat-instruction').offsetWidth; $('nat-instruction').classList.add('gn-flash');
 }
 function resumeGN(q, html) {
-  const mots = PARSED[q.phrase];
+  const mots = motsDe(q), g = q.g;
   const t = (a, b) => mots.slice(a, b + 1).map((m) => m.texte).join(' ').replace(/' /g, "'");
-  return q.groupes.map((g) => {
-    const debut = Math.min(g.n, g.d ?? g.n, ...g.adj), fin = Math.max(g.n, ...g.adj, g.cdn ? g.cdn.fin : g.n);
-    const parts = [`nom commun ${html ? `<strong>${esc(mots[g.n].texte)}</strong>` : mots[g.n].texte}`];
-    if (g.d !== null) parts.push(`déterminant « ${mots[g.d].texte} » (${NATURE_BY_CODE[g.dType].nom.toLowerCase()})`);
-    if (g.adj.length) parts.push(`adjectif${g.adj.length > 1 ? 's' : ''} qualificatif${g.adj.length > 1 ? 's' : ''} ${g.adj.map((k) => `« ${mots[k].texte} »`).join(' et ')}`);
-    if (g.cdn) parts.push(`complément du nom « ${t(g.cdn.debut, g.cdn.fin)} »`);
-    return html ? `• « ${esc(t(debut, fin))} » : ${parts.join(' ; ')}.` : `${t(debut, fin)} : ${parts.join(', ')}.`;
-  }).join(html ? '<br>' : ' ');
+  const B = (x) => (html ? `<strong>${esc(x)}</strong>` : x);
+  const parts = [`${g.pronom ? NATURE_BY_CODE[mots[g.t].tag].nom.toLowerCase() : 'nom commun'} ${B(mots[g.t].texte)}`];
+  if (g.d !== null) parts.push(`déterminant « ${mots[g.d].texte} » (${NATURE_BY_CODE[g.dType].nom.toLowerCase()})`);
+  g.adj.forEach((k) => parts.push(`adjectif qualificatif « ${mots[k].texte} », ${NATURE_BY_CODE[ADJ_FN[mots[k].fn]].nom.toLowerCase()}`));
+  if (!g.adj.length) parts.push('pas d\'adjectif qualificatif');
+  parts.push(g.cdn ? `complément du nom « ${t(g.cdn.debut, g.cdn.fin)} »` : 'pas de complément du nom');
+  return parts.join(html ? ' ;<br>' : ', ') + '.';
 }
 function finishQuestionGN() {
   const q = game.questions[game.index];
   gnState.etape = 'fini';
-  document.querySelectorAll('.cue').forEach((el) => el.classList.remove('cue'));
+  $('nat-buttons-variables').innerHTML = ''; $('nat-buttons-fonctions').innerHTML = '';
+  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
   const part = gnState.total ? gnState.reussies / gnState.total : 1;
   game.score = Math.round((game.score + part) * 100) / 100;
-  $('nat-instruction').textContent = 'Tous les noms sont trouvés !';
-  $('nat-correction-details').innerHTML = nbspFr(`${q.groupes.length > 1 ? 'Les groupes nominaux de la phrase' : 'Le groupe nominal de la phrase'} :<br>${resumeGN(q, true)}`);
+  $('nat-instruction').textContent = 'Le groupe nominal est analysé !';
+  $('nat-correction-details').innerHTML = nbspFr(resumeGN(q, true));
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${part === 1 ? 'correct' : part === 0 ? 'wrong' : 'half'}`;
   $('nat-next-button').textContent = game.index + 1 < game.questions.length ? 'Suivant →' : 'Voir mon résultat →';
   $('nat-score-label').textContent = scoreLabel(game.score);
   $('nat-progress-bar').style.width = `${((game.index + 1) / game.questions.length) * 100}%`;
-  showCharacter(part === 1 ? 'good' : part >= 0.5 ? 'good' : 'bad', null);
+  showCharacter(part >= 0.5 ? 'good' : 'bad', null);
 }
 
 function finishQuestion(reussi, nature, mot) {
@@ -2052,7 +2088,7 @@ $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
-  speak(phraseTexte(PARSED[q.phrase]), 'femme', 'phrase');
+  speak(phraseTexte(motsDe(q)), 'femme', 'phrase');
   volumeLevel = prev;
 });
 $('results-replay').addEventListener('click', startGame);
