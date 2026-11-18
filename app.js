@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v9';
+const APP_VERSION = 'v10';
 
 const $ = (id) => document.getElementById(id);
 
@@ -94,18 +94,20 @@ const BUTTON_ROWS = {
 };
 /* Jeu 2 : mêmes boutons, sauf Déterminant et Pronom, remplacés chacun par une ligne de 7 petits boutons. */
 const BUTTON_ROWS_2 = {
+  /* v10 : les couples sont alignés en colonnes (possessif au-dessus de possessif, démonstratif au-dessus de
+     démonstratif…) ; en tête, les deux articles au-dessus des pronoms personnel et relatif. */
   variables: [['N'], ['VE', 'VA'], ['A'], { titre: 'Déterminant', codes: ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int'] },
-    { titre: 'Pronom', codes: ['Pr.per', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int', 'Pr.rel'] }],
+    { titre: 'Pronom', codes: ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int'] }],
   invariables: [['NP'], ['Av'], ['P'], ['CC'], ['CS'], ['I', 'O']],
 };
 const NATURE_BY_CODE = Object.fromEntries([...NATURES, ...NATURES_DETAIL].map((n) => [n.code, n]));
 /* Les deux jeux. « priorite » : natures demandées au moins une fois par partie ; le reste des 20 questions
    est tiré au hasard parmi « reste ». « reponse » : la nature attendue pour une étiquette de mot. */
 const GAMES = {
-  natures: { titre: 'Reconnaissance des natures 1', rows: BUTTON_ROWS,
+  natures: { titre: 'Reconnaissance des natures de mots 1', type: 'Reconnaissance des natures, niveau 1', rows: BUTTON_ROWS,
     priorite: NATURES.map((n) => n.code), reste: NATURES.map((n) => n.code),
     reponse: (tag) => tag.split('.')[0] },
-  natures2: { titre: 'Reconnaissance des natures 2', rows: BUTTON_ROWS_2,
+  natures2: { titre: 'Reconnaissance des natures de mots 2', type: 'Reconnaissance des natures, niveau 2', rows: BUTTON_ROWS_2,
     priorite: NATURES_DETAIL.map((n) => n.code),
     reste: ['N', 'VE', 'VA', 'A', 'NP', 'Av', 'P', 'CC', 'CS', 'I', 'O'],
     reponse: (tag) => tag,
@@ -836,7 +838,7 @@ function showResults() {
     : (E ? `Hum… Ce n'est pas encore ça, ${E}. Mais si tu rejoues, je suis sûr que tu feras mieux !` : 'Hum… Ce n\'est pas encore ça. Mais si tu rejoues, je suis sûr que tu feras mieux !');
   const texte = `${CHARACTERS[id].nom} : « ${parole} »`;
   $('results-text').textContent = texte;
-  lastResult = { jeu: currentGame.titre, score: s, total: n, erreurs: game.erreurs.slice(), date: new Date().toISOString() };
+  lastResult = { jeu: currentGame.type, score: s, total: n, erreurs: game.erreurs.slice(), date: new Date().toISOString() };
   saveScore(lastResult);
   renderSendBox();
   showPanel('results');
@@ -1194,6 +1196,12 @@ function openProfile(first) {
   $('profile-modal').classList.remove('hidden');
 }
 
+/* v10 : nom du type d'exercice ; les scores enregistrés avant la v10 portaient d'autres noms. */
+function scoreType(jeu) {
+  if (/niveau [12]/.test(jeu || '')) return jeu;
+  if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
+  return 'Reconnaissance des natures, niveau 1';
+}
 /* « Mes derniers scores », dans la fenêtre Mon compte */
 async function renderScoreHistory() {
   const box = $('profile-scores');
@@ -1204,7 +1212,7 @@ async function renderScoreHistory() {
   box.innerHTML = '<p class="send-title">Derniers scores</p><ul class="score-list">' + scores.slice(0, 10).map((r) => {
     const d = new Date(r.date);
     const quand = isNaN(d) ? '' : d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    return `<li><span>${esc(r.jeu)}</span><span>${quand}</span><strong>${r.score} / ${r.total}</strong><button type="button" class="score-del" data-id="${esc(r._id)}" title="Effacer ce score" aria-label="Effacer ce score">✕</button></li>`;
+    return `<li><span>${esc(scoreType(r.jeu))}</span><span>${quand}</span><strong>${r.score} / ${r.total}</strong><button type="button" class="score-del" data-id="${esc(r._id)}" title="Effacer ce score" aria-label="Effacer ce score">✕</button></li>`;
   }).join('') + '</ul>';
   /* v8 : chaque score peut être effacé (après confirmation). */
   box.querySelectorAll('.score-del').forEach((b) => b.addEventListener('click', async () => {

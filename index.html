@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=9" />
+    <link rel="stylesheet" href="style.css?v=10" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -60,17 +60,17 @@
             <figcaption>Atelier de Gentile da FABRIANO, <em>La Grammaire</em> (salle des Arts libéraux), 1412 environ, Palazzo Trinci, Foligno.</figcaption>
           </figure>
 
-          <p class="intro-banner">Maître Bonaccord et Dame Virgule t'attendent pour t'apprendre à reconnaître les mots de la langue française. Attention : Maître Rature et Dame Gribouille, eux, guettent la moindre erreur… Mais ils ne sont pas si méchants : ils veulent seulement que tu recommences !</p>
+          <p class="intro-banner">Maître Bonaccord et Dame Virgule t'attendent pour t'apprendre à reconnaître les mots de la langue française. Attention : Maître Rature et Dame Gribouille, eux, guettent la moindre erreur… Mais ils ne sont pas si méchants : ils veulent seulement que tu réussisses !</p>
 
           <div class="home-mode-buttons">
             <div class="home-games-row">
               <button type="button" class="home-mode-button" id="open-natures">
-                <span class="label">Reconnaissance des natures 1</span>
+                <span class="label">Reconnaissance des natures de mots 1</span>
                 <span class="desc">Un mot clignote dans la phrase : quelle est sa nature ?</span>
               </button>
               <button type="button" class="home-mode-button" id="open-natures2">
-                <span class="label">Reconnaissance des natures 2</span>
-                <span class="desc">Avec les sept sortes de déterminants et les sept sortes de pronoms.</span>
+                <span class="label">Reconnaissance des natures de mots 2</span>
+                <span class="desc">Un mot clignote dans la phrase : quelle est sa nature précise ?</span>
               </button>
             </div>
             <!-- Bloc compte, repris de Mnemart : libellé + e-mail + interrupteur connecté/déconnecté -->
@@ -90,7 +90,7 @@
         <!-- ===================== JEU 1 : RECONNAISSANCE DES NATURES ===================== -->
         <section id="natures-panel" class="quiz-panel hidden">
           <div class="progress-row">
-            <span><span class="quiz-reference" id="nat-game-title">Reconnaissance des natures 1</span> — <span id="nat-progress-label">Question 1 / 10</span></span>
+            <span><span class="quiz-reference" id="nat-game-title">Reconnaissance des natures de mots 1</span> — <span id="nat-progress-label">Question 1 / 10</span></span>
             <span id="nat-score-label" class="score-summary-highlight">0 bonne réponse</span>
           </div>
           <div class="progress-track"><div class="progress-bar" id="nat-progress-bar"></div></div>
@@ -193,6 +193,6 @@
       </div>
     </div>
 
-    <script defer src="app.js?v=9"></script>
+    <script defer src="app.js?v=10"></script>
   </body>
 </html>
