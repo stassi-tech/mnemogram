@@ -6,7 +6,7 @@
     <meta name="description" content="Jeux gratuits pour mémoriser les notions fondamentales de grammaire, dès 7 ans." />
     <title>MNEMOGRAM — La grammaire à travers la mémoire</title>
     <meta name="theme-color" content="#9c7a4a" />
-    <link rel="stylesheet" href="style.css?v=4" />
+    <link rel="stylesheet" href="style.css?v=5" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -119,6 +119,7 @@
           <div class="results-character" id="results-character"></div>
           <h2 id="results-title"></h2>
           <p id="results-text"></p>
+          <div class="results-send" id="results-send"></div>
           <div class="results-buttons">
             <button type="button" class="primary-button" id="results-replay">Rejouer</button>
             <button type="button" class="secondary-button" id="results-home">Retour à l'accueil</button>
@@ -172,11 +173,12 @@
           <p id="profile-notice" class="account-notice hidden"></p>
           <button type="submit" class="primary-button">Enregistrer</button>
         </form>
+        <div class="profile-scores" id="profile-scores"></div>
         <p class="modal-hint" id="profile-email-row"></p>
         <p class="modal-hint"><button type="button" id="profile-logout-button" class="link-label">Se déconnecter</button></p>
       </div>
     </div>
 
-    <script defer src="app.js?v=4"></script>
+    <script defer src="app.js?v=5"></script>
   </body>
 </html>

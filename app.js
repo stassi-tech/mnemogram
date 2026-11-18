@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v4';
+const APP_VERSION = 'v5';
 
 const $ = (id) => document.getElementById(id);
 
@@ -387,14 +387,24 @@ function pickFrenchVoice(prefer) {
   const re = prefer === 'femme' ? femmes : hommes;
   return pool.find((v) => re.test(v.name)) || pool[0];
 }
-function speak(text, prefer) {
+/* v5 : voix plus dynamiques. Les sorciers parlent vite et avec entrain (débit 1,25 ; voix un peu plus aiguë
+   pour les gentils, un peu plus grave pour les grincheux). La phrase de l'exercice, elle, reste lue à un débit
+   normal (1,05), pour que l'enfant ait le temps de suivre les mots. */
+const VOICE_STYLES = {
+  good: { rate: 1.25, pitch: 1.2 },
+  bad: { rate: 1.2, pitch: 0.9 },
+  phrase: { rate: 1.05, pitch: 1 },
+};
+function speak(text, prefer, style = 'good') {
   if (!volumeLevel || !('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text.replace(/…/g, ', '));
   u.lang = 'fr-FR';
   const v = pickFrenchVoice(prefer); if (v) u.voice = v;
+  const st = VOICE_STYLES[style] || VOICE_STYLES.good;
   u.volume = volumeLevel / 5;
-  u.rate = 0.92;
+  u.rate = st.rate;
+  u.pitch = st.pitch;
   speechSynthesis.speak(u);
 }
 if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};
@@ -435,18 +445,30 @@ function initMosaic() {
 
 /* ------------------------------------------------------------
    JEU 1 : RECONNAISSANCE DES NATURES
-   13 questions : chacune des 13 natures est demandée une fois, dans un ordre tiré au hasard.
+   20 questions : chacune des 13 natures est demandée au moins une fois, dans un ordre tiré au hasard.
    Mauvaise réponse : un personnage grincheux encourage à recommencer (2e essai).
    Après deux erreurs, la bonne réponse est montrée. Le score compte les réussites du premier coup.
    ------------------------------------------------------------ */
-const NB_QUESTIONS = 13;
-const game = { questions: [], index: 0, score: 0, essais: 0, fini: false };
+const NB_QUESTIONS = 20;
+const game = { questions: [], index: 0, score: 0, essais: 0, fini: false, erreurs: [] };
 
 const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
+/* 20 questions : les 13 natures une fois chacune, puis 7 natures tirées au hasard en plus ;
+   le tout mélangé, sans deux fois de suite la même nature. */
+function buildNatureSequence() {
+  const all = NATURES.map((n) => n.code);
+  let liste = all.slice();
+  while (liste.length < NB_QUESTIONS) liste = liste.concat(shuffle(all).slice(0, NB_QUESTIONS - liste.length));
+  for (let essai = 0; essai < 50; essai++) {
+    const m = shuffle(liste);
+    if (m.every((c, i) => i === 0 || c !== m[i - 1])) return m;
+  }
+  return shuffle(liste);
+}
 function buildQuestions() {
-  const natures = shuffle(NATURES.map((n) => n.code)).slice(0, NB_QUESTIONS);
+  const natures = buildNatureSequence();
   const used = new Set();
   return natures.map((code) => {
     let candidats = PARSED.map((mots, p) => ({ p, idx: mots.map((m, i) => (answerCodeOf(m.tag) === code ? i : -1)).filter((i) => i >= 0) }))
@@ -469,7 +491,7 @@ function buildNatureButtons() {
 
 function startGame() {
   game.questions = buildQuestions();
-  game.index = 0; game.score = 0; game.fini = false;
+  game.index = 0; game.score = 0; game.fini = false; game.erreurs = [];
   showPanel('natures');
   $('nat-ready-screen').classList.add('hidden');
   $('nat-quiz-grid').classList.remove('hidden');
@@ -532,7 +554,7 @@ function showCharacter(camp, nature) {
   const stage = $('nat-character-stage');
   stage.className = `character-stage ${camp}`;
   stage.innerHTML = `<div class="bubble"><span class="who">${ch.nom}</span>${msg}</div>${characterSvg(id)}`;
-  speak(msg, ch.voix);
+  speak(msg, ch.voix, camp);
 }
 
 function answer(code, btn) {
@@ -546,6 +568,7 @@ function answer(code, btn) {
     finishQuestion(true, bonne, mot);
     showCharacter('good', bonne);
   } else {
+    if (game.essais === 0) game.erreurs.push({ mot: mot.texte, bonne: bonne.article, choisie: NATURE_BY_CODE[code].article, phrase: phraseTexte(PARSED[q.phrase]) });
     game.essais += 1;
     btn.classList.add('wrong');
     btn.disabled = true;
@@ -592,8 +615,76 @@ function showResults() {
     : (E ? `Hum… Ce n'est pas encore ça, ${E}. Mais si tu rejoues, je suis sûr que tu feras mieux !` : 'Hum… Ce n\'est pas encore ça. Mais si tu rejoues, je suis sûr que tu feras mieux !');
   const texte = `${CHARACTERS[id].nom} : « ${parole} »`;
   $('results-text').textContent = texte;
+  lastResult = { jeu: 'Reconnaissance des natures', score: s, total: n, erreurs: game.erreurs.slice(), date: new Date().toISOString() };
+  saveScore(lastResult);
+  renderSendBox();
   showPanel('results');
-  speak(texte.replace(/^[^:]+: /, '').replace(/[«»]/g, ''), CHARACTERS[id].voix);
+  speak(texte.replace(/^[^:]+: /, '').replace(/[«»]/g, ''), CHARACTERS[id].voix, content ? 'good' : 'bad');
+}
+
+/* ------------------------------------------------------------
+   SCORES : enregistrés dans le compte, et envoyés par e-mail à la famille
+   Pourquoi « par la messagerie de l'appareil » : le site est une simple page (pas de serveur à nous),
+   il ne peut donc pas expédier un e-mail tout seul. Le bouton ouvre la messagerie de l'ordinateur ou
+   du téléphone avec le message déjà écrit et les adresses déjà remplies : il ne reste qu'à appuyer sur
+   « Envoyer ». Sur téléphone, le bouton « Partager » permet aussi de passer par SMS, WhatsApp, etc.
+   ------------------------------------------------------------ */
+let lastResult = null;
+async function saveScore(r) {
+  if (!currentUser || !db) return;
+  const id = `score-${Date.now()}`;
+  try {
+    await db.collection('users').doc(currentUser.uid).collection('mnemogram').doc(id)
+      .set({ type: 'score', ...r, creeLe: firebase.firestore.FieldValue.serverTimestamp() });
+  } catch (e) { console.warn('Enregistrement du score', e); }
+}
+async function loadScores() {
+  if (!currentUser || !db) return [];
+  try {
+    const snap = await db.collection('users').doc(currentUser.uid).collection('mnemogram').where('type', '==', 'score').get();
+    return snap.docs.map((d) => d.data()).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  } catch (e) { console.warn('Lecture des scores', e); return []; }
+}
+function scoreMessage(r) {
+  const E = playerProfile?.enfant?.prenom || '';
+  const lignes = [
+    `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
+    `Mon score : ${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}.`,
+  ];
+  if (r.erreurs.length) {
+    lignes.push('', 'Mes erreurs :');
+    r.erreurs.forEach((e) => lignes.push(`- « ${e.mot} » (${e.phrase}) : c'était ${e.bonne}, et j'avais répondu ${e.choisie}.`));
+  } else lignes.push('', 'Aucune erreur !');
+  lignes.push('', E ? `${E}` : '', 'https://stassi-tech.github.io/mnemogram/');
+  return lignes.join('\n');
+}
+function renderSendBox() {
+  const box = $('results-send');
+  if (!currentUser) {
+    box.innerHTML = '<p class="send-hint">Avec un compte, tu pourras envoyer ton score à ta famille.</p>';
+    return;
+  }
+  const avecMail = (playerProfile?.adultes || []).map((a, i) => ({ ...a, i })).filter((a) => a.email);
+  if (!avecMail.length) {
+    box.innerHTML = '<p class="send-hint">Pour envoyer ton score, ajoute l\'adresse e-mail d\'un proche dans « Mon compte » 👤.</p>';
+    return;
+  }
+  box.innerHTML = `<p class="send-title">Envoyer mon score à :</p>
+    <div class="send-list">${avecMail.map((a) => `<label class="send-person"><input type="checkbox" value="${esc(a.email)}" checked /><span>${esc(LIENS[a.lien]?.label || '')} ${esc(a.prenom)}</span></label>`).join('')}</div>
+    <div class="send-buttons">
+      <button type="button" class="primary-button" id="send-mail-button">✉️ Envoyer par e-mail</button>
+      ${navigator.share ? '<button type="button" class="secondary-button" id="send-share-button">Partager…</button>' : ''}
+    </div>`;
+  $('send-mail-button').addEventListener('click', () => {
+    const to = [...box.querySelectorAll('input:checked')].map((c) => c.value);
+    if (!to.length) return;
+    const E = playerProfile?.enfant?.prenom;
+    const sujet = `${E ? E + ' : ' : ''}mon score sur MNEMOGRAM (${lastResult.score}/${lastResult.total})`;
+    location.href = `mailto:${to.join(',')}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(scoreMessage(lastResult))}`;
+  });
+  $('send-share-button')?.addEventListener('click', () => {
+    navigator.share({ title: 'Mon score sur MNEMOGRAM', text: scoreMessage(lastResult) }).catch(() => {});
+  });
 }
 
 /* ------------------------------------------------------------
@@ -634,6 +725,14 @@ const LIENS = {
   marraine: { label: 'Marraine', ton: 'ta marraine', f: true },
   tonton: { label: 'Tonton', ton: 'ton tonton', f: false },
   tata: { label: 'Tata', ton: 'ta tata', f: true },
+  oncle: { label: 'Oncle', ton: 'ton oncle', f: false },
+  tante: { label: 'Tante', ton: 'ta tante', f: true },
+  frere: { label: 'Frère', ton: 'ton frère', f: false },
+  soeur: { label: 'Sœur', ton: 'ta sœur', f: true },
+  cousin: { label: 'Cousin', ton: 'ton cousin', f: false },
+  cousine: { label: 'Cousine', ton: 'ta cousine', f: true },
+  ami: { label: 'Ami', ton: 'ton ami', f: false },
+  amie: { label: 'Amie', ton: 'ton amie', f: true },
 };
 let auth = null, db = null, currentUser = null, playerProfile = null, accountMode = 'login';
 const firebaseReady = typeof firebase !== 'undefined';
@@ -651,17 +750,23 @@ function lienOptions(sel) {
   return '<option value="">— lien —</option>' + Object.entries(LIENS).map(([k, l]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${l.label}</option>`).join('');
 }
 const esc = (t) => String(t || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-function profileFieldsHtml(prefix, p, withConsent) {
-  const a = p?.adultes || [];
-  const adulte = (i, titre, requis) => `
-    <fieldset class="account-fieldset">
-      <legend>${titre}</legend>
+/* v5 : la famille est une liste ouverte. Chaque proche a un lien, un prénom, un nom et, s'il le veut,
+   une adresse e-mail : c'est à ces adresses que l'enfant peut envoyer ses scores. */
+function adulteRowHtml(a, n) {
+  return `
+    <fieldset class="account-fieldset adulte-row" data-adulte-row>
+      <legend>${n === 1 ? 'Un parent ou un proche' : 'Un autre proche'}</legend>
+      <button type="button" class="adulte-remove" title="Retirer ce proche" aria-label="Retirer ce proche">✕</button>
       <div class="account-row-3">
-        <label>Lien<select id="${prefix}-a${i}-lien"${requis ? ' required' : ''}>${lienOptions(a[i]?.lien)}</select></label>
-        <label>Prénom<input type="text" id="${prefix}-a${i}-prenom" value="${esc(a[i]?.prenom)}" autocomplete="off"${requis ? ' required' : ''} /></label>
-        <label>Nom<input type="text" id="${prefix}-a${i}-nom" value="${esc(a[i]?.nom)}" autocomplete="off" /></label>
+        <label>Lien<select class="f-lien">${lienOptions(a?.lien)}</select></label>
+        <label>Prénom<input type="text" class="f-prenom" value="${esc(a?.prenom)}" autocomplete="off" /></label>
+        <label>Nom<input type="text" class="f-nom" value="${esc(a?.nom)}" autocomplete="off" /></label>
       </div>
+      <label>E-mail (pour recevoir les scores, facultatif)<input type="email" class="f-email" value="${esc(a?.email)}" autocomplete="off" /></label>
     </fieldset>`;
+}
+function profileFieldsHtml(prefix, p, withConsent) {
+  const adultes = (p?.adultes && p.adultes.length) ? p.adultes : [null];
   return `
     <fieldset class="account-fieldset">
       <legend>Le joueur</legend>
@@ -670,21 +775,45 @@ function profileFieldsHtml(prefix, p, withConsent) {
         <label>Nom<input type="text" id="${prefix}-enfant-nom" value="${esc(p?.enfant?.nom)}" autocomplete="off" /></label>
       </div>
     </fieldset>
-    ${adulte(0, 'Un parent ou un proche', true)}
-    ${adulte(1, 'Un deuxième parent ou proche (facultatif)', false)}
-    <p class="account-intro" style="margin:0">Les prénoms servent seulement à personnaliser les encouragements des sorciers (« Joseph, tu es un génie de la grammaire ! », « Ton papa Marc sera fier de toi ! »).</p>
+    <div class="adultes-list" id="${prefix}-adultes">${adultes.map((a, i) => adulteRowHtml(a, i + 1)).join('')}</div>
+    <button type="button" class="secondary-button add-adulte" id="${prefix}-add-adulte">+ Ajouter un proche (papi, mamie, tonton…)</button>
+    <p class="account-intro" style="margin:0">Les prénoms servent à personnaliser les encouragements des sorciers (« Joseph, tu es un génie de la grammaire ! », « Ton papa Marc sera fier de toi ! »). Les adresses e-mail servent seulement à envoyer les scores.</p>
     ${withConsent ? `<label class="account-consent"><input type="checkbox" id="${prefix}-consent" required /><span>Je suis le parent ou l'adulte responsable de cet enfant, et je crée ce compte pour lui.</span></label>` : ''}`;
+}
+/* Boutons « + Ajouter un proche » et « ✕ » (au moins un proche reste toujours). */
+function wireAdultes(prefix) {
+  const list = $(`${prefix}-adultes`);
+  const renumber = () => list.querySelectorAll('[data-adulte-row]').forEach((row, i) => {
+    row.querySelector('legend').textContent = i === 0 ? 'Un parent ou un proche' : 'Un autre proche';
+    row.querySelector('.adulte-remove').classList.toggle('hidden', list.children.length === 1);
+  });
+  $(`${prefix}-add-adulte`).addEventListener('click', () => {
+    list.insertAdjacentHTML('beforeend', adulteRowHtml(null, 2));
+    renumber();
+    list.lastElementChild.querySelector('.f-lien').focus();
+  });
+  list.addEventListener('click', (e) => {
+    const b = e.target.closest('.adulte-remove'); if (!b) return;
+    if (list.children.length > 1) b.closest('[data-adulte-row]').remove();
+    renumber();
+  });
+  renumber();
 }
 function readProfileFields(prefix) {
   const v = (id) => ($(`${prefix}-${id}`)?.value || '').trim();
-  const adultes = [0, 1].map((i) => ({ lien: v(`a${i}-lien`), prenom: v(`a${i}-prenom`), nom: v(`a${i}-nom`) }))
-    .filter((a) => a.prenom || a.lien);
+  const adultes = [...$(`${prefix}-adultes`).querySelectorAll('[data-adulte-row]')].map((row) => ({
+    lien: row.querySelector('.f-lien').value,
+    prenom: row.querySelector('.f-prenom').value.trim(),
+    nom: row.querySelector('.f-nom').value.trim(),
+    email: row.querySelector('.f-email').value.trim(),
+  })).filter((a) => a.prenom || a.lien || a.email);
   return { enfant: { prenom: v('enfant-prenom'), nom: v('enfant-nom') }, adultes };
 }
 function checkProfile(p) {
   if (!p.enfant.prenom) return 'Indiquez le prénom du joueur.';
   if (!p.adultes.length) return 'Indiquez au moins un parent ou un proche.';
-  if (p.adultes.some((a) => !a.lien || !a.prenom)) return 'Pour chaque adulte, choisissez le lien et écrivez le prénom.';
+  if (p.adultes.some((a) => !a.lien || !a.prenom)) return 'Pour chaque proche, choisissez le lien et écrivez le prénom.';
+  if (p.adultes.some((a) => a.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email))) return 'Une des adresses e-mail n\'est pas valide.';
   return '';
 }
 
@@ -728,7 +857,7 @@ function setAccountMode(mode) {
   $('account-forgot-row').classList.toggle('hidden', mode !== 'login');
   $('account-password').setAttribute('autocomplete', mode === 'login' ? 'current-password' : 'new-password');
   const reg = $('account-register-fields');
-  if (mode === 'register') { reg.innerHTML = profileFieldsHtml('reg', null, true); reg.classList.remove('hidden'); reg.style.display = 'grid'; reg.style.gap = '12px'; }
+  if (mode === 'register') { reg.innerHTML = profileFieldsHtml('reg', null, true); reg.classList.remove('hidden'); reg.style.display = 'grid'; reg.style.gap = '12px'; wireAdultes('reg'); }
   else { reg.innerHTML = ''; reg.classList.add('hidden'); }
   $('account-error').classList.add('hidden'); $('account-notice').classList.add('hidden');
 }
@@ -745,9 +874,25 @@ function openProfile(first) {
   $('profile-intro').classList.toggle('hidden', !first);
   $('profile-fields').innerHTML = profileFieldsHtml('pro', playerProfile, false);
   $('profile-fields').style.display = 'grid'; $('profile-fields').style.gap = '12px';
+  wireAdultes('pro');
+  renderScoreHistory();
   $('profile-email-row').textContent = currentUser ? `Connecté avec l'adresse ${currentUser.email}` : '';
   $('profile-error').classList.add('hidden'); $('profile-notice').classList.add('hidden');
   $('profile-modal').classList.remove('hidden');
+}
+
+/* « Mes derniers scores », dans la fenêtre Mon compte */
+async function renderScoreHistory() {
+  const box = $('profile-scores');
+  if (!box) return;
+  box.innerHTML = '';
+  const scores = await loadScores();
+  if (!scores.length) { box.innerHTML = '<p class="send-hint">Pas encore de score enregistré.</p>'; return; }
+  box.innerHTML = '<p class="send-title">Derniers scores</p><ul class="score-list">' + scores.slice(0, 10).map((r) => {
+    const d = new Date(r.date);
+    const quand = isNaN(d) ? '' : d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return `<li><span>${esc(r.jeu)}</span><span>${quand}</span><strong>${r.score} / ${r.total}</strong></li>`;
+  }).join('') + '</ul>';
 }
 
 function authErrorMessage(error) {
@@ -850,7 +995,7 @@ $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
-  speak(phraseTexte(PARSED[q.phrase]), 'femme');
+  speak(phraseTexte(PARSED[q.phrase]), 'femme', 'phrase');
   volumeLevel = prev;
 });
 $('results-replay').addEventListener('click', startGame);
