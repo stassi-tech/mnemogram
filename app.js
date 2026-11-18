@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v17';
+const APP_VERSION = 'v19';
 
 const $ = (id) => document.getElementById(id);
 
@@ -141,6 +141,10 @@ const FONCTIONS = [
     exemples: 'verbe + pourquoi ? = CC de cause',
     explication: "Le complément circonstanciel de cause dit pourquoi l'action se passe : *Le bébé pleure pourquoi ?* → *de faim*.",
     q: (v) => `${v} + pourquoi ?` },
+  { code: 'F.cdn', court: 'Complément du nom', nom: 'Complément du nom', article: 'un complément du nom', groupe: 'fgn',
+    exemples: 'nom + de (d\', du) + nom = complément du nom',
+    explication: "Le complément du nom complète un nom ; il est relié à lui par un petit mot (*de*, *d'*, *du*) : *le chat de mon voisin*, *un jus d'orange*. Il fait partie du groupe nominal.",
+    q: () => '' },
   { code: 'F.mod', court: 'Modifie le sens', nom: 'Modifie le sens', article: 'un adverbe qui modifie le sens', groupe: 'fadv',
     exemples: 'adverbe + verbe, adjectif ou adverbe = modifie le sens',
     explication: "L'adverbe modifie le sens d'un verbe, d'un adjectif ou d'un autre adverbe : *très bon*, *ne… pas*. Si on l'enlève, la phrase reste juste, mais elle ne veut plus dire la même chose.",
@@ -154,6 +158,12 @@ const FONCTIONS_PAR_NATURE = {
   Av: ['F.mod', 'F.ccl', 'F.cct', 'F.ccm'],
 };
 FONCTIONS_PAR_NATURE.NP = FONCTIONS_PAR_NATURE.N; FONCTIONS_PAR_NATURE.Pr = FONCTIONS_PAR_NATURE.N;
+/* v18 : jeu 4 (groupe nominal) : seulement nom commun, nom propre, déterminant (7 sortes), adjectif qualificatif, pronom (7 sortes) */
+const BUTTON_ROWS_4 = {
+  variables: [['N'], ['A'], { titre: 'Déterminant', codes: ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int'] },
+    { titre: 'Pronom', codes: ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int'] }],
+  invariables: [['NP']],
+};
 const NATURE_BY_CODE = Object.fromEntries([...NATURES, ...NATURES_DETAIL, ...FONCTIONS].map((n) => [n.code, n]));
 /* Les deux jeux. « priorite » : natures demandées au moins une fois par partie ; le reste des 20 questions
    est tiré au hasard parmi « reste ». « reponse » : la nature attendue pour une étiquette de mot. */
@@ -180,8 +190,13 @@ const GAMES = {
     priorite: ['suj', 'suj', 'suj', 'cod', 'cod', 'cod', 'ccl', 'ccl', 'cct', 'cct', 'ccm', 'ccm', 'mod', 'mod', 'coi', 'cos', 'att', 'ccc'],
     reste: ['suj', 'cod', 'ccl', 'cct', 'ccm', 'coi', 'cos'],
     cle: (m) => m.fn || null },
+  /* v18 : jeu 4. Les boutons clignotent, et c'est dans la phrase que l'on clique : le nom, puis son déterminant
+     (et la sorte exacte de déterminant, sur les boutons), son adjectif s'il y en a, son complément du nom s'il y en a. */
+  gn: { titre: 'Natures et fonctions des mots dans le groupe nominal', type: 'Natures et fonctions (groupe nominal), niveau 4', rows: BUTTON_ROWS_4,
+    reponse: (tag) => tag, niveau: 4, nb: 10, gn: true },
 };
 GAMES.natures.niveau = 1; GAMES.natures2.niveau = 2;
+const nbQuestions = () => currentGame.nb || NB_QUESTIONS;
 let currentGame = GAMES.natures;
 const answerCodeOf = (tag) => currentGame.reponse(tag);
 
@@ -374,6 +389,17 @@ const PHRASES = [
   'Mon/D.pos ami/N=suj habite/VA loin/Av=ccl .',
   'Nous/Pr.per=suj jouons/VA dehors/Av=ccl .',
   'Le/D.def lion/N=suj marche/VA avec/P prudence/N=ccm .',
+  /* v18 : phrases en plus pour le jeu 4 (adjectifs et compléments du nom dans le groupe nominal) */
+  'La/D.def petite/A maison/N de/P ma/D.pos grand-mère/N est/VE jolie/A .',
+  'Le/D.def vélo/N rouge/A de/P Paul/NP roule/VA vite/Av .',
+  'Cette/D.dem jolie/A robe/N de/P soie/N brille/VA .',
+  'Chaque/D.idf élève/N range/VA son/D.pos cahier/N de/P dessin/N .',
+  'Trois/D.num petits/A chats/N noirs/A jouent/VA .',
+  'Plusieurs/D.idf enfants/N de/P la/D.def classe/N chantent/VA .',
+  'Le/D.def jardin/N de/P Léa/NP est/VE fleuri/A .',
+  'Un/D.ind grand/A verre/N de/P lait/N froid/A attend/VA Joseph/NP .',
+  'Quelle/D.int belle/A histoire/N racontes/VA -tu/Pr.per ?',
+  'Ma/D.pos sœur/N porte/VA une/D.ind longue/A écharpe/N de/P laine/N .',
 ];
 
 /* Découpe une phrase en mots : { texte, tag } (tag vide pour la ponctuation). */
@@ -390,6 +416,8 @@ const PARSED = PHRASES.map(parsePhrase);
 
 /* Écrit la phrase en HTML, avec les espaces à la française (espace insécable avant ! et ?). */
 function phraseHtml(mots, cible) {
+  /* v18 : la cible peut être un groupe de mots (« ne… pas » clignote en entier) */
+  const cibles = Array.isArray(cible) ? cible : [cible];
   let html = '';
   mots.forEach((m, i) => {
     if (i > 0) {
@@ -399,7 +427,7 @@ function phraseHtml(mots, cible) {
       else if (!/'$/.test(prev) && !/^-/.test(m.texte)) html += ' ';
     }
     if (!m.tag) { html += m.texte; return; }
-    html += `<span class="w${i === cible ? ' target' : ''}" data-i="${i}">${m.texte}</span>`;
+    html += `<span class="w${cibles.includes(i) ? ' target' : ''}" data-i="${i}">${m.texte}</span>`;
   });
   return html;
 }
@@ -746,6 +774,7 @@ function buildNatureSequence() {
   return shuffle(liste);
 }
 function buildQuestions() {
+  if (currentGame.gn) return buildQuestionsGN();
   const natures = buildNatureSequence();
   const used = new Set();
   return natures.map((code) => {
@@ -760,18 +789,34 @@ function buildQuestions() {
     if (piege) candidats = candidats.flatMap((c) => (PARSED[c.p].some((m) => piege.includes(m.tag)) ? [c, c, c] : [c]));
     const c = pick(candidats);
     used.add(c.p);
-    const mot = pick(c.idx);
+    const mot = pick(c.idx.filter((i) => !finDeNegation(PARSED[c.p], i)).length ? c.idx.filter((i) => !finDeNegation(PARSED[c.p], i)) : c.idx);
+    /* v18 : la négation se prend en entier : « ne… pas » (les deux mots clignotent) */
+    const neg = currentGame.cle ? negationDe(PARSED[c.p], mot) : null;
+    if (neg) return { phrase: c.p, mot, mots: [mot, neg], texte: `${PARSED[c.p][mot].texte.replace(/'$/, 'e')}… ${PARSED[c.p][neg].texte}`, code: 'Av', fn: 'F.mod' };
     /* jeu 3 : la question garde la nature (code) et la fonction (fn) du mot */
     if (currentGame.cle) return { phrase: c.p, mot, code: answerCodeOf(PARSED[c.p][mot].tag), fn: `F.${code}` };
     return { phrase: c.p, mot, code };
   });
 }
 
+/* v18 : négations en deux mots : ne… pas, ne… plus, ne… jamais, ne… rien */
+const FINS_NEG = ['pas', 'plus', 'jamais', 'rien', 'guère'];
+function negationDe(mots, i) {
+  if (!/^n(e|')$/i.test(mots[i].texte) || mots[i].tag !== 'Av') return null;
+  for (let k = i + 1; k < mots.length; k++) if (mots[k].tag === 'Av' && FINS_NEG.includes(mots[k].texte.toLowerCase())) return k;
+  return null;
+}
+function finDeNegation(mots, i) {
+  if (mots[i].tag !== 'Av' || !FINS_NEG.includes(mots[i].texte.toLowerCase())) return false;
+  return mots.slice(0, i).some((m, k) => negationDe(mots, k) === i);
+}
+const motTexte = (q) => q.texte || PARSED[q.phrase][q.mot].texte;
+
 function buildNatureButtons() {
   const btn = (code, small) => `<button type="button" class="nature-button${small ? ' small' : ''}" data-code="${code}">${small ? NATURE_BY_CODE[code].court : NATURE_BY_CODE[code].nom}</button>`;
   const html = (groupe) => currentGame.rows[groupe].map((row) => Array.isArray(row)
     ? `<div class="nature-row nature-row-${row.length}">` + row.map((c) => btn(c, false)).join('') + '</div>'
-    : `<div class="nature-subgroup"><span class="nature-subtitle">${row.titre}</span><div class="nature-row nature-row-7">` + row.codes.map((c) => btn(c, true)).join('') + '</div></div>').join('');
+    : `<div class="nature-subgroup" data-titre="${row.titre}"><span class="nature-subtitle">${row.titre}</span><div class="nature-row nature-row-7">` + row.codes.map((c) => btn(c, true)).join('') + '</div></div>').join('');
   $('nat-buttons-variables').innerHTML = html('variables');
   $('nat-buttons-invariables').innerHTML = html('invariables');
   $('nat-buttons-fonctions').innerHTML = '';
@@ -781,24 +826,27 @@ function buildNatureButtons() {
 function openGame(id) {
   currentGame = GAMES[id];
   $('natures-panel').classList.toggle('game2', id === 'natures2');
-  $('natures-panel').classList.toggle('game3', id === 'fonctions');
+  $('natures-panel').classList.toggle('game3', id === 'fonctions' || id === 'gn');
+  $('natures-panel').classList.toggle('game4', id === 'gn');
   $('nat-ready-explanation').innerHTML = id === 'fonctions'
     ? 'Dans chaque phrase, un mot clignote. Trouve d\'abord sa <strong>nature</strong> parmi les boutons verts : les autres natures disparaissent, et ses <strong>fonctions</strong> possibles apparaissent sur des boutons rouges. La bonne nature rapporte 0,5 point, la bonne fonction 0,5 point. Si tu te trompes, tu as droit à un deuxième essai.'
+    : id === 'gn' ? 'Cette fois, ce sont les <strong>boutons</strong> qui clignotent, et c\'est <strong>dans la phrase</strong> que tu cliques. Quand « Nom commun » clignote, clique sur un nom de la phrase. Puis clique sur son <strong>déterminant</strong>, et dis quelle sorte de déterminant c\'est avec les boutons. Si « Adjectif qualificatif » clignote, clique sur l\'adjectif de ce nom ; si « Complément du nom » clignote, clique sur son complément du nom. Et on recommence avec le nom suivant, jusqu\'à ce que tous les noms soient trouvés.'
     : 'Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.';
   buildNatureButtons();
   $('nat-game-title').textContent = currentGame.titre;
   showPanel('natures');
   $('nat-ready-screen').classList.remove('hidden');
   $('nat-quiz-grid').classList.add('hidden');
-  $('nat-progress-label').textContent = `Question 1 / ${NB_QUESTIONS}`;
+  $('nat-progress-label').textContent = `Question 1 / ${nbQuestions()}`;
   $('nat-score-label').textContent = scoreLabel(0);
   $('nat-progress-bar').style.width = '0';
 }
 /* v15 : les points du jeu 3 vont de 0,5 en 0,5 : on les écrit avec une virgule (14,5). */
 const fmtPts = (n) => String(Math.round((n || 0) * 10) / 10).replace('.', ',');
 const isG3 = () => currentGame === GAMES.fonctions;
+const isG4 = () => currentGame === GAMES.gn;
 function scoreLabel(n) {
-  if (isG3()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''}`;
+  if (isG3() || isG4()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''}`;
   return `${n} bonne${n > 1 ? 's' : ''} réponse${n > 1 ? 's' : ''}`;
 }
 function startGame() {
@@ -819,9 +867,10 @@ function updateProgress() {
 function showQuestion() {
   /* v7 : on coupe la voix (bulle + explication) dès qu'on passe au mot suivant, pour qu'elle ne déborde pas. */
   if ('speechSynthesis' in window) speechSynthesis.cancel();
+  if (isG4()) { showQuestionGN(); return; }
   const q = game.questions[game.index];
   game.essais = 0;
-  $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mot);
+  $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mots || q.mot);
   $('nat-character-stage').innerHTML = '';
   $('nat-correction').classList.add('hidden');
   $('nat-verdict-square').className = 'verdict-square';
@@ -876,6 +925,7 @@ function showCharacter(camp, nature) {
     const choix = chooseMessage(ch);
     msg = fillMessage(choix.tpl, nature, choix.adulte);
     photo = choix.photo || '';
+    if (!nature && /\{[nN]ature\}/.test(msg)) continue;
     if (!recentMessages.includes(msg)) break;
   }
   recentMessages.push(msg); if (recentMessages.length > 4) recentMessages.shift();
@@ -889,17 +939,19 @@ function showCharacter(camp, nature) {
 }
 function explanationSpoken() {
   const q = game.questions[game.index];
+  if (isG4()) return resumeGN(q, false).replace(/«|»/g, '');
   const n = NATURE_BY_CODE[q.code];
   if (q.fn) {
     const f = NATURE_BY_CODE[q.fn];
     const quest = questionFonction(q);
-    return `${PARSED[q.phrase][q.mot].texte} est ${n.article}. Sa fonction : ${f.nom.replace(/\s*\(.*\)/, '').toLowerCase()}. ${quest.replace(/ \+ /g, ' ')} ${f.explication.replace(/\*/g, '')}`.replace(/\bCO([DIS])\b/g, 'C O $1');
+    return `${motTexte(q).replace('…', '')} est ${n.article}. Sa fonction : ${f.nom.replace(/\s*\(.*\)/, '').toLowerCase()}. ${quest.replace(/ \+ /g, ' ')} ${f.explication.replace(/\*/g, '')}`.replace(/\bCO([DIS])\b/g, 'C O $1');
   }
   return `${PARSED[q.phrase][q.mot].texte} est ${n.article}. ${n.explication}`;
 }
 
 function answer(code, btn) {
   if (game.fini) return;
+  if (isG4()) { answerBoutonGN(code, btn); return; }
   if (isG3()) { answerNature3(code, btn); return; }
   const q = game.questions[game.index];
   const bonne = NATURE_BY_CODE[q.code];
@@ -970,7 +1022,7 @@ function answerNature3(code, btn) {
     natureFound3(game.essais === 0);
     showCharacter('good', bonne);
   } else {
-    if (game.essais === 0) game.erreurs.push({ mot: mot.texte, bonne: bonne.article, choisie: NATURE_BY_CODE[code].article, codeBonne: q.code, codeChoisi: code, phrase: phraseTexte(PARSED[q.phrase]), etape: 'nature' });
+    if (game.essais === 0) game.erreurs.push({ mot: motTexte(q), bonne: bonne.article, choisie: NATURE_BY_CODE[code].article, codeBonne: q.code, codeChoisi: code, phrase: phraseTexte(PARSED[q.phrase]), etape: 'nature' });
     game.essais += 1;
     btn.classList.add('wrong');
     btn.disabled = true;
@@ -992,7 +1044,7 @@ function answerFn3(code, btn) {
     finishQuestion3(game.essaisFn === 0);
     showCharacter('good', bonne);
   } else {
-    if (game.essaisFn === 0) game.erreurs.push({ mot: mot.texte, bonne: bonne.article, choisie: NATURE_BY_CODE[code].article, codeBonne: q.fn, codeChoisi: code, phrase: phraseTexte(PARSED[q.phrase]), etape: 'fonction' });
+    if (game.essaisFn === 0) game.erreurs.push({ mot: motTexte(q), bonne: bonne.article, choisie: NATURE_BY_CODE[code].article, codeBonne: q.fn, codeChoisi: code, phrase: phraseTexte(PARSED[q.phrase]), etape: 'fonction' });
     game.essaisFn += 1;
     btn.classList.add('wrong');
     btn.disabled = true;
@@ -1005,7 +1057,7 @@ function answerFn3(code, btn) {
 }
 function finishQuestion3(reussi) {
   const q = game.questions[game.index];
-  const nature = NATURE_BY_CODE[q.code], f = NATURE_BY_CODE[q.fn], mot = PARSED[q.phrase][q.mot];
+  const nature = NATURE_BY_CODE[q.code], f = NATURE_BY_CODE[q.fn], mot = { texte: motTexte(q) };
   const pn = game.parNature[q.fn] || (game.parNature[q.fn] = { c: 0, p: 0 });
   pn.p += 1; if (reussi) pn.c += 1;
   game.step = 'fini';
@@ -1013,7 +1065,7 @@ function finishQuestion3(reussi) {
     b.disabled = true;
     if (!b.classList.contains('correct') && !b.classList.contains('wrong')) b.classList.add('faded');
   });
-  document.querySelector('.sentence .w.target')?.classList.add('found');
+  document.querySelectorAll('.sentence .w.target').forEach((w) => w.classList.add('found'));
   const quest = questionFonction(q);
   const rich = (t) => esc(t).replace(/\*([^*]+)\*/g, '<em>$1</em>');
   $('nat-correction-details').innerHTML = nbspFr(`« <strong>${mot.texte}</strong> » est ${nature.article}. Sa fonction : <strong class="fn-red">${esc(f.nom.charAt(0).toLowerCase() + f.nom.slice(1))}</strong>.`
@@ -1027,6 +1079,189 @@ function finishQuestion3(reussi) {
   $('nat-progress-bar').style.width = `${((game.index + 1) / game.questions.length) * 100}%`;
 }
 
+/* ------------------------------------------------------------
+   v18 : JEU 4 — LE GROUPE NOMINAL
+   Les groupes nominaux sont trouvés tout seuls dans les phrases déjà écrites : pour chaque nom commun,
+   son déterminant (juste avant, éventuellement avec un adjectif entre les deux), ses adjectifs (collés à lui,
+   avant ou après) et son complément du nom (« de », « d' » ou « du », puis un nom ou un nom propre).
+   ------------------------------------------------------------ */
+const GN_DEBUT = PHRASES.indexOf('Deux/D.num chats/N jouent/VA dans/P le/D.def jardin/N .');
+const GN_FIN = PHRASES.findIndex((p) => p.startsWith('Je/Pr.per=suj parle/VA'));
+const GN_PLUS = PHRASES.indexOf('La/D.def petite/A maison/N de/P ma/D.pos grand-mère/N est/VE jolie/A .');
+function analyseGN(mots) {
+  const groupes = [];
+  mots.forEach((m, n) => {
+    if (m.tag !== 'N') return;
+    const g = { n, d: null, dType: '', adj: [], cdn: null };
+    let k = n - 1;
+    while (k >= 0 && mots[k].tag === 'A') { g.adj.unshift(k); k--; }
+    if (k >= 0 && /^D\./.test(mots[k].tag)) { g.d = k; g.dType = mots[k].tag; }
+    let j = n + 1;
+    while (j < mots.length && mots[j].tag === 'A') { g.adj.push(j); j++; }
+    if (j < mots.length && mots[j].tag === 'P' && /^(de|d'|du)$/i.test(mots[j].texte)) {
+      let h = j + 1;
+      while (h < mots.length && (/^D\./.test(mots[h].tag) || mots[h].tag === 'A')) h++;
+      if (h < mots.length && (mots[h].tag === 'N' || mots[h].tag === 'NP')) g.cdn = { debut: j, fin: h };
+    }
+    groupes.push(g);
+  });
+  return groupes;
+}
+function buildQuestionsGN() {
+  const pool = [];
+  PHRASES.forEach((p, i) => {
+    if (!((i >= GN_DEBUT && i < GN_FIN) || i >= GN_PLUS)) return;
+    const gs = analyseGN(PARSED[i]);
+    if (!gs.length || gs.length > 3) return;
+    const riche = gs.some((g) => g.adj.length || g.cdn) || gs.some((g) => g.d !== null && !/def|ind/.test(g.dType));
+    pool.push(i); if (riche) pool.push(i, i);
+  });
+  const choisies = [];
+  for (const i of shuffle(pool)) { if (!choisies.includes(i)) choisies.push(i); if (choisies.length >= nbQuestions()) break; }
+  return choisies.map((p) => ({ phrase: p, groupes: analyseGN(PARSED[p]) }));
+}
+/* les étapes d'un groupe : nom → déterminant (dans la phrase) → sorte de déterminant (boutons) → adjectifs → complément du nom */
+function etapesGroupe(g) {
+  const e = [];
+  if (g.d !== null) e.push('det', 'detnat');
+  g.adj.forEach(() => e.push('adj'));
+  if (g.cdn) e.push('cdn');
+  return e;
+}
+const gnState = { faits: new Set(), g: null, etapes: [], etape: 'nom', essais: 0, reussies: 0, total: 0, adjTrouves: new Set() };
+function wordEl(i) { return document.querySelector(`#nat-sentence .w[data-i="${i}"]`); }
+function showQuestionGN() {
+  const q = game.questions[game.index];
+  $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], -1);
+  $('nat-character-stage').innerHTML = '';
+  $('nat-correction').classList.add('hidden');
+  $('nat-verdict-square').className = 'verdict-square';
+  document.querySelectorAll('.nature-button').forEach((b) => { b.disabled = false; b.classList.remove('wrong', 'correct', 'faded', 'gone'); });
+  document.querySelectorAll('#nat-nature-column .gone').forEach((el) => el.classList.remove('gone'));
+  $('nat-buttons-fonctions').innerHTML = `<button type="button" class="nature-button fonction-button" data-code="F.cdn">${NATURE_BY_CODE['F.cdn'].court}</button>`;
+  $('nat-fn-column').classList.remove('hidden');
+  Object.assign(gnState, { faits: new Set(), g: null, etapes: [], etape: 'nom', essais: 0, reussies: 0, total: 0, adjTrouves: new Set() });
+  updateProgress();
+  gnCue();
+}
+/* le bouton qui clignote, et la consigne */
+function gnCue() {
+  document.querySelectorAll('.cue').forEach((el) => el.classList.remove('cue'));
+  const q = game.questions[game.index], mots = PARSED[q.phrase], g = gnState.g;
+  const nom = g ? `« ${mots[g.n].texte} »` : '';
+  const sub = document.querySelector('.nature-subgroup[data-titre="Déterminant"]');
+  const consignes = {
+    nom: () => { document.querySelector('#nat-nature-column .nature-button[data-code="N"]').classList.add('cue'); return gnState.faits.size ? 'Clique dans la phrase sur un autre nom commun.' : 'Clique dans la phrase sur un nom commun.'; },
+    det: () => { sub.classList.add('cue'); return `Clique dans la phrase sur le déterminant de ${nom}.`; },
+    detnat: () => { sub.classList.add('cue'); return `Quelle sorte de déterminant est « ${mots[g.d].texte} » ? Clique sur le bon bouton.`; },
+    adj: () => { document.querySelector('#nat-nature-column .nature-button[data-code="A"]').classList.add('cue'); return `Clique dans la phrase sur l'adjectif qualificatif de ${nom}.`; },
+    cdn: () => { document.querySelector('.fonction-button[data-code="F.cdn"]').classList.add('cue'); return `Clique dans la phrase sur le complément du nom de ${nom}.`; },
+  };
+  $('nat-instruction').textContent = consignes[gnState.etape]();
+}
+function gnMarque(i, cls) { const el = wordEl(i); if (el) el.classList.add(cls); }
+function gnErreur(el, attendu, choisi) {
+  const q = game.questions[game.index];
+  /* un clic dans la phrase : « achète » était un verbe d'action, et je l'avais pris pour un nom commun ;
+     un clic sur un bouton : « quatre » était un déterminant numéral, et j'avais répondu article défini */
+  if (gnState.essais === 0) game.erreurs.push(el ? { mot: choisi.texte, bonne: choisi.article, choisie: attendu, phrase: phraseTexte(PARSED[q.phrase]), etape: gnState.etape }
+    : { mot: choisi.texte, bonne: attendu, choisie: choisi.article, phrase: phraseTexte(PARSED[q.phrase]), etape: gnState.etape });
+  gnState.essais += 1;
+  if (el) { el.classList.remove('gn-err'); void el.offsetWidth; el.classList.add('gn-err'); }
+  showCharacter('bad', null);
+  return gnState.essais >= 2;
+}
+function gnCompte(c) {
+  const pn = game.parNature[c] || (game.parNature[c] = { c: 0, p: 0 });
+  pn.p += 1; if (gnState.essais === 0) pn.c += 1;
+  gnState.total += 1; if (gnState.essais === 0) gnState.reussies += 1;
+  gnState.essais = 0;
+}
+function gnSuite() {
+  const g = gnState.g;
+  if (gnState.etapes.length) { gnState.etape = gnState.etapes.shift(); gnCue(); return; }
+  /* groupe terminé */
+  gnState.faits.add(g.n); gnState.g = null;
+  const q = game.questions[game.index];
+  if (q.groupes.every((x) => gnState.faits.has(x.n))) { finishQuestionGN(); return; }
+  showCharacter('good', null);
+  gnState.etape = 'nom'; gnCue();
+}
+function clicMotGN(i, el) {
+  if (game.fini || gnState.etape === 'detnat' || gnState.etape === 'fini') return;
+  const q = game.questions[game.index], mots = PARSED[q.phrase], g = gnState.g;
+  const nat = (k) => NATURE_BY_CODE[mots[k].tag] || NATURE_BY_CODE[mots[k].tag.split('.')[0]] || { article: mots[k].texte };
+  const choisi = { texte: mots[i].texte, article: nat(i).article };
+  if (gnState.etape === 'nom') {
+    const cible = q.groupes.find((x) => x.n === i && !gnState.faits.has(x.n));
+    let pris = cible;
+    if (!cible && gnErreur(el, 'un nom commun', choisi)) pris = q.groupes.find((x) => !gnState.faits.has(x.n));
+    if (!pris) return;
+    gnCompte('N'); gnState.g = pris; gnState.etapes = etapesGroupe(pris);
+    gnMarque(pris.n, 'gn-n'); gnSuite(); return;
+  }
+  if (gnState.etape === 'det') {
+    if (i === g.d || gnErreur(el, `le déterminant de « ${mots[g.n].texte} »`, choisi)) { gnCompte('D'); gnMarque(g.d, 'gn-d'); gnSuite(); }
+    return;
+  }
+  if (gnState.etape === 'adj') {
+    const restants = g.adj.filter((k) => !gnState.adjTrouves.has(k));
+    let pris = restants.includes(i) ? i : null;
+    if (pris === null && gnErreur(el, `un adjectif qualificatif de « ${mots[g.n].texte} »`, choisi)) pris = restants[0];
+    if (pris === null) return;
+    gnState.adjTrouves.add(pris); gnCompte('A'); gnMarque(pris, 'gn-a'); gnSuite(); return;
+  }
+  if (gnState.etape === 'cdn') {
+    if ((i >= g.cdn.debut && i <= g.cdn.fin) || gnErreur(el, `le complément du nom de « ${mots[g.n].texte} »`, choisi)) {
+      gnCompte('F.cdn'); for (let k = g.cdn.debut; k <= g.cdn.fin; k++) gnMarque(k, 'gn-c'); gnSuite();
+    }
+  }
+}
+function answerBoutonGN(code, btn) {
+  if (gnState.etape !== 'detnat') { $('nat-instruction').classList.remove('gn-flash'); void $('nat-instruction').offsetWidth; $('nat-instruction').classList.add('gn-flash'); return; }
+  const q = game.questions[game.index], mots = PARSED[q.phrase], g = gnState.g;
+  if (code === g.dType) {
+    btn.classList.add('correct'); gnCompte(g.dType);
+    setTimeout(() => { btn.classList.remove('correct'); document.querySelectorAll('#nat-nature-column .nature-button.wrong').forEach((b) => b.classList.remove('wrong')); }, 900);
+    gnSuite(); return;
+  }
+  btn.classList.add('wrong');
+  if (gnErreur(null, NATURE_BY_CODE[g.dType].article, { texte: mots[g.d].texte, article: NATURE_BY_CODE[code].article })) {
+    const ok = document.querySelector(`#nat-nature-column .nature-button[data-code="${g.dType}"]`);
+    ok.classList.add('correct'); gnCompte(g.dType);
+    setTimeout(() => { ok.classList.remove('correct'); document.querySelectorAll('#nat-nature-column .nature-button.wrong').forEach((b) => b.classList.remove('wrong')); }, 1200);
+    gnSuite();
+  }
+  else setTimeout(() => btn.classList.remove('wrong'), 900);
+}
+function resumeGN(q, html) {
+  const mots = PARSED[q.phrase];
+  const t = (a, b) => mots.slice(a, b + 1).map((m) => m.texte).join(' ').replace(/' /g, "'");
+  return q.groupes.map((g) => {
+    const debut = Math.min(g.n, g.d ?? g.n, ...g.adj), fin = Math.max(g.n, ...g.adj, g.cdn ? g.cdn.fin : g.n);
+    const parts = [`nom commun ${html ? `<strong>${esc(mots[g.n].texte)}</strong>` : mots[g.n].texte}`];
+    if (g.d !== null) parts.push(`déterminant « ${mots[g.d].texte} » (${NATURE_BY_CODE[g.dType].nom.toLowerCase()})`);
+    if (g.adj.length) parts.push(`adjectif${g.adj.length > 1 ? 's' : ''} qualificatif${g.adj.length > 1 ? 's' : ''} ${g.adj.map((k) => `« ${mots[k].texte} »`).join(' et ')}`);
+    if (g.cdn) parts.push(`complément du nom « ${t(g.cdn.debut, g.cdn.fin)} »`);
+    return html ? `• « ${esc(t(debut, fin))} » : ${parts.join(' ; ')}.` : `${t(debut, fin)} : ${parts.join(', ')}.`;
+  }).join(html ? '<br>' : ' ');
+}
+function finishQuestionGN() {
+  const q = game.questions[game.index];
+  gnState.etape = 'fini';
+  document.querySelectorAll('.cue').forEach((el) => el.classList.remove('cue'));
+  const part = gnState.total ? gnState.reussies / gnState.total : 1;
+  game.score = Math.round((game.score + part) * 100) / 100;
+  $('nat-instruction').textContent = 'Tous les noms sont trouvés !';
+  $('nat-correction-details').innerHTML = nbspFr(`${q.groupes.length > 1 ? 'Les groupes nominaux de la phrase' : 'Le groupe nominal de la phrase'} :<br>${resumeGN(q, true)}`);
+  $('nat-correction').classList.remove('hidden');
+  $('nat-verdict-square').className = `verdict-square ${part === 1 ? 'correct' : part === 0 ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = game.index + 1 < game.questions.length ? 'Suivant →' : 'Voir mon résultat →';
+  $('nat-score-label').textContent = scoreLabel(game.score);
+  $('nat-progress-bar').style.width = `${((game.index + 1) / game.questions.length) * 100}%`;
+  showCharacter(part === 1 ? 'good' : part >= 0.5 ? 'good' : 'bad', null);
+}
+
 function finishQuestion(reussi, nature, mot) {
   /* v11 : pour le bilan, on compte chaque nature : demandée (p) et trouvée du premier coup (c). */
   const pn = game.parNature[nature.code] || (game.parNature[nature.code] = { c: 0, p: 0 });
@@ -1035,7 +1270,7 @@ function finishQuestion(reussi, nature, mot) {
     b.disabled = true;
     if (!b.classList.contains('correct') && !b.classList.contains('wrong')) b.classList.add('faded');
   });
-  document.querySelector('.sentence .w.target')?.classList.add('found');
+  document.querySelectorAll('.sentence .w.target').forEach((w) => w.classList.add('found'));
   $('nat-correction-details').innerHTML = nbspFr(`« <strong>${mot.texte}</strong> » est ${nature.article}.<br>${nature.explicationHtml || esc(nature.explication)}`);
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${reussi ? 'correct' : 'wrong'}`;
@@ -1051,12 +1286,12 @@ function nextQuestion() {
 
 function showResults() {
   game.fini = true;
-  const n = game.questions.length, s = game.score;
+  const n = game.questions.length, s = Math.round(game.score * 10) / 10;
   const content = s >= Math.ceil(n * 0.6);
   const id = content ? pick(['bonaccord', 'virgule']) : pick(['rature', 'gribouille']);
   const pe = playerProfile?.enfant?.photo;
   $('results-character').innerHTML = characterSvg(id) + (pe ? `<img class="results-photo" src="${pe}" alt="" />` : '');
-  $('results-title').textContent = isG3() ? `${fmtPts(s)} point${s >= 2 ? 's' : ''} sur ${n}` : `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
+  $('results-title').textContent = isG3() || isG4() ? `${fmtPts(s)} point${s >= 2 ? 's' : ''} sur ${n}` : `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
   const E = playerProfile?.enfant?.prenom;
   const adultes = (playerProfile?.adultes || []).filter((a) => a.lien);
   const a = adultes.length ? pick(adultes) : null;
@@ -1102,7 +1337,8 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    niveauOf(r) === 3 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (0,5 point pour la bonne nature et 0,5 point pour la bonne fonction, trouvées du premier coup).`
+    niveauOf(r) === 4 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le nom, le déterminant, l'adjectif et le complément du nom trouvés du premier coup).`
+      : niveauOf(r) === 3 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (0,5 point pour la bonne nature et 0,5 point pour la bonne fonction, trouvées du premier coup).`
       : `Mon score : ${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}.`,
   ];
   if (r.erreurs.length) {
@@ -1421,7 +1657,7 @@ function openProfile(first) {
 
 /* v10 : nom du type d'exercice ; les scores enregistrés avant la v10 portaient d'autres noms. */
 function scoreType(jeu) {
-  if (/niveau [123]/.test(jeu || '')) return jeu;
+  if (/niveau [1234]/.test(jeu || '')) return jeu;
   if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
   return 'Reconnaissance des natures, niveau 1';
 }
@@ -1469,7 +1705,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -1506,7 +1742,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2, 3].map((n) => {
+  const niveaux = [1, 2, 3, 4].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -1527,7 +1763,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Reconnaissance des natures, niveau 1', 2: 'Reconnaissance des natures, niveau 2', 3: 'Natures et fonctions (groupe verbal), niveau 3' };
+const NIVEAU_TITRE = { 1: 'Reconnaissance des natures, niveau 1', 2: 'Reconnaissance des natures, niveau 2', 3: 'Natures et fonctions (groupe verbal), niveau 3', 4: 'Natures et fonctions (groupe nominal), niveau 4' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
@@ -1622,7 +1858,7 @@ function scoresMessage(scores) {
   const E = playerProfile?.enfant?.prenom || '';
   const list = scores.slice(0, 10);
   const l = ['Mes derniers scores sur MNEMOGRAM :', ''];
-  list.forEach((r) => { const d = new Date(r.date); l.push(`- ${isNaN(d) ? '' : d.toLocaleDateString('fr-FR') + ' : '}${scoreType(r.jeu)}, ${niveauOf(r) === 3 ? `${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total}` : `${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}`}`); });
+  list.forEach((r) => { const d = new Date(r.date); l.push(`- ${isNaN(d) ? '' : d.toLocaleDateString('fr-FR') + ' : '}${scoreType(r.jeu)}, ${niveauOf(r) >= 3 ? `${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total}` : `${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}`}`); });
   const last = list[0];
   if (last && (last.erreurs || []).length) {
     l.push('', 'Mes erreurs à la dernière partie :');
@@ -1809,6 +2045,8 @@ loadFiche();
 $('open-natures').addEventListener('click', () => openGame('natures'));
 $('open-natures2').addEventListener('click', () => openGame('natures2'));
 $('open-fonctions').addEventListener('click', () => openGame('fonctions'));
+$('open-gn').addEventListener('click', () => openGame('gn'));
+$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
@@ -1819,6 +2057,24 @@ $('nat-listen-button').addEventListener('click', () => {
 });
 $('results-replay').addEventListener('click', startGame);
 $('results-home').addEventListener('click', () => showPanel('welcome'));
+/* v19 : la flèche ← du bandeau revient à la page précédente : elle ferme d'abord une fenêtre ouverte (fiche,
+   compte, bilan, aide…) ; sinon résultats → accueil, partie en cours → écran « Démarrer le jeu » de ce jeu,
+   écran « Démarrer le jeu » → accueil. */
+function goBack() {
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  if (!$('report-overlay').classList.contains('hidden')) { $('report-overlay').classList.add('hidden'); return; }
+  if (!$('ambiance-picker').classList.contains('hidden')) { $('ambiance-picker').classList.add('hidden'); return; }
+  const ouvertes = [...document.querySelectorAll('.modal-backdrop:not(.hidden)')];
+  if (ouvertes.length) { ouvertes[ouvertes.length - 1].classList.add('hidden'); return; }
+  if (!$('natures-panel').classList.contains('hidden') && $('nat-ready-screen').classList.contains('hidden')) {
+    openGame(Object.keys(GAMES).find((k) => GAMES[k] === currentGame)); return;
+  }
+  showPanel('welcome');
+}
+$('global-back-button').addEventListener('click', goBack);
+/* hauteur réelle du bandeau (il peut passer sur deux lignes sur un petit écran) */
+function majHauteurBandeau() { const t = document.querySelector('.topbar-banner'); if (t) document.documentElement.style.setProperty('--topbar-h', `${t.offsetHeight}px`); }
+window.addEventListener('resize', majHauteurBandeau); majHauteurBandeau();
 $('global-home-button').addEventListener('click', () => { if ('speechSynthesis' in window) speechSynthesis.cancel(); showPanel('welcome'); });
 $('global-fullscreen-button').addEventListener('click', () => {
   if (document.fullscreenElement) document.exitFullscreen?.(); else document.documentElement.requestFullscreen?.();

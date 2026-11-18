@@ -453,7 +453,7 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .verdict-square.half { background:linear-gradient(135deg, var(--ok) 50%, var(--wrong) 50%); }
 .correction-details .fn-red { color:var(--fn-red); }
 .correction-details .formule { display:inline-block; margin:4px 0; padding:2px 8px; border-radius:4px; background:#fbe9e7; color:var(--fn-red-dark); font-weight:700; }
-#open-fonctions { grid-column:1 / -1; }
+
 @media (max-width:900px) { .home-games-row { grid-template-columns:1fr; } .game3 .quiz-grid { grid-template-columns:1fr; } }
 @media (max-width:520px) { .game3 .answer-columns { gap:8px; } .game3 .nature-button { font-size:.78rem; padding:9px 6px; } }
 /* les deux fiches, en onglets au-dessus de la fiche */
@@ -464,3 +464,29 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .game3 .nature-button.fonction-button.wrong { background:#7d7d7d; border-color:#5a5a5a; }
 .game3 .verdict-square.wrong { background:#7d7d7d; }
 .game3 .verdict-square.half { background:linear-gradient(135deg, var(--ok) 50%, #7d7d7d 50%); }
+
+/* ============================================================
+   v18 : JEU 4 — le groupe nominal : le bouton clignote, on clique dans la phrase
+   ============================================================ */
+@keyframes cueBlink { 0%,100% { box-shadow:0 0 0 0 rgba(255,224,102,0); } 50% { box-shadow:0 0 0 5px #ffe066; } }
+.nature-button.cue { animation:cueBlink 1s ease-in-out infinite; }
+.nature-subgroup.cue { animation:cueBlink 1s ease-in-out infinite; border-radius:8px; }
+.nature-subgroup.cue .nature-subtitle { color:#b8860b; }
+.game4 .sentence .w { cursor:pointer; border-radius:4px; transition:background .15s; }
+@media (hover:hover) { .game4 .sentence .w:hover { background:rgba(255,255,255,.12); } }
+.sentence .w.gn-n { color:#7fe0a0; text-decoration:underline; text-decoration-thickness:3px; text-underline-offset:6px; }
+.sentence .w.gn-d { color:#ffe066; text-decoration:underline; text-decoration-thickness:3px; text-underline-offset:6px; }
+.sentence .w.gn-a { color:#9fd0ff; text-decoration:underline; text-decoration-thickness:3px; text-underline-offset:6px; }
+.sentence .w.gn-c { border-bottom:3px dotted #ff9c8f; }
+.sentence .w.gn-c:not(.gn-n):not(.gn-d):not(.gn-a) { color:#ff9c8f; }
+@keyframes gnShake { 0%,100% { transform:none; } 25% { transform:translateX(-4px); } 75% { transform:translateX(4px); } }
+.sentence .w.gn-err { animation:gnShake .3s 2; color:#bdbdbd; }
+.game4 .nature-button.wrong { background:#7d7d7d; border-color:#5a5a5a; text-decoration:line-through; }
+@keyframes gnFlash { 50% { color:var(--fn-red); } }
+#nat-instruction.gn-flash { animation:gnFlash .5s 2; }
+.game4 .answer-columns { grid-template-columns:minmax(0,1.75fr) minmax(0,.75fr); }
+.game4 .quiz-grid { grid-template-columns:minmax(0,1fr) minmax(0,1.35fr); }
+@media (max-width:900px) { .game4 .quiz-grid { grid-template-columns:1fr; } }
+#global-back-button { font-weight:700; font-size:1.05rem; line-height:1; color:var(--ink); }
+/* v19 : les fenêtres s'ouvrent sous le bandeau, pour que la flèche ← reste cliquable */
+@media screen { .modal-backdrop, .report-overlay { top:var(--topbar-h, 44px); } }

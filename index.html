@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=17" />
+    <link rel="stylesheet" href="style.css?v=19" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -28,6 +28,8 @@
     <div class="topbar-banner" id="global-topbar">
       <div class="topbar-zone topbar-zone-left"></div>
       <div class="topbar-zone topbar-zone-center">
+        <!-- v19 : flèche de retour à la page précédente -->
+        <button type="button" id="global-back-button" class="global-topbar-button" aria-label="Revenir à la page précédente" title="Revenir à la page précédente">←</button>
         <button type="button" id="global-home-button" class="global-topbar-button" aria-label="Retour à l'accueil" title="Retour à l'accueil">🏠</button>
         <!-- Barres de volume de la voix de synthèse (5 niveaux, comme dans Mnemart) : la voix lit
              la phrase quand on le demande, et les paroles des sorciers. -->
@@ -94,6 +96,10 @@
               <button type="button" class="home-mode-button" id="open-fonctions">
                 <span class="label">Natures et fonctions des mots dans le groupe verbal</span>
                 <span class="desc">Un mot clignote : quelle est sa nature, puis quelle est sa fonction ?</span>
+              </button>
+              <button type="button" class="home-mode-button" id="open-gn">
+                <span class="label">Natures et fonctions des mots dans le groupe nominal</span>
+                <span class="desc">Un bouton clignote : trouve dans la phrase le nom, son déterminant, son adjectif, son complément du nom.</span>
               </button>
             </div>
             <!-- Bloc compte, repris de Mnemart : libellé + e-mail + interrupteur connecté/déconnecté -->
@@ -276,12 +282,13 @@
         <ul>
           <li><b>Reconnaissance des natures de mots 1</b> : un mot clignote dans une phrase ; on choisit sa nature parmi les boutons verts (nom commun, verbe d'état ou d'action, adjectif qualificatif, déterminant, pronom, nom propre, adverbe, préposition, conjonctions, interjection, onomatopée).</li>
           <li><b>Reconnaissance des natures de mots 2</b> : la même chose, mais le déterminant et le pronom se divisent chacun en sept sortes (article défini ou indéfini, possessif, démonstratif, numéral, indéfini, interrogatif, personnel, relatif). Les déterminants et les pronoms de même sorte sont alignés l'un au-dessus de l'autre, et des phrases « pièges » les mettent côte à côte (« mon chien… le mien »).</li>
-          <li><b>Natures et fonctions des mots dans le groupe verbal</b> : on trouve d'abord la nature du mot (boutons verts), puis les autres natures disparaissent et les fonctions possibles apparaissent sur des boutons rouges (le rouge est la couleur des fonctions) : sujet, COD, COI, COS, attribut du sujet, compléments circonstanciels de lieu, de temps, de manière, de cause ; pour l'adverbe, « modifie le sens » ou complément circonstanciel. Seuls les noms, noms propres, pronoms et adverbes ont une fonction à trouver ici (l'adjectif viendra dans un prochain jeu). La bonne nature rapporte 0,5 point, la bonne fonction 0,5 point.</li>
+          <li><b>Natures et fonctions des mots dans le groupe verbal</b> : on trouve d'abord la nature du mot (boutons verts), puis les autres natures disparaissent et les fonctions possibles apparaissent sur des boutons rouges (le rouge est la couleur des fonctions) : sujet, COD, COI, COS, attribut du sujet, compléments circonstanciels de lieu, de temps, de manière, de cause ; pour l'adverbe, « modifie le sens » ou complément circonstanciel. Seuls les noms, noms propres, pronoms et adverbes ont une fonction à trouver ici (l'adjectif viendra dans un prochain jeu). La bonne nature rapporte 0,5 point, la bonne fonction 0,5 point. La négation se prend en entier : « ne… pas » clignote en un seul bloc.</li>
+          <li><b>Natures et fonctions des mots dans le groupe nominal</b> (à l'essai) : cette fois, ce sont les boutons qui clignotent, et l'on clique dans la phrase. Quand « Nom commun » clignote, on clique sur un nom ; puis sur son déterminant, dont on donne la sorte exacte avec les petits boutons ; puis sur son adjectif qualificatif et sur son complément du nom, si les boutons correspondants clignotent. On recommence jusqu'à ce que tous les noms de la phrase soient trouvés. Une partie compte 10 phrases ; chaque phrase vaut 1 point, partagé entre tout ce qui est trouvé du premier coup.</li>
         </ul>
         <p>Une partie compte 20 questions. En cas d'erreur, on a droit à un deuxième essai ; après deux erreurs, la bonne réponse s'affiche. Le score compte les réponses trouvées du premier coup (dans le jeu des fonctions : 0,5 point pour la nature et 0,5 point pour la fonction, soit 1 point par phrase). Après chaque réponse, une explication apparaît sous les boutons ; la voix la lit.</p>
         <h3>Le bandeau du haut</h3>
         <ul>
-          <li>🏠 retour à l'accueil · barres : volume de la voix (le bouton 🔊 sous la phrase la fait lire) · ⛶ plein écran</li>
+          <li>← revenir à la page précédente (ou fermer la fenêtre ouverte) · 🏠 retour à l'accueil · barres : volume de la voix (le bouton 🔊 sous la phrase la fait lire) · ⛶ plein écran</li>
           <li>📖 les deux fiches : « Fiche nature des mots » et « Fiche fonction des mots » (avec la question à se poser pour chaque fonction), à relire à tout moment · 🎨 l'ambiance (les couleurs du site)</li>
           <li>ℹ️ cette aide · ✉️ le contact · 👤 mon compte · 🚪 quitter la session (fin de la partie et déconnexion, pour laisser la place à un autre joueur)</li>
         </ul>
@@ -312,6 +319,6 @@
       <div id="report-send" class="report-send no-print"></div>
     </div>
 
-    <script defer src="app.js?v=17"></script>
+    <script defer src="app.js?v=19"></script>
   </body>
 </html>
