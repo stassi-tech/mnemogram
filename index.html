@@ -6,7 +6,7 @@
     <meta name="description" content="Jeux gratuits pour mémoriser les notions fondamentales de grammaire, dès 7 ans." />
     <title>MNEMOGRAM — La grammaire à travers la mémoire</title>
     <meta name="theme-color" content="#9c7a4a" />
-    <link rel="stylesheet" href="style.css?v=6" />
+    <link rel="stylesheet" href="style.css?v=7" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -61,6 +61,7 @@
             </button>
             <!-- Bloc compte, repris de Mnemart : libellé + e-mail + interrupteur connecté/déconnecté -->
             <div class="home-mode-button account-hub-slot" id="home-account-slot" role="button" tabindex="0">
+              <span class="home-account-photo hidden" id="home-account-photo"></span>
               <span class="label" id="home-account-label">Se connecter / Créer un compte</span>
               <span class="account-slot-email hidden" id="home-account-email"></span>
               <span class="account-connect-switch" id="home-account-switch" role="switch" tabindex="0" aria-checked="false" title="Se connecter">
@@ -133,8 +134,7 @@
     <div id="fiche-modal" class="modal-backdrop hidden">
       <div class="modal-card">
         <button type="button" class="modal-close-x" id="fiche-close" aria-label="Fermer" title="Fermer">✕</button>
-        <h2>Les dix natures de mots</h2>
-        <div id="fiche-content"></div>
+        <iframe id="fiche-frame" class="fiche-frame" title="La fiche des natures"></iframe>
       </div>
     </div>
 
@@ -179,6 +179,6 @@
       </div>
     </div>
 
-    <script defer src="app.js?v=6"></script>
+    <script defer src="app.js?v=7"></script>
   </body>
 </html>

@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v6';
+const APP_VERSION = 'v7';
 
 const $ = (id) => document.getElementById(id);
 
@@ -551,6 +551,8 @@ function updateProgress() {
 }
 
 function showQuestion() {
+  /* v7 : on coupe la voix (bulle + explication) dès qu'on passe au mot suivant, pour qu'elle ne déborde pas. */
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
   const q = game.questions[game.index];
   game.essais = 0;
   $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mot);
@@ -570,8 +572,8 @@ function chooseMessage(ch) {
   const enfant = playerProfile?.enfant?.prenom;
   const adultes = (playerProfile?.adultes || []).filter((a) => a.prenom && a.lien);
   const r = Math.random();
-  if (enfant && adultes.length && r < 0.3) return { tpl: pick(ch.famille), adulte: pick(adultes) };
-  if (enfant && r < 0.75) return { tpl: pick(ch.perso) };
+  if (enfant && adultes.length && r < 0.3) { const a = pick(adultes); return { tpl: pick(ch.famille), adulte: a, photo: a.photo || playerProfile.enfant.photo }; }
+  if (enfant && r < 0.75) return { tpl: pick(ch.perso), photo: playerProfile.enfant.photo };
   return { tpl: pick(ch.messages) };
 }
 function fillMessage(tpl, nature, adulte) {
@@ -590,16 +592,17 @@ function showCharacter(camp, nature) {
   const id = pick(ids);
   const ch = CHARACTERS[id];
   /* On évite de répéter une phrase déjà dite dans les 4 dernières réponses. */
-  let msg = '';
+  let msg = '', photo = '';
   for (let essai = 0; essai < 8; essai++) {
     const choix = chooseMessage(ch);
     msg = fillMessage(choix.tpl, nature, choix.adulte);
+    photo = choix.photo || '';
     if (!recentMessages.includes(msg)) break;
   }
   recentMessages.push(msg); if (recentMessages.length > 4) recentMessages.shift();
   const stage = $('nat-character-stage');
   stage.className = `character-stage ${camp}`;
-  stage.innerHTML = `<div class="bubble"><span class="who">${ch.nom}</span>${msg}</div>${characterSvg(id)}`;
+  stage.innerHTML = `<div class="bubble${photo ? ' has-photo' : ''}">${photo ? `<img class="bubble-photo" src="${photo}" alt="" />` : ''}<div><span class="who">${ch.nom}</span>${msg}</div></div>${characterSvg(id)}`;
   speak(msg, ch.voix, camp);
   /* v6 : quand l'explication s'affiche sous les boutons (bonne réponse, ou deuxième erreur), la voix la lit
      juste après la bulle, à débit normal : « Hourra est une interjection. L'interjection est un cri… » */
@@ -658,7 +661,8 @@ function showResults() {
   const n = game.questions.length, s = game.score;
   const content = s >= Math.ceil(n * 0.6);
   const id = content ? pick(['bonaccord', 'virgule']) : pick(['rature', 'gribouille']);
-  $('results-character').innerHTML = characterSvg(id);
+  const pe = playerProfile?.enfant?.photo;
+  $('results-character').innerHTML = characterSvg(id) + (pe ? `<img class="results-photo" src="${pe}" alt="" />` : '');
   $('results-title').textContent = `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
   const E = playerProfile?.enfant?.prenom;
   const adultes = (playerProfile?.adultes || []).filter((a) => a.prenom && a.lien);
@@ -724,7 +728,7 @@ function renderSendBox() {
     return;
   }
   box.innerHTML = `<p class="send-title">Envoyer mon score à :</p>
-    <div class="send-list">${avecMail.map((a) => `<label class="send-person"><input type="checkbox" value="${esc(a.email)}" checked /><span>${esc(LIENS[a.lien]?.label || '')} ${esc(a.prenom)}</span></label>`).join('')}</div>
+    <div class="send-list">${avecMail.map((a) => `<label class="send-person"><input type="checkbox" value="${esc(a.email)}" checked />${a.photo ? `<img class="send-photo" src="${a.photo}" alt="" />` : ''}<span>${esc(LIENS[a.lien]?.label || '')} ${esc(a.prenom)}</span></label>`).join('')}</div>
     <div class="send-buttons">
       <button type="button" class="primary-button" id="send-mail-button">✉️ Envoyer par e-mail</button>
       ${navigator.share ? '<button type="button" class="secondary-button" id="send-share-button">Partager…</button>' : ''}
@@ -744,10 +748,28 @@ function renderSendBox() {
 /* ------------------------------------------------------------
    FICHE DES NATURES (bouton 📖)
    ------------------------------------------------------------ */
-function buildFiche() {
-  const bloc = (groupe, titre) => `<p class="fiche-group">${titre}</p>` + NATURES.filter((n) => n.groupe === groupe)
-    .map((n) => `<div class="fiche-row"><div><b>${n.nom}</b><br><em>${n.exemples}</em></div><div>${n.explication}</div></div>`).join('');
-  $('fiche-content').innerHTML = bloc('variables', 'Les mots variables') + bloc('invariables', 'Les mots invariables');
+/* v7 : la fiche est un fichier à part, fiche.html, que Stéphane modifie librement. Elle s'affiche dans la
+   fenêtre 📖, et le jeu y lit les explications (lignes « explication ») : ce qui est écrit dans la fiche est ce
+   qui s'affiche sous les boutons et ce que dit la voix. Si la fiche ne peut pas être lue (fichier ouvert
+   directement sur l'ordinateur, réseau coupé), le jeu garde ses explications de départ. */
+async function loadFiche() {
+  try {
+    const r = await fetch(`fiche.html?v=${Date.now()}`, { cache: 'no-store' });
+    if (!r.ok) return;
+    const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
+    doc.querySelectorAll('[data-code]').forEach((sec) => {
+      const n = NATURE_BY_CODE[sec.dataset.code]; if (!n) return;
+      const ex = sec.querySelector('.explication')?.textContent.replace(/\s+/g, ' ').trim();
+      const exs = sec.querySelector('.exemples')?.textContent.replace(/\s+/g, ' ').trim();
+      if (ex) n.explication = ex;
+      if (exs) n.exemples = exs;
+    });
+  } catch (e) { /* on garde les explications intégrées */ }
+}
+function openFiche() {
+  const f = $('fiche-frame');
+  f.src = `fiche.html?v=${Date.now()}`;
+  $('fiche-modal').classList.remove('hidden');
 }
 
 /* ------------------------------------------------------------
@@ -806,11 +828,63 @@ function lienOptions(sel) {
 const esc = (t) => String(t || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 /* v5 : la famille est une liste ouverte. Chaque proche a un lien, un prénom, un nom et, s'il le veut,
    une adresse e-mail : c'est à ces adresses que l'enfant peut envoyer ses scores. */
+/* v7 : une photo par personne (le joueur et chacun de ses proches). La photo est réduite sur l'appareil
+   (carré de 240 pixels) avant d'être rangée dans la fiche du compte : elle reste privée, visible seulement
+   quand on est connecté à ce compte. */
+function photoSlotHtml(photo) {
+  return `<div class="photo-slot">
+      <span class="photo-thumb">${photo ? `<img src="${photo}" alt="" />` : '<span class="photo-empty">🙂</span>'}</span>
+      <input type="hidden" class="f-photo" value="${photo ? esc(photo) : ''}" />
+      <label class="photo-pick secondary-button">📷 ${photo ? 'Changer la photo' : 'Ajouter une photo'}<input type="file" accept="image/*" class="f-photo-file" /></label>
+      <button type="button" class="photo-del link-label${photo ? '' : ' hidden'}">Retirer</button>
+    </div>`;
+}
+function resizePhoto(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const T = 240, c = document.createElement('canvas'); c.width = T; c.height = T;
+      const side = Math.min(img.width, img.height);
+      c.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, T, T);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
+    img.src = url;
+  });
+}
+/* Boutons photo d'un formulaire (inscription ou Mon compte), branchés une fois sur le conteneur. */
+function wirePhotos(container) {
+  if (container.dataset.photosWired) return;
+  container.dataset.photosWired = '1';
+  container.addEventListener('change', async (e) => {
+    const input = e.target.closest('.f-photo-file'); if (!input || !input.files[0]) return;
+    const slot = input.closest('.photo-slot');
+    try {
+      const data = await resizePhoto(input.files[0]);
+      slot.querySelector('.f-photo').value = data;
+      slot.querySelector('.photo-thumb').innerHTML = `<img src="${data}" alt="" />`;
+      slot.querySelector('.photo-pick').firstChild.textContent = '📷 Changer la photo';
+      slot.querySelector('.photo-del').classList.remove('hidden');
+    } catch (ex) { alert('Cette image ne peut pas être lue. Essayez une photo au format JPEG ou PNG.'); }
+    input.value = '';
+  });
+  container.addEventListener('click', (e) => {
+    const del = e.target.closest('.photo-del'); if (!del) return;
+    const slot = del.closest('.photo-slot');
+    slot.querySelector('.f-photo').value = '';
+    slot.querySelector('.photo-thumb').innerHTML = '<span class="photo-empty">🙂</span>';
+    slot.querySelector('.photo-pick').firstChild.textContent = '📷 Ajouter une photo';
+    del.classList.add('hidden');
+  });
+}
 function adulteRowHtml(a, n) {
   return `
     <fieldset class="account-fieldset adulte-row" data-adulte-row>
       <legend>${n === 1 ? 'Un parent ou un proche' : 'Un autre proche'}</legend>
       <button type="button" class="adulte-remove" title="Retirer ce proche" aria-label="Retirer ce proche">✕</button>
+      ${photoSlotHtml(a?.photo)}
       <div class="account-row-3">
         <label>Lien<select class="f-lien">${lienOptions(a?.lien)}</select></label>
         <label>Prénom<input type="text" class="f-prenom" value="${esc(a?.prenom)}" autocomplete="off" /></label>
@@ -822,8 +896,9 @@ function adulteRowHtml(a, n) {
 function profileFieldsHtml(prefix, p, withConsent) {
   const adultes = (p?.adultes && p.adultes.length) ? p.adultes : [null];
   return `
-    <fieldset class="account-fieldset">
+    <fieldset class="account-fieldset" id="${prefix}-enfant-box">
       <legend>Le joueur</legend>
+      ${photoSlotHtml(p?.enfant?.photo)}
       <div class="account-row">
         <label>Prénom<input type="text" id="${prefix}-enfant-prenom" value="${esc(p?.enfant?.prenom)}" autocomplete="off" required /></label>
         <label>Nom<input type="text" id="${prefix}-enfant-nom" value="${esc(p?.enfant?.nom)}" autocomplete="off" /></label>
@@ -860,8 +935,10 @@ function readProfileFields(prefix) {
     prenom: row.querySelector('.f-prenom').value.trim(),
     nom: row.querySelector('.f-nom').value.trim(),
     email: row.querySelector('.f-email').value.trim(),
+    photo: row.querySelector('.f-photo').value || '',
   })).filter((a) => a.prenom || a.lien || a.email);
-  return { enfant: { prenom: v('enfant-prenom'), nom: v('enfant-nom') }, adultes };
+  const photoEnfant = $(`${prefix}-enfant-box`)?.querySelector('.f-photo').value || '';
+  return { enfant: { prenom: v('enfant-prenom'), nom: v('enfant-nom'), photo: photoEnfant }, adultes };
 }
 function checkProfile(p) {
   if (!p.enfant.prenom) return 'Indiquez le prénom du joueur.';
@@ -894,10 +971,14 @@ function updateAccountBar() {
   slot.classList.remove('is-disabled'); sw.classList.remove('hidden');
   if (currentUser) {
     label.textContent = playerProfile?.enfant?.prenom ? `Compte de ${playerProfile.enfant.prenom}` : 'Mon compte';
+    const ph = playerProfile?.enfant?.photo;
+    $('home-account-photo').innerHTML = ph ? `<img src="${ph}" alt="" />` : '';
+    $('home-account-photo').classList.toggle('hidden', !ph);
     mail.textContent = currentUser.email; mail.classList.remove('hidden');
     sw.classList.add('is-connected'); sw.setAttribute('aria-checked', 'true'); sw.title = 'Se déconnecter';
   } else {
     label.textContent = 'Se connecter / Créer un compte';
+    $('home-account-photo').classList.add('hidden');
     mail.classList.add('hidden');
     sw.classList.remove('is-connected'); sw.setAttribute('aria-checked', 'false'); sw.title = 'Se connecter';
   }
@@ -911,7 +992,7 @@ function setAccountMode(mode) {
   $('account-forgot-row').classList.toggle('hidden', mode !== 'login');
   $('account-password').setAttribute('autocomplete', mode === 'login' ? 'current-password' : 'new-password');
   const reg = $('account-register-fields');
-  if (mode === 'register') { reg.innerHTML = profileFieldsHtml('reg', null, true); reg.classList.remove('hidden'); reg.style.display = 'grid'; reg.style.gap = '12px'; wireAdultes('reg'); }
+  if (mode === 'register') { reg.innerHTML = profileFieldsHtml('reg', null, true); reg.classList.remove('hidden'); reg.style.display = 'grid'; reg.style.gap = '12px'; wireAdultes('reg'); wirePhotos(reg); }
   else { reg.innerHTML = ''; reg.classList.add('hidden'); }
   $('account-error').classList.add('hidden'); $('account-notice').classList.add('hidden');
 }
@@ -929,6 +1010,7 @@ function openProfile(first) {
   $('profile-fields').innerHTML = profileFieldsHtml('pro', playerProfile, false);
   $('profile-fields').style.display = 'grid'; $('profile-fields').style.gap = '12px';
   wireAdultes('pro');
+  wirePhotos($('profile-fields'));
   renderScoreHistory();
   $('profile-email-row').textContent = currentUser ? `Connecté avec l'adresse ${currentUser.email}` : '';
   $('profile-error').classList.add('hidden'); $('profile-notice').classList.add('hidden');
@@ -1034,7 +1116,7 @@ let pendingProfile = null;
 $('global-version-badge').textContent = APP_VERSION;
 initMosaic();
 buildNatureButtons();
-buildFiche();
+loadFiche();
 
 $('open-natures').addEventListener('click', () => {
   showPanel('natures');
@@ -1058,7 +1140,7 @@ $('global-home-button').addEventListener('click', () => { if ('speechSynthesis' 
 $('global-fullscreen-button').addEventListener('click', () => {
   if (document.fullscreenElement) document.exitFullscreen?.(); else document.documentElement.requestFullscreen?.();
 });
-$('global-fiche-button').addEventListener('click', () => $('fiche-modal').classList.remove('hidden'));
+$('global-fiche-button').addEventListener('click', openFiche);
 $('fiche-close').addEventListener('click', () => $('fiche-modal').classList.add('hidden'));
 $('fiche-modal').addEventListener('click', (e) => { if (e.target.id === 'fiche-modal') $('fiche-modal').classList.add('hidden'); });
 if (auth) wireAccount(); else { $('global-account-button').addEventListener('click', () => {}); }
