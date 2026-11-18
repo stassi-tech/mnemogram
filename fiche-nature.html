@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MNEMOGRAM — Fiche nature des mots</title>
+<!--
+  UNE FICHE DE MNEMOGRAM (les natures des mots, ou les natures et les fonctions des mots)
+  Fichier fabriqué par l'atelier de textes MNEMOGRAM (outils\atelier-textes-mnemogram.html).
+  Pour la modifier, utilisez l'atelier plutôt que le Bloc-notes : il refait ce fichier à chaque changement.
+  Le jeu lit, pour chaque nature ou fonction (data-code), la ligne « explication » : c'est ce qui s'affiche
+  sous les boutons et ce que dit la voix ; pour une fonction, la première ligne est la formule.
+-->
+<style>
+  body { margin:0; padding:24px 28px 40px; font-family:Arial,sans-serif; color:#24313f; background:#fffdf9; line-height:1.45; }
+  h1 { font-family:Georgia,serif; color:#7a5c35; font-size:1.5rem; margin:0 0 6px; }
+  .intro { color:#65707d; font-size:.92rem; margin:0 0 18px; white-space:pre-line; }
+  h2 { font-size:.78rem; letter-spacing:.13em; text-transform:uppercase; color:#9c7a4a; margin:22px 0 8px; }
+  .nature { display:grid; grid-template-columns:220px 1fr; gap:4px 16px; padding:10px 0; border-top:1px solid #ded8cc; }
+  .nature .nom { grid-row:span 3; margin:0; font-size:1rem; color:#21693a; }
+  .nature .exemples { margin:0; font-style:italic; color:#65707d; font-size:.88rem; }
+  .nature .explication { margin:0; font-size:.95rem; }
+  .nature .explication em, .nature .remarque em, .intro em { color:#7a5c35; }
+  /* v15 : fiche des fonctions : le rouge est la couleur des fonctions ; la ligne du haut est la formule */
+  .nature[data-code^="F."] .nom { color:#b3261e; }
+  .nature .exemples.formule { font-style:normal; font-weight:700; color:#b3261e; font-size:.95rem; }
+  .nature .remarque { margin:0; font-size:.88rem; color:#7a5c35; white-space:pre-line; }
+  @media (max-width:600px) { body { padding:16px; } .nature { grid-template-columns:1fr; } .nature .nom { grid-row:auto; } }
+</style>
+</head>
+<body>
+  <h1>Fiche nature des mots</h1>
+  <p class="intro">D'après la fiche «&nbsp;Classe et fonctions des mots&nbsp;». La nature d'un mot, c'est sa classe&nbsp;: nom, verbe, adjectif… Elle ne change pas, quelle que soit la phrase.</p>
+
+
+  <h2>Les mots variables</h2>
+    <section class="nature" data-code="N">
+      <h3 class="nom">Nom commun</h3>
+      <p class="exemples">paysage, couleur, chaise, odeur, amitié</p>
+      <p class="explication">Le nom commun désigne une personne, un animal, une chose perceptible par les cinq sens&nbsp;: on dit qu'il est concret&nbsp;: <em>chat</em>, <em>chaise</em>, <em>école</em>… Il peut aussi désigner une idée ou un sentiment, on dit qu'il est abstrait&nbsp;: <em>amitié</em>, <em>justice</em>… Le nom commun a très souvent un déterminant devant lui.</p>
+    </section>
+    <section class="nature" data-code="VE">
+      <h3 class="nom">Verbe d'état</h3>
+      <p class="exemples">être, paraître, sembler, devenir, rester, avoir l'air</p>
+      <p class="explication">Le verbe d'état sert à décrire quelqu'un ou quelque chose. Ils sont peu nombreux&nbsp;: <em>être</em>, <em>paraître</em>, <em>sembler</em>, <em>devenir</em>, <em>rester</em>, <em>avoir l'air de</em>…</p>
+    </section>
+    <section class="nature" data-code="VA">
+      <h3 class="nom">Verbe d'action</h3>
+      <p class="exemples">manger, tomber, courir</p>
+      <p class="explication">Le verbe d'action montre un événement au centre de la phrase&nbsp;: <em>manger</em>, <em>courir</em>, <em>tomber</em>, <em>chanter</em>.</p>
+    </section>
+    <section class="nature" data-code="A">
+      <h3 class="nom">Adjectif qualificatif</h3>
+      <p class="exemples">maigre, grand, jaune, heureux</p>
+      <p class="explication">L'adjectif qualificatif décrit quelqu'un ou quelque chose&nbsp;: <em>grand</em>, <em>rouge</em>, <em>gentil</em>…</p>
+    </section>
+    <section class="nature" data-code="D">
+      <h3 class="nom">Déterminant</h3>
+      <p class="exemples">le, la, les, un, une, des, mon, ma, ce, cette, deux, chaque, quel</p>
+      <p class="explication">Le déterminant se place devant le nom pour le préciser&nbsp;: <em>le</em>, <em>une</em>, <em>mon</em>, <em>ce</em>, <em>des</em>…</p>
+    </section>
+    <section class="nature" data-code="Pr">
+      <h3 class="nom">Pronom</h3>
+      <p class="exemples">je, tu, il, le, en, y, le mien, celui, chacun, qui, que</p>
+      <p class="explication">Le pronom remplace un nom, pour ne pas le répéter&nbsp;: <em>je</em>, <em>tu</em>, <em>il</em>, <em>elle</em>, <em>le mien</em>, <em>celle-ci</em>, <em>certains</em>…</p>
+    </section>
+
+  <h2>Les mots invariables</h2>
+    <section class="nature" data-code="NP">
+      <h3 class="nom">Nom propre</h3>
+      <p class="exemples">Léa, Paul, Paris, la Loire</p>
+      <p class="explication">Le nom propre est le nom particulier d'une personne, d'un animal ou d'un lieu&nbsp;: <em>Léa</em>, <em>Paris</em>, <em>la Loire</em>. Il commence toujours par une majuscule.</p>
+    </section>
+    <section class="nature" data-code="Av">
+      <h3 class="nom">Adverbe</h3>
+      <p class="exemples">demain, joyeusement, bientôt, pourquoi, ne… pas, trop, assez, très</p>
+      <p class="explication">L'adverbe donne une précision sur le déroulement de l'action de la phrase ou sur une description&nbsp;: <em>vite</em>, <em>demain</em>, <em>très</em>, <em>ne… pas</em>.</p>
+    </section>
+    <section class="nature" data-code="P">
+      <h3 class="nom">Préposition</h3>
+      <p class="exemples">à, de, dans, par, pour, sur, avec</p>
+      <p class="explication">La préposition est un petit mot qui sert de lien pour des compléments&nbsp;: <em>à</em>, <em>de</em>, <em>dans</em>, <em>sur</em>, <em>avec</em>, <em>pour</em>, <em>sous</em>…</p>
+    </section>
+    <section class="nature" data-code="CC">
+      <h3 class="nom">Conjonction de coordination</h3>
+      <p class="exemples">mais, ou, et, donc, or, ni, car</p>
+      <p class="explication">La conjonction de coordination relie deux mots ou deux morceaux de phrase&nbsp;: <em>mais</em>, <em>ou</em>, <em>et</em>, <em>donc</em>, <em>or</em>, <em>ni</em>, <em>car</em>.</p>
+    </section>
+    <section class="nature" data-code="CS">
+      <h3 class="nom">Conjonction de subordination</h3>
+      <p class="exemples">que, quand, comme, si, lorsque, puisque, parce que</p>
+      <p class="explication">La conjonction de subordination ouvre une deuxième partie de phrase, reliée au verbe principal&nbsp;: <em>quand</em>, <em>comme</em>, <em>si</em>, <em>que</em> et tous les composés de <em>que</em>&nbsp;: <em>lorsque</em>, <em>dès que</em>…</p>
+    </section>
+    <section class="nature" data-code="I">
+      <h3 class="nom">Interjection</h3>
+      <p class="exemples">aïe&nbsp;! oh&nbsp;! bravo&nbsp;! chut&nbsp;! ouf&nbsp;!</p>
+      <p class="explication">L'interjection est un cri qui exprime un sentiment&nbsp;: <em>oh&nbsp;!</em> <em>aïe&nbsp;!</em> <em>ouf&nbsp;!</em></p>
+    </section>
+    <section class="nature" data-code="O">
+      <h3 class="nom">Onomatopée</h3>
+      <p class="exemples">crac&nbsp;! boum&nbsp;! miaou&nbsp;! atchoum&nbsp;!</p>
+      <p class="explication">L'onomatopée est un mot qui imite un bruit&nbsp;: <em>boum&nbsp;!</em> <em>crac&nbsp;!</em> <em>miaou&nbsp;!</em> <em>tic-tac&nbsp;!</em></p>
+    </section>
+
+  <h2>Les déterminants et les pronoms en détail (jeu 2)</h2>
+    <section class="nature" data-code="D.def">
+      <h3 class="nom">Article défini</h3>
+      <p class="exemples">le, la, les, l'</p>
+      <p class="explication">L'article défini se place devant un nom précis, que l'on connaît&nbsp;: <em>le</em>, <em>la</em>, <em>les</em>, <em>l'</em>.</p>
+    </section>
+    <section class="nature" data-code="D.ind">
+      <h3 class="nom">Article indéfini</h3>
+      <p class="exemples">un, une, des</p>
+      <p class="explication">L'article indéfini se place devant un nom que l'on ne précise pas&nbsp;: <em>un</em>, <em>une</em>, <em>des</em>.</p>
+    </section>
+    <section class="nature" data-code="D.pos">
+      <h3 class="nom">Déterminant possessif</h3>
+      <p class="exemples">mon, ma, mes, ton, son, notre, leur</p>
+      <p class="explication">Le déterminant possessif dit à qui est la chose&nbsp;: <em>mon</em>, <em>ma</em>, <em>mes</em>, <em>ton</em>, <em>son</em>, <em>nos</em>…</p>
+    </section>
+    <section class="nature" data-code="D.dem">
+      <h3 class="nom">Déterminant démonstratif</h3>
+      <p class="exemples">ce, cet, cette, ces</p>
+      <p class="explication">Le déterminant démonstratif montre ce dont on parle&nbsp;: <em>ce</em>, <em>cet</em>, <em>cette</em>, <em>ces</em>.</p>
+    </section>
+    <section class="nature" data-code="D.num">
+      <h3 class="nom">Déterminant numéral</h3>
+      <p class="exemples">un, deux, trois</p>
+      <p class="explication">Le déterminant numéral dit combien il y en a&nbsp;: <em>deux</em>, <em>trois</em>, <em>cinq</em>…</p>
+    </section>
+    <section class="nature" data-code="D.idf">
+      <h3 class="nom">Déterminant indéfini</h3>
+      <p class="exemples">tout, chaque, plusieurs, quelques</p>
+      <p class="explication">Le déterminant indéfini parle d'une quantité que l'on ne compte pas précisément&nbsp;: <em>chaque</em>, <em>plusieurs</em>, <em>quelques</em>…</p>
+    </section>
+    <section class="nature" data-code="D.int">
+      <h3 class="nom">Déterminant interrogatif</h3>
+      <p class="exemples">quel, quelle, quels, quelles</p>
+      <p class="explication">Le déterminant interrogatif sert à poser une question sur le nom qui le suit&nbsp;: <em>quel</em>, <em>quelle</em>, <em>quels</em>, <em>quelles</em>&nbsp;?</p>
+    </section>
+    <section class="nature" data-code="Pr.per">
+      <h3 class="nom">Pronom personnel</h3>
+      <p class="exemples">je, tu, il, la, le, y, en</p>
+      <p class="explication">Le pronom personnel désigne les personnes qui parlent ou dont on parle&nbsp;: <em>je</em>, <em>tu</em>, <em>il</em>, <em>elle</em>, <em>nous</em>, <em>vous</em>, <em>ils</em>, <em>me</em>, <em>se</em>…</p>
+    </section>
+    <section class="nature" data-code="Pr.pos">
+      <h3 class="nom">Pronom possessif</h3>
+      <p class="exemples">le mien, la mienne, le tien</p>
+      <p class="explication">Le pronom possessif remplace un nom en disant à qui il est&nbsp;: <em>le mien</em>, <em>le tien</em>, <em>la sienne</em>, <em>les nôtres</em>…</p>
+    </section>
+    <section class="nature" data-code="Pr.dem">
+      <h3 class="nom">Pronom démonstratif</h3>
+      <p class="exemples">celui, celle, cela, ça</p>
+      <p class="explication">Le pronom démonstratif remplace un nom en le montrant&nbsp;: <em>celui</em>, <em>celle</em>, <em>celui-ci</em>, <em>celle-là</em>, <em>cela</em>…</p>
+    </section>
+    <section class="nature" data-code="Pr.num">
+      <h3 class="nom">Pronom numéral</h3>
+      <p class="exemples">le premier, le deuxième</p>
+      <p class="explication">Le pronom numéral remplace un nom par un nombre ou un rang&nbsp;: <em>deux</em>, <em>les deux</em>, <em>le premier</em>, <em>le deuxième</em>…</p>
+    </section>
+    <section class="nature" data-code="Pr.idf">
+      <h3 class="nom">Pronom indéfini</h3>
+      <p class="exemples">chacun, tous</p>
+      <p class="explication">Le pronom indéfini remplace un nom que l'on ne précise pas&nbsp;: <em>chacun</em>, <em>quelqu'un</em>, <em>personne</em>, <em>certains</em>…</p>
+    </section>
+    <section class="nature" data-code="Pr.int">
+      <h3 class="nom">Pronom interrogatif</h3>
+      <p class="exemples">lequel&nbsp;? qui&nbsp;?</p>
+      <p class="explication">Le pronom interrogatif sert à poser une question&nbsp;: <em>qui</em>&nbsp;? <em>que</em>&nbsp;? <em>lequel</em>&nbsp;? <em>laquelle</em>&nbsp;?</p>
+    </section>
+    <section class="nature" data-code="Pr.rel">
+      <h3 class="nom">Pronom relatif</h3>
+      <p class="exemples">qui, que, quoi, dont, où</p>
+      <p class="explication">Le pronom relatif remplace un nom et ouvre une partie de phrase qui le complète&nbsp;: <em>qui</em>, <em>que</em>, <em>quoi</em>, <em>dont</em>, <em>où</em>.</p>
+    </section>
+
+<script type="application/json" id="fiche-data">{"titre":"Fiche nature des mots","intro":"D'après la fiche « Classe et fonctions des mots ». La nature d'un mot, c'est sa classe : nom, verbe, adjectif… Elle ne change pas, quelle que soit la phrase.","groupes":{"variables":"Les mots variables","invariables":"Les mots invariables","details":"Les déterminants et les pronoms en détail (jeu 2)"},"natures":[{"code":"N","groupe":"variables","nom":"Nom commun","exemples":"paysage, couleur, chaise, odeur, amitié","explication":"Le nom commun désigne une personne, un animal, une chose perceptible par les cinq sens : on dit qu'il est concret : *chat*, *chaise*, *école*… Il peut aussi désigner une idée ou un sentiment, on dit qu'il est abstrait : *amitié*, *justice*… Le nom commun a très souvent un déterminant devant lui.","remarque":""},{"code":"VE","groupe":"variables","nom":"Verbe d'état","exemples":"être, paraître, sembler, devenir, rester, avoir l'air","explication":"Le verbe d'état sert à décrire quelqu'un ou quelque chose. Ils sont peu nombreux : *être*, *paraître*, *sembler*, *devenir*, *rester*, *avoir l'air de*…","remarque":""},{"code":"VA","groupe":"variables","nom":"Verbe d'action","exemples":"manger, tomber, courir","explication":"Le verbe d'action montre un événement au centre de la phrase : *manger*, *courir*, *tomber*, *chanter*.","remarque":""},{"code":"A","groupe":"variables","nom":"Adjectif qualificatif","exemples":"maigre, grand, jaune, heureux","explication":"L'adjectif qualificatif décrit quelqu'un ou quelque chose : *grand*, *rouge*, *gentil*…","remarque":""},{"code":"D","groupe":"variables","nom":"Déterminant","exemples":"le, la, les, un, une, des, mon, ma, ce, cette, deux, chaque, quel","explication":"Le déterminant se place devant le nom pour le préciser : *le*, *une*, *mon*, *ce*, *des*…","remarque":""},{"code":"Pr","groupe":"variables","nom":"Pronom","exemples":"je, tu, il, le, en, y, le mien, celui, chacun, qui, que","explication":"Le pronom remplace un nom, pour ne pas le répéter : *je*, *tu*, *il*, *elle*, *le mien*, *celle-ci*, *certains*…","remarque":""},{"code":"NP","groupe":"invariables","nom":"Nom propre","exemples":"Léa, Paul, Paris, la Loire","explication":"Le nom propre est le nom particulier d'une personne, d'un animal ou d'un lieu : *Léa*, *Paris*, *la Loire*. Il commence toujours par une majuscule.","remarque":""},{"code":"Av","groupe":"invariables","nom":"Adverbe","exemples":"demain, joyeusement, bientôt, pourquoi, ne… pas, trop, assez, très","explication":"L'adverbe donne une précision sur le déroulement de l'action de la phrase ou sur une description : *vite*, *demain*, *très*, *ne… pas*.","remarque":""},{"code":"P","groupe":"invariables","nom":"Préposition","exemples":"à, de, dans, par, pour, sur, avec","explication":"La préposition est un petit mot qui sert de lien pour des compléments : *à*, *de*, *dans*, *sur*, *avec*, *pour*, *sous*…","remarque":""},{"code":"CC","groupe":"invariables","nom":"Conjonction de coordination","exemples":"mais, ou, et, donc, or, ni, car","explication":"La conjonction de coordination relie deux mots ou deux morceaux de phrase : *mais*, *ou*, *et*, *donc*, *or*, *ni*, *car*.","remarque":""},{"code":"CS","groupe":"invariables","nom":"Conjonction de subordination","exemples":"que, quand, comme, si, lorsque, puisque, parce que","explication":"La conjonction de subordination ouvre une deuxième partie de phrase, reliée au verbe principal : *quand*, *comme*, *si*, *que* et tous les composés de *que* : *lorsque*, *dès que*…","remarque":""},{"code":"I","groupe":"invariables","nom":"Interjection","exemples":"aïe ! oh ! bravo ! chut ! ouf !","explication":"L'interjection est un cri qui exprime un sentiment : *oh !* *aïe !* *ouf !*","remarque":""},{"code":"O","groupe":"invariables","nom":"Onomatopée","exemples":"crac ! boum ! miaou ! atchoum !","explication":"L'onomatopée est un mot qui imite un bruit : *boum !* *crac !* *miaou !* *tic-tac !*","remarque":""},{"code":"D.def","groupe":"details","nom":"Article défini","exemples":"le, la, les, l'","explication":"L'article défini se place devant un nom précis, que l'on connaît : *le*, *la*, *les*, *l'*.","remarque":""},{"code":"D.ind","groupe":"details","nom":"Article indéfini","exemples":"un, une, des","explication":"L'article indéfini se place devant un nom que l'on ne précise pas : *un*, *une*, *des*.","remarque":""},{"code":"D.pos","groupe":"details","nom":"Déterminant possessif","exemples":"mon, ma, mes, ton, son, notre, leur","explication":"Le déterminant possessif dit à qui est la chose : *mon*, *ma*, *mes*, *ton*, *son*, *nos*…","remarque":""},{"code":"D.dem","groupe":"details","nom":"Déterminant démonstratif","exemples":"ce, cet, cette, ces","explication":"Le déterminant démonstratif montre ce dont on parle : *ce*, *cet*, *cette*, *ces*.","remarque":""},{"code":"D.num","groupe":"details","nom":"Déterminant numéral","exemples":"un, deux, trois","explication":"Le déterminant numéral dit combien il y en a : *deux*, *trois*, *cinq*…","remarque":""},{"code":"D.idf","groupe":"details","nom":"Déterminant indéfini","exemples":"tout, chaque, plusieurs, quelques","explication":"Le déterminant indéfini parle d'une quantité que l'on ne compte pas précisément : *chaque*, *plusieurs*, *quelques*…","remarque":""},{"code":"D.int","groupe":"details","nom":"Déterminant interrogatif","exemples":"quel, quelle, quels, quelles","explication":"Le déterminant interrogatif sert à poser une question sur le nom qui le suit : *quel*, *quelle*, *quels*, *quelles* ?","remarque":""},{"code":"Pr.per","groupe":"details","nom":"Pronom personnel","exemples":"je, tu, il, la, le, y, en","explication":"Le pronom personnel désigne les personnes qui parlent ou dont on parle : *je*, *tu*, *il*, *elle*, *nous*, *vous*, *ils*, *me*, *se*…","remarque":""},{"code":"Pr.pos","groupe":"details","nom":"Pronom possessif","exemples":"le mien, la mienne, le tien","explication":"Le pronom possessif remplace un nom en disant à qui il est : *le mien*, *le tien*, *la sienne*, *les nôtres*…","remarque":""},{"code":"Pr.dem","groupe":"details","nom":"Pronom démonstratif","exemples":"celui, celle, cela, ça","explication":"Le pronom démonstratif remplace un nom en le montrant : *celui*, *celle*, *celui-ci*, *celle-là*, *cela*…","remarque":""},{"code":"Pr.num","groupe":"details","nom":"Pronom numéral","exemples":"le premier, le deuxième","explication":"Le pronom numéral remplace un nom par un nombre ou un rang : *deux*, *les deux*, *le premier*, *le deuxième*…","remarque":""},{"code":"Pr.idf","groupe":"details","nom":"Pronom indéfini","exemples":"chacun, tous","explication":"Le pronom indéfini remplace un nom que l'on ne précise pas : *chacun*, *quelqu'un*, *personne*, *certains*…","remarque":""},{"code":"Pr.int","groupe":"details","nom":"Pronom interrogatif","exemples":"lequel ? qui ?","explication":"Le pronom interrogatif sert à poser une question : *qui* ? *que* ? *lequel* ? *laquelle* ?","remarque":""},{"code":"Pr.rel","groupe":"details","nom":"Pronom relatif","exemples":"qui, que, quoi, dont, où","explication":"Le pronom relatif remplace un nom et ouvre une partie de phrase qui le complète : *qui*, *que*, *quoi*, *dont*, *où*.","remarque":""}]}</script>
+</body>
+</html>

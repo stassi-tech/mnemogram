@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MNEMOGRAM — Fiche fonction des mots</title>
+<!--
+  UNE FICHE DE MNEMOGRAM (les natures des mots, ou les natures et les fonctions des mots)
+  Fichier fabriqué par l'atelier de textes MNEMOGRAM (outils\atelier-textes-mnemogram.html).
+  Pour la modifier, utilisez l'atelier plutôt que le Bloc-notes : il refait ce fichier à chaque changement.
+  Le jeu lit, pour chaque nature ou fonction (data-code), la ligne « explication » : c'est ce qui s'affiche
+  sous les boutons et ce que dit la voix ; pour une fonction, la première ligne est la formule.
+-->
+<style>
+  body { margin:0; padding:24px 28px 40px; font-family:Arial,sans-serif; color:#24313f; background:#fffdf9; line-height:1.45; }
+  h1 { font-family:Georgia,serif; color:#7a5c35; font-size:1.5rem; margin:0 0 6px; }
+  .intro { color:#65707d; font-size:.92rem; margin:0 0 18px; white-space:pre-line; }
+  h2 { font-size:.78rem; letter-spacing:.13em; text-transform:uppercase; color:#9c7a4a; margin:22px 0 8px; }
+  .nature { display:grid; grid-template-columns:220px 1fr; gap:4px 16px; padding:10px 0; border-top:1px solid #ded8cc; }
+  .nature .nom { grid-row:span 3; margin:0; font-size:1rem; color:#21693a; }
+  .nature .exemples { margin:0; font-style:italic; color:#65707d; font-size:.88rem; }
+  .nature .explication { margin:0; font-size:.95rem; }
+  .nature .explication em, .nature .remarque em, .intro em { color:#7a5c35; }
+  /* v15 : fiche des fonctions : le rouge est la couleur des fonctions ; la ligne du haut est la formule */
+  .nature[data-code^="F."] .nom { color:#b3261e; }
+  .nature .exemples.formule { font-style:normal; font-weight:700; color:#b3261e; font-size:.95rem; }
+  .nature .remarque { margin:0; font-size:.88rem; color:#7a5c35; white-space:pre-line; }
+  @media (max-width:600px) { body { padding:16px; } .nature { grid-template-columns:1fr; } .nature .nom { grid-row:auto; } }
+</style>
+</head>
+<body>
+  <h1>Fiche fonction des mots</h1>
+  <p class="intro">Dans le groupe verbal, chaque mot a une nature (ce qu'il est) et parfois une fonction (le rôle qu'il joue dans la phrase).
+<em>Le nom commun</em>, <em>le nom propre</em> et <em>le pronom</em> peuvent avoir toutes les fonctions du nom&nbsp;: sujet, COD, COI, COS, attribut du sujet, compléments circonstanciels.
+<em>L'adverbe</em> modifie le sens d'un mot, ou bien il est complément circonstanciel.
+Les déterminants, les prépositions, les conjonctions, les interjections et les onomatopées n'ont pas de fonction. L'adjectif qualificatif, lui, aura son propre jeu (épithète, attribut, apposé).
+Pour chaque fonction, la formule en rouge dit quelle question poser au verbe.</p>
+
+
+  <h2>Les fonctions du nom commun, du nom propre et du pronom</h2>
+    <section class="nature" data-code="F.suj">
+      <h3 class="nom">Sujet</h3>
+      <p class="exemples formule">verbe + qui est-ce qui&nbsp;? = sujet</p>
+      <p class="explication">Le sujet dit qui fait l'action, ou de qui l'on parle. On le trouve en posant la question «&nbsp;qui est-ce qui&nbsp;?&nbsp;» devant le verbe&nbsp;: <em>Qui est-ce qui dort&nbsp;?</em> → <em>le chat</em>.</p>
+    </section>
+    <section class="nature" data-code="F.cod">
+      <h3 class="nom">Complément d'objet direct (COD)</h3>
+      <p class="exemples formule">verbe d'action + quoi&nbsp;? = COD</p>
+      <p class="explication">Le COD complète le verbe directement, sans petit mot entre les deux. On le trouve avec la question «&nbsp;quoi&nbsp;?&nbsp;» (ou «&nbsp;qui&nbsp;?&nbsp;») après le verbe&nbsp;: <em>La fille mange quoi&nbsp;?</em> → <em>une pomme</em>.</p>
+    </section>
+    <section class="nature" data-code="F.coi">
+      <h3 class="nom">Complément d'objet indirect (COI)</h3>
+      <p class="exemples formule">verbe d'action + de quoi&nbsp;? à quoi&nbsp;? = COI</p>
+      <p class="explication">Le COI complète le verbe avec un petit mot entre les deux (<em>à</em>, <em>de</em>). On le trouve avec la question «&nbsp;à quoi&nbsp;?&nbsp;» ou «&nbsp;de quoi&nbsp;?&nbsp;» après le verbe&nbsp;: <em>Je parle à qui&nbsp;?</em> → <em>à mon ami</em>.</p>
+    </section>
+    <section class="nature" data-code="F.cos">
+      <h3 class="nom">Complément d'objet second (COS)</h3>
+      <p class="exemples formule">verbe + COD + de quoi&nbsp;? à quoi&nbsp;? = COS</p>
+      <p class="explication">Le COS vient en plus du COD&nbsp;: on donne quelque chose à quelqu'un. On le trouve avec «&nbsp;à qui&nbsp;?&nbsp;» ou «&nbsp;à quoi&nbsp;?&nbsp;» après le verbe et le COD&nbsp;: <em>Je donne une pomme à qui&nbsp;?</em> → <em>à ma sœur</em>.</p>
+    </section>
+    <section class="nature" data-code="F.att">
+      <h3 class="nom">Attribut du sujet</h3>
+      <p class="exemples formule">verbe d'état + quoi&nbsp;? = attribut du sujet</p>
+      <p class="explication">L'attribut du sujet vient après un verbe d'état (être, paraître, sembler, devenir, rester) et dit ce qu'est le sujet&nbsp;: <em>L'éléphant est quoi&nbsp;?</em> → <em>un animal</em>.</p>
+    </section>
+    <section class="nature" data-code="F.ccl">
+      <h3 class="nom">Complément circonstanciel de lieu</h3>
+      <p class="exemples formule">verbe + où&nbsp;? = CC de lieu</p>
+      <p class="explication">Le complément circonstanciel de lieu dit où se passe l'action&nbsp;: <em>Le chat dort où&nbsp;?</em> → <em>sur la terrasse</em>. Un adverbe peut l'être aussi&nbsp;: <em>ici</em>, <em>dehors</em>, <em>loin</em>.</p>
+      <p class="remarque">Les compléments circonstanciels (on dit aussi compléments de phrase) peuvent souvent être déplacés ou supprimés&nbsp;: <em>Sur la terrasse, le chat dort.</em></p>
+    </section>
+    <section class="nature" data-code="F.cct">
+      <h3 class="nom">Complément circonstanciel de temps</h3>
+      <p class="exemples formule">verbe + quand&nbsp;? = CC de temps</p>
+      <p class="explication">Le complément circonstanciel de temps dit quand se passe l'action&nbsp;: <em>Les oiseaux chantent quand&nbsp;?</em> → <em>le matin</em>. Un adverbe peut l'être aussi&nbsp;: <em>demain</em>, <em>bientôt</em>, <em>souvent</em>.</p>
+    </section>
+    <section class="nature" data-code="F.ccm">
+      <h3 class="nom">Complément circonstanciel de manière</h3>
+      <p class="exemples formule">verbe + comment&nbsp;? = CC de manière</p>
+      <p class="explication">Le complément circonstanciel de manière dit comment se passe l'action&nbsp;: <em>Le camion roule comment&nbsp;?</em> → <em>lentement</em>.</p>
+    </section>
+    <section class="nature" data-code="F.ccc">
+      <h3 class="nom">Complément circonstanciel de cause</h3>
+      <p class="exemples formule">verbe + pourquoi&nbsp;? = CC de cause</p>
+      <p class="explication">Le complément circonstanciel de cause dit pourquoi l'action se passe&nbsp;: <em>Le bébé pleure pourquoi&nbsp;?</em> → <em>de faim</em>.</p>
+    </section>
+
+  <h2>Les fonctions de l'adverbe</h2>
+    <section class="nature" data-code="F.mod">
+      <h3 class="nom">Modifie le sens</h3>
+      <p class="exemples formule">adverbe + verbe, adjectif ou adverbe = modifie le sens</p>
+      <p class="explication">L'adverbe modifie le sens d'un verbe, d'un adjectif ou d'un autre adverbe&nbsp;: <em>très bon</em>, <em>ne… pas</em>. Si on l'enlève, la phrase reste juste, mais elle ne veut plus dire la même chose.</p>
+      <p class="remarque">Ce sont les adverbes interrogatifs, de négation (<em>ne… pas</em>, <em>ne… plus</em>) et de quantité (<em>trop</em>, <em>assez</em>, <em>très</em>). Les adverbes de circonstance (<em>demain</em>, <em>joyeusement</em>, <em>ici</em>), eux, sont compléments circonstanciels.
+L'adverbe peut ainsi être complément circonstanciel de lieu (<em>ici</em>), de temps (<em>demain</em>) ou de manière (<em>vite</em>).</p>
+    </section>
+
+<script type="application/json" id="fiche-data">{"titre":"Fiche fonction des mots","intro":"Dans le groupe verbal, chaque mot a une nature (ce qu'il est) et parfois une fonction (le rôle qu'il joue dans la phrase).\n*Le nom commun*, *le nom propre* et *le pronom* peuvent avoir toutes les fonctions du nom : sujet, COD, COI, COS, attribut du sujet, compléments circonstanciels.\n*L'adverbe* modifie le sens d'un mot, ou bien il est complément circonstanciel.\nLes déterminants, les prépositions, les conjonctions, les interjections et les onomatopées n'ont pas de fonction. L'adjectif qualificatif, lui, aura son propre jeu (épithète, attribut, apposé).\nPour chaque fonction, la formule en rouge dit quelle question poser au verbe.","groupes":{"fnom":"Les fonctions du nom commun, du nom propre et du pronom","fadv":"Les fonctions de l'adverbe"},"natures":[{"code":"F.suj","groupe":"fnom","nom":"Sujet","exemples":"verbe + qui est-ce qui ? = sujet","explication":"Le sujet dit qui fait l'action, ou de qui l'on parle. On le trouve en posant la question « qui est-ce qui ? » devant le verbe : *Qui est-ce qui dort ?* → *le chat*.","remarque":""},{"code":"F.cod","groupe":"fnom","nom":"Complément d'objet direct (COD)","exemples":"verbe d'action + quoi ? = COD","explication":"Le COD complète le verbe directement, sans petit mot entre les deux. On le trouve avec la question « quoi ? » (ou « qui ? ») après le verbe : *La fille mange quoi ?* → *une pomme*.","remarque":""},{"code":"F.coi","groupe":"fnom","nom":"Complément d'objet indirect (COI)","exemples":"verbe d'action + de quoi ? à quoi ? = COI","explication":"Le COI complète le verbe avec un petit mot entre les deux (*à*, *de*). On le trouve avec la question « à quoi ? » ou « de quoi ? » après le verbe : *Je parle à qui ?* → *à mon ami*.","remarque":""},{"code":"F.cos","groupe":"fnom","nom":"Complément d'objet second (COS)","exemples":"verbe + COD + de quoi ? à quoi ? = COS","explication":"Le COS vient en plus du COD : on donne quelque chose à quelqu'un. On le trouve avec « à qui ? » ou « à quoi ? » après le verbe et le COD : *Je donne une pomme à qui ?* → *à ma sœur*.","remarque":""},{"code":"F.att","groupe":"fnom","nom":"Attribut du sujet","exemples":"verbe d'état + quoi ? = attribut du sujet","explication":"L'attribut du sujet vient après un verbe d'état (être, paraître, sembler, devenir, rester) et dit ce qu'est le sujet : *L'éléphant est quoi ?* → *un animal*.","remarque":""},{"code":"F.ccl","groupe":"fnom","nom":"Complément circonstanciel de lieu","exemples":"verbe + où ? = CC de lieu","explication":"Le complément circonstanciel de lieu dit où se passe l'action : *Le chat dort où ?* → *sur la terrasse*. Un adverbe peut l'être aussi : *ici*, *dehors*, *loin*.","remarque":"Les compléments circonstanciels (on dit aussi compléments de phrase) peuvent souvent être déplacés ou supprimés : *Sur la terrasse, le chat dort.*"},{"code":"F.cct","groupe":"fnom","nom":"Complément circonstanciel de temps","exemples":"verbe + quand ? = CC de temps","explication":"Le complément circonstanciel de temps dit quand se passe l'action : *Les oiseaux chantent quand ?* → *le matin*. Un adverbe peut l'être aussi : *demain*, *bientôt*, *souvent*.","remarque":""},{"code":"F.ccm","groupe":"fnom","nom":"Complément circonstanciel de manière","exemples":"verbe + comment ? = CC de manière","explication":"Le complément circonstanciel de manière dit comment se passe l'action : *Le camion roule comment ?* → *lentement*.","remarque":""},{"code":"F.ccc","groupe":"fnom","nom":"Complément circonstanciel de cause","exemples":"verbe + pourquoi ? = CC de cause","explication":"Le complément circonstanciel de cause dit pourquoi l'action se passe : *Le bébé pleure pourquoi ?* → *de faim*.","remarque":""},{"code":"F.mod","groupe":"fadv","nom":"Modifie le sens","exemples":"adverbe + verbe, adjectif ou adverbe = modifie le sens","explication":"L'adverbe modifie le sens d'un verbe, d'un adjectif ou d'un autre adverbe : *très bon*, *ne… pas*. Si on l'enlève, la phrase reste juste, mais elle ne veut plus dire la même chose.","remarque":"Ce sont les adverbes interrogatifs, de négation (*ne… pas*, *ne… plus*) et de quantité (*trop*, *assez*, *très*). Les adverbes de circonstance (*demain*, *joyeusement*, *ici*), eux, sont compléments circonstanciels.\nL'adverbe peut ainsi être complément circonstanciel de lieu (*ici*), de temps (*demain*) ou de manière (*vite*)."}]}</script>
+</body>
+</html>
