@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v5';
+const APP_VERSION = 'v6';
 
 const $ = (id) => document.getElementById(id);
 
@@ -193,13 +193,13 @@ const CHARACTERS = {
       'Magnifique ! Ta baguette grammaticale fait des étincelles !',
       'Exactement ! {Nature}, tu l\'as trouvé !',
       'Quelle mémoire ! Je suis fier de toi.',
-      'Parfait ! Dix points pour toi !',
+      'Parfait ! Tu as trouvé !',
     ],
     perso: [
       '{E}, c\'est parfait, tu as réussi !',
       '{E}, tu es un génie de la grammaire !',
       'Bravo {E} ! C\'est bien {nature} !',
-      'Dix points pour {E} !',
+      'Bien joué, {E} ! Tu as trouvé !',
     ],
     famille: [
       'Bravo {E} ! {Adulte} sera {fier} de toi !',
@@ -387,6 +387,51 @@ function pickFrenchVoice(prefer) {
   const re = prefer === 'femme' ? femmes : hommes;
   return pool.find((v) => re.test(v.name)) || pool[0];
 }
+/* ------------------------------------------------------------
+   PRONONCIATION (v6) : même principe que Mnemart et son atelier phonétique.
+   PRON_COMMUNE : écritures valables pour toutes les voix (« sœur » → « seur », sinon certaines voix disent « sourd »).
+   PRON_PAR_VOIX : écritures propres à une voix, repérée par un morceau de son nom ; '' = lire le mot tel quel.
+   Point de départ : les réglages de l'atelier de Mnemart pour les mots que MNEMOGRAM utilise. Les exports de
+   l'atelier MNEMOGRAM (bouton « Copier pour Claude ») viendront compléter ces deux tables.
+   Un nom commun se dit pareil au singulier et au pluriel : régler « sœur » règle aussi « sœurs ».
+   ------------------------------------------------------------ */
+const PRON_COMMUNE = {
+  'sœur': 'seur',
+  'soeur': 'seur',
+  'poisson': 'Pouasson',
+  'paul': 'pol',
+};
+const PRON_PAR_VOIX = {
+  'français france': { 'paul': '' },
+  'français canada': { 'paul': '' },
+  'hortense': { 'paul': '' },
+  'julie': { 'paul': '' },
+  'paul': { 'paul': '' },
+  'vivienne': { 'poisson': 'Poisson' },
+  'rémy': { 'poisson': 'Poisson' },
+};
+const sansAccents = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[()\-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+function pronOverrides(voice) {
+  const name = sansAccents(voice?.name);
+  if (!name) return null;
+  const hit = Object.keys(PRON_PAR_VOIX).find((part) => name.includes(sansAccents(part)));
+  return hit ? PRON_PAR_VOIX[hit] : null;
+}
+const reEsc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function fixPronunciation(text, voice) {
+  let out = String(text || '');
+  const NB = '(?<![\\p{L}\\p{N}])', NA = '(?![\\p{L}\\p{N}])';
+  const vo = pronOverrides(voice) || {};
+  const keys = [...new Set([...Object.keys(PRON_COMMUNE), ...Object.keys(vo)])].sort((a, b) => b.length - a.length);   /* expressions avant les mots seuls */
+  keys.forEach((k) => {
+    const right = Object.prototype.hasOwnProperty.call(vo, k) ? vo[k] : PRON_COMMUNE[k];
+    if (right === '' || right === undefined) return;
+    const pluriel = /\s/.test(k) ? '' : '(?:s|x)?';
+    out = out.replace(new RegExp(`${NB}${reEsc(k)}${pluriel}${NA}`, 'giu'), right);
+  });
+  return out;
+}
+
 /* v5 : voix plus dynamiques. Les sorciers parlent vite et avec entrain (débit 1,25 ; voix un peu plus aiguë
    pour les gentils, un peu plus grave pour les grincheux). La phrase de l'exercice, elle, reste lue à un débit
    normal (1,05), pour que l'enfant ait le temps de suivre les mots. */
@@ -395,12 +440,13 @@ const VOICE_STYLES = {
   bad: { rate: 1.2, pitch: 0.9 },
   phrase: { rate: 1.05, pitch: 1 },
 };
-function speak(text, prefer, style = 'good') {
+function speak(text, prefer, style = 'good', enchaine = false) {
   if (!volumeLevel || !('speechSynthesis' in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text.replace(/…/g, ', '));
+  if (!enchaine) speechSynthesis.cancel();   /* enchaine = true : se dit après la phrase en cours, sans la couper */
+  const v = pickFrenchVoice(prefer);
+  const u = new SpeechSynthesisUtterance(fixPronunciation(text, v).replace(/…/g, ', '));
   u.lang = 'fr-FR';
-  const v = pickFrenchVoice(prefer); if (v) u.voice = v;
+  if (v) u.voice = v;
   const st = VOICE_STYLES[style] || VOICE_STYLES.good;
   u.volume = volumeLevel / 5;
   u.rate = st.rate;
@@ -555,6 +601,14 @@ function showCharacter(camp, nature) {
   stage.className = `character-stage ${camp}`;
   stage.innerHTML = `<div class="bubble"><span class="who">${ch.nom}</span>${msg}</div>${characterSvg(id)}`;
   speak(msg, ch.voix, camp);
+  /* v6 : quand l'explication s'affiche sous les boutons (bonne réponse, ou deuxième erreur), la voix la lit
+     juste après la bulle, à débit normal : « Hourra est une interjection. L'interjection est un cri… » */
+  if (!$('nat-correction').classList.contains('hidden')) speak(explanationSpoken(), 'femme', 'phrase', true);
+}
+function explanationSpoken() {
+  const q = game.questions[game.index];
+  const n = NATURE_BY_CODE[q.code];
+  return `${PARSED[q.phrase][q.mot].texte} est ${n.article}. ${n.explication}`;
 }
 
 function answer(code, btn) {
