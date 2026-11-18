@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v7';
+const APP_VERSION = 'v9';
 
 const $ = (id) => document.getElementById(id);
 
@@ -55,96 +55,240 @@ const NATURES = [
     explication: "L'onomatopée est un mot qui imite un bruit : boum ! crac ! miaou ! tic-tac !",
     exemples: 'crac ! boum ! miaou ! atchoum !' },
 ];
+/* v9 : JEU 2 — les sept natures de déterminants et les sept natures de pronoms de la fiche « Classe et fonctions
+   des mots ». « court » = le nom écrit sur le petit bouton (le groupe « Déterminant » ou « Pronom » est écrit au-dessus). */
+const NATURES_DETAIL = [
+  { code: 'D.def', court: 'Article défini', nom: 'Article défini', article: 'un article défini', groupe: 'details',
+    explication: "L'article défini se place devant un nom précis, que l'on connaît : *le*, *la*, *les*, *l'*.", exemples: "le, la, les, l'" },
+  { code: 'D.ind', court: 'Article indéfini', nom: 'Article indéfini', article: 'un article indéfini', groupe: 'details',
+    explication: "L'article indéfini se place devant un nom que l'on ne précise pas : *un*, *une*, *des*.", exemples: 'un, une, des' },
+  { code: 'D.pos', court: 'Posses&shy;sif', nom: 'Déterminant possessif', article: 'un déterminant possessif', groupe: 'details',
+    explication: "Le déterminant possessif dit à qui est la chose : *mon*, *ma*, *mes*, *ton*, *son*, *nos*…", exemples: 'mon, ma, mes, ton, son, notre, leur' },
+  { code: 'D.dem', court: 'Démons&shy;tratif', nom: 'Déterminant démonstratif', article: 'un déterminant démonstratif', groupe: 'details',
+    explication: "Le déterminant démonstratif montre ce dont on parle : *ce*, *cet*, *cette*, *ces*.", exemples: 'ce, cet, cette, ces' },
+  { code: 'D.num', court: 'Numéral', nom: 'Déterminant numéral', article: 'un déterminant numéral', groupe: 'details',
+    explication: "Le déterminant numéral dit combien il y en a : *deux*, *trois*, *cinq*…", exemples: 'un, deux, trois' },
+  { code: 'D.idf', court: 'Indéfini', nom: 'Déterminant indéfini', article: 'un déterminant indéfini', groupe: 'details',
+    explication: "Le déterminant indéfini parle d'une quantité que l'on ne compte pas précisément : *chaque*, *plusieurs*, *quelques*…", exemples: 'tout, chaque, plusieurs, quelques' },
+  { code: 'D.int', court: 'Interro&shy;gatif', nom: 'Déterminant interrogatif', article: 'un déterminant interrogatif', groupe: 'details',
+    explication: "Le déterminant interrogatif sert à poser une question sur le nom qui le suit : *quel*, *quelle*, *quels*, *quelles* ?", exemples: 'quel, quelle, quels, quelles' },
+  { code: 'Pr.per', court: 'Person&shy;nel', nom: 'Pronom personnel', article: 'un pronom personnel', groupe: 'details',
+    explication: "Le pronom personnel désigne les personnes qui parlent ou dont on parle : *je*, *tu*, *il*, *elle*, *nous*, *vous*, *ils*, *me*, *se*…", exemples: 'je, tu, il, la, le, y, en' },
+  { code: 'Pr.pos', court: 'Posses&shy;sif', nom: 'Pronom possessif', article: 'un pronom possessif', groupe: 'details',
+    explication: "Le pronom possessif remplace un nom en disant à qui il est : *le mien*, *le tien*, *la sienne*, *les nôtres*…", exemples: 'le mien, la mienne, le tien' },
+  { code: 'Pr.dem', court: 'Démons&shy;tratif', nom: 'Pronom démonstratif', article: 'un pronom démonstratif', groupe: 'details',
+    explication: "Le pronom démonstratif remplace un nom en le montrant : *celui*, *celle*, *celui-ci*, *celle-là*, *cela*…", exemples: 'celui, celle, cela, ça' },
+  { code: 'Pr.num', court: 'Numéral', nom: 'Pronom numéral', article: 'un pronom numéral', groupe: 'details',
+    explication: "Le pronom numéral remplace un nom par un nombre ou un rang : *deux*, *les deux*, *le premier*, *le deuxième*…", exemples: 'le premier, le deuxième' },
+  { code: 'Pr.idf', court: 'Indéfini', nom: 'Pronom indéfini', article: 'un pronom indéfini', groupe: 'details',
+    explication: "Le pronom indéfini remplace un nom que l'on ne précise pas : *chacun*, *quelqu'un*, *personne*, *certains*…", exemples: 'chacun, tous' },
+  { code: 'Pr.int', court: 'Interro&shy;gatif', nom: 'Pronom interrogatif', article: 'un pronom interrogatif', groupe: 'details',
+    explication: "Le pronom interrogatif sert à poser une question : *qui* ? *que* ? *lequel* ? *laquelle* ?", exemples: 'lequel ? qui ?' },
+  { code: 'Pr.rel', court: 'Relatif', nom: 'Pronom relatif', article: 'un pronom relatif', groupe: 'details',
+    explication: "Le pronom relatif remplace un nom et ouvre une partie de phrase qui le complète : *qui*, *que*, *quoi*, *dont*, *où*.", exemples: 'qui, que, quoi, dont, où' },
+];
 /* Disposition des boutons : une ligne par sous-tableau (deux boutons côte à côte quand il y en a deux). */
 const BUTTON_ROWS = {
   variables: [['N'], ['VE', 'VA'], ['A'], ['D'], ['Pr']],
   invariables: [['NP'], ['Av'], ['P'], ['CC'], ['CS'], ['I', 'O']],
 };
-const NATURE_BY_CODE = Object.fromEntries(NATURES.map((n) => [n.code, n]));
-const answerCodeOf = (tag) => tag;
+/* Jeu 2 : mêmes boutons, sauf Déterminant et Pronom, remplacés chacun par une ligne de 7 petits boutons. */
+const BUTTON_ROWS_2 = {
+  variables: [['N'], ['VE', 'VA'], ['A'], { titre: 'Déterminant', codes: ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int'] },
+    { titre: 'Pronom', codes: ['Pr.per', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int', 'Pr.rel'] }],
+  invariables: [['NP'], ['Av'], ['P'], ['CC'], ['CS'], ['I', 'O']],
+};
+const NATURE_BY_CODE = Object.fromEntries([...NATURES, ...NATURES_DETAIL].map((n) => [n.code, n]));
+/* Les deux jeux. « priorite » : natures demandées au moins une fois par partie ; le reste des 20 questions
+   est tiré au hasard parmi « reste ». « reponse » : la nature attendue pour une étiquette de mot. */
+const GAMES = {
+  natures: { titre: 'Reconnaissance des natures 1', rows: BUTTON_ROWS,
+    priorite: NATURES.map((n) => n.code), reste: NATURES.map((n) => n.code),
+    reponse: (tag) => tag.split('.')[0] },
+  natures2: { titre: 'Reconnaissance des natures 2', rows: BUTTON_ROWS_2,
+    priorite: NATURES_DETAIL.map((n) => n.code),
+    reste: ['N', 'VE', 'VA', 'A', 'NP', 'Av', 'P', 'CC', 'CS', 'I', 'O'],
+    reponse: (tag) => tag,
+    pieges: {
+      'D.pos': ['Pr.pos'], 'Pr.pos': ['D.pos'], 'D.dem': ['Pr.dem'], 'Pr.dem': ['D.dem'],
+      'D.num': ['Pr.num'], 'Pr.num': ['D.num'], 'D.idf': ['Pr.idf'], 'Pr.idf': ['D.idf'],
+      'D.int': ['Pr.int'], 'Pr.int': ['D.int', 'Pr.rel'], 'D.def': ['Pr.per'], 'Pr.per': ['D.def'],
+      'Pr.rel': ['Pr.int', 'CS'], 'CS': ['Pr.rel'],
+    } },
+};
+let currentGame = GAMES.natures;
+const answerCodeOf = (tag) => currentGame.reponse(tag);
 
 /* ------------------------------------------------------------
    LES PHRASES
    Chaque mot est suivi de « / » et du code de sa nature. La ponctuation reste seule.
    Un mot qui finit par une apostrophe (l', j', n') se colle au mot suivant.
-   Codes : N nom commun, VE verbe d'état, VA verbe d'action, A adjectif qualificatif, D déterminant,
-           Pr pronom, NP nom propre, Av adverbe, P préposition, CC conj. de coordination,
-           CS conj. de subordination, I interjection, O onomatopée.
+   Codes : N nom commun, VE verbe d'état, VA verbe d'action, A adjectif qualificatif,
+           D.def / D.ind (articles défini et indéfini), D.pos, D.dem, D.num, D.idf, D.int (déterminants possessif,
+           démonstratif, numéral, indéfini, interrogatif),
+           Pr.per, Pr.pos, Pr.dem, Pr.num, Pr.idf, Pr.int, Pr.rel (pronoms personnel, possessif, démonstratif,
+           numéral, indéfini, interrogatif, relatif),
+           NP nom propre, Av adverbe, P préposition, CC conj. de coordination, CS conj. de subordination,
+           I interjection, O onomatopée.
+   Dans le jeu 1, tous les D.xxx comptent comme « déterminant » et tous les Pr.xxx comme « pronom ».
+   v9 : un « _ » relie les mots d'un même groupe (le_mien = « le mien ») ; un mot qui commence par « - » se
+   colle au précédent (préfères -tu = « préfères-tu »).
    ------------------------------------------------------------ */
 const PHRASES = [
-  'Le/D chat/N de/P mon/D voisin/N dort/VA tranquillement/Av sur/P la/D terrasse/N .',
-  'La/D petite/A fille/N mange/VA une/D pomme/N rouge/A .',
-  'Mon/D frère/N et/CC ma/D sœur/N jouent/VA dans/P le/D jardin/N .',
-  'Oh/I ! Le/D gâteau/N est/VE très/Av bon/A .',
-  'Quand/CS il/Pr pleut/VA , nous/Pr jouons/VA à/P la/D maison/N .',
-  'Le/D chien/N aboie/VA car/CC il/Pr entend/VA un/D bruit/N .',
-  'Aïe/I ! Cette/D porte/N est/VE lourde/A .',
-  'Le/D soleil/N brille/VA dans/P le/D ciel/N bleu/A .',
-  'Mon/D papa/N prépare/VA une/D soupe/N chaude/A .',
-  'Les/D oiseaux/N chantent/VA joyeusement/Av le/D matin/N .',
-  'Tu/Pr lis/VA un/D livre/N ou/CC tu/Pr dessines/VA ?',
-  'Elle/Pr porte/VA une/D jolie/A robe/N verte/A .',
-  'Le/D bébé/N pleure/VA car/CC il/Pr veut/VA son/D biberon/N .',
-  'Nous/Pr allons/VA à/P l\'/D école/N avec/P nos/D amis/N .',
-  'Bravo/I ! Tu/Pr gagnes/VA la/D course/N .',
-  'Le/D lapin/N mange/VA une/D carotte/N et/CC une/D salade/N .',
-  'Ce/D gros/A camion/N roule/VA lentement/Av .',
-  'Si/CS tu/Pr veux/VA , nous/Pr jouerons/VA ensemble/Av .',
-  'Lorsque/CS la/D cloche/N sonne/VA , les/D élèves/N sortent/VA .',
-  'Ma/D grand-mère/N tricote/VA une/D écharpe/N pour/P moi/Pr .',
-  'Le/D poisson/N nage/VA vite/Av dans/P l\'/D eau/N froide/A .',
-  'Hourra/I ! Les/D vacances/N commencent/VA demain/Av .',
-  'Le/D ciel/N est/VE gris/A mais/CC il/Pr ne/Av pleut/VA pas/Av .',
-  'Je/Pr cherche/VA mon/D ballon/N sous/P le/D lit/N .',
-  'La/D maîtresse/N raconte/VA une/D belle/A histoire/N .',
-  'Comme/CS la/D nuit/N tombe/VA , j\'/Pr allume/VA la/D lampe/N .',
-  'Mon/D chat/N noir/A dort/VA souvent/Av sur/P le/D canapé/N .',
-  'Nous/Pr mangeons/VA des/D fraises/N sucrées/A avec/P Léa/NP .',
-  'Le/D cheval/N galope/VA dans/P la/D prairie/N verte/A .',
-  'Chut/I ! Le/D bébé/N dort/VA .',
-  'Paul/NP ouvre/VA la/D fenêtre/N et/CC regarde/VA le/D jardin/N .',
-  'Elle/Pr sourit/VA quand/CS elle/Pr voit/VA son/D ami/N .',
-  'Les/D enfants/N courent/VA dans/P la/D cour/N .',
-  'Ce/D petit/A garçon/N est/VE gentil/A .',
-  'Le/D train/N arrive/VA bientôt/Av à/P la/D gare/N .',
-  'Je/Pr mets/VA mes/D bottes/N car/CC il/Pr pleut/VA .',
-  'Ouf/I ! Nous/Pr arrivons/VA enfin/Av .',
-  'La/D souris/N se/Pr cache/VA derrière/P le/D placard/N .',
-  'Mon/D ami/N habite/VA une/D grande/A maison/N blanche/A .',
-  'Le/D vent/N souffle/VA fort/Av cette/D nuit/N .',
-  'Puisque/CS tu/Pr es/VE sage/A , tu/Pr choisis/VA un/D bonbon/N .',
-  'La/D lune/N éclaire/VA doucement/Av la/D forêt/N .',
-  'Je/Pr bois/VA un/D grand/A verre/N de/P lait/N .',
-  'Ils/Pr jouent/VA avec/P un/D ballon/N jaune/A .',
-  'Hé/I ! Tu/Pr oublies/VA ton/D cartable/N .',
-  'Ma/D tante/N arrive/VA ce/D soir/N avec/P son/D chien/N .',
-  'L\'/D éléphant/N est/VE un/D animal/N énorme/A .',
-  'Nous/Pr partons/VA maintenant/Av ou/CC nous/Pr attendons/VA Léa/NP ?',
-  'Lorsque/CS le/D chat/N dort/VA , la/D souris/N danse/VA .',
-  'Je/Pr ne/Av trouve/VA pas/Av mes/D lunettes/N .',
-  'Il/Pr pleut/VA , donc/CC je/Pr prends/VA mon/D parapluie/N .',
-  'Quand/CS la/D nuit/N tombe/VA , les/D étoiles/N brillent/VA .',
-  'Le/D boulanger/N fabrique/VA le/D pain/N très/Av tôt/Av .',
-  'Ma/D sœur/N chante/VA une/D chanson/N avec/P moi/Pr .',
-  'Boum/O ! Le/D vase/N tombe/VA par/P terre/N .',
+  'Le/D.def chat/N de/P mon/D.pos voisin/N dort/VA tranquillement/Av sur/P la/D.def terrasse/N .',
+  'La/D.def petite/A fille/N mange/VA une/D.ind pomme/N rouge/A .',
+  'Mon/D.pos frère/N et/CC ma/D.pos sœur/N jouent/VA dans/P le/D.def jardin/N .',
+  'Oh/I ! Le/D.def gâteau/N est/VE très/Av bon/A .',
+  'Quand/CS il/Pr.per pleut/VA , nous/Pr.per jouons/VA à/P la/D.def maison/N .',
+  'Le/D.def chien/N aboie/VA car/CC il/Pr.per entend/VA un/D.ind bruit/N .',
+  'Aïe/I ! Cette/D.dem porte/N est/VE lourde/A .',
+  'Le/D.def soleil/N brille/VA dans/P le/D.def ciel/N bleu/A .',
+  'Mon/D.pos papa/N prépare/VA une/D.ind soupe/N chaude/A .',
+  'Les/D.def oiseaux/N chantent/VA joyeusement/Av le/D.def matin/N .',
+  'Tu/Pr.per lis/VA un/D.ind livre/N ou/CC tu/Pr.per dessines/VA ?',
+  'Elle/Pr.per porte/VA une/D.ind jolie/A robe/N verte/A .',
+  'Le/D.def bébé/N pleure/VA car/CC il/Pr.per veut/VA son/D.pos biberon/N .',
+  'Nous/Pr.per allons/VA à/P l\'/D.def école/N avec/P nos/D.pos amis/N .',
+  'Bravo/I ! Tu/Pr.per gagnes/VA la/D.def course/N .',
+  'Le/D.def lapin/N mange/VA une/D.ind carotte/N et/CC une/D.ind salade/N .',
+  'Ce/D.dem gros/A camion/N roule/VA lentement/Av .',
+  'Si/CS tu/Pr.per veux/VA , nous/Pr.per jouerons/VA ensemble/Av .',
+  'Lorsque/CS la/D.def cloche/N sonne/VA , les/D.def élèves/N sortent/VA .',
+  'Ma/D.pos grand-mère/N tricote/VA une/D.ind écharpe/N pour/P moi/Pr.per .',
+  'Le/D.def poisson/N nage/VA vite/Av dans/P l\'/D.def eau/N froide/A .',
+  'Hourra/I ! Les/D.def vacances/N commencent/VA demain/Av .',
+  'Le/D.def ciel/N est/VE gris/A mais/CC il/Pr.per ne/Av pleut/VA pas/Av .',
+  'Je/Pr.per cherche/VA mon/D.pos ballon/N sous/P le/D.def lit/N .',
+  'La/D.def maîtresse/N raconte/VA une/D.ind belle/A histoire/N .',
+  'Comme/CS la/D.def nuit/N tombe/VA , j\'/Pr.per allume/VA la/D.def lampe/N .',
+  'Mon/D.pos chat/N noir/A dort/VA souvent/Av sur/P le/D.def canapé/N .',
+  'Nous/Pr.per mangeons/VA des/D.ind fraises/N sucrées/A avec/P Léa/NP .',
+  'Le/D.def cheval/N galope/VA dans/P la/D.def prairie/N verte/A .',
+  'Chut/I ! Le/D.def bébé/N dort/VA .',
+  'Paul/NP ouvre/VA la/D.def fenêtre/N et/CC regarde/VA le/D.def jardin/N .',
+  'Elle/Pr.per sourit/VA quand/CS elle/Pr.per voit/VA son/D.pos ami/N .',
+  'Les/D.def enfants/N courent/VA dans/P la/D.def cour/N .',
+  'Ce/D.dem petit/A garçon/N est/VE gentil/A .',
+  'Le/D.def train/N arrive/VA bientôt/Av à/P la/D.def gare/N .',
+  'Je/Pr.per mets/VA mes/D.pos bottes/N car/CC il/Pr.per pleut/VA .',
+  'Ouf/I ! Nous/Pr.per arrivons/VA enfin/Av .',
+  'La/D.def souris/N se/Pr.per cache/VA derrière/P le/D.def placard/N .',
+  'Mon/D.pos ami/N habite/VA une/D.ind grande/A maison/N blanche/A .',
+  'Le/D.def vent/N souffle/VA fort/Av cette/D.dem nuit/N .',
+  'Puisque/CS tu/Pr.per es/VE sage/A , tu/Pr.per choisis/VA un/D.ind bonbon/N .',
+  'La/D.def lune/N éclaire/VA doucement/Av la/D.def forêt/N .',
+  'Je/Pr.per bois/VA un/D.ind grand/A verre/N de/P lait/N .',
+  'Ils/Pr.per jouent/VA avec/P un/D.ind ballon/N jaune/A .',
+  'Hé/I ! Tu/Pr.per oublies/VA ton/D.pos cartable/N .',
+  'Ma/D.pos tante/N arrive/VA ce/D.dem soir/N avec/P son/D.pos chien/N .',
+  'L\'/D.def éléphant/N est/VE un/D.ind animal/N énorme/A .',
+  'Nous/Pr.per partons/VA maintenant/Av ou/CC nous/Pr.per attendons/VA Léa/NP ?',
+  'Lorsque/CS le/D.def chat/N dort/VA , la/D.def souris/N danse/VA .',
+  'Je/Pr.per ne/Av trouve/VA pas/Av mes/D.pos lunettes/N .',
+  'Il/Pr.per pleut/VA , donc/CC je/Pr.per prends/VA mon/D.pos parapluie/N .',
+  'Quand/CS la/D.def nuit/N tombe/VA , les/D.def étoiles/N brillent/VA .',
+  'Le/D.def boulanger/N fabrique/VA le/D.def pain/N très/Av tôt/Av .',
+  'Ma/D.pos sœur/N chante/VA une/D.ind chanson/N avec/P moi/Pr.per .',
+  'Boum/O ! Le/D.def vase/N tombe/VA par/P terre/N .',
   /* Verbes d'état */
-  'Le/D chat/N semble/VE fatigué/A .',
-  'Ma/D sœur/N devient/VE très/Av grande/A .',
-  'Tu/Pr parais/VE content/A aujourd\'hui/Av .',
-  'Les/D fleurs/N restent/VE fraîches/A .',
-  'Le/D lion/N paraît/VE calme/A dans/P sa/D cage/N .',
+  'Le/D.def chat/N semble/VE fatigué/A .',
+  'Ma/D.pos sœur/N devient/VE très/Av grande/A .',
+  'Tu/Pr.per parais/VE content/A aujourd\'hui/Av .',
+  'Les/D.def fleurs/N restent/VE fraîches/A .',
+  'Le/D.def lion/N paraît/VE calme/A dans/P sa/D.pos cage/N .',
   /* Noms propres */
-  'Paris/NP est/VE une/D grande/A ville/N .',
-  'Marie/NP lit/VA un/D livre/N avec/P Hugo/NP .',
-  'Le/D chien/N de/P Lucie/NP est/VE noir/A .',
-  'La/D Loire/NP traverse/VA la/D ville/N de/P Tours/NP .',
+  'Paris/NP est/VE une/D.ind grande/A ville/N .',
+  'Marie/NP lit/VA un/D.ind livre/N avec/P Hugo/NP .',
+  'Le/D.def chien/N de/P Lucie/NP est/VE noir/A .',
+  'La/D.def Loire/NP traverse/VA la/D.def ville/N de/P Tours/NP .',
   /* Onomatopées */
-  'Crac/O ! La/D branche/N casse/VA .',
-  'Miaou/O ! Le/D chat/N réclame/VA son/D lait/N .',
-  'Tic-tac/O ! L\'/D horloge/N sonne/VA midi/N .',
-  'Atchoum/O ! Mon/D frère/N est/VE malade/A .',
-  'Ouaf/O ! Le/D chien/N court/VA vers/P la/D porte/N .',
-  'Ding-dong/O ! Mon/D ami/N sonne/VA à/P la/D porte/N .',
+  'Crac/O ! La/D.def branche/N casse/VA .',
+  'Miaou/O ! Le/D.def chat/N réclame/VA son/D.pos lait/N .',
+  'Tic-tac/O ! L\'/D.def horloge/N sonne/VA midi/N .',
+  'Atchoum/O ! Mon/D.pos frère/N est/VE malade/A .',
+  'Ouaf/O ! Le/D.def chien/N court/VA vers/P la/D.def porte/N .',
+  'Ding-dong/O ! Mon/D.pos ami/N sonne/VA à/P la/D.def porte/N .',
+
+  /* v9 : phrases pour le jeu 2 (déterminants et pronoms en détail) */
+  /* déterminants numéraux */
+  'Deux/D.num chats/N jouent/VA dans/P le/D.def jardin/N .',
+  'Mon/D.pos frère/N lance/VA trois/D.num ballons/N rouges/A .',
+  'J\'/Pr.per achète/VA quatre/D.num pommes/N .',
+  'Cinq/D.num canards/N nagent/VA sur/P l\'/D.def étang/N .',
+  /* déterminants indéfinis */
+  'Chaque/D.idf enfant/N porte/VA un/D.ind cartable/N .',
+  'Plusieurs/D.idf oiseaux/N chantent/VA dans/P l\'/D.def arbre/N .',
+  'Quelques/D.idf feuilles/N tombent/VA .',
+  'Chaque/D.idf matin/N , je/Pr.per bois/VA un/D.ind jus/N d\'/P orange/N .',
+  /* déterminants interrogatifs */
+  'Quel/D.int jeu/N préfères/VA -tu/Pr.per ?',
+  'Quelle/D.int robe/N choisis/VA -tu/Pr.per ?',
+  'Quels/D.int amis/N invites/VA -tu/Pr.per ?',
+  'Quelle/D.int heure/N est/VE -il/Pr.per ?',
+  /* déterminants démonstratifs */
+  'Cet/D.dem arbre/N est/VE très/Av vieux/A .',
+  'Ces/D.dem fleurs/N sentent/VA bon/Av .',
+  /* pronoms possessifs */
+  'Ce/D.dem vélo/N est/VE le_mien/Pr.pos .',
+  'Mon/D.pos stylo/N est/VE bleu/A , le_tien/Pr.pos est/VE vert/A .',
+  'Ces/D.dem billes/N sont/VE les_siennes/Pr.pos .',
+  'Ta/D.pos maison/N est/VE belle/A , la_nôtre/Pr.pos est/VE petite/A .',
+  /* pronoms démonstratifs */
+  'Je/Pr.per prends/VA celui-ci/Pr.dem .',
+  'Regarde/VA ces/D.dem chiots/N : celui-là/Pr.dem dort/VA .',
+  'Cela/Pr.dem me/Pr.per plaît/VA beaucoup/Av .',
+  'Ma/D.pos robe/N est/VE rouge/A , celle/Pr.dem de/P Léa/NP est/VE bleue/A .',
+  /* pronoms numéraux */
+  'Le_premier/Pr.num arrive/VA , le_second/Pr.num attend/VA .',
+  'Deux/Pr.num de/P mes/D.pos amis/N viennent/VA ce/D.dem soir/N .',
+  'Le_troisième/Pr.num gagne/VA un/D.ind livre/N .',
+  'J\'/Pr.per vois/VA deux/D.num chats/N : les_deux/Pr.num dorment/VA .',
+  /* pronoms indéfinis */
+  'Chacun/Pr.idf mange/VA sa/D.pos part/N .',
+  'Quelqu\'un/Pr.idf frappe/VA à/P la/D.def porte/N .',
+  'Personne/Pr.idf ne/Av répond/VA .',
+  'Certains/Pr.idf dorment/VA déjà/Av .',
+  /* pronoms interrogatifs */
+  'Qui/Pr.int frappe/VA à/P la/D.def porte/N ?',
+  'Que/Pr.int dis/VA -tu/Pr.per ?',
+  'Lequel/Pr.int préfères/VA -tu/Pr.per ?',
+  'Laquelle/Pr.int choisis/VA -tu/Pr.per ?',
+  /* pronoms relatifs */
+  'Le/D.def chat/N qui/Pr.rel dort/VA est/VE noir/A .',
+  'Le/D.def livre/N que/Pr.rel je/Pr.per lis/VA est/VE drôle/A .',
+  'La/D.def maison/N où/Pr.rel j\'/Pr.per habite/VA est/VE grande/A .',
+  'L\'/D.def ami/N dont/Pr.rel je/Pr.per parle/VA arrive/VA .',
+  /* v9 : PHRASES PIÈGES — déterminant et pronom de la même sorte dans la même phrase, là où les enfants se trompent */
+  /* possessifs : mon chien… le mien */
+  'Mon/D.pos chien/N est/VE noir/A , le_tien/Pr.pos est/VE blanc/A .',
+  'C\'/Pr.dem est/VE mon/D.pos chien/N , pas/Av le_tien/Pr.pos .',
+  'Ta/D.pos trousse/N est/VE rouge/A et/CC la_mienne/Pr.pos est/VE verte/A .',
+  'Je/Pr.per prête/VA mes/D.pos crayons/N , Léa/NP garde/VA les_siens/Pr.pos .',
+  'Son/D.pos vélo/N roule/VA vite/Av , le_nôtre/Pr.pos roule/VA lentement/Av .',
+  /* démonstratifs : ce gâteau… celui-ci */
+  'Ce/D.dem gâteau/N est/VE bon/A , mais/CC celui-ci/Pr.dem est/VE meilleur/A .',
+  'Cette/D.dem fleur/N est/VE jaune/A , celle-là/Pr.dem est/VE rose/A .',
+  'Ces/D.dem livres/N sont/VE à/P moi/Pr.per , ceux-là/Pr.dem sont/VE à/P Paul/NP .',
+  'Cet/D.dem oiseau/N chante/VA , celui-là/Pr.dem dort/VA .',
+  /* numéraux : deux chats… les deux */
+  'Deux/D.num chats/N jouent/VA , les_deux/Pr.num sont/VE gris/A .',
+  'Trois/D.num élèves/N chantent/VA , deux/Pr.num dansent/VA .',
+  'Quatre/D.num enfants/N courent/VA : le_premier/Pr.num gagne/VA .',
+  /* indéfinis : chaque enfant… chacun */
+  'Chaque/D.idf enfant/N reçoit/VA un/D.ind livre/N , et/CC chacun/Pr.idf le/Pr.per lit/VA .',
+  'Plusieurs/D.idf amis/N viennent/VA , certains/Pr.idf restent/VA longtemps/Av .',
+  'Quelques/D.idf pommes/N tombent/VA , plusieurs/Pr.idf sont/VE rouges/A .',
+  /* interrogatifs : quel livre… lequel */
+  'Quel/D.int livre/N veux/VA -tu/Pr.per ? Lequel/Pr.int ?',
+  'Quelle/D.int glace/N prends/VA -tu/Pr.per ? Laquelle/Pr.int préfères/VA -tu/Pr.per ?',
+  /* le, la, les : article défini ou pronom personnel */
+  'Je/Pr.per prends/VA le/D.def ballon/N et/CC je/Pr.per le/Pr.per lance/VA .',
+  'La/D.def chatte/N miaule/VA : je/Pr.per la/Pr.per nourris/VA .',
+  'Les/D.def fleurs/N sont/VE belles/A , je/Pr.per les/Pr.per cueille/VA .',
+  /* que et qui : relatif, interrogatif ou conjonction */
+  'Je/Pr.per sais/VA que/CS tu/Pr.per viens/VA .',
+  'Le/D.def gâteau/N que/Pr.rel tu/Pr.per manges/VA est/VE bon/A .',
+  'Qui/Pr.int connaît/VA l\'/D.def enfant/N qui/Pr.rel chante/VA ?',
 ];
 
 /* Découpe une phrase en mots : { texte, tag } (tag vide pour la ponctuation). */
@@ -152,7 +296,7 @@ function parsePhrase(src) {
   return src.split(' ').map((tok) => {
     const i = tok.lastIndexOf('/');
     if (i <= 0) return { texte: tok, tag: '' };
-    return { texte: tok.slice(0, i), tag: tok.slice(i + 1) };
+    return { texte: tok.slice(0, i).replace(/_/g, ' '), tag: tok.slice(i + 1) };
   });
 }
 const PARSED = PHRASES.map(parsePhrase);
@@ -165,7 +309,7 @@ function phraseHtml(mots, cible) {
       const prev = mots[i - 1].texte;
       if (m.texte === ',' || m.texte === '.') html += '';
       else if (m.texte === '!' || m.texte === '?') html += '&nbsp;';
-      else if (!/'$/.test(prev)) html += ' ';
+      else if (!/'$/.test(prev) && !/^-/.test(m.texte)) html += ' ';
     }
     if (!m.tag) { html += m.texte; return; }
     html += `<span class="w${i === cible ? ' target' : ''}" data-i="${i}">${m.texte}</span>`;
@@ -173,7 +317,7 @@ function phraseHtml(mots, cible) {
   return html;
 }
 function phraseTexte(mots) {
-  return mots.map((m) => m.texte).join(' ').replace(/ ([,.])/g, '$1').replace(/' /g, "'");
+  return mots.map((m) => m.texte).join(' ').replace(/ ([,.])/g, '$1').replace(/' /g, "'").replace(/ -/g, '-');
 }
 
 /* ------------------------------------------------------------
@@ -469,10 +613,12 @@ function showPanel(name) {
 
 /* Mosaïque de l'accueil : les 12 images du dossier « Allégories grammaire » (4 × 3 sur ordinateur,
    3 × 4 sur smartphone), floutées et pâlies, nettes et agrandies au survol, comme dans Mnemart. */
+/* v8 : les cases dont l'image n'est pas en ligne (Palazzo Trinci, Le Bon usage, Grevisse) reprennent des images
+   déjà présentes ailleurs : la fresque de l'accueil, et deux images de la mosaïque, placées loin de leur double. */
 const BG_MOSAIC_FILES = [
-  'palazzo-trinci.jpg', 'ardoises.jpg', 'grammaire-pierrot.jpg', 'grammatica-campanile.jpg',
+  '../accueil.jpg', 'ardoises.jpg', 'grammaire-pierrot.jpg', 'grammatica-campanile.jpg',
   'garcon-abc.jpg', 'grammaire-arts-liberaux.jpg', 'ecole-honduras.jpg', 'larive-fleury.jpg',
-  'grammatik-kinder.jpg', 'bon-usage.jpg', 'eleve-cahier.jpg', 'grevisse.jpg',
+  'grammatik-kinder.jpg', 'grammatica-campanile.jpg', 'eleve-cahier.jpg', 'grammaire-pierrot.jpg',
 ];
 function initMosaic() {
   const c = $('bg-mosaic');
@@ -504,9 +650,8 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 /* 20 questions : les 13 natures une fois chacune, puis 7 natures tirées au hasard en plus ;
    le tout mélangé, sans deux fois de suite la même nature. */
 function buildNatureSequence() {
-  const all = NATURES.map((n) => n.code);
-  let liste = all.slice();
-  while (liste.length < NB_QUESTIONS) liste = liste.concat(shuffle(all).slice(0, NB_QUESTIONS - liste.length));
+  let liste = shuffle(currentGame.priorite).slice(0, NB_QUESTIONS);
+  while (liste.length < NB_QUESTIONS) liste = liste.concat(shuffle(currentGame.reste).slice(0, NB_QUESTIONS - liste.length));
   for (let essai = 0; essai < 50; essai++) {
     const m = shuffle(liste);
     if (m.every((c, i) => i === 0 || c !== m[i - 1])) return m;
@@ -521,6 +666,10 @@ function buildQuestions() {
       .filter((c) => c.idx.length);
     const libres = candidats.filter((c) => !used.has(c.p));
     if (libres.length) candidats = libres;
+    /* v9 : dans le jeu 2, une phrase « piège » (où l'on trouve aussi la nature qu'on confond avec celle-ci :
+       mon / le mien, ce / celui-ci, le article / le pronom…) a trois fois plus de chances d'être choisie. */
+    const piege = currentGame.pieges && currentGame.pieges[code];
+    if (piege) candidats = candidats.flatMap((c) => (PARSED[c.p].some((m) => piege.includes(m.tag)) ? [c, c, c] : [c]));
     const c = pick(candidats);
     used.add(c.p);
     return { phrase: c.p, mot: pick(c.idx), code };
@@ -528,13 +677,27 @@ function buildQuestions() {
 }
 
 function buildNatureButtons() {
-  const html = (groupe) => BUTTON_ROWS[groupe].map((row) => `<div class="nature-row nature-row-${row.length}">` +
-    row.map((code) => `<button type="button" class="nature-button" data-code="${code}">${NATURE_BY_CODE[code].nom}</button>`).join('') + '</div>').join('');
+  const btn = (code, small) => `<button type="button" class="nature-button${small ? ' small' : ''}" data-code="${code}">${small ? NATURE_BY_CODE[code].court : NATURE_BY_CODE[code].nom}</button>`;
+  const html = (groupe) => currentGame.rows[groupe].map((row) => Array.isArray(row)
+    ? `<div class="nature-row nature-row-${row.length}">` + row.map((c) => btn(c, false)).join('') + '</div>'
+    : `<div class="nature-subgroup"><span class="nature-subtitle">${row.titre}</span><div class="nature-row nature-row-7">` + row.codes.map((c) => btn(c, true)).join('') + '</div></div>').join('');
   $('nat-buttons-variables').innerHTML = html('variables');
   $('nat-buttons-invariables').innerHTML = html('invariables');
   document.querySelectorAll('.nature-button').forEach((b) => b.addEventListener('click', () => answer(b.dataset.code, b)));
 }
 
+function openGame(id) {
+  currentGame = GAMES[id];
+  $('natures-panel').classList.toggle('game2', id === 'natures2');
+  buildNatureButtons();
+  $('nat-game-title').textContent = currentGame.titre;
+  showPanel('natures');
+  $('nat-ready-screen').classList.remove('hidden');
+  $('nat-quiz-grid').classList.add('hidden');
+  $('nat-progress-label').textContent = `Question 1 / ${NB_QUESTIONS}`;
+  $('nat-score-label').textContent = '0 bonne réponse';
+  $('nat-progress-bar').style.width = '0';
+}
 function startGame() {
   game.questions = buildQuestions();
   game.index = 0; game.score = 0; game.fini = false; game.erreurs = [];
@@ -559,7 +722,7 @@ function showQuestion() {
   $('nat-character-stage').innerHTML = '';
   $('nat-correction').classList.add('hidden');
   $('nat-verdict-square').className = 'verdict-square';
-  document.querySelectorAll('.nature-button').forEach((b) => { b.disabled = false; b.className = 'nature-button'; });
+  document.querySelectorAll('.nature-button').forEach((b) => { b.disabled = false; b.classList.remove('wrong', 'correct', 'faded'); });
   updateProgress();
 }
 
@@ -570,7 +733,7 @@ const capitalize = (t) => t.charAt(0).toUpperCase() + t.slice(1);
    est tiré à chaque fois. */
 function chooseMessage(ch) {
   const enfant = playerProfile?.enfant?.prenom;
-  const adultes = (playerProfile?.adultes || []).filter((a) => a.prenom && a.lien);
+  const adultes = (playerProfile?.adultes || []).filter((a) => a.lien);
   const r = Math.random();
   if (enfant && adultes.length && r < 0.3) { const a = pick(adultes); return { tpl: pick(ch.famille), adulte: a, photo: a.photo || playerProfile.enfant.photo }; }
   if (enfant && r < 0.75) return { tpl: pick(ch.perso), photo: playerProfile.enfant.photo };
@@ -582,7 +745,7 @@ function fillMessage(tpl, nature, adulte) {
   msg = msg.replace(/\{E\}/g, playerProfile?.enfant?.prenom || '');
   if (adulte) {
     const l = LIENS[adulte.lien] || LIENS.papa;
-    const ga = `${l.ton} ${adulte.prenom}`;
+    const ga = adulte.prenom ? `${l.ton} ${adulte.prenom}` : l.ton;
     msg = msg.replace('{adulte}', ga).replace('{Adulte}', capitalize(ga)).replace('{fier}', l.f ? 'fière' : 'fier');
   }
   return msg;
@@ -643,7 +806,7 @@ function finishQuestion(reussi, nature, mot) {
     if (!b.classList.contains('correct') && !b.classList.contains('wrong')) b.classList.add('faded');
   });
   document.querySelector('.sentence .w.target')?.classList.add('found');
-  $('nat-correction-details').innerHTML = `« <strong>${mot.texte}</strong> » est ${nature.article}.<br>${nature.explication}`;
+  $('nat-correction-details').innerHTML = `« <strong>${mot.texte}</strong> » est ${nature.article}.<br>${nature.explicationHtml || esc(nature.explication)}`;
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${reussi ? 'correct' : 'wrong'}`;
   $('nat-next-button').textContent = game.index + 1 < game.questions.length ? 'Suivant →' : 'Voir mon résultat →';
@@ -665,7 +828,7 @@ function showResults() {
   $('results-character').innerHTML = characterSvg(id) + (pe ? `<img class="results-photo" src="${pe}" alt="" />` : '');
   $('results-title').textContent = `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
   const E = playerProfile?.enfant?.prenom;
-  const adultes = (playerProfile?.adultes || []).filter((a) => a.prenom && a.lien);
+  const adultes = (playerProfile?.adultes || []).filter((a) => a.lien);
   const a = adultes.length ? pick(adultes) : null;
   const famille = a ? ` ${fillMessage('{Adulte} sera très {fier} de toi !', null, a)}` : '';
   const parole = s === n ? (E ? `Un sans-faute, ${E} ! Tu es un génie de la grammaire !${famille}` : 'Un sans-faute ! Tu es un grand sorcier de la grammaire !')
@@ -673,7 +836,7 @@ function showResults() {
     : (E ? `Hum… Ce n'est pas encore ça, ${E}. Mais si tu rejoues, je suis sûr que tu feras mieux !` : 'Hum… Ce n\'est pas encore ça. Mais si tu rejoues, je suis sûr que tu feras mieux !');
   const texte = `${CHARACTERS[id].nom} : « ${parole} »`;
   $('results-text').textContent = texte;
-  lastResult = { jeu: 'Reconnaissance des natures', score: s, total: n, erreurs: game.erreurs.slice(), date: new Date().toISOString() };
+  lastResult = { jeu: currentGame.titre, score: s, total: n, erreurs: game.erreurs.slice(), date: new Date().toISOString() };
   saveScore(lastResult);
   renderSendBox();
   showPanel('results');
@@ -700,7 +863,7 @@ async function loadScores() {
   if (!currentUser || !db) return [];
   try {
     const snap = await db.collection('users').doc(currentUser.uid).collection('mnemogram').where('type', '==', 'score').get();
-    return snap.docs.map((d) => d.data()).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    return snap.docs.map((d) => ({ ...d.data(), _id: d.id })).sort((a, b) => String(b.date).localeCompare(String(a.date)));
   } catch (e) { console.warn('Lecture des scores', e); return []; }
 }
 function scoreMessage(r) {
@@ -728,17 +891,29 @@ function renderSendBox() {
     return;
   }
   box.innerHTML = `<p class="send-title">Envoyer mon score à :</p>
-    <div class="send-list">${avecMail.map((a) => `<label class="send-person"><input type="checkbox" value="${esc(a.email)}" checked />${a.photo ? `<img class="send-photo" src="${a.photo}" alt="" />` : ''}<span>${esc(LIENS[a.lien]?.label || '')} ${esc(a.prenom)}</span></label>`).join('')}</div>
+    <p class="send-hint send-howto">Le message s'ouvre déjà écrit, avec les adresses : il ne reste qu'à cliquer sur « Envoyer ».</p>
+    <div class="send-list">${avecMail.map((a) => `<label class="send-person"><input type="checkbox" value="${esc(a.email)}" checked />${a.photo ? `<img class="send-photo" src="${a.photo}" alt="" />` : ''}<span>${esc(LIENS[a.lien]?.label || a.email)}${a.prenom ? ' ' + esc(a.prenom) : ''}</span></label>`).join('')}</div>
     <div class="send-buttons">
-      <button type="button" class="primary-button" id="send-mail-button">✉️ Envoyer par e-mail</button>
+      <button type="button" class="primary-button" id="send-gmail-button">✉️ Envoyer avec Gmail</button>
+      <button type="button" class="secondary-button" id="send-mail-button">Autre messagerie</button>
       ${navigator.share ? '<button type="button" class="secondary-button" id="send-share-button">Partager…</button>' : ''}
     </div>`;
-  $('send-mail-button').addEventListener('click', () => {
+  /* v8 : deux façons d'envoyer. « Gmail » ouvre, dans un nouvel onglet, la page « Nouveau message » de Gmail
+     (avec le compte Google déjà connecté sur l'appareil), destinataires, objet et texte déjà remplis : il reste
+     à cliquer sur « Envoyer ». « Autre messagerie » ouvre l'application de messagerie de l'appareil
+     (Outlook, Mail sur iPhone…), de la même façon. */
+  const mailParts = () => {
     const to = [...box.querySelectorAll('input:checked')].map((c) => c.value);
-    if (!to.length) return;
     const E = playerProfile?.enfant?.prenom;
-    const sujet = `${E ? E + ' : ' : ''}mon score sur MNEMOGRAM (${lastResult.score}/${lastResult.total})`;
-    location.href = `mailto:${to.join(',')}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(scoreMessage(lastResult))}`;
+    return { to, sujet: `${E ? E + ' : ' : ''}mon score sur MNEMOGRAM (${lastResult.score}/${lastResult.total})`, corps: scoreMessage(lastResult) };
+  };
+  $('send-gmail-button').addEventListener('click', () => {
+    const m = mailParts(); if (!m.to.length) return;
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(m.to.join(','))}&su=${encodeURIComponent(m.sujet)}&body=${encodeURIComponent(m.corps)}`, '_blank', 'noopener');
+  });
+  $('send-mail-button').addEventListener('click', () => {
+    const m = mailParts(); if (!m.to.length) return;
+    location.href = `mailto:${m.to.join(',')}?subject=${encodeURIComponent(m.sujet)}&body=${encodeURIComponent(m.corps)}`;
   });
   $('send-share-button')?.addEventListener('click', () => {
     navigator.share({ title: 'Mon score sur MNEMOGRAM', text: scoreMessage(lastResult) }).catch(() => {});
@@ -759,7 +934,10 @@ async function loadFiche() {
     const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
     doc.querySelectorAll('[data-code]').forEach((sec) => {
       const n = NATURE_BY_CODE[sec.dataset.code]; if (!n) return;
-      const ex = sec.querySelector('.explication')?.textContent.replace(/\s+/g, ' ').trim();
+      const exEl = sec.querySelector('.explication');
+      const ex = exEl?.textContent.replace(/\s+/g, ' ').trim();
+      /* v8 : les mots en italique de la fiche (<em>) restent en italique sous les boutons ; la voix lit le texte seul. */
+      if (exEl) n.explicationHtml = exEl.innerHTML.replace(/<(?!\/?em>)[^>]*>/g, '').replace(/\s+/g, ' ').trim();
       const exs = sec.querySelector('.exemples')?.textContent.replace(/\s+/g, ' ').trim();
       if (ex) n.explication = ex;
       if (exs) n.exemples = exs;
@@ -882,12 +1060,12 @@ function wirePhotos(container) {
 function adulteRowHtml(a, n) {
   return `
     <fieldset class="account-fieldset adulte-row" data-adulte-row>
-      <legend>${n === 1 ? 'Un parent ou un proche' : 'Un autre proche'}</legend>
+      <legend>${n === 1 ? 'Un parent ou un proche (facultatif)' : 'Un autre proche'}</legend>
       <button type="button" class="adulte-remove" title="Retirer ce proche" aria-label="Retirer ce proche">✕</button>
       ${photoSlotHtml(a?.photo)}
       <div class="account-row-3">
         <label>Lien<select class="f-lien">${lienOptions(a?.lien)}</select></label>
-        <label>Prénom<input type="text" class="f-prenom" value="${esc(a?.prenom)}" autocomplete="off" /></label>
+        <label>Prénom (facultatif)<input type="text" class="f-prenom" value="${esc(a?.prenom)}" autocomplete="off" /></label>
         <label>Nom<input type="text" class="f-nom" value="${esc(a?.nom)}" autocomplete="off" /></label>
       </div>
       <label>E-mail (pour recevoir les scores, facultatif)<input type="email" class="f-email" value="${esc(a?.email)}" autocomplete="off" /></label>
@@ -913,7 +1091,7 @@ function profileFieldsHtml(prefix, p, withConsent) {
 function wireAdultes(prefix) {
   const list = $(`${prefix}-adultes`);
   const renumber = () => list.querySelectorAll('[data-adulte-row]').forEach((row, i) => {
-    row.querySelector('legend').textContent = i === 0 ? 'Un parent ou un proche' : 'Un autre proche';
+    row.querySelector('legend').textContent = i === 0 ? 'Un parent ou un proche (facultatif)' : 'Un autre proche';
     row.querySelector('.adulte-remove').classList.toggle('hidden', list.children.length === 1);
   });
   $(`${prefix}-add-adulte`).addEventListener('click', () => {
@@ -942,8 +1120,7 @@ function readProfileFields(prefix) {
 }
 function checkProfile(p) {
   if (!p.enfant.prenom) return 'Indiquez le prénom du joueur.';
-  if (!p.adultes.length) return 'Indiquez au moins un parent ou un proche.';
-  if (p.adultes.some((a) => !a.lien || !a.prenom)) return 'Pour chaque proche, choisissez le lien et écrivez le prénom.';
+  /* v8 : les proches sont facultatifs, leur prénom aussi (« Ton papa sera fier de toi » marche sans prénom). */
   if (p.adultes.some((a) => a.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email))) return 'Une des adresses e-mail n\'est pas valide.';
   return '';
 }
@@ -1027,8 +1204,15 @@ async function renderScoreHistory() {
   box.innerHTML = '<p class="send-title">Derniers scores</p><ul class="score-list">' + scores.slice(0, 10).map((r) => {
     const d = new Date(r.date);
     const quand = isNaN(d) ? '' : d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    return `<li><span>${esc(r.jeu)}</span><span>${quand}</span><strong>${r.score} / ${r.total}</strong></li>`;
+    return `<li><span>${esc(r.jeu)}</span><span>${quand}</span><strong>${r.score} / ${r.total}</strong><button type="button" class="score-del" data-id="${esc(r._id)}" title="Effacer ce score" aria-label="Effacer ce score">✕</button></li>`;
   }).join('') + '</ul>';
+  /* v8 : chaque score peut être effacé (après confirmation). */
+  box.querySelectorAll('.score-del').forEach((b) => b.addEventListener('click', async () => {
+    if (!confirm('Effacer ce score ?')) return;
+    try { await db.collection('users').doc(currentUser.uid).collection('mnemogram').doc(b.dataset.id).delete(); }
+    catch (e) { alert('Le score n\'a pas pu être effacé. Réessayez.'); return; }
+    renderScoreHistory();
+  }));
 }
 
 function authErrorMessage(error) {
@@ -1118,14 +1302,8 @@ initMosaic();
 buildNatureButtons();
 loadFiche();
 
-$('open-natures').addEventListener('click', () => {
-  showPanel('natures');
-  $('nat-ready-screen').classList.remove('hidden');
-  $('nat-quiz-grid').classList.add('hidden');
-  $('nat-progress-label').textContent = `Question 1 / ${NB_QUESTIONS}`;
-  $('nat-score-label').textContent = '0 bonne réponse';
-  $('nat-progress-bar').style.width = '0';
-});
+$('open-natures').addEventListener('click', () => openGame('natures'));
+$('open-natures2').addEventListener('click', () => openGame('natures2'));
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {

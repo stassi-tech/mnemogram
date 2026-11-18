@@ -6,7 +6,15 @@
     <meta name="description" content="Jeux gratuits pour mémoriser les notions fondamentales de grammaire, dès 7 ans." />
     <title>MNEMOGRAM — La grammaire à travers la mémoire</title>
     <meta name="theme-color" content="#9c7a4a" />
-    <link rel="stylesheet" href="style.css?v=7" />
+    <!-- v8 : installation comme une application (même méthode que Mnemart) : icône sur l'écran d'accueil,
+         ouverture en plein écran sans la barre du navigateur. -->
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
+    <link rel="stylesheet" href="style.css?v=9" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -55,10 +63,16 @@
           <p class="intro-banner">Maître Bonaccord et Dame Virgule t'attendent pour t'apprendre à reconnaître les mots de la langue française. Attention : Maître Rature et Dame Gribouille, eux, guettent la moindre erreur… Mais ils ne sont pas si méchants : ils veulent seulement que tu recommences !</p>
 
           <div class="home-mode-buttons">
-            <button type="button" class="home-mode-button" id="open-natures">
-              <span class="label">Reconnaissance des natures</span>
-              <span class="desc">Un mot clignote dans la phrase : quelle est sa nature ?</span>
-            </button>
+            <div class="home-games-row">
+              <button type="button" class="home-mode-button" id="open-natures">
+                <span class="label">Reconnaissance des natures 1</span>
+                <span class="desc">Un mot clignote dans la phrase : quelle est sa nature ?</span>
+              </button>
+              <button type="button" class="home-mode-button" id="open-natures2">
+                <span class="label">Reconnaissance des natures 2</span>
+                <span class="desc">Avec les sept sortes de déterminants et les sept sortes de pronoms.</span>
+              </button>
+            </div>
             <!-- Bloc compte, repris de Mnemart : libellé + e-mail + interrupteur connecté/déconnecté -->
             <div class="home-mode-button account-hub-slot" id="home-account-slot" role="button" tabindex="0">
               <span class="home-account-photo hidden" id="home-account-photo"></span>
@@ -76,7 +90,7 @@
         <!-- ===================== JEU 1 : RECONNAISSANCE DES NATURES ===================== -->
         <section id="natures-panel" class="quiz-panel hidden">
           <div class="progress-row">
-            <span><span class="quiz-reference">Reconnaissance des natures</span> — <span id="nat-progress-label">Question 1 / 10</span></span>
+            <span><span class="quiz-reference" id="nat-game-title">Reconnaissance des natures 1</span> — <span id="nat-progress-label">Question 1 / 10</span></span>
             <span id="nat-score-label" class="score-summary-highlight">0 bonne réponse</span>
           </div>
           <div class="progress-track"><div class="progress-bar" id="nat-progress-bar"></div></div>
@@ -179,6 +193,6 @@
       </div>
     </div>
 
-    <script defer src="app.js?v=7"></script>
+    <script defer src="app.js?v=9"></script>
   </body>
 </html>

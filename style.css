@@ -216,7 +216,10 @@ h1,h2,h3,p { margin-top:0; }
 .profile-scores { margin-top:16px; }
 .profile-scores:empty { display:none; }
 .score-list { list-style:none; margin:0; padding:0; font-family:Arial,sans-serif; font-size:.85rem; }
-.score-list li { display:grid; grid-template-columns:1fr auto 60px; gap:10px; padding:6px 0; border-top:1px solid var(--border); }
+.score-list li { display:grid; grid-template-columns:1fr auto 60px 26px; gap:10px; align-items:center; padding:6px 0; border-top:1px solid var(--border); }
+.score-del { width:24px; height:24px; border-radius:50%; border:1px solid var(--border); background:var(--paper); color:var(--muted); cursor:pointer; font-size:.7rem; padding:0; }
+@media (hover:hover) { .score-del:hover { background:var(--wrong); color:#fff; border-color:var(--wrong); } }
+.send-howto { margin:-4px 0 10px !important; font-size:.82rem !important; }
 .score-list li strong { text-align:right; color:var(--accent-dark); }
 
 /* ---------- v7 : fiche dans un cadre, photos ---------- */
@@ -236,3 +239,19 @@ h1,h2,h3,p { margin-top:0; }
 .results-character { position:relative; align-items:flex-end; gap:6px; }
 .results-photo { width:110px; height:110px; border-radius:50%; object-fit:cover; border:4px solid #ffe066; box-shadow:0 6px 16px rgba(0,0,0,.2); }
 .send-photo { width:30px; height:30px; border-radius:50%; object-fit:cover; }
+
+/* v8 : italique dans les explications */
+.correction-details em { font-style:italic; color:var(--accent-dark); }
+
+/* ---------- v9 : deux jeux côte à côte, et les petits boutons du jeu 2 ---------- */
+.home-games-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.nature-subgroup { display:grid; gap:4px; padding:6px 8px 8px; border:2px solid var(--nat-green-dark); border-radius:8px; background:#e9f4ec; }
+.nature-subtitle { font-family:Arial,sans-serif; font-weight:700; font-size:.88rem; color:var(--nat-green-dark); }
+.nature-row-7 { grid-template-columns:repeat(7, minmax(0, 1fr)); gap:4px; }
+.nature-row, .nature-subgroup, .answer-card { min-width:0; }
+.nature-button.small { min-width:0; padding:7px 2px; font-size:.74rem; line-height:1.15; text-align:center; border-width:1px; -webkit-hyphens:auto; hyphens:auto; overflow-wrap:break-word; min-height:42px; display:flex; align-items:center; justify-content:center; }
+@media (hover:hover) { .nature-button.small:hover:not(:disabled) { transform:translateY(-2px); } }
+/* le jeu 2 a besoin d'une colonne de droite un peu plus large pour ses lignes de 7 boutons */
+.game2 .quiz-grid { grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); }
+@media (max-width:900px) { .game2 .quiz-grid { grid-template-columns:1fr; } }
+@media (max-width:640px) { .home-games-row { grid-template-columns:1fr; } .nature-button.small { font-size:.62rem; padding:6px 1px; } }
