@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=13" />
+    <link rel="stylesheet" href="style.css?v=14" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -39,11 +39,30 @@
           <button type="button" class="volume-bar" data-level="5" style="height:22px"></button>
         </div>
         <button type="button" id="global-fullscreen-button" class="global-topbar-button" aria-label="Plein écran" title="Plein écran">⛶</button>
-        <button type="button" id="global-account-button" class="global-topbar-button" aria-label="Mon compte" title="Mon compte">👤</button>
         <button type="button" id="global-fiche-button" class="global-topbar-button" aria-label="La fiche des natures" title="La fiche des natures">📖</button>
+        <!-- v14 : comme dans Mnemart, l'apparence, puis l'aide et le contact, puis le compte et la sortie de la session -->
+        <button type="button" id="global-ambiance-button" class="global-topbar-button" aria-label="Changer l'ambiance" title="Changer l'ambiance">🎨</button>
+        <button type="button" id="global-info-button" class="global-topbar-button" aria-label="Comment fonctionne l'application" title="Comment fonctionne l'application">ℹ️</button>
+        <button type="button" id="global-contact-button" class="global-topbar-button" aria-label="Contact" title="Contact">✉️</button>
+        <button type="button" id="global-account-button" class="global-topbar-button" aria-label="Mon compte" title="Mon compte">👤</button>
+        <button type="button" id="global-quit-button" class="global-topbar-button" aria-label="Quitter la session" title="Quitter la session (fin de la partie et déconnexion)">🚪</button>
         <span id="global-version-badge" class="global-version-badge" aria-hidden="true"></span>
       </div>
       <div class="topbar-zone topbar-zone-right"></div>
+    </div>
+
+    <!-- v14 : choix de l'ambiance (les mêmes que dans Mnemart) -->
+    <div id="ambiance-picker" class="ambiance-picker hidden" role="dialog" aria-label="Ambiance">
+      <p class="ambiance-title">Ambiance</p>
+      <label><input type="radio" name="ambiance" value="gothique" /><span>Gothique international</span></label>
+      <label><input type="radio" name="ambiance" value="renaissance" /><span>Galerie Renaissance</span></label>
+      <label><input type="radio" name="ambiance" value="versailles" /><span>Château de Versailles</span></label>
+      <label><input type="radio" name="ambiance" value="ermitage" /><span>Ermitage Rococo</span></label>
+      <label><input type="radio" name="ambiance" value="wedgwood" /><span>Pure Wedgwood</span></label>
+      <label><input type="radio" name="ambiance" value="pitti" /><span>Romantique Pitti</span></label>
+      <label><input type="radio" name="ambiance" value="" /><span>Salon Renoir</span></label>
+      <label><input type="radio" name="ambiance" value="bauhaus" /><span>Bauhaus</span></label>
+      <label><input type="radio" name="ambiance" value="space" /><span>Space Age</span></label>
     </div>
 
     <div class="app-shell">
@@ -230,6 +249,41 @@
       </div>
     </div>
 
+    <!-- v14 : « Comment fonctionne l'application » (bouton ℹ️) -->
+    <div id="info-modal" class="modal-backdrop hidden">
+      <div class="modal-card legal-card info-card">
+        <button type="button" class="modal-close-x" data-close="info-modal" aria-label="Fermer" title="Fermer">✕</button>
+        <h2>Comment fonctionne l'application</h2>
+        <p>MNEMOGRAM aide à mémoriser les notions fondamentales de la grammaire en jouant, dès 7 ans. Elle fonctionne sur ordinateur, tablette et smartphone.</p>
+        <h3>Les jeux</h3>
+        <ul>
+          <li><b>Reconnaissance des natures de mots 1</b> : un mot clignote dans une phrase ; on choisit sa nature parmi les boutons verts (nom commun, verbe d'état ou d'action, adjectif qualificatif, déterminant, pronom, nom propre, adverbe, préposition, conjonctions, interjection, onomatopée).</li>
+          <li><b>Reconnaissance des natures de mots 2</b> : la même chose, mais le déterminant et le pronom se divisent chacun en sept sortes (article défini ou indéfini, possessif, démonstratif, numéral, indéfini, interrogatif, personnel, relatif). Les déterminants et les pronoms de même sorte sont alignés l'un au-dessus de l'autre, et des phrases « pièges » les mettent côte à côte (« mon chien… le mien »).</li>
+        </ul>
+        <p>Une partie compte 20 questions. En cas d'erreur, on a droit à un deuxième essai ; après deux erreurs, la bonne réponse s'affiche. Le score compte les réponses trouvées du premier coup. Après chaque réponse, une explication apparaît sous les boutons ; la voix la lit.</p>
+        <h3>Le bandeau du haut</h3>
+        <ul>
+          <li>🏠 retour à l'accueil · barres : volume de la voix (le bouton 🔊 sous la phrase la fait lire) · ⛶ plein écran</li>
+          <li>📖 la fiche des natures, à relire à tout moment · 🎨 l'ambiance (les couleurs du site)</li>
+          <li>ℹ️ cette aide · ✉️ le contact · 👤 mon compte · 🚪 quitter la session (fin de la partie et déconnexion, pour laisser la place à un autre joueur)</li>
+        </ul>
+        <h3>Le compte</h3>
+        <p>Le compte n'est pas obligatoire pour jouer, mais il garde les scores. Il est commun avec MNEMART : la même adresse e-mail et le même mot de passe servent pour les deux sites. Un compte d'enfant est créé par un adulte. La fiche du compte contient :</p>
+        <ul>
+          <li><b>le joueur</b> : prénom, nom et, si l'on veut, une photo ;</li>
+          <li><b>des proches</b>, facultatifs (papa, maman, papi, mamie…) : lien, prénom, photo et adresse e-mail ;</li>
+          <li><b>l'option « Les sorciers encouragent le joueur »</b>, plutôt réservée aux enfants : quatre sorciers apparaissent après chaque réponse, et les prénoms servent à personnaliser leurs encouragements (« Joseph, tu es un génie de la grammaire ! », « Ton papa Marc sera fier de toi ! ») ; décochée, seule l'explication s'affiche ;</li>
+          <li><b>l'option « Envoyer les résultats par e-mail »</b> : elle permet d'envoyer aux proches les scores (la liste des dernières parties) ou le bilan de progression (le résumé), par Gmail ou par la messagerie de l'appareil ; le message s'ouvre déjà écrit, il ne reste qu'à cliquer sur « Envoyer ».</li>
+        </ul>
+        <h3>Les scores et le bilan</h3>
+        <p>Dans 👤 Mon compte : la liste des derniers scores (chacun peut être effacé avec ✕) et le <b>bilan de progression</b>, un petit diplôme qui montre les natures bien connues, celles à revoir et les confusions les plus fréquentes ; il s'imprime ou s'enregistre en PDF.</p>
+        <h3>Mes données</h3>
+        <p>En bas de Mon compte, la rubrique « Mes données » permet d'effacer soi-même tous ses scores, toutes ses données MNEMOGRAM, ou de supprimer son compte (pour MNEMOGRAM et MNEMART).</p>
+        <h3>Installer MNEMOGRAM comme une application</h3>
+        <p>Sur iPhone : dans Safari, bouton Partager, puis « Sur l'écran d'accueil ». Sur ordinateur, dans Chrome : l'icône d'installation à droite de la barre d'adresse.</p>
+      </div>
+    </div>
+
     <!-- v11 : bilan de progression (diplôme imprimable / PDF), comme dans Mnemart -->
     <div id="report-overlay" class="report-overlay hidden">
       <div class="report-toolbar no-print">
@@ -240,6 +294,6 @@
       <div id="report-send" class="report-send no-print"></div>
     </div>
 
-    <script defer src="app.js?v=13"></script>
+    <script defer src="app.js?v=14"></script>
   </body>
 </html>

@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v13';
+const APP_VERSION = 'v14';
 
 const $ = (id) => document.getElementById(id);
 
@@ -1593,7 +1593,33 @@ $('report-close').addEventListener('click', () => $('report-overlay').classList.
 /* v12 : mentions légales et contact (comme sur Mnemart) */
 $('open-mentions-legales').addEventListener('click', () => $('mentions-modal').classList.remove('hidden'));
 $('open-contact').addEventListener('click', () => $('contact-modal').classList.remove('hidden'));
-['mentions-modal', 'contact-modal'].forEach((id) => {
+/* v14 : aide, contact et sortie de la session dans le bandeau (comme dans Mnemart) */
+$('global-info-button').addEventListener('click', () => $('info-modal').classList.remove('hidden'));
+$('global-contact-button').addEventListener('click', () => $('contact-modal').classList.remove('hidden'));
+$('global-quit-button').addEventListener('click', () => {
+  if (!confirm(currentUser ? 'Quitter la session ? La partie en cours s\'arrête et le compte se déconnecte.' : 'Quitter la session ? La partie en cours s\'arrête.')) return;
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  game.fini = true;
+  if (auth && currentUser) auth.signOut();
+  showPanel('welcome');
+});
+/* v14 : les ambiances de Mnemart (les couleurs et décors du site), gardées sur l'appareil */
+function applyAmbiance(v) { if (v) document.body.setAttribute('data-ambiance', v); else document.body.removeAttribute('data-ambiance'); }
+let ambiance = ''; try { ambiance = localStorage.getItem('mnemogram-ambiance') || ''; } catch (e) {}
+applyAmbiance(ambiance);
+$('global-ambiance-button').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const p = $('ambiance-picker');
+  if (p.classList.contains('hidden')) { const r = document.querySelector(`input[name="ambiance"][value="${ambiance}"]`); if (r) r.checked = true; }
+  p.classList.toggle('hidden');
+});
+document.querySelectorAll('input[name="ambiance"]').forEach((r) => r.addEventListener('change', () => {
+  if (!r.checked) return;
+  ambiance = r.value; applyAmbiance(ambiance);
+  try { localStorage.setItem('mnemogram-ambiance', ambiance); } catch (e) {}
+}));
+document.addEventListener('click', (e) => { const p = $('ambiance-picker'); if (!p.classList.contains('hidden') && !p.contains(e.target) && e.target.id !== 'global-ambiance-button') p.classList.add('hidden'); });
+['mentions-modal', 'contact-modal', 'info-modal'].forEach((id) => {
   $(id).addEventListener('click', (e) => { if (e.target.id === id || e.target.closest('[data-close]')) $(id).classList.add('hidden'); });
 });
 $('report-print').addEventListener('click', () => window.print());
