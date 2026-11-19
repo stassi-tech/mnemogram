@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v26';
+const APP_VERSION = 'v27';
 
 const $ = (id) => document.getElementById(id);
 
@@ -197,7 +197,7 @@ const GAMES = {
     /* les 20 questions se répartissent entre les fonctions (au moins une fois chacune), puis au hasard */
     priorite: ['suj', 'suj', 'suj', 'cod', 'cod', 'cod', 'ccl', 'ccl', 'cct', 'cct', 'ccm', 'ccm', 'mod', 'mod', 'coi', 'cos', 'att', 'ccc'],
     reste: ['suj', 'cod', 'ccl', 'cct', 'ccm', 'coi', 'cos'],
-    cle: (m) => m.fn || null },
+    cle: (m) => m.fn || null, gv: true, nb: 10 },
   /* v18 : jeu 4. Les boutons clignotent, et c'est dans la phrase que l'on clique : le nom, puis son déterminant
      (et la sorte exacte de déterminant, sur les boutons), son adjectif s'il y en a, son complément du nom s'il y en a. */
   gn: { titre: 'Natures et fonctions des mots dans le groupe nominal', type: 'Natures et fonctions (groupe nominal), niveau 4', rows: BUTTON_ROWS_4,
@@ -783,6 +783,7 @@ function buildNatureSequence() {
 }
 function buildQuestions() {
   if (currentGame.gn) return buildQuestionsGN();
+  if (currentGame.gv) return buildQuestionsGV();
   const natures = buildNatureSequence();
   const used = new Set();
   return natures.map((code) => {
@@ -835,9 +836,10 @@ function openGame(id) {
   currentGame = GAMES[id];
   $('natures-panel').classList.toggle('game2', id === 'natures2');
   $('natures-panel').classList.toggle('game3', id === 'fonctions' || id === 'gn');
-  $('natures-panel').classList.toggle('game4', id === 'gn');
+  /* v27 : le jeu 3 marche maintenant comme le jeu 4 (consignes, carrés verts et rouges sous les mots) */
+  $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions');
   $('nat-ready-explanation').innerHTML = id === 'fonctions'
-    ? 'Dans chaque phrase, un mot clignote. Trouve d\'abord sa <strong>nature</strong> parmi les boutons verts : les autres natures disparaissent, et ses <strong>fonctions</strong> possibles apparaissent sur des boutons rouges. La bonne nature rapporte 0,5 point, la bonne fonction 0,5 point. Si tu te trompes, tu as droit à un deuxième essai.'
+    ? 'Des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Trouve d\'abord le <strong>verbe</strong> et sa nature, puis son <strong>sujet</strong>, puis ses <strong>compléments</strong> (COD, COI, COS, attribut, compléments circonstanciels). Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> pour une nature, dans un <strong>carré rouge</strong> pour une fonction.'
     : id === 'gn' ? 'Cette fois, des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Les petits points « (…) » montrent que la phrase continue : on ne garde que le groupe nominal. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> si c\'est une nature (nom commun, déterminant, adjectif qualificatif…), dans un <strong>carré rouge</strong> si c\'est une fonction (épithète, complément du nom…).'
     : 'Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.';
   buildNatureButtons();
@@ -876,6 +878,7 @@ function showQuestion() {
   /* v7 : on coupe la voix (bulle + explication) dès qu'on passe au mot suivant, pour qu'elle ne déborde pas. */
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   if (isG4()) { showQuestionGN(); return; }
+  if (isG3()) { showQuestionGV(); return; }
   const q = game.questions[game.index];
   game.essais = 0;
   $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mots || q.mot);
@@ -948,6 +951,7 @@ function showCharacter(camp, nature) {
 function explanationSpoken() {
   const q = game.questions[game.index];
   if (isG4()) return resumeGN(q, false).replace(/«|»/g, '');
+  if (isG3()) return resumeGV(q, false).replace(/«|»/g, '').replace(/\bCO([DIS])\b/g, 'C O $1');
   const n = NATURE_BY_CODE[q.code];
   if (q.fn) {
     const f = NATURE_BY_CODE[q.fn];
@@ -960,6 +964,7 @@ function explanationSpoken() {
 function answer(code, btn) {
   if (game.fini) return;
   if (isG4()) { answerBoutonGN(code, btn); return; }
+  if (isG3() && currentGame.gv) return;
   if (isG3()) { answerNature3(code, btn); return; }
   const q = game.questions[game.index];
   const bonne = NATURE_BY_CODE[q.code];
@@ -1139,7 +1144,7 @@ const PHRASES_GN = [
   'Les_deux/Pr.num (…)',
 ];
 const PARSED_GN = PHRASES_GN.map(parsePhrase);
-const motsDe = (q) => (q && q.gn ? PARSED_GN[q.phrase] : PARSED[q.phrase]);
+const motsDe = (q) => (q && q.gn ? PARSED_GN[q.phrase] : q && q.gv ? PARSED_GV[q.phrase] : PARSED[q.phrase]);
 /* v23 : jeu 4, d'après les consignes de Stéphane.
    Les mots gardent leur couleur. À droite, des BOUTONS CONSIGNES apparaissent l'un après l'autre (vert pour une
    question de nature, rouge pour une question de fonction). On répond en appuyant sur le mot dans la phrase, ou sur
@@ -1252,16 +1257,16 @@ function gnEtape(nouveauSujet) {
   const q = game.questions[game.index];
   if (nouveauSujet) gnState.cartes = [];
   /* la carte garde le texte qu'elle avait quand elle est apparue (« un adjectif », puis plus tard « un autre ») */
-  gnState.cartes.push(CARTES[gnState.etape](q));
+  gnState.cartes.push((isG3() ? CARTES_GV : CARTES)[gnState.etape](q));
   const html = gnState.cartes.map((c, n) => {
     const actif = n === gnState.cartes.length - 1;
-    const texteBouton = (code) => (code === 'F.epi' || code === 'F.app' ? capitalize(fonctionPrecise(q, code)) : LIB[code] || (c.petits ? NATURE_BY_CODE[code].court : NATURE_BY_CODE[code].nom));
+    const texteBouton = (code) => (c.labels && c.labels[code]) || (code === 'F.epi' || code === 'F.app' ? capitalize(fonctionPrecise(q, code)) : LIB[code] || (c.petits ? NATURE_BY_CODE[code].court : NATURE_BY_CODE[code].nom));
     const bouton = (code) => `<button type="button" class="nature-button${c.petits ? ' small' : ''}${c.vert ? '' : ' fonction-button'}" data-gn="${code}">${texteBouton(code)}</button>`;
     const choix = c.choix && actif ? (c.petits ? `<div class="nature-row nature-row-7">${c.choix.map(bouton).join('')}</div>` : `<div class="carte-choix carte-choix-${c.choix.length}">${c.choix.map(bouton).join('')}</div>`) : '';
     return `<div class="carte ${c.vert ? 'verte' : 'rouge'}${actif ? ' active' : ' faite'}"><p>${c.texte}</p>${choix}</div>`;
   }).join('');
   $('nat-buttons-variables').innerHTML = html;
-  document.querySelectorAll('[data-gn]').forEach((b) => b.addEventListener('click', () => answerBoutonGN(b.dataset.gn, b)));
+  document.querySelectorAll('[data-gn]').forEach((b) => b.addEventListener('click', () => (isG3() ? answerBoutonGV : answerBoutonGN)(b.dataset.gn, b)));
 }
 function gnErreur(el, attendu, choisi) {
   const q = game.questions[game.index];
@@ -1273,13 +1278,13 @@ function gnErreur(el, attendu, choisi) {
   return gnState.essais >= 2;
 }
 function gnCompte(c) {
-  const pn = game.parNature[c] || (game.parNature[c] = { c: 0, p: 0 });
-  pn.p += 1; if (gnState.essais === 0) pn.c += 1;
+  /* le bilan ne retient que les natures et les fonctions (pas les questions oui / non) */
+  if (NATURE_BY_CODE[c]) { const pn = game.parNature[c] || (game.parNature[c] = { c: 0, p: 0 }); pn.p += 1; if (gnState.essais === 0) pn.c += 1; }
   gnState.total += 1; if (gnState.essais === 0) gnState.reussies += 1;
   gnState.essais = 0;
 }
 /* « meme » : la nouvelle carte s'ajoute sous les précédentes du même sujet ; sinon on repart d'une pile vide */
-function gnVers(etape, meme) { gnState.etape = etape; if (etape === 'fini') finishQuestionGN(); else gnEtape(!meme); }
+function gnVers(etape, meme) { gnState.etape = etape; if (etape === 'fini') (isG3() ? finishQuestionGV : finishQuestionGN)(); else gnEtape(!meme); }
 const natOf = (m) => NATURE_BY_CODE[m.tag] || NATURE_BY_CODE[m.tag.split('.')[0]] || { article: m.texte };
 const NOM_COURT = (code) => (NATURE_BY_CODE[code].court || NATURE_BY_CODE[code].nom).replace(/&shy;/g, '').toLowerCase();
 function clicMotGN(i, el) {
@@ -1415,6 +1420,223 @@ function finishQuestionGN() {
   showCharacter(part >= 0.5 ? 'good' : 'bad', null);
 }
 
+/* ------------------------------------------------------------
+   v27 : JEU 3 — LE GROUPE VERBAL, refait comme le jeu 4.
+   Une phrase simple, un seul verbe. Les consignes : le verbe et sa nature (action / état) ; « Quel est le sujet du
+   verbe ? » (rouge : c'est une fonction) puis sa nature ; « Le verbe a-t-il un COD ? » (ou un attribut du sujet,
+   pour un verbe d'état ; puis un COS s'il y a un COD, ou un COI s'il n'y en a pas) ; « a-t-il un complément
+   circonstanciel ? », sa sorte (lieu, temps, manière, cause), puis sa nature (nom, pronom, adverbe…).
+   Notation : le mot principal de chaque groupe porte sa fonction (=suj, =cod, =coi, =cos, =att, =ccl, =cct, =ccm, =ccc).
+   ------------------------------------------------------------ */
+const PHRASES_GV = [
+  "Je/Pr.per=suj viens/VA aujourd'hui/Av=cct .",
+  'Le/D.def chat/N=suj dort/VA sur/P le/D.def canapé/N=ccl .',
+  'Léa/NP=suj mange/VA une/D.ind pomme/N=cod .',
+  'Mon/D.pos frère/N=suj lit/VA un/D.ind livre/N=cod le/D.def soir/N=cct .',
+  'Nous/Pr.per=suj parlons/VA à/P la/D.def maîtresse/N=coi .',
+  'Le/D.def ciel/N=suj est/VE bleu/A=att .',
+  'Paul/NP=suj semble/VE fatigué/A=att ce/D.dem matin/N=cct .',
+  'Les/D.def enfants/N=suj jouent/VA dehors/Av=ccl .',
+  'Le/D.def bébé/N=suj pleure/VA de/P faim/N=ccc .',
+  'Elle/Pr.per=suj chante/VA joyeusement/Av=ccm .',
+  'Le/D.def facteur/N=suj apporte/VA une/D.ind lettre/N=cod à/P Joseph/NP=cos .',
+  'Je/Pr.per=suj le/Pr.per=cod vois/VA .',
+  'Tu/Pr.per=suj lui/Pr.per=coi parles/VA souvent/Av=cct .',
+  'Le/D.def lion/N=suj marche/VA avec/P prudence/N=ccm .',
+  'Ma/D.pos sœur/N=suj devient/VE grande/A=att .',
+  "L'/D.def éléphant/N=suj est/VE un/D.ind animal/N=att énorme/A .",
+  'Les/D.def oiseaux/N=suj chantent/VA dans/P le/D.def jardin/N=ccl .',
+  'Hugo/NP=suj pense/VA à/P ses/D.pos vacances/N=coi .',
+  'Le/D.def chien/N=suj aboie/VA fort/Av=ccm .',
+  'Nous/Pr.per=suj partirons/VA demain/Av=cct .',
+  'Le/D.def vent/N=suj souffle/VA fort/Av=ccm ce/D.dem soir/N=cct .',
+  'Cette/D.dem maison/N=suj paraît/VE ancienne/A=att .',
+  'La/D.def maîtresse/N=suj prête/VA un/D.ind crayon/N=cod à/P Hugo/NP=cos .',
+  'Il/Pr.per=suj tremble/VA de/P froid/N=ccc .',
+  'Le/D.def train/N=suj arrive/VA à/P la/D.def gare/N=ccl .',
+  'Le/D.def boulanger/N=suj fabrique/VA le/D.def pain/N=cod la/D.def nuit/N=cct .',
+];
+const PARSED_GV = PHRASES_GV.map(parsePhrase);
+const FN_GV = { suj: 'F.suj', cod: 'F.cod', coi: 'F.coi', cos: 'F.cos', att: 'F.att', ccl: 'F.ccl', cct: 'F.cct', ccm: 'F.ccm', ccc: 'F.ccc' };
+const CC_CODES = ['F.ccl', 'F.cct', 'F.ccm', 'F.ccc'];
+/* le groupe d'un mot : (petit mot) (déterminant) (adjectifs) mot (adjectifs) */
+function plageGV(mots, h) {
+  const m = mots[h];
+  if (m.tag !== 'N' && m.tag !== 'NP') return { debut: h, fin: h };
+  let d = h; while (d > 0 && mots[d - 1].tag === 'A') d--;
+  if (d > 0 && /^D\./.test(mots[d - 1].tag)) d--;
+  if (d > 0 && mots[d - 1].tag === 'P' && m.fn !== 'suj' && m.fn !== 'cod' && m.fn !== 'att') d--;
+  let f = h; while (f + 1 < mots.length && mots[f + 1].tag === 'A' && !mots[f + 1].fn) f++;
+  return { debut: d, fin: f };
+}
+function analyseGV(mots) {
+  const v = mots.findIndex((m) => m.tag === 'VA' || m.tag === 'VE');
+  const comp = (fn) => mots.map((m, i) => (m.fn === fn ? { i, fn: FN_GV[fn], ...plageGV(mots, i) } : null)).filter(Boolean);
+  return {
+    v, etat: mots[v].tag === 'VE', suj: comp('suj')[0], cod: comp('cod')[0] || null, coi: comp('coi')[0] || null,
+    cos: comp('cos')[0] || null, att: comp('att')[0] || null,
+    cc: [...comp('ccl'), ...comp('cct'), ...comp('ccm'), ...comp('ccc')].sort((a, b) => a.i - b.i),
+  };
+}
+function buildQuestionsGV() {
+  const idx = shuffle(PARSED_GV.map((m, i) => i)).slice(0, nbQuestions());
+  return idx.map((p) => ({ gv: true, phrase: p, a: analyseGV(PARSED_GV[p]) }));
+}
+const motsGV = (q) => PARSED_GV[q.phrase];
+const motV = (q, i) => { const m = motsGV(q)[i]; return m.tag === 'NP' ? m.texte : m.texte.toLowerCase(); };
+const verbeV = (q) => `« ${motV(q, q.a.v)} »`;
+/* le nom d'une fonction, précis : « COD du verbe mange », « attribut du sujet ciel », « CC de temps du verbe viens » */
+const NOM_FN = { 'F.suj': 'sujet', 'F.cod': 'COD', 'F.coi': 'COI', 'F.cos': 'COS', 'F.att': 'attribut du sujet', 'F.ccl': 'CC de lieu', 'F.cct': 'CC de temps', 'F.ccm': 'CC de manière', 'F.ccc': 'CC de cause' };
+const fnPreciseV = (q, code) => (code === 'F.att' ? `attribut du sujet ${motV(q, q.a.suj.i)}` : `${NOM_FN[code]} du verbe ${motV(q, q.a.v)}`);
+const CARTES_GV = {
+  verbe: () => ({ vert: true, texte: 'Dans cette phrase, appuie sur le verbe.' }),
+  verbenat: (q) => ({ vert: true, texte: `Quelle est la nature du verbe ${verbeV(q)} ?`, choix: ['VA', 'VE'] }),
+  suj: (q) => ({ vert: false, texte: `Quel est le sujet du verbe ${verbeV(q)} ? Appuie dessus.` }),
+  objq: (q) => {
+    const k = gnState.objet;
+    const quoi = { 'F.cod': 'un COD', 'F.coi': 'un COI', 'F.cos': 'un COS', 'F.att': 'un attribut du sujet' }[k];
+    return { vert: false, texte: `Le verbe ${verbeV(q)} a-t-il ${k === 'F.cos' ? 'aussi ' : ''}${quoi} ?`, choix: ['oui', 'non'] };
+  },
+  obj: (q) => ({ vert: false, texte: `Appuie sur le ${NOM_FN[gnState.objet]} du verbe ${verbeV(q)}.` }),
+  ccq: (q) => ({ vert: false, texte: `Le verbe ${verbeV(q)} a-t-il ${gnState.ccFaits.size ? 'un autre' : 'un'} complément circonstanciel ?`, choix: ['oui', 'non'] }),
+  cc: (q) => ({ vert: false, texte: `Appuie sur le complément circonstanciel du verbe ${verbeV(q)}.` }),
+  cctype: (q) => ({ vert: false, texte: `Quelle sorte de complément circonstanciel est « ${motV(q, gnState.comp.i)} » ?`, choix: CC_CODES, labels: { 'F.ccl': 'De lieu', 'F.cct': 'De temps', 'F.ccm': 'De manière', 'F.ccc': 'De cause' } }),
+  nat: (q) => {
+    const c = gnState.comp, m = motsGV(q)[c.i];
+    const choix = c.fn === 'F.att' ? ['N', 'NP', 'Pr', 'A'] : CC_CODES.includes(c.fn) ? ['N', 'NP', 'Pr', 'Av'] : ['N', 'NP', 'Pr'];
+    const texte = c.fn === 'F.suj' ? `Quelle est la nature du sujet « ${motV(q, c.i)} » ?` : `Quelle est la nature du mot « ${motV(q, c.i)} », ${fnPreciseV(q, c.fn)} ?`;
+    return { vert: true, texte, choix, labels: { A: 'Adjectif qualificatif', Av: 'Adverbe' } };
+  },
+  prnat: (q) => ({ vert: true, texte: `Quel est le type du pronom « ${motV(q, gnState.comp.i)} » ?`, choix: ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int'], petits: true }),
+};
+function showQuestionGV() {
+  const q = game.questions[game.index];
+  $('nat-sentence').innerHTML = phraseHtml(motsGV(q), -1);
+  $('nat-character-stage').innerHTML = '';
+  $('nat-correction').classList.add('hidden');
+  $('nat-verdict-square').className = 'verdict-square';
+  $('nat-instruction').textContent = 'Analyse la phrase';
+  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
+  $('nat-buttons-invariables').innerHTML = '';
+  Object.assign(gnState, { etape: 'verbe', essais: 0, reussies: 0, total: 0, cartes: [], comp: null, objet: null, ccFaits: new Set(), objFait: false });
+  updateProgress();
+  gnEtape(true);
+}
+/* après le sujet : les objets (COD, puis COS ou COI ; ou l'attribut pour un verbe d'état), puis les compléments circonstanciels */
+function apresSujetGV(q) { gnState.objet = q.a.etat ? 'F.att' : 'F.cod'; gnVers('objq'); }
+function apresObjetGV(q) {
+  const o = gnState.objet;
+  if (o === 'F.cod') { gnState.objet = q.a.cod ? 'F.cos' : 'F.coi'; gnVers('objq'); return; }
+  gnVers('ccq');
+}
+function objetDe(q, code) { return { 'F.cod': q.a.cod, 'F.coi': q.a.coi, 'F.cos': q.a.cos, 'F.att': q.a.att }[code]; }
+function poseFonctionGV(q, c) {
+  carre(c.i, fnPreciseV(q, c.fn).replace(/ (du|au) /, '<br>$1 '), true);
+  for (let k = c.debut; k <= c.fin; k++) if (c.fin > c.debut) wordEl(k)?.classList.add('gn-groupe');
+}
+function clicMotGV(i, el) {
+  if (game.fini) return;
+  const q = game.questions[game.index], mots = motsGV(q), a = q.a, e = gnState.etape;
+  const choisi = { texte: mots[i].texte, article: natOf(mots[i]).article };
+  const dans = (c) => c && i >= c.debut && i <= c.fin;
+  if (e === 'verbe') {
+    if (i === a.v || gnErreur(el, 'le verbe', choisi)) { gnCompte('V'); carre(a.v, 'verbe'); gnVers('verbenat', true); }
+  } else if (e === 'suj') {
+    if (dans(a.suj) || gnErreur(el, 'le sujet', choisi)) { gnCompte('F.suj'); gnState.comp = a.suj; poseFonctionGV(q, a.suj); gnVers('nat', true); }
+  } else if (e === 'obj') {
+    const c = objetDe(q, gnState.objet);
+    if (dans(c) || gnErreur(el, NOM_FN[gnState.objet], choisi)) { gnCompte(gnState.objet); gnState.comp = c; poseFonctionGV(q, c); gnVers('nat', true); }
+  } else if (e === 'cc') {
+    const restants = a.cc.filter((c) => !gnState.ccFaits.has(c.i));
+    let c = restants.find(dans) || null;
+    if (!c && gnErreur(el, 'un complément circonstanciel', choisi)) c = restants[0];
+    if (!c) return;
+    gnCompte('CC'); gnState.ccFaits.add(c.i); gnState.comp = c; gnVers('cctype', true);
+  } else {
+    const act = document.querySelector('.carte.active'); if (act) { act.classList.remove('gn-flash'); void act.offsetWidth; act.classList.add('gn-flash'); }
+  }
+}
+function answerBoutonGV(code, btn) {
+  if (game.fini) return;
+  const q = game.questions[game.index], mots = motsGV(q), a = q.a, e = gnState.etape;
+  const faux = (attendu, choisiArticle, mot) => { btn.classList.add('wrong'); btn.disabled = true; return gnErreur(null, attendu, { texte: mot, article: choisiArticle }); };
+  const montrer = (c) => document.querySelector(`.carte.active [data-gn="${c}"]`)?.classList.add('correct');
+  const suite = (f) => setTimeout(f, 600);
+  const art = (c) => (NATURE_BY_CODE[c] ? NATURE_BY_CODE[c].article : c);
+  if (e === 'verbenat') {
+    const bon = mots[a.v].tag;
+    if (code !== bon && !faux(art(bon), art(code), mots[a.v].texte)) return;
+    if (code === bon) btn.classList.add('correct'); else montrer(bon);
+    gnCompte(bon); wordEl(a.v).querySelector('.lab').innerHTML = bon === 'VA' ? 'verbe<br>d\'action' : 'verbe<br>d\'état';
+    suite(() => gnVers('suj')); return;
+  }
+  if (e === 'nat' || e === 'prnat') {
+    const c = gnState.comp, m = mots[c.i];
+    const bon = e === 'prnat' ? m.tag : natBase(m.tag);
+    if (code !== bon && !faux(art(bon), art(code), m.texte)) return;
+    if (code === bon) btn.classList.add('correct'); else montrer(bon);
+    gnCompte(bon);
+    if (e === 'nat') carre(c.i, (NATURE_BY_CODE[bon].nom || '').toLowerCase().replace(' ', '<br>'), false, true);
+    else wordEl(c.i).querySelector('.lab').innerHTML = `pronom<br>${NOM_COURT(bon)}`;
+    if (e === 'nat' && bon === 'Pr') { suite(() => gnVers('prnat', true)); return; }
+    suite(() => (c.fn === 'F.suj' ? apresSujetGV(q) : CC_CODES.includes(c.fn) ? gnVers('ccq') : apresObjetGV(q)));
+    return;
+  }
+  if (e === 'cctype') {
+    const c = gnState.comp, bon = c.fn;
+    if (code !== bon && !faux(`un ${NOM_FN[bon]}`, `un ${NOM_FN[code]}`, mots[c.i].texte)) return;
+    if (code === bon) btn.classList.add('correct'); else montrer(bon);
+    gnCompte(bon); poseFonctionGV(q, c);
+    suite(() => gnVers('nat', true)); return;
+  }
+  if (e === 'objq') {
+    const c = objetDe(q, gnState.objet), juste = (code === 'oui') === !!c;
+    if (!juste && !faux(c ? `oui, il y a ${NOM_FN[gnState.objet]}` : `non, pas de ${NOM_FN[gnState.objet]}`, code, '—')) return;
+    gnCompte(`${gnState.objet}?`);
+    suite(() => (c ? gnVers('obj', true) : apresObjetGV(q))); return;
+  }
+  if (e === 'ccq') {
+    const restants = a.cc.filter((c) => !gnState.ccFaits.has(c.i)), juste = (code === 'oui') === (restants.length > 0);
+    if (!juste && !faux(restants.length ? 'oui, il y a un complément circonstanciel' : 'non, il n\'y en a pas', code, '—')) return;
+    gnCompte('CC?');
+    suite(() => (restants.length ? gnVers('cc', true) : gnVers('fini')));
+  }
+}
+/* le bilan, en petit discours : « Le verbe « viens » est un verbe d'action. Son sujet est « je », un pronom personnel… » */
+function resumeGV(q, html) {
+  const mots = motsGV(q), a = q.a;
+  const B = (x) => (html ? `<strong>${esc(x)}</strong>` : x);
+  const t = (c) => `« ${B(mots.slice(c.debut, c.fin + 1).map((m) => m.texte).join(' ').replace(/' /g, "'").replace(/^./, (x) => (mots[c.debut].tag === 'NP' ? x : x.toLowerCase())))} »`;
+  const nat = (c) => { const m = mots[c.i]; const n = NATURE_BY_CODE[m.tag] || NATURE_BY_CODE[natBase(m.tag)]; return c.fin > c.debut ? `dont le mot principal, « ${B(motV(q, c.i))} », est ${n.article}` : n.article; };
+  const phr = [`Tu as bien analysé la phrase. Le verbe ${'« ' + B(motV(q, a.v)) + ' »'} est ${a.etat ? 'un verbe d\'état' : 'un verbe d\'action'}.`];
+  phr.push(`Son sujet est ${t(a.suj)}, ${nat(a.suj)}.`);
+  if (a.etat) phr.push(a.att ? `Il a un attribut du sujet : ${t(a.att)}, ${nat(a.att)}.` : 'Il n\'a pas d\'attribut du sujet.');
+  else {
+    if (a.cod) phr.push(`Il a un COD : ${t(a.cod)}, ${nat(a.cod)}.`);
+    if (a.cos) phr.push(`Il a aussi un COS : ${t(a.cos)}, ${nat(a.cos)}.`);
+    if (a.coi) phr.push(`Il a un COI : ${t(a.coi)}, ${nat(a.coi)}.`);
+    if (!a.cod && !a.coi) phr.push('Il n\'a ni COD ni COI.');
+  }
+  if (!a.cc.length) phr.push('Il n\'a pas de complément circonstanciel.');
+  else a.cc.forEach((c, k) => phr.push(`Il a ${k ? 'aussi ' : ''}un complément circonstanciel ${NOM_FN[c.fn].replace('CC ', '')} : ${t(c)}, ${nat(c)}.`));
+  return phr.join(' ');
+}
+function finishQuestionGV() {
+  const q = game.questions[game.index];
+  gnState.etape = 'fini';
+  $('nat-buttons-variables').innerHTML = '';
+  const part = gnState.total ? gnState.reussies / gnState.total : 1;
+  game.score = Math.round((game.score + part) * 100) / 100;
+  $('nat-instruction').textContent = 'La phrase est analysée !';
+  $('nat-correction-details').innerHTML = nbspFr(resumeGV(q, true));
+  $('nat-correction').classList.remove('hidden');
+  $('nat-verdict-square').className = `verdict-square ${part === 1 ? 'correct' : part === 0 ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = game.index + 1 < game.questions.length ? 'Suivant →' : 'Voir mon résultat →';
+  $('nat-score-label').textContent = scoreLabel(game.score);
+  $('nat-progress-bar').style.width = `${((game.index + 1) / game.questions.length) * 100}%`;
+  showCharacter(part >= 0.5 ? 'good' : 'bad', null);
+}
+
 function finishQuestion(reussi, nature, mot) {
   /* v11 : pour le bilan, on compte chaque nature : demandée (p) et trouvée du premier coup (c). */
   const pn = game.parNature[nature.code] || (game.parNature[nature.code] = { c: 0, p: 0 });
@@ -1491,7 +1713,7 @@ function scoreMessage(r) {
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
     niveauOf(r) === 4 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le nom, le déterminant, l'adjectif et le complément du nom trouvés du premier coup).`
-      : niveauOf(r) === 3 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (0,5 point pour la bonne nature et 0,5 point pour la bonne fonction, trouvées du premier coup).`
+      : niveauOf(r) === 3 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le verbe, le sujet et les compléments trouvés du premier coup).`
       : `Mon score : ${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}.`,
   ];
   if (r.erreurs.length) {
@@ -2199,13 +2421,13 @@ $('open-natures').addEventListener('click', () => openGame('natures'));
 $('open-natures2').addEventListener('click', () => openGame('natures2'));
 $('open-fonctions').addEventListener('click', () => openGame('fonctions'));
 $('open-gn').addEventListener('click', () => openGame('gn'));
-$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); });
+$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
-  speak(phraseTexte(motsDe(q)).replace(/\(…\)/g, '').trim(), 'femme', 'phrase');
+  speak(phraseTexte(q.gv ? motsGV(q) : motsDe(q)).replace(/\(…\)/g, '').trim(), 'femme', 'phrase');
   volumeLevel = prev;
 });
 $('results-replay').addEventListener('click', startGame);

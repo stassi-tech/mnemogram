@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=26" />
+    <link rel="stylesheet" href="style.css?v=27" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -95,7 +95,7 @@
               </button>
               <button type="button" class="home-mode-button" id="open-fonctions">
                 <span class="label">Natures et fonctions des mots dans le groupe verbal</span>
-                <span class="desc">Un mot clignote : quelle est sa nature, puis quelle est sa fonction ?</span>
+                <span class="desc">Suis les consignes : le verbe, son sujet, ses compléments ; la nature en vert, la fonction en rouge.</span>
               </button>
               <button type="button" class="home-mode-button" id="open-gn">
                 <span class="label">Natures et fonctions des mots dans le groupe nominal</span>
@@ -282,7 +282,7 @@
         <ul>
           <li><b>Reconnaissance des natures de mots 1</b> : un mot clignote dans une phrase ; on choisit sa nature parmi les boutons verts (nom commun, verbe d'état ou d'action, adjectif qualificatif, déterminant, pronom, nom propre, adverbe, préposition, conjonctions, interjection, onomatopée).</li>
           <li><b>Reconnaissance des natures de mots 2</b> : la même chose, mais le déterminant et le pronom se divisent chacun en sept sortes (article défini ou indéfini, possessif, démonstratif, numéral, indéfini, interrogatif, personnel, relatif). Les déterminants et les pronoms de même sorte sont alignés l'un au-dessus de l'autre, et des phrases « pièges » les mettent côte à côte (« mon chien… le mien »).</li>
-          <li><b>Natures et fonctions des mots dans le groupe verbal</b> : on trouve d'abord la nature du mot (boutons verts), puis les autres natures disparaissent et les fonctions possibles apparaissent sur des boutons rouges (le rouge est la couleur des fonctions) : sujet, COD, COI, COS, attribut du sujet, compléments circonstanciels de lieu, de temps, de manière, de cause ; pour l'adverbe, « modifie le sens » ou complément circonstanciel. Seuls les noms, noms propres, pronoms et adverbes ont une fonction à trouver ici (l'adjectif viendra dans un prochain jeu). La bonne nature rapporte 0,5 point, la bonne fonction 0,5 point. La négation se prend en entier : « ne… pas » clignote en un seul bloc.</li>
+          <li><b>Natures et fonctions des mots dans le groupe verbal</b> : il marche comme le jeu du groupe nominal. Des <b>consignes</b> apparaissent à droite, vertes pour la nature, rouges pour la fonction : « Dans cette phrase, appuie sur le verbe » et sa nature (verbe d'action ou d'état) ; « Quel est le sujet du verbe ? » puis sa nature (nom, nom propre, pronom, et le type de pronom) ; « Le verbe a-t-il un COD ? » (puis un COS, ou un COI ; pour un verbe d'état, un attribut du sujet) ; « Le verbe a-t-il un complément circonstanciel ? », sa sorte (lieu, temps, manière, cause) et sa nature (nom, pronom, adverbe…). On répond en appuyant sur le mot dans la phrase, ou sur les cases. Chaque réponse se pose sous le mot : carré vert pour la nature, carré rouge pour la fonction (« COD du verbe mange »). À la fin, la voix fait le bilan de la phrase. Une partie compte 10 phrases ; chaque phrase vaut 1 point, partagé entre toutes les réponses trouvées du premier coup.</li>
           <li><b>Natures et fonctions des mots dans le groupe nominal</b> (à l'essai) : chaque phrase est réduite à un seul groupe nominal, sans verbe : les petits points « (…) » montrent que la phrase continue (« Joyeux, le bébé (…) »). À droite, des <b>consignes</b> apparaissent l'une après l'autre, <b>vertes</b> pour une question de nature, <b>rouges</b> pour une question de fonction : « Appuie sur le nom commun dans ce groupe nominal », « Appuie maintenant sur le déterminant », « Quelle est la nature précise de ce déterminant ? », « Le nom est-il décrit par un adjectif qualificatif ? » (oui ou non, puis sa fonction : épithète ou apposé ; l'attribut reste pour le groupe verbal), « Le nom est-il décrit par un mot qui a la fonction complément du nom ? » (oui ou non, puis sa nature). On répond en appuyant sur le mot dans la phrase, ou sur les cases de la consigne. Les mots ne changent pas de couleur : chaque réponse se pose sous le mot, dans un <b>carré vert</b> pour une nature et un <b>carré rouge</b> pour une fonction (sous « blanc » : « adjectif qualificatif » en vert, puis « épithète du nom chien » en rouge). Les consignes et les fonctions nomment toujours le nom précis : « le nom « souris » est-il décrit par un autre adjectif qualificatif ? », « épithète du nom souris », « complément du nom chien », pour que l'enfant ne confonde plus nature et fonction. Quand le nom a un complément du nom, on analyse ensuite le groupe de ce nom-là, avec les mêmes questions (dans « le chien blanc du voisin » : « voisin » a-t-il un déterminant ? oui, « du », article défini contracté, de + le ; un adjectif ? un complément du nom ?). À la fin, la voix fait le bilan du groupe nominal en un petit discours : « Tu as bien analysé le groupe nominal du nom souris. Le nom souris est d'abord précisé par un déterminant, l'article indéfini « une », qui n'a pas de fonction. Ensuite, il est décrit par deux adjectifs qualificatifs qui ont la fonction épithète : le premier est « petite », le second est « grise ». » Une partie compte 10 phrases ; chaque phrase vaut 1 point, partagé entre toutes les réponses trouvées du premier coup.</li>
         </ul>
         <p>Une partie compte 20 questions. En cas d'erreur, on a droit à un deuxième essai ; après deux erreurs, la bonne réponse s'affiche. Le score compte les réponses trouvées du premier coup (dans le jeu des fonctions : 0,5 point pour la nature et 0,5 point pour la fonction, soit 1 point par phrase). Après chaque réponse, une explication apparaît sous les boutons ; la voix la lit.</p>
@@ -319,6 +319,6 @@
       <div id="report-send" class="report-send no-print"></div>
     </div>
 
-    <script defer src="app.js?v=26"></script>
+    <script defer src="app.js?v=27"></script>
   </body>
 </html>
