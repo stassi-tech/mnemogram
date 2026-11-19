@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v33';
+const APP_VERSION = 'v34';
 
 const $ = (id) => document.getElementById(id);
 
@@ -844,7 +844,7 @@ function openGame(id) {
   $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions' || id === 'tableau');
   $('natures-panel').classList.toggle('game5', id === 'tableau');
   $('nat-ready-explanation').innerHTML = id === 'tableau'
-    ? 'Voici un <strong>tableau de vingt cases</strong> : chaque case contient un mot (ou un verbe en deux mots). Remplis-le en suivant la méthode, étape par étape : d\'abord les <strong>verbes</strong>, puis leurs <strong>sujets</strong>, puis leurs <strong>compléments</strong> ; ensuite les <strong>groupes nominaux</strong> ; enfin les <strong>mots invariables</strong>. Chaque case bien remplie rapporte 1 point : il y a 20 points à gagner.'
+    ? 'Voici un <strong>tableau de vingt cases</strong> : chaque case contient un mot (ou un verbe en deux mots). Remplis-le en suivant la méthode, étape par étape : d\'abord les <strong>verbes</strong>, puis leurs <strong>sujets</strong>, puis leurs <strong>compléments</strong> ; ensuite les <strong>groupes nominaux</strong> ; enfin les <strong>mots invariables</strong>. Chaque case vaut 1 point : 0,5 pour trouver le mot (et sa fonction), 0,5 pour sa nature. Attention : une erreur, et la moitié de point est perdue, même si tu trouves ensuite.'
     : id === 'fonctions'
     ? 'Des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Trouve d\'abord le <strong>verbe</strong> et sa nature, puis son <strong>sujet</strong>, puis ses <strong>compléments</strong> (COD, COI, COS, attribut, compléments circonstanciels). Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> pour une nature, dans un <strong>carré rouge</strong> pour une fonction.'
     : id === 'gn' ? 'Cette fois, des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Les petits points « (…) » montrent que la phrase continue : on ne garde que le groupe nominal. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> si c\'est une nature (nom commun, déterminant, adjectif qualificatif…), dans un <strong>carré rouge</strong> si c\'est une fonction (épithète, complément du nom…).'
@@ -1505,7 +1505,7 @@ const fnPreciseV = (q, code) => (code === 'F.att' ? `attribut du sujet ${motV(q,
    v30 : consignes et bilans du jeu 3 qui montrent la méthode, appliquée à la phrase elle-même
    (« Qui est-ce qui fait l'action de marcher ? », « Où le lion marche-t-il ? »…).
    ------------------------------------------------------------ */
-const VERBE3 = { venir: 'vient', dormir: 'dort', manger: 'mange', lire: 'lit', parler: 'parle', jouer: 'joue', pleurer: 'pleure', chanter: 'chante', apporter: 'apporte', voir: 'voit', marcher: 'marche', penser: 'pense', aboyer: 'aboie', partir: 'part', souffler: 'souffle', prêter: 'prête', trembler: 'tremble', arriver: 'arrive', fabriquer: 'fabrique', être: 'est', sembler: 'semble', devenir: 'devient', paraître: 'paraît' };
+const VERBE3 = { venir: 'vient', dormir: 'dort', manger: 'mange', lire: 'lit', parler: 'parle', jouer: 'joue', pleurer: 'pleure', chanter: 'chante', apporter: 'apporte', voir: 'voit', marcher: 'marche', penser: 'pense', aboyer: 'aboie', partir: 'partira', souffler: 'souffle', prêter: 'prête', trembler: 'tremble', arriver: 'arrive', fabriquer: 'fabrique', être: 'est', sembler: 'semble', devenir: 'devient', paraître: 'paraît' };
 const OBJET = 'l\'objet (la personne ou la chose destinataire de l\'action)';
 /* les phrases de description : ce que l'attribut apporte au sujet, et ce que précise le complément circonstanciel */
 const DESCRIPTIONS = {
@@ -1550,15 +1550,17 @@ const CARTES_GV = {
   verbenat: (q) => ({ vert: true, texte: `Quelle est la nature du verbe ${verbeV(q)} ?`, choix: ['VA', 'VE'] }),
   suj: (q) => {
     const inf = infV(q);
-    if (q.a.etat) return { vert: false, texte: `Cette phrase est une phrase de description. Quel mot a la fonction sujet du verbe « ${inf} » ? Qui est-ce qui ${VERBE3[inf] || motV(q, q.a.v)} ${texteV(q, q.a.att || q.a.suj)} ? Qui est-ce que l'on décrit ? Appuie dessus.` };
-    return { vert: false, texte: `Cette phrase est une phrase de récit qui raconte un événement. Quel mot a la fonction sujet du verbe « ${inf} » ? Qui est-ce qui fait l'action ${deInf(inf)} ? Quel est l'acteur de cette action ? Appuie dessus.` };
+    /* v34 : une seule question (« Qui est-ce qui marche ? »), puis « Appuie sur le mot qui a la fonction sujet. » */
+    const verbe = [...cliticsV(q), VERBE3[inf] || motV(q, q.a.v)].join(' ');
+    if (q.a.etat) return { vert: false, texte: `Cette phrase est une phrase de description. Quel mot a la fonction sujet du verbe « ${inf} » ? Qui est-ce qui ${verbe} ${texteV(q, q.a.att || q.a.suj)} ? Appuie sur le mot qui a la fonction sujet.` };
+    return { vert: false, texte: `Cette phrase est une phrase de récit qui raconte un événement. Quel mot a la fonction sujet du verbe « ${inf} » ? Qui est-ce qui ${verbe} ? Appuie sur le mot qui a la fonction sujet.` };
   },
   objq: (q) => {
     const k = gnState.objet, inf = infV(q);
     if (k === 'F.att') return { vert: false, texte: `Le sujet « ${motV(q, q.a.suj.i)} » est-il décrit par un attribut, c'est-à-dire un mot qui lui attribue une caractéristique ?`, choix: ['oui', 'non'] };
     if (k === 'F.cod') return { vert: false, texte: `Le verbe « ${inf} » a-t-il un mot de fonction COD, qui répondrait à la question « ${inf} + quoi ? » et qui désignerait ${OBJET} sur lequel porte l'action ${deInf(inf)} ?`, choix: ['oui', 'non'] };
     if (k === 'F.coi') return { vert: false, texte: `Le verbe « ${inf} » a-t-il un mot de fonction COI, qui répondrait à la question « ${inf} + à qui ? à quoi ? de quoi ? » et qui désignerait ${OBJET} sur lequel porte l'action ${deInf(inf)}, relié au verbe par un petit mot ?`, choix: ['oui', 'non'] };
-    return { vert: false, texte: `Le verbe « ${inf} » a-t-il aussi un mot de fonction COS, qui répondrait à la question « ${inf} quelque chose + à qui ? » et qui désignerait un second objet (la personne ou la chose destinataire de l'action) ?`, choix: ['oui', 'non'] };
+    return { vert: false, texte: `Le verbe « ${inf} » a-t-il aussi un mot de fonction COS, qui répondrait à la question « ${inf} quelque chose + à qui ? à quoi ? de qui ? de quoi ? » et qui désignerait un second objet (la personne ou la chose destinataire de l'action) ?`, choix: ['oui', 'non'] };
   },
   obj: (q) => ({ vert: false, texte: gnState.objet === 'F.att' ? `Appuie sur l'attribut du sujet « ${motV(q, q.a.suj.i)} ».` : `Appuie sur le ${NOM_FN[gnState.objet]} du verbe « ${infV(q)} ».` }),
   ccq: (q) => ({ vert: false, texte: `Dans cette phrase, donne-t-on ${gnState.ccFaits.size ? 'd\'autres circonstances' : 'les circonstances'} de ${q.a.etat ? 'cette description' : 'cet événement'} (où, quand, comment, pourquoi) ?`, choix: ['oui', 'non'] }),
@@ -1744,12 +1746,39 @@ function finishQuestionGV() {
    Dans les données : nat = nature ; fn = fonction ; v = la case du verbe dont dépend le mot ; n = la case du nom
    dont dépend le mot (déterminant, adjectif, complément du nom) ; s = la case du sujet (attribut) ; inf = infinitif.
    ------------------------------------------------------------ */
+/* v34 : cinq tableaux ; chacun a deux phrases de récit et une phrase de description, et des compléments
+   circonstanciels variés (adverbes, noms). « qui » = ce qui suit « Qui est-ce qui » dans la question du sujet ;
+   contr = article défini contracté (du = de + le). */
 const TABLEAUX = [
   [
-    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'matin', nat: 'N', fn: 'F.cct', v: 4 }, { t: 'le', nat: 'D.def', n: 3 }, { t: 'professeur', nat: 'N', fn: 'F.suj', v: 4 }, { t: 'a organisé', nat: 'VA', inf: 'organiser', q: 'a organisé' },
+    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'matin', nat: 'N', fn: 'F.cct', v: 4 }, { t: 'le', nat: 'D.def', n: 3 }, { t: 'professeur', nat: 'N', fn: 'F.suj', v: 4 }, { t: 'a organisé', nat: 'VA', inf: 'organiser', qui: 'a organisé' },
     { t: 'une', nat: 'D.ind', n: 6 }, { t: 'discussion', nat: 'N', fn: 'F.cod', v: 4 }, { t: 'sur', nat: 'P' }, { t: 'la', nat: 'D.def', n: 9 }, { t: 'pollution.', nat: 'N', fn: 'F.cdn', n: 6 },
-    { t: 'Les', nat: 'D.def', n: 11 }, { t: 'élèves', nat: 'N', fn: 'F.suj', v: 12 }, { t: 'sont', nat: 'VE', inf: 'être' }, { t: 'enthousiastes', nat: 'A', fn: 'F.att', s: 11 }, { t: 'donc', nat: 'CC' },
-    { t: 'Chaque', nat: 'D.idf', n: 16 }, { t: 'élève', nat: 'N', fn: 'F.suj', v: 17 }, { t: 'veut', nat: 'VA', inf: 'vouloir' }, { t: 'participer', nat: 'VINF', fn: 'F.cod', v: 17, inf: 'participer' }, { t: 'oralement.', nat: 'Av', fn: 'F.ccm', v: 18 },
+    { t: 'Les', nat: 'D.def', n: 11 }, { t: 'élèves', nat: 'N', fn: 'F.suj', v: 12 }, { t: 'sont', nat: 'VE', inf: 'être', qui: 'est enthousiaste' }, { t: 'enthousiastes', nat: 'A', fn: 'F.att', s: 11 }, { t: 'donc', nat: 'CC' },
+    { t: 'chaque', nat: 'D.idf', n: 16 }, { t: 'élève', nat: 'N', fn: 'F.suj', v: 17 }, { t: 'veut', nat: 'VA', inf: 'vouloir', qui: 'veut participer' }, { t: 'participer', nat: 'VINF', fn: 'F.cod', v: 17, inf: 'participer' }, { t: 'oralement.', nat: 'Av', fn: 'F.ccm', v: 18 },
+  ],
+  [
+    { t: 'Hier,', nat: 'Av', fn: 'F.cct', v: 3 }, { t: 'les', nat: 'D.def', n: 2 }, { t: 'enfants', nat: 'N', fn: 'F.suj', v: 3 }, { t: 'ont joué', nat: 'VA', inf: 'jouer', qui: 'a joué' }, { t: 'dans', nat: 'P' },
+    { t: 'le', nat: 'D.def', n: 6 }, { t: 'jardin', nat: 'N', fn: 'F.ccl', v: 3 }, { t: 'du', nat: 'D.def', n: 8, contr: true }, { t: 'voisin.', nat: 'N', fn: 'F.cdn', n: 6 }, { t: 'Le', nat: 'D.def', n: 10 },
+    { t: 'ciel', nat: 'N', fn: 'F.suj', v: 11 }, { t: 'était', nat: 'VE', inf: 'être', qui: 'était bleu' }, { t: 'bleu.', nat: 'A', fn: 'F.att', s: 10 }, { t: 'Ils', nat: 'Pr.per', fn: 'F.suj', v: 14 }, { t: 'rentrent', nat: 'VA', inf: 'rentrer', qui: 'rentre' },
+    { t: 'lentement', nat: 'Av', fn: 'F.ccm', v: 14 }, { t: 'à', nat: 'P' }, { t: 'la', nat: 'D.def', n: 19 }, { t: 'petite', nat: 'A', fn: 'F.epi', n: 19 }, { t: 'maison.', nat: 'N', fn: 'F.ccl', v: 14 },
+  ],
+  [
+    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'soir,', nat: 'N', fn: 'F.cct', v: 5 }, { t: 'ma', nat: 'D.pos', n: 4 }, { t: 'petite', nat: 'A', fn: 'F.epi', n: 4 }, { t: 'sœur', nat: 'N', fn: 'F.suj', v: 5 },
+    { t: 'prépare', nat: 'VA', inf: 'préparer', qui: 'prépare' }, { t: 'un', nat: 'D.ind', n: 7 }, { t: 'gâteau', nat: 'N', fn: 'F.cod', v: 5 }, { t: 'énorme.', nat: 'A', fn: 'F.epi', n: 7 }, { t: 'Il', nat: 'Pr.per', fn: 'F.suj', v: 10 },
+    { t: 'semble', nat: 'VE', inf: 'sembler', qui: 'semble délicieux' }, { t: 'délicieux.', nat: 'A', fn: 'F.att', s: 9 }, { t: 'Nous', nat: 'Pr.per', fn: 'F.suj', v: 14 }, { t: 'le', nat: 'Pr.per', fn: 'F.cod', v: 14 }, { t: 'mangerons', nat: 'VA', inf: 'manger', qui: 'le mangera' },
+    { t: 'demain', nat: 'Av', fn: 'F.cct', v: 14 }, { t: 'dans', nat: 'P' }, { t: 'la', nat: 'D.def', n: 19 }, { t: 'grande', nat: 'A', fn: 'F.epi', n: 19 }, { t: 'cuisine.', nat: 'N', fn: 'F.ccl', v: 14 },
+  ],
+  [
+    { t: 'Pendant', nat: 'P' }, { t: 'la', nat: 'D.def', n: 2 }, { t: 'récréation,', nat: 'N', fn: 'F.cct', v: 6 }, { t: 'le', nat: 'D.def', n: 5 }, { t: 'petit', nat: 'A', fn: 'F.epi', n: 5 },
+    { t: 'Léo', nat: 'NP', fn: 'F.suj', v: 6 }, { t: 'court', nat: 'VA', inf: 'courir', qui: 'court' }, { t: 'vite.', nat: 'Av', fn: 'F.ccm', v: 6 }, { t: 'Ses', nat: 'D.pos', n: 9 }, { t: 'camarades', nat: 'N', fn: 'F.suj', v: 10 },
+    { t: 'semblent', nat: 'VE', inf: 'sembler', qui: 'semble fatigué' }, { t: 'fatigués.', nat: 'A', fn: 'F.att', s: 9 }, { t: 'Ils', nat: 'Pr.per', fn: 'F.suj', v: 13 }, { t: 'regardent', nat: 'VA', inf: 'regarder', qui: 'regarde les oiseaux' }, { t: 'les', nat: 'D.def', n: 16 },
+    { t: 'beaux', nat: 'A', fn: 'F.epi', n: 16 }, { t: 'oiseaux', nat: 'N', fn: 'F.cod', v: 13 }, { t: 'du', nat: 'D.def', n: 18, contr: true }, { t: 'parc', nat: 'N', fn: 'F.cdn', n: 16 }, { t: 'voisin.', nat: 'A', fn: 'F.epi', n: 18 },
+  ],
+  [
+    { t: 'Mon', nat: 'D.pos', n: 1 }, { t: 'père', nat: 'N', fn: 'F.suj', v: 2 }, { t: 'lit', nat: 'VA', inf: 'lire', qui: 'lit le journal' }, { t: 'le', nat: 'D.def', n: 4 }, { t: 'journal', nat: 'N', fn: 'F.cod', v: 2 },
+    { t: 'tranquillement', nat: 'Av', fn: 'F.ccm', v: 2 }, { t: 'dans', nat: 'P' }, { t: 'le', nat: 'D.def', n: 8 }, { t: 'salon.', nat: 'N', fn: 'F.ccl', v: 2 }, { t: 'Ce', nat: 'D.dem', n: 11 },
+    { t: 'vieux', nat: 'A', fn: 'F.epi', n: 11 }, { t: 'journal', nat: 'N', fn: 'F.suj', v: 12 }, { t: 'est', nat: 'VE', inf: 'être', qui: 'est intéressant' }, { t: 'intéressant.', nat: 'A', fn: 'F.att', s: 11 }, { t: 'Il', nat: 'Pr.per', fn: 'F.suj', v: 16 },
+    { t: 'le', nat: 'Pr.per', fn: 'F.cod', v: 16 }, { t: 'prête', nat: 'VA', inf: 'prêter', qui: 'le prête' }, { t: 'à', nat: 'P' }, { t: 'ma', nat: 'D.pos', n: 19 }, { t: 'mère.', nat: 'N', fn: 'F.cos', v: 16 },
   ],
 ];
 const tabCases = () => TABLEAUX[game.questions[game.index].t];
@@ -1780,16 +1809,18 @@ function showQuestionTab() {
   Object.assign(gnState, { etape: 'tverbe', essais: 0, cartes: [] });
   Object.assign(tabState, { faits: {}, natOk: new Set(), fnOk: new Set(), msg: '', vi: 0, objet: null, ni: 0, courant: null, invDebut: false, invVu: false, ccFait: false,
     verbes: cases.map((c, i) => (estVerbeT(c) ? i : -1)).filter((i) => i >= 0),
-    noms: cases.map((c, i) => (c.nat === 'N' ? i : -1)).filter((i) => i >= 0) });
+    noms: cases.map((c, i) => (c.nat === 'N' || c.nat === 'NP' ? i : -1)).filter((i) => i >= 0) });
   $('nat-progress-label').textContent = 'Le tableau des vingt cases';
   majScoreTab();
   gnEtape(true);
 }
 /* le compte des points : chaque case a ses réponses (trouver le mot, sa nature, sa fonction) ; elle rapporte
    1 point × (réponses du premier coup / réponses) quand elle est remplie */
+/* v34 : chaque case vaut deux demi-points : trouver le mot (avec sa fonction s'il en a une) et donner sa nature.
+   Une seule erreur dans une moitié, et cette moitié vaut zéro, même si la bonne réponse est trouvée ensuite. */
 function compteTab(i, partie) {
-  const f = tabState.faits[i] || (tabState.faits[i] = { ok: 0, total: 0, fini: false });
-  f.total += 1; if (gnState.essais === 0) f.ok += 1;
+  const f = tabState.faits[i] || (tabState.faits[i] = { a: true, b: true, fini: false });
+  if (gnState.essais > 0) { if (partie === 'nat') f.b = false; else f.a = false; }
   const code = partie === 'fn' ? tabCases()[i].fn : tabCases()[i].nat;
   if (NATURE_BY_CODE[code]) { const pn = game.parNature[code] || (game.parNature[code] = { c: 0, p: 0 }); pn.p += 1; if (gnState.essais === 0) pn.c += 1; }
   gnState.essais = 0;
@@ -1797,7 +1828,7 @@ function compteTab(i, partie) {
   const c = tabCases()[i];
   if (!f.fini && tabState.natOk.has(i) && (!c.fn || tabState.fnOk.has(i))) {
     f.fini = true;
-    game.score = Math.round((game.score + f.ok / f.total) * 100) / 100;
+    game.score = Math.round((game.score + (f.a ? 0.5 : 0) + (f.b ? 0.5 : 0)) * 100) / 100;
     wordEl(i)?.classList.add('remplie');
   }
   majScoreTab();
@@ -1814,9 +1845,8 @@ const CARTES_TAB = {
   tverbenat: () => ({ vert: true, texte: `Quelle est la nature du verbe « ${motT(tabState.courant)} » ?`, choix: ['VA', 'VE'] }),
   tsuj: () => {
     const v = tabState.verbes[tabState.vi], c = tabCases()[v];
-    const att = tabCases().filter((x) => x.fn === 'F.att' && tabCases()[x.s].v === v).map((x) => `« ${x.t.replace(/[.,]$/, '')} »`).join(' ');
-    const qui = c.nat === 'VE' ? `Qui est-ce que l'on décrit${att ? ` avec le mot ${att}` : ''} ?` : `Qui est-ce qui ${c.q || motT(v)} ? Qui est-ce qui fait l'action ${deInf(infT(v))} ?`;
-    return { vert: false, texte: `${tabState.msg}Quel mot a la fonction sujet du verbe « ${infT(v)} » ? ${qui} Appuie dessus.` };
+    /* v34 : « Quel mot a la fonction sujet du verbe « organiser » ? Qui est-ce qui a organisé ? Appuie sur le mot qui a la fonction sujet. » */
+    return { vert: false, texte: `${tabState.msg}Quel mot a la fonction sujet du verbe « ${infT(v)} » ? Qui est-ce qui ${c.qui || motT(v)} ? Appuie sur le mot qui a la fonction sujet.` };
   },
   tnat: () => {
     const i = tabState.courant, c = tabCases()[i];
@@ -1829,7 +1859,7 @@ const CARTES_TAB = {
     if (k === 'F.att') { const sj = tabCases().findIndex((x) => x.fn === 'F.suj' && x.v === v); return { vert: false, texte: `${tabState.msg}Le sujet « ${motT(sj)} » est-il décrit par un attribut, un mot qui lui attribue une caractéristique ?`, choix: ['oui', 'non'] }; }
     if (k === 'F.cod') return { vert: false, texte: `${tabState.msg}Le verbe « ${inf} » a-t-il un mot de fonction COD, qui répondrait à la question « ${inf} + quoi ? » et qui désignerait ${OBJET} sur lequel porte l'action ${deInf(inf)} ?`, choix: ['oui', 'non'] };
     if (k === 'F.coi') return { vert: false, texte: `Le verbe « ${inf} » a-t-il un mot de fonction COI, qui répondrait à la question « ${inf} + à qui ? à quoi ? de quoi ? » ?`, choix: ['oui', 'non'] };
-    return { vert: false, texte: `Le verbe « ${inf} » a-t-il aussi un mot de fonction COS, qui répondrait à la question « ${inf} quelque chose + à qui ? » ?`, choix: ['oui', 'non'] };
+    return { vert: false, texte: `Le verbe « ${inf} » a-t-il aussi un mot de fonction COS, qui répondrait à la question « ${inf} quelque chose + à qui ? à quoi ? de qui ? de quoi ? » ?`, choix: ['oui', 'non'] };
   },
   tobj: () => { const v = tabState.verbes[tabState.vi]; return { vert: false, texte: tabState.objet === 'F.att' ? 'Appuie sur l\'attribut du sujet.' : `Appuie sur le ${NOM_FN[tabState.objet]} du verbe « ${infT(v)} ».` }; },
   tccq: () => {
@@ -1871,7 +1901,7 @@ function etapeTab(e, msg, meme) { tabState.msg = msg ? `${capitalize(msg)} ` : '
 function suiteVerbes() {
   if (reste((c, i) => estVerbeT(c) && !tabState.natOk.has(i)).length) { etapeTab('tverbe'); return; }
   tabState.vi = 0;
-  etapeTab('tsuj', `Bravo, tu as trouvé tous les verbes ! Les verbes n'ont pas de fonction : ${pointsTab()}.`);
+  etapeTab('tsuj', `Bravo, tu as trouvé tous les verbes conjugués ! Les verbes conjugués n'ont pas de fonction (les verbes à l'infinitif, eux, en ont une, comme tu le verras) : ${pointsTab()}.`);
 }
 function suiteSujets() {
   tabState.vi += 1;
@@ -1988,7 +2018,7 @@ function answerBoutonTab(code, btn) {
   }
   if (e === 'tprnat') { choix(c.nat, () => { compteTab(i, 'nat'); wordEl(i).querySelector('.lab').innerHTML = `pronom<br>${NOM_COURT(c.nat)}`; if (c.fn === 'F.suj') suiteSujets(); else suiteObjets(); }); return; }
   if (e === 'tcctype') { choix(c.fn, () => { compteTab(i, 'fn'); poseTab(i, fnTab(i).replace(/ (du|au) /, '<br>$1 '), true); gnVers('tnat', true); }); return; }
-  if (e === 'tdetnat') { choix(c.nat, () => { compteTab(i, 'nat'); wordEl(i).querySelector('.lab').innerHTML = `déterminant<br>${NOM_COURT(c.nat)}`; etapeTab('tadjq', '', true); }); return; }
+  if (e === 'tdetnat') { choix(c.nat, () => { compteTab(i, 'nat'); wordEl(i).querySelector('.lab').innerHTML = `déterminant<br>${NOM_COURT(c.nat)}${c.contr ? ' contracté' : ''}`; etapeTab('tadjq', '', true); }); return; }
   if (e === 'tadjfn') { choix(c.fn, () => { compteTab(i, 'fn'); poseTab(i, fnTab(i).replace(/ (du|au) /, '<br>$1 '), true); etapeTab('tadjq'); }); return; }
   if (e === 'tinvnat') { choix(c.nat, () => { compteTab(i, 'nat'); poseTab(i, natNomT(c.nat).replace(/ (de) /, '<br>$1 ')); suiteGN(); }); return; }
   /* questions oui / non */
