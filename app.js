@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v55';
+const APP_VERSION = 'v56';
 
 const $ = (id) => document.getElementById(id);
 
@@ -820,7 +820,7 @@ function buildNatureSequence() {
   return shuffle(liste);
 }
 function buildQuestions() {
-  if (currentGame.sx) return [{ sx: true, t: currentGame.texte || 0 }];
+  if (currentGame.sx) { marqueTexte(texteChoisi); return [{ sx: true, t: texteChoisi }]; }
   if (currentGame.tf) { marqueTexte(texteChoisi); return [{ tf: true, t: texteChoisi }]; }
   if (currentGame.tm) return [{ tm: true, t: currentGame.texte || 0 }];
   if (currentGame.tab) { marqueTexte(texteChoisi); return [{ tab: true, t: texteChoisi }]; }
@@ -878,9 +878,9 @@ function buildNatureButtons() {
    le dernier joué ; les textes déjà faits portent une coche. On garde ces souvenirs dans le navigateur. */
 let texteChoisi = 0;
 const NIVEAU_TEXTE = (k, n = 20) => { const q = k / n; return q < 0.25 ? 'facile' : q < 0.5 ? 'moyen' : q < 0.75 ? 'difficile' : 'très difficile'; };
-const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : currentGame.tf ? currentGame.tf : 'tableau'}`;
+const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : currentGame.tf ? currentGame.tf : currentGame.sx ? (currentGame.sxFn ? 'phrase2' : 'phrase1') : 'tableau'}`;
 /* v47 : la liste des textes au choix : les tableaux (exercices 5 et 6 des mots) ou les textes à transformer */
-const listeTextes = () => (currentGame.tab ? TABLEAUX : currentGame.tf ? TRANSFOS[currentGame.tf] : null);
+const listeTextes = () => (currentGame.tab ? TABLEAUX : currentGame.tf ? TRANSFOS[currentGame.tf] : currentGame.sx ? TEXTES_SX[currentGame.sxFn ? 'fn' : 'syn'] : null);
 function textesFaits() { try { return JSON.parse(localStorage.getItem(cleTextes()) || '{"faits":[],"dernier":-1}'); } catch (e) { return { faits: [], dernier: -1 }; } }
 function marqueTexte(k) {
   const m = textesFaits();
@@ -903,6 +903,7 @@ function choixTexte() {
     }).join('')}</div>`).join('');
     $('nat-progress-label').textContent = `Texte n° ${texteChoisi + 1} (${NIV(texteChoisi)})`;
     if (currentGame.tf) { currentGame.total = decoupeTF(L[texteChoisi].texte).elts.length; $('nat-score-label').textContent = scoreLabel(0); }
+    if (currentGame.sx) { const dd = decoupeSX(L[texteChoisi].texte); currentGame.total = dd.phrases.length + dd.props.length + (currentGame.sxFn ? dd.props.filter((p) => p.fn).length : 0); $('nat-score-label').textContent = scoreLabel(0); }
     box.innerHTML = `<p class="texte-titre">Choisis ton texte : le <strong>texte n° ${texteChoisi + 1}</strong>${L[texteChoisi].titre ? ` « ${esc(L[texteChoisi].titre)} »` : ''} (${NIV(texteChoisi)}) t'attend. Les textes déjà faits sont cochés.</p><div class="texte-grille">${groupes}</div>`;
     box.querySelectorAll('[data-texte]').forEach((b) => b.addEventListener('click', () => { texteChoisi = Number(b.dataset.texte); dessine(); }));
   };
@@ -2890,15 +2891,41 @@ BANDES.fn = [
 ];
 [...BANDES.syn, ...BANDES.nat, ...BANDES.natFin, ...BANDES.fn].forEach((x) => { x.article = x.nom.toLowerCase(); x.explication = ''; NATURE_BY_CODE[x.code] = x; });
 const LISTE_SX = (lane) => (lane === 'syn' ? BANDES.syn : lane === 'fn' ? BANDES.fn : currentGame.sxFn ? BANDES.natFin : BANDES.nat);
-const TEXTES_SX = [
-  { titre: 'Attention à la marche', texte: "[N] {-|Attention !} [S] {I|Tu ne vois pas la marche ?} [C] {P|Vraiment, il y a des moments} {R|où on se demande} {Q|si tu n'as pas la tête dans les nuages !} [C] {C|Quand on marche,} {P|on regarde devant soi.} [S] {I|Tu as compris ?} [C] {I|Ce n'est pas la peine de faire la tête,} {I|cela ne changera rien !} [N] {-|Courage !} [C] {I|Nous sommes presque arrivés,} et {C|si tu accélères,} {P|nous serons arrivés avant midi.}" },
-  /* v54 : exercice 2 : nature précise et fonction des subordonnées (texte de Stéphane) */
-  { titre: 'Vacances de Pâques', texte: "[C] {C/cco/suis|Bien que j'aime les vacances de Pâques,} {P|chaque année je ne suis pas content} {C/ccc/suis|parce que je suis obligé d'aller pendant trois jours chez mes cousins} {R/ant/cousins|qui habitent en pleine campagne.} [S] {I|L'endroit est désolé.} [C] {P|Il n'y a pas de route} {R/ant/route|qui relie leur maison au village.} [S] {I|Il faut deux heures de marche pour y arriver.} [C] {C/cct/faut|Quand l'orage éclate,} {P|il en faut quelquefois le double.} [C] {I|Le village est pratiquement désert,} {I|tous les habitants sont partis en ville.} [S] {I|Il ne reste que les personnes âgées.} [C] {I|Il n'y a pas d'enfants} donc {I|je m'ennuie toute la journée.} [C] {I|Mes cousins sont gentils} mais {P|ils ne comprennent pas} {K/cod/comprennent|qu'un petit de la ville ne s'intéresse pas à la vie de la campagne.} [C] {P|Ils me disent} {K/cod/disent|que cela n'est pas normal.}" },
-];
+/* v56 : dix textes et plus par exercice, du plus facile au plus difficile. Exercice 1 (« syn ») : syntaxe et nature
+   simple (indépendante, principale, subordonnée) ; exercice 2 (« fn ») : nature précise et fonction des subordonnées.
+   Codes de fonction : ant (complément de l'antécédent), cod, suj, cct, ccc, cco, ccq, ccb, cch, ccm ; puis le mot complété. */
+const TEXTES_SX = {
+  syn: [
+    { titre: 'Au parc', texte: "[N] {-|Quel beau jour !} [S] {I|Le soleil brille.} [S] {I|Les enfants jouent dans le parc.} [N] {-|Quelle joie !} [C] {I|Paul court,} {I|sa sœur saute à la corde.} [S] {I|Leur maman lit sur un banc.}" },
+    { titre: 'Le goûter', texte: "[S] {I|Il est quatre heures.} [N] {-|L'heure du goûter !} [S] {I|Léa prend une pomme.} [C] {I|Tom préfère le chocolat} et {I|il le mange vite.} [N] {-|Quel gourmand !} [S] {I|Maman rit.}" },
+    { titre: 'La pluie', texte: "[N] {-|Encore de la pluie !} [C] {I|Il pleut depuis ce matin} et {I|nous restons à la maison.} [S] {I|Mon frère dessine un bateau.} [C] {I|Je lis un livre,} {I|le chat dort près du feu.} [C] {P|Nous sortirons} {C/cct/sortirons|quand la pluie s'arrêtera.}" },
+    { titre: 'Le marché', texte: "[N] {-|Samedi matin, jour de marché.} [C] {I|Les marchands crient} mais {I|personne ne les écoute.} [S] {I|Grand-mère achète des tomates.} [C] {P|Elle choisit les plus rouges} {C/ccc/choisit|parce qu'elle veut faire une sauce.} [N] {-|Quelle bonne odeur !} [C] {P|Je porte le panier} {C/cct/porte|pendant qu'elle paie.}" },
+    { titre: 'Le chiot', texte: "[C] {P|Hier, nous avons adopté un chiot} {R/ant/chiot|qui s'appelle Filou.} [N] {-|Quelle boule de poils !} [S] {I|Il dort dans un panier.} [C] {C/cct/aboie|Quand il a faim,} {P|il aboie très fort.} [C] {P|Papa dit} {K/cod/dit|qu'il faudra l'éduquer.} [S] {I|Je l'aime déjà !}" },
+    { titre: 'Attention à la marche', texte: "[N] {-|Attention !} [S] {I|Tu ne vois pas la marche ?} [C] {P|Vraiment, il y a des moments} {R/ant/moments|où on se demande} {Q/cod/demande|si tu n'as pas la tête dans les nuages !} [C] {C/cct/regarde|Quand on marche,} {P|on regarde devant soi.} [S] {I|Tu as compris ?} [C] {I|Ce n'est pas la peine de faire la tête,} {I|cela ne changera rien !} [N] {-|Courage !} [C] {I|Nous sommes presque arrivés,} et {C/cch/serons arrivés|si tu accélères,} {P|nous serons arrivés avant midi.}" },
+    { titre: 'La rentrée', texte: "[N] {-|Lundi, la rentrée !} [C] {P|Je suis un peu inquiet} {C/ccc/suis|parce que je change d'école.} [C] {P|Ma mère m'a acheté un cartable} {R/ant/cartable|qui brille dans le noir.} [S] {I|Devant la grille, je cherche mes amis.} [C] {C/cct/découvre|Dès que j'entre dans la cour,} {P|je découvre Lucas.} [N] {-|Quel soulagement !} [C] {I|Nous nous asseyons ensemble} et {I|la maîtresse commence l'appel.}" },
+    { titre: 'Le gâteau', texte: "[C] {P|Pour l'anniversaire de papa, maman veut} {K/cod/veut|que nous préparions un gâteau.} [S] {I|Je casse les œufs.} [C] {I|Ma sœur verse la farine,} {I|mon frère mélange.} [C] {C/cct/fond|Pendant que le four chauffe,} {P|le chocolat fond doucement.} [N] {-|Quelle odeur délicieuse !} [C] {P|Papa se demande} {Q/cod/demande|ce que nous cachons dans la cuisine.} [C] {C/cct/crions|Quand il entre,} {P|nous crions de joie.}" },
+    { titre: 'L\'orage en montagne', texte: "[N] {-|Un ciel noir au-dessus des sommets.} [C] {P|Le guide nous annonce} {K/cod/annonce|qu'un orage approche.} [C] {P|Nous devons rejoindre le refuge} {C/cct/devons|avant que la pluie ne tombe.} [C] {I|Le vent souffle,} {I|les premiers éclairs déchirent le ciel} et {I|nous accélérons.} [C] {C/cct/offre|Lorsque nous arrivons enfin,} {P|le gardien nous offre une soupe} {R/ant/soupe|qui nous réchauffe.} [N] {-|Quel soulagement !}" },
+    { titre: 'Le spectacle', texte: "[C] {P|Ce soir, la classe présente le spectacle} {R/ant/spectacle|qu'elle répète depuis un mois.} [C] {C/cct/tremblent|Quand le rideau se lève,} {P|les enfants tremblent un peu.} [C] {I|Julie oublie une phrase,} mais {P|son voisin la lui souffle} {C/ccm/souffle|sans que personne ne s'en aperçoive.} [N] {-|Quel talent !} [C] {P|Les parents applaudissent si fort} {C/ccq/applaudissent|que la salle tremble.} [C] {I|Le directeur est fier} et {P|il promet} {K/cod/promet|que la fête recommencera l'an prochain.}" },
+    { titre: 'Le voyage en train', texte: "[C] {C/cct/s'endort|Dès que le train quitte la gare,} {P|ma petite sœur s'endort.} [C] {P|Moi, je regarde les paysages} {R/ant/paysages|qui défilent à toute vitesse.} [C] {I|Des vaches paissent dans les prés,} {I|un village apparaît,} puis {I|une rivière brille au soleil.} [N] {-|Quel spectacle !} [C] {P|Maman me demande} {Q/cod/demande|si j'ai faim.} [C] {C/cco/réponds|Bien que mon ventre gargouille,} {P|je réponds} {K/cod/réponds|que je préfère attendre.} [C] {C/cct/serons|Quand nous arriverons,} {P|nous serons chez grand-père} {R/ant/grand-père|qui nous attend sur le quai.}" },
+  ],
+  fn: [
+    { titre: 'Le chat', texte: "[C] {P|J'ai un chat} {R/ant/chat|qui s'appelle Moustache.} [S] {I|Il adore dormir au soleil.} [C] {C/cct/miaule|Quand il a faim,} {P|il miaule devant la porte.} [C] {P|Il aime les souris} {R/ant/souris|que mon frère lui donne en peluche.} [S] {I|Le soir, il dort sur mon lit.}" },
+    { titre: 'La boulangerie', texte: "[C] {P|Chaque matin, je vais à la boulangerie} {R/ant/boulangerie|qui se trouve au coin de la rue.} [C] {C/cct/sens|Dès que j'ouvre la porte,} {P|je sens l'odeur du pain chaud.} [C] {P|La boulangère me sourit} {C/ccc/sourit|parce qu'elle me connaît bien.} [S] {I|J'achète deux croissants.} [C] {P|Maman dit} {K/cod/dit|que je suis gourmand.}" },
+    { titre: 'Le match', texte: "[N] {-|Dimanche, grand match de football !} [C] {P|Notre équipe espère} {K/cod/espère|qu'elle gagnera la coupe.} [C] {C/cct/s'élancent|Lorsque l'arbitre siffle,} {P|les joueurs s'élancent.} [C] {P|Notre capitaine marque un but} {R/ant/but|que tout le monde applaudit.} [C] {I|Les adversaires égalisent} mais {P|nous gagnons} {C/ccc/gagnons|parce que notre gardien arrête un penalty.}" },
+    { titre: 'La lettre', texte: "[C] {P|Ce matin, le facteur a apporté une lettre} {R/ant/lettre|que j'attendais depuis longtemps.} [S] {I|Elle vient de mon correspondant anglais.} [C] {P|Il m'écrit} {K/cod/écrit|qu'il viendra en France cet été.} [C] {P|Je lui répondrai ce soir} {C/ccb/répondrai|pour qu'il reçoive ma lettre avant son départ.} [C] {C/cch/visiterons|S'il fait beau,} {P|nous visiterons Paris ensemble.}" },
+    { titre: 'Le perroquet', texte: "[C] {P|Ma tante a un perroquet} {R/ant/perroquet|dont les plumes sont rouges et vertes.} [C] {P|Il répète les mots} {R/ant/mots|qu'il entend.} [C] {P|Un jour, il a crié si fort} {C/ccq/a crié|que le voisin a sursauté.} [N] {-|Quelle frayeur !} [C] {P|Le voisin s'est demandé} {Q/cod/s'est demandé|qui l'appelait.} [C] {C/cco/rions|Bien que ma tante soit gênée,} {P|nous rions encore de cette histoire.}" },
+    { titre: 'Le jardin de grand-père', texte: "[C] {P|Grand-père cultive un jardin} {R/ant/jardin|où poussent des légumes de toutes sortes.} [C] {C/cct/arrose|Avant que le soleil se couche,} {P|il arrose ses salades chaque soir.} [C] {P|Il m'explique} {Q/cod/explique|pourquoi les tomates ont besoin de soleil.} [C] {P|Il veut} {K/cod/veut|que je l'aide à cueillir les haricots.} [C] {C/cch/viendrai|Si j'ai le temps,} {P|je viendrai demain} {C/ccb/viendrai|pour que nous plantions des fraises.}" },
+    { titre: 'Le concert', texte: "[C] {P|Hier soir, j'ai entendu} {INF/cod/ai entendu|les musiciens accorder leurs instruments.} [C] {C/cct/s'est tue|Dès que le chef d'orchestre est entré,} {P|la salle s'est tue.} [C] {P|La musique était si belle} {C/ccq/était|que certains spectateurs pleuraient.} [C] {P|Mon père m'a demandé} {Q/cod/a demandé|quel morceau je préférais.} [C] {P|Je lui ai répondu} {K/cod/ai répondu|que j'aimais surtout le violon} {R/ant/violon|qui jouait la mélodie.}" },
+    { titre: 'La tempête', texte: "[C] {PART/cct/rentrèrent|La nuit tombant,} {P|les pêcheurs rentrèrent au port.} [C] {P|Le vent soufflait si fort} {C/ccq/soufflait|que les vagues dépassaient la jetée.} [C] {C/cco/restait|Bien que la tempête fût terrible,} {P|un bateau restait en mer.} [C] {P|Sur le quai, les familles se demandaient} {Q/cod/se demandaient|s'il reviendrait.} [C] {C/cct/éclata|Lorsqu'enfin il apparut,} {P|une immense joie éclata.}" },
+    { titre: 'Vacances de Pâques', texte: "[C] {C/cco/suis|Bien que j'aime les vacances de Pâques,} {P|chaque année je ne suis pas content} {C/ccc/suis|parce que je suis obligé d'aller pendant trois jours chez mes cousins} {R/ant/cousins|qui habitent en pleine campagne.} [S] {I|L'endroit est désolé.} [C] {P|Il n'y a pas de route} {R/ant/route|qui relie leur maison au village.} [S] {I|Il faut deux heures de marche pour y arriver.} [C] {C/cct/faut|Quand l'orage éclate,} {P|il en faut quelquefois le double.} [C] {I|Le village est pratiquement désert,} {I|tous les habitants sont partis en ville.} [S] {I|Il ne reste que les personnes âgées.} [C] {I|Il n'y a pas d'enfants} donc {I|je m'ennuie toute la journée.} [C] {I|Mes cousins sont gentils} mais {P|ils ne comprennent pas} {K/cod/comprennent|qu'un petit de la ville ne s'intéresse pas à la vie de la campagne.} [C] {P|Ils me disent} {K/cod/disent|que cela n'est pas normal.}" },
+    { titre: 'Le déménagement', texte: "[C] {P|Nous déménageons la semaine prochaine} {C/ccc/déménageons|parce que mon père a trouvé un travail} {R/ant/travail|qui lui plaît à Lyon.} [C] {C/cco/suis|Même si je suis content pour lui,} {P|je suis triste de quitter mes amis.} [C] {P|Ma meilleure amie m'a promis} {K/cod/a promis|qu'elle m'écrirait chaque semaine.} [C] {P|J'ai vu} {INF/cod/ai vu|les déménageurs emporter nos meubles.} [C] {PART/cct/est partie|Le camion une fois chargé,} {P|la voiture est partie} {C/ccb/est partie|pour que nous arrivions avant la nuit.}" },
+    { titre: 'Le secret', texte: "[C] {P|Ma grand-mère m'a confié un secret} {R/ant/secret|que personne ne connaît.} [C] {C/cct/cachait|Quand elle était enfant,} {P|elle cachait ses trésors dans un vieux coffre} {R/ant/coffre|qui se trouvait au grenier.} [C] {P|Elle se demande} {Q/cod/se demande|si ce coffre existe encore.} [C] {C/cch/monterons|Si mes parents le permettent,} {P|nous monterons au grenier dimanche} {C/ccb/monterons|afin que je découvre enfin ses trésors.} [N] {-|Quelle aventure !} [C] {C/cco/espère|Bien que ce soit peut-être une légende,} {P|j'espère} {K/cod/espère|qu'il est toujours là.}" },
+  ],
+};
 /* les subordonnées du texte (relative, circonstancielle…) comptent toutes comme « subordonnée » */
 const natSX = (k) => (currentGame.sxFn || k === 'I' || k === 'P' ? k : 'SUB');
 const sx = { mots: [], phrases: [], props: [], sel: null, cibles: {} };
-const SX_T = () => TEXTES_SX[game.questions[game.index].t];
+const SX_T = () => TEXTES_SX[currentGame.sxFn ? 'fn' : 'syn'][game.questions[game.index].t];
 function decoupeSX(src) {
   const mots = [], phrases = [], props = [];
   const ajoute = (txt, p) => txt.split(/\s+/).filter(Boolean).forEach((w) => {
@@ -2950,7 +2977,7 @@ function showQuestionSX() {
   $('nat-verdict-square').className = 'verdict-square';
   $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
   $('nat-buttons-invariables').innerHTML = '';
-  $('nat-progress-label').textContent = `« ${SX_T().titre} »`;
+  $('nat-progress-label').textContent = `Texte n° ${game.questions[game.index].t + 1} « ${SX_T().titre} » (${NIVEAU_TEXTE(game.questions[game.index].t, listeTextes().length)})`;
   game.score = 0;
   $('nat-sentence').onclick = (ev) => {
     const l = ev.target.closest('.sx-lane[data-cle]');
@@ -3862,7 +3889,7 @@ $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
-  if (q.sx) { speak(TEXTES_SX[q.t].texte.replace(/\[[NSC]\]/g, '').replace(/\{[^|}]+\|([^}]*)\}/g, '$1').replace(/\s+/g, ' '), 'femme', 'phrase'); volumeLevel = prev; return; }
+  if (q.sx) { speak(SX_T().texte.replace(/\[[NSC]\]/g, '').replace(/\{[^|}]+\|([^}]*)\}/g, '$1').replace(/\s+/g, ' '), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (q.tf) { speak(TRANSFOS[currentGame.tf][q.t].texte.replace(/\{([^>}]+)>[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (q.tm) { speak(TEXTES_TM[q.t].texte.replace(/\{([^}|]+)\|[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
   speak(phraseTexte(q.gv ? motsGV(q) : motsDe(q)).replace(/(\S)\.(\S)/g, '$1. $2').replace(/\(…\)/g, '').trim(), 'femme', 'phrase');
