@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v23';
+const APP_VERSION = 'v24';
 
 const $ = (id) => document.getElementById(id);
 
@@ -838,7 +838,7 @@ function openGame(id) {
   $('natures-panel').classList.toggle('game4', id === 'gn');
   $('nat-ready-explanation').innerHTML = id === 'fonctions'
     ? 'Dans chaque phrase, un mot clignote. Trouve d\'abord sa <strong>nature</strong> parmi les boutons verts : les autres natures disparaissent, et ses <strong>fonctions</strong> possibles apparaissent sur des boutons rouges. La bonne nature rapporte 0,5 point, la bonne fonction 0,5 point. Si tu te trompes, tu as droit à un deuxième essai.'
-    : id === 'gn' ? 'Cette fois, des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> si c\'est une nature (nom commun, déterminant, adjectif qualificatif…), dans un <strong>carré rouge</strong> si c\'est une fonction (épithète, complément du nom…).'
+    : id === 'gn' ? 'Cette fois, des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Les petits points « (…) » montrent que la phrase continue : on ne garde que le groupe nominal. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> si c\'est une nature (nom commun, déterminant, adjectif qualificatif…), dans un <strong>carré rouge</strong> si c\'est une fonction (épithète, complément du nom…).'
     : 'Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.';
   buildNatureButtons();
   $('nat-game-title').textContent = currentGame.titre;
@@ -1100,36 +1100,40 @@ function finishQuestion3(reussi) {
    Notation des phrases : l'adjectif porte sa fonction (=epi, =att, =app) ; le nom du complément du nom porte =cdn.
    ------------------------------------------------------------ */
 const PHRASES_GN = [
-  'Le/D.def chien/N blanc/A=epi du/P voisin/N=cdn aboie/VA .',
-  'Regarde/VA ce/D.dem joli/A=epi chat/N noir/A=epi !',
-  'Mon/D.pos vélo/N rouge/A=epi roule/VA vite/Av .',
-  'La/D.def maison/N de/P ma/D.pos grand-mère/N=cdn est/VE grande/A=att .',
-  'Fatigué/A=app , le/D.def lion/N dort/VA .',
-  'Une/D.ind petite/A=epi souris/N grise/A=epi passe/VA .',
-  'Le/D.def jardin/N de/P Léa/NP=cdn semble/VE fleuri/A=att .',
-  'Chaque/D.idf élève/N chante/VA .',
-  'Quel/D.int bruit/N étrange/A=epi résonne/VA ?',
-  'Trois/D.num petits/A=epi canards/N nagent/VA .',
-  'Plusieurs/D.idf oiseaux/N du/P jardin/N=cdn chantent/VA .',
-  'Cette/D.dem robe/N de/P soie/N=cdn brille/VA .',
-  'Le/D.def cheval/N , rapide/A=app , galope/VA .',
-  'Notre/D.pos voiture/N est/VE neuve/A=att .',
-  'Un/D.ind verre/N de/P lait/N=cdn tombe/VA .',
-  'Ces/D.dem fleurs/N paraissent/VE fragiles/A=att .',
-  'Joyeux/A=app , le/D.def bébé/N rit/VA .',
-  'Quelques/D.idf feuilles/N jaunes/A=epi tombent/VA .',
-  'Deux/D.num chats/N du/P voisin/N=cdn dorment/VA .',
-  'Regarde/VA la/D.def grande/A=epi tour/N de/P Paris/NP=cdn !',
-  'Ta/D.pos sœur/N semble/VE heureuse/A=att .',
+  /* v24 : seulement des groupes nominaux, sans verbe ; « (…) » montre que la phrase continue, mais qu'on ne
+     prend que le groupe nominal. Les adjectifs n'y ont que deux fonctions : épithète ou apposé
+     (l'attribut reste pour le groupe verbal). */
+  'Le/D.def chien/N blanc/A=epi du/P voisin/N=cdn (…)',
+  '(…) ce/D.dem joli/A=epi chat/N noir/A=epi',
+  'Mon/D.pos vélo/N rouge/A=epi (…)',
+  'La/D.def maison/N de/P ma/D.pos grand-mère/N=cdn (…)',
+  'Fatigué/A=app , le/D.def lion/N (…)',
+  'Une/D.ind petite/A=epi souris/N grise/A=epi (…)',
+  'Le/D.def jardin/N fleuri/A=epi de/P Léa/NP=cdn (…)',
+  'Chaque/D.idf élève/N (…)',
+  'Quel/D.int bruit/N étrange/A=epi (…)',
+  'Trois/D.num petits/A=epi canards/N (…)',
+  'Plusieurs/D.idf oiseaux/N du/P jardin/N=cdn (…)',
+  'Cette/D.dem robe/N de/P soie/N=cdn (…)',
+  'Le/D.def cheval/N , rapide/A=app , (…)',
+  'Notre/D.pos voiture/N neuve/A=epi (…)',
+  'Un/D.ind verre/N de/P lait/N=cdn (…)',
+  'Ces/D.dem fleurs/N fragiles/A=epi (…)',
+  'Joyeux/A=app , le/D.def bébé/N (…)',
+  'Quelques/D.idf feuilles/N jaunes/A=epi (…)',
+  'Deux/D.num chats/N du/P voisin/N=cdn (…)',
+  '(…) la/D.def grande/A=epi tour/N de/P Paris/NP=cdn',
+  'Ta/D.pos sœur/N , heureuse/A=app , (…)',
+  'Leur/D.pos vieux/A=epi chien/N (…)',
+  'Quelle/D.int belle/A=epi histoire/N (…)',
+  'Cinq/D.num ballons/N rouges/A=epi (…)',
   /* un seul pronom */
-  'Il/Pr.per semble/VE heureux/A=att .',
-  'Fatiguée/A=app , elle/Pr.per dort/VA .',
-  'Le_mien/Pr.pos est/VE rouge/A=att .',
-  'Chacun/Pr.idf chante/VA .',
-  'Celle-ci/Pr.dem paraît/VE lourde/A=att .',
-  'Personne/Pr.idf ne/Av répond/VA .',
-  'Les_deux/Pr.num sont/VE prêts/A=att .',
-  'Lequel/Pr.int arrive/VA ?',
+  'Fatiguée/A=app , elle/Pr.per (…)',
+  'Joyeux/A=app , il/Pr.per (…)',
+  'Chacun/Pr.idf (…)',
+  'Celle-ci/Pr.dem (…)',
+  'Le_mien/Pr.pos (…)',
+  'Les_deux/Pr.num (…)',
 ];
 const PARSED_GN = PHRASES_GN.map(parsePhrase);
 const motsDe = (q) => (q && q.gn ? PARSED_GN[q.phrase] : PARSED[q.phrase]);
@@ -1192,14 +1196,15 @@ function showQuestionGN() {
 /* Les cartes-consignes de l'étape : chaque sujet (nom, déterminant, adjectif, complément du nom) a ses cartes,
    qui s'empilent ; quand le sujet est fini, elles disparaissent et la consigne suivante arrive. */
 const CARTES = {
-  nom: (q, m) => ({ vert: true, texte: q.g.pronom ? 'Appuie sur le pronom dans ce groupe nominal.' : 'Appuie sur le nom commun dans ce groupe nominal.' }),
+  /* quand le groupe a un complément du nom, il y a deux noms : on demande le nom principal (« chien », pas « voisin ») */
+  nom: (q) => ({ vert: true, texte: q.g.pronom ? 'Appuie sur le pronom dans ce groupe nominal.' : q.g.cdn ? 'Appuie sur le nom commun principal de ce groupe nominal.' : 'Appuie sur le nom commun dans ce groupe nominal.' }),
   det: () => ({ vert: true, texte: 'Appuie maintenant sur le déterminant.' }),
   detnat: () => ({ vert: true, texte: 'Quelle est la nature précise de ce déterminant ?', choix: ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int'], petits: true }),
   prnat: () => ({ vert: true, texte: 'Quelle est la nature précise de ce pronom ?', choix: ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int'], petits: true }),
   adjq: (q) => ({ vert: true, texte: `Dans ce groupe nominal, ${q.g.pronom ? 'le pronom' : 'le nom'} est-il décrit par ${gnState.adjFaits.size ? 'un autre' : 'un'} adjectif qualificatif ?`, choix: ['oui', 'non'] }),
   adj: () => ({ vert: true, texte: 'Appuie sur l\'adjectif qualificatif.' }),
-  adjfn: () => ({ vert: false, texte: 'Quelle est la fonction de cet adjectif qualificatif ?', choix: ['F.att', 'F.epi', 'F.app'] }),
-  cdnq: () => ({ vert: false, texte: 'Dans ce groupe nominal, y a-t-il un complément du nom ?', choix: ['oui', 'non'] }),
+  adjfn: () => ({ vert: false, texte: 'Quelle est la fonction de cet adjectif qualificatif ?', choix: ['F.epi', 'F.app'] }),
+  cdnq: (q) => ({ vert: false, texte: `Dans ce groupe nominal, ${q.g.pronom ? 'le pronom' : 'le nom'} est-il décrit par un mot qui a la fonction complément du nom ?`, choix: ['oui', 'non'] }),
   cdn: () => ({ vert: false, texte: 'Appuie sur le complément du nom.' }),
   cdnnat: () => ({ vert: true, texte: 'Quelle est la nature du complément du nom ?', choix: ['N', 'NP', 'Pr'] }),
 };
@@ -1241,7 +1246,8 @@ function clicMotGN(i, el) {
   const q = game.questions[game.index], mots = motsDe(q), g = q.g, e = gnState.etape;
   const choisi = { texte: mots[i].texte, article: natOf(mots[i]).article };
   if (e === 'nom') {
-    if (i === g.t || gnErreur(el, g.pronom ? 'le pronom' : 'le nom commun', choisi)) {
+    if (g.cdn && i >= g.cdn.debut && i <= g.cdn.fin) choisi.article += ', dans le complément du nom';
+    if (i === g.t || gnErreur(el, g.pronom ? 'le pronom' : 'le nom principal du groupe nominal', choisi)) {
       gnCompte(g.pronom ? 'Pr' : 'N'); carre(g.t, g.pronom ? 'pronom' : 'nom<br>commun');
       if (g.pronom) gnVers('prnat', true); else gnVers(g.d !== null ? 'det' : 'adjq');
     }
@@ -2115,7 +2121,7 @@ $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
-  speak(phraseTexte(motsDe(q)), 'femme', 'phrase');
+  speak(phraseTexte(motsDe(q)).replace(/\(…\)/g, '').trim(), 'femme', 'phrase');
   volumeLevel = prev;
 });
 $('results-replay').addEventListener('click', startGame);
