@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v36';
+const APP_VERSION = 'v37';
 
 const $ = (id) => document.getElementById(id);
 
@@ -2463,8 +2463,9 @@ async function loadUneFiche(nom) {
       const n = NATURE_BY_CODE[sec.dataset.code]; if (!n) return;
       const exEl = sec.querySelector('.explication');
       const ex = exEl?.textContent.replace(/\s+/g, ' ').trim();
-      /* v8 : les mots en italique de la fiche (<em>) restent en italique sous les boutons ; la voix lit le texte seul. */
-      if (exEl) n.explicationHtml = exEl.innerHTML.replace(/<(?!\/?em>)[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+      /* v8 : les mots en italique de la fiche (<em>) restent en italique sous les boutons ; la voix lit le texte seul.
+         v37 : le gras de la fiche (<strong>, venu du Word) reste aussi en gras. */
+      if (exEl) n.explicationHtml = exEl.innerHTML.replace(/<(?!\/?(em|strong)>)[^>]*>/g, '').replace(/\s+/g, ' ').trim();
       const exs = sec.querySelector('.exemples')?.textContent.replace(/\s+/g, ' ').trim();
       if (ex) n.explication = ex;
       if (exs) n.exemples = exs;
