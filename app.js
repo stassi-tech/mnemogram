@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v30';
+const APP_VERSION = 'v31';
 
 const $ = (id) => document.getElementById(id);
 
@@ -435,7 +435,7 @@ function phraseHtml(mots, cible) {
       else if (!/'$/.test(prev) && !/^-/.test(m.texte)) html += ' ';
     }
     if (!m.tag) { html += `<span class="pn${m.texte === '(…)' ? ' suite' : ''}">${m.texte}</span>`; return; }
-    html += `<span class="w${cibles.includes(i) ? ' target' : ''}" data-i="${i}">${m.texte}</span>`;
+    html += `<span class="w${cibles.includes(i) ? ' target' : ''}${/'$/.test(m.texte) ? ' apos' : ''}" data-i="${i}">${m.texte}</span>`;
   });
   return html;
 }
@@ -1500,7 +1500,7 @@ const DESCRIPTIONS = {
   'Le ciel est bleu.': { caract: 'sa couleur bleue' },
   'Paul semble fatigué ce matin.': { caract: 'son aspect fatigué', cc: 'précise que cette fatigue est liée à une circonstance particulière, et qu\'elle pourra évoluer dans la journée' },
   'Ma sœur devient grande.': { caract: 'sa taille, qui grandit' },
-  "L'éléphant est un animal énorme.": { caract: 'ce qu\'il est, un animal, et sa taille énorme' },
+  "L'éléphant est un animal énorme.": { caract: 'de dire ce qu\'il est, un animal' },
   'Cette maison paraît ancienne.': { caract: 'son air ancien' },
 };
 const infV = (q) => INFINITIFS[motV(q, q.a.v)] || motV(q, q.a.v);
@@ -1680,8 +1680,12 @@ function resumeGV(q, html) {
     const d = [`Tu as bien analysé cette phrase de description. Elle permet, grâce à un verbe d'état, le verbe ${g(inf)}, de décrire ${B(sujetGN)}.`];
     if (a.att) {
       const adj = mots[a.att.i].tag === 'A';
-      const outil = adj ? `à l'adjectif qualificatif ${g(texteV(q, a.att))}` : `au groupe nominal ${g(texteV(q, a.att))}`;
+      /* un nom attribut : on parle du nom lui-même (« animal ») ; les autres mots de son groupe seront vus au jeu 4 */
+      const outil = adj ? `à l'adjectif qualificatif ${g(texteV(q, a.att))}` : `au ${natNom(a.att.i)} ${g(motV(q, a.att.i))}`;
       d.push(`Le ${natNom(a.suj.i)} ${g(motV(q, a.suj.i))} est décrit grâce ${outil}, qui permet d'attribuer une caractéristique ${aGN(sujetGN)}${meta.caract ? `, ${meta.caract}` : ''} : d'où sa fonction d'attribut du sujet.`);
+      const autres = [];
+      for (let k = a.att.debut; k <= a.att.fin; k++) if (k !== a.att.i) autres.push(g(motV(q, k)));
+      if (!adj && autres.length) d.push(`(${autres.length > 1 ? `Les mots ${autres.slice(0, -1).join(', ')} et ${autres[autres.length - 1]} font` : `Le mot ${autres[0]} fait`} partie du groupe nominal du mot ${g(motV(q, a.att.i))} : nous verrons comment les analyser dans l'exercice suivant.)`);
     }
     a.cc.forEach((c) => d.push(`${cap(natArt(c.i).replace(/^une? /, 'le '))} ${g(motV(q, c.i))}, avec la fonction complément circonstanciel ${NOM_FN[c.fn].replace('CC ', '')}, ${meta.cc || `précise ${POUR[c.fn]} cette description est vraie`}.`));
     return d.join(' ');

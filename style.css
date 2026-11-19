@@ -549,3 +549,5 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .game4 .sentence .pn.suite { margin-left:10px; }
 .carte-choix-1 { grid-template-columns:1fr; }
 .carte-choix-1 .nature-button { text-align:left; font-size:1rem; }
+/* v31 : « L'éléphant » : le mot avec apostrophe reste collé au suivant */
+.game4 .sentence .w.apos { padding-right:0; margin-right:-6px; }
