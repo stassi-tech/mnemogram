@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MNEMOGRAM — Fiche temps et modes des verbes</title>
+<!--
+  UNE FICHE DE MNEMOGRAM, fabriquée par l'atelier de textes à partir d'un fichier Word.
+  Pour la modifier : modifier le Word, puis le redonner à l'atelier (outils\atelier-textes-mnemogram.html).
+  Le jeu lit, pour chaque nature ou fonction (data-code), la ligne « explication » : c'est ce qui s'affiche
+  sous les boutons et ce que dit la voix.
+-->
+<style>
+  body { margin:0; padding:24px 28px 40px; font-family:Arial,sans-serif; color:#000; background:#fff; line-height:1.45; }
+  h1 { font-family:Georgia,serif; font-size:1.5rem; margin:0 0 6px; }
+  .intro p { font-size:.95rem; margin:0 0 6px; }
+  .intro { margin:0 0 18px; }
+  h2 { font-size:1.05rem; margin:24px 0 8px; }
+  .nature { display:grid; grid-template-columns:220px 1fr; gap:4px 16px; padding:10px 0; border-top:1px solid #ccc; }
+  .nature .nom { grid-row:span 3; margin:0; font-size:1rem; }
+  .nature p { margin:0; font-size:.95rem; }
+  .nature .exemples { font-style:italic; }
+  .nature .exemples.formule { font-style:normal; font-weight:700; }
+  @media (max-width:600px) { body { padding:16px; } .nature { grid-template-columns:1fr; } .nature .nom { grid-row:auto; } }
+</style>
+</head>
+<body>
+  <h1>Fiche temps et modes des verbes</h1>
+  <div class="intro"><p>Une forme verbale a toujours un <strong>mode</strong> et un <strong>temps</strong>.</p><p>Le <strong>mode</strong> dit comment on présente l'action&nbsp;: comme un fait réel, un ordre, un souhait, une idée, une hypothèse… Il y a <strong>sept modes</strong>.</p><p>Le <strong>temps</strong> dit quand l'action se passe par rapport au moment où l'on parle&nbsp;: en même temps, avant ou après.</p><p>Un temps <strong>simple</strong> s'écrit en un seul mot&nbsp;: <em>je mange</em>. Un temps <strong>composé</strong> s'écrit avec l'auxiliaire <strong>avoir</strong> ou <strong>être</strong> suivi du participe passé&nbsp;: <em>j'ai mangé</em>, <em>je suis parti</em>. Le temps de l'auxiliaire donne le nom du temps composé&nbsp;: auxiliaire au présent → passé composé&nbsp;; à l'imparfait → plus-que-parfait&nbsp;; au passé simple → passé antérieur&nbsp;; au futur → futur antérieur.</p><p>Un texte au <strong>système du présent</strong> raconte ce qui se passe au moment où on le lit. Un texte au <strong>système du passé</strong> se présente comme un souvenir.</p></div>
+
+  <h2>1. Les sept modes</h2>
+    <section class="nature" data-code="MODE.ind">
+      <h3 class="nom">L'indicatif</h3>
+      <p class="exemples">présent, imparfait, passé simple, futur simple&nbsp;; passé composé, plus-que-parfait, passé antérieur, futur antérieur</p>
+      <p class="explication">C'est le <strong>mode du fait réel ou certain</strong>&nbsp;: <em>Il vient aujourd'hui.</em></p>
+      <p class="remarque"><em>je mange, je mangeais, je mangeai, je mangerai&nbsp;; j'ai mangé, j'avais mangé, j'eus mangé, j'aurai mangé</em></p>
+    </section>
+    <section class="nature" data-code="MODE.cond">
+      <h3 class="nom">Le conditionnel</h3>
+      <p class="exemples">présent, passé&nbsp;: <em>je mangerais, j'aurais mangé</em></p>
+      <p class="explication">C'est le mode du <strong>souhait</strong> (<em>je voudrais un gâteau</em>) ou du <strong>regret</strong> (<em>j'aurais voulu un gâteau</em>). C'est aussi le mode de l'<strong>hypothèse</strong>&nbsp;: encore possible au présent (<em>Si j'étais riche, je ne travaillerais pas</em>), qui n'est plus réalisable au passé (<em>Si j'avais été riche, je n'aurais pas travaillé</em>).</p>
+      <p class="remarque">Dans un récit au passé, le conditionnel présent dit aussi une action <strong>postérieure</strong> au passé simple ou à l'imparfait&nbsp;: <em>Je pensais qu'il ne recommencerait pas.</em></p>
+    </section>
+    <section class="nature" data-code="MODE.subj">
+      <h3 class="nom">Le subjonctif</h3>
+      <p class="exemples">présent, passé, imparfait, plus-que-parfait&nbsp;: <em>que je mange, que j'aie mangé, que je mangeasse, que j'eusse mangé</em></p>
+      <p class="explication">C'est le <strong>mode de l'idée et du sentiment</strong>. Seul, il traduit un ordre ou un souhait&nbsp;: <em>Qu'il vienne me voir&nbsp;!</em> Après un verbe d'idée ou de sentiment&nbsp;: <em>J'ai peur qu'il soit là.</em> Il est obligatoire après certaines conjonctions&nbsp;: <em>bien qu'il pleuve</em>, <em>pour qu'il soit libre</em>, <em>avant que tu partes</em>.</p>
+      <p class="remarque">On le reconnaît souvent au mot <strong>que</strong> qui le précède.</p>
+    </section>
+    <section class="nature" data-code="MODE.imp">
+      <h3 class="nom">L'impératif</h3>
+      <p class="exemples">présent, passé&nbsp;: <em>mange, finis, pars&nbsp;; aie mangé, aie fini, sois parti</em></p>
+      <p class="explication">C'est le <strong>mode de l'ordre</strong>&nbsp;: <em>Viens demain&nbsp;!</em> Il n'a pas de sujet exprimé.</p>
+    </section>
+    <section class="nature" data-code="MODE.inf">
+      <h3 class="nom">L'infinitif</h3>
+      <p class="exemples">présent, passé&nbsp;: <em>manger, finir, partir&nbsp;; avoir mangé, avoir fini, être parti</em></p>
+      <p class="explication">Le verbe n'est <strong>pas conjugué</strong>&nbsp;: il ne change pas avec la personne. C'est le <strong>nom du verbe</strong>, celui qu'on trouve dans le dictionnaire&nbsp;: <em>Nous pouvons passer des heures.</em></p>
+    </section>
+    <section class="nature" data-code="MODE.part">
+      <h3 class="nom">Le participe</h3>
+      <p class="exemples">présent, passé&nbsp;: <em>mangeant, finissant, partant&nbsp;; ayant mangé, ayant fini, étant parti</em></p>
+      <p class="explication">Le participe présent se termine par <strong>-ant</strong> et ne change pas&nbsp;: <em>marchant, plaisantant</em>. Il présente une action qui en accompagne une autre.</p>
+      <p class="remarque">Le participe passé (<em>mangé, fini, parti</em>) sert aussi à former les temps composés.</p>
+    </section>
+    <section class="nature" data-code="MODE.ger">
+      <h3 class="nom">Le gérondif</h3>
+      <p class="exemples">présent, passé&nbsp;: <em>en mangeant, en finissant, en partant&nbsp;; en ayant mangé</em></p>
+      <p class="explication">C'est le participe présent précédé de <strong>en</strong>. Il dit <strong>comment</strong> ou <strong>pendant quoi</strong> se fait l'action&nbsp;: <em>Nous courons en espérant trouver un bolet.</em></p>
+    </section>
+
+  <h2>2. Les temps du système du présent</h2>
+    <section class="nature" data-code="TPS.pres">
+      <h3 class="nom">Le présent</h3>
+      <p class="exemples"><em>je mange, je finis, je pars</em></p>
+      <p class="explication">Le <strong>présent d'énonciation</strong>&nbsp;: l'action se passe au moment précis où elle est dite (<em>Mon frère pousse un hurlement</em>), ou elle est en train de se dérouler (<em>Je fais mes devoirs</em>).</p>
+      <p class="remarque">Il y a aussi le présent d'<strong>habitude</strong> (<em>Tous les jours, il vient chez nous</em>), de <strong>description</strong> (<em>Il est grand</em>), de <strong>vérité générale</strong> (<em>Les chiens sont cruels</em>) et d'<strong>ordre</strong> (<em>Tu viens&nbsp;!</em>).</p>
+    </section>
+    <section class="nature" data-code="TPS.pc">
+      <h3 class="nom">Le passé composé</h3>
+      <p class="exemples"><em>j'ai mangé, j'ai fini, je suis parti</em></p>
+      <p class="explication">L'action est <strong>antérieure au présent</strong>&nbsp;: elle s'est passée avant le moment où l'on parle&nbsp;: <em>Cette bête n'a pas mangé depuis hier.</em></p>
+    </section>
+    <section class="nature" data-code="TPS.fut">
+      <h3 class="nom">Le futur simple</h3>
+      <p class="exemples"><em>je mangerai, je finirai, je partirai</em></p>
+      <p class="explication">L'action est <strong>postérieure au présent</strong>&nbsp;: elle se passera après&nbsp;: <em>Je pense qu'il ne recommencera pas demain.</em></p>
+      <p class="remarque">Il y a aussi le futur de <strong>probabilité</strong> (<em>Il sera chez ses parents</em> = il doit être chez ses parents), de <strong>politesse</strong> (<em>Cela fera dix euros</em>) et d'<strong>ordre</strong> (<em>Tu ne tueras point</em>).</p>
+    </section>
+    <section class="nature" data-code="TPS.fa">
+      <h3 class="nom">Le futur antérieur</h3>
+      <p class="exemples"><em>j'aurai mangé, j'aurai fini, je serai parti</em></p>
+      <p class="explication">L'action se passera <strong>avant une autre action future</strong>&nbsp;: <em>Quand tu auras fini, tu sortiras.</em></p>
+    </section>
+
+  <h2>3. Les temps du système du passé</h2>
+    <section class="nature" data-code="TPS.ps">
+      <h3 class="nom">Le passé simple</h3>
+      <p class="exemples"><em>je mangeai, je finis, je partis</em></p>
+      <p class="explication">Le passé simple de <strong>premier plan</strong>&nbsp;: l'action s'est passée à un moment précis du passé&nbsp;: <em>Mon frère poussa un hurlement.</em> Elle a un début et une fin.</p>
+    </section>
+    <section class="nature" data-code="TPS.imp">
+      <h3 class="nom">L'imparfait</h3>
+      <p class="exemples"><em>je mangeais, je finissais, je partais</em></p>
+      <p class="explication">L'imparfait de <strong>second plan</strong>&nbsp;: l'action est en train de se dérouler, sans limite précise&nbsp;: <em>Je faisais mes devoirs.</em></p>
+      <p class="remarque">Il y a aussi l'imparfait d'<strong>habitude</strong> (<em>Tous les jours, il venait chez nous</em>), de <strong>description</strong> (<em>Il était grand</em>) et d'<strong>hypothèse</strong> (<em>Si j'étais riche…</em>).</p>
+    </section>
+    <section class="nature" data-code="TPS.pqp">
+      <h3 class="nom">Le plus-que-parfait</h3>
+      <p class="exemples"><em>j'avais mangé, j'avais fini, j'étais parti</em></p>
+      <p class="explication">L'action est <strong>antérieure au passé simple ou à l'imparfait</strong>&nbsp;: <em>Cette bête n'avait pas mangé depuis la veille.</em></p>
+      <p class="remarque">Le plus-que-parfait d'<strong>hypothèse</strong> dit une hypothèse qui n'est plus réalisable&nbsp;: <em>Si j'avais été riche, je n'aurais pas travaillé.</em></p>
+    </section>
+    <section class="nature" data-code="TPS.pa">
+      <h3 class="nom">Le passé antérieur</h3>
+      <p class="exemples"><em>j'eus mangé, j'eus fini, je fus parti</em></p>
+      <p class="explication">L'action s'est passée <strong>juste avant</strong> une action au passé simple&nbsp;: <em>Quand il eut mangé, il partit.</em></p>
+    </section>
+
+  <h2>4. Les temps des autres modes</h2>
+    <section class="nature" data-code="TPS.passe">
+      <h3 class="nom">Le passé</h3>
+      <p class="exemples"><em>j'aurais mangé, que j'aie mangé, aie mangé, avoir mangé, ayant mangé, en ayant mangé</em></p>
+      <p class="explication">Au conditionnel, au subjonctif, à l'impératif, à l'infinitif, au participe et au gérondif, le temps composé s'appelle simplement le <strong>passé</strong>. Il présente l'action comme <strong>terminée</strong>.</p>
+      <p class="remarque">Le temps simple de ces modes s'appelle le <strong>présent</strong>&nbsp;: <em>je mangerais, que je mange, mange, manger, mangeant, en mangeant</em>.</p>
+    </section>
+
+  <h2>5. Le système du passé dans la langue d'aujourd'hui</h2>
+    <section class="nature" data-code="LANG.ps">
+      <h3 class="nom">Le passé simple devient un passé composé</h3>
+      <p class="exemples"><em>cria → a crié&nbsp;; courûmes → avons couru&nbsp;; repartîmes → sommes repartis</em></p>
+      <p class="explication">Dans la langue courante, on n'emploie presque plus le passé simple&nbsp;: on le remplace par le <strong>passé composé</strong>. Le passé simple reste la langue des livres et des contes.</p>
+    </section>
+    <section class="nature" data-code="LANG.subj">
+      <h3 class="nom">L'imparfait du subjonctif devient un subjonctif présent</h3>
+      <p class="exemples"><em>fût → soit&nbsp;; fussent → soient</em></p>
+      <p class="explication">L'<strong>imparfait du subjonctif</strong> a presque disparu&nbsp;: même dans un texte au passé, on emploie le <strong>subjonctif présent</strong>&nbsp;: <em>Nous aurions voulu que la cueillette soit aussi bonne.</em></p>
+    </section>
+    <section class="nature" data-code="LANG.fut">
+      <h3 class="nom">Le futur dans le passé</h3>
+      <p class="exemples"><em>découvririons → allions découvrir</em></p>
+      <p class="explication">Pour dire qu'une action passée était encore à venir, la langue des livres emploie le <strong>conditionnel présent</strong> (<em>nous découvririons</em>). La langue courante dit souvent <strong>aller à l'imparfait + infinitif</strong> (<em>nous allions découvrir</em>).</p>
+    </section>
+
+</body>
+</html>
