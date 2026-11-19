@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v32';
+const APP_VERSION = 'v33';
 
 const $ = (id) => document.getElementById(id);
 
@@ -1832,9 +1832,16 @@ const CARTES_TAB = {
     return { vert: false, texte: `Le verbe « ${inf} » a-t-il aussi un mot de fonction COS, qui répondrait à la question « ${inf} quelque chose + à qui ? » ?`, choix: ['oui', 'non'] };
   },
   tobj: () => { const v = tabState.verbes[tabState.vi]; return { vert: false, texte: tabState.objet === 'F.att' ? 'Appuie sur l\'attribut du sujet.' : `Appuie sur le ${NOM_FN[tabState.objet]} du verbe « ${infT(v)} ».` }; },
-  tccq: () => ({ vert: false, texte: `${tabState.msg}Dans ce tableau, donne-t-on ${tabState.ccFait ? 'd\'autres circonstances' : 'des circonstances'} : où, quand, comment, pourquoi ?`, choix: ['oui', 'non'] }),
-  tcc: () => ({ vert: false, texte: 'Appuie sur le mot qui donne cette circonstance : c\'est un complément circonstanciel.' }),
-  tcctype: () => ({ vert: false, texte: `À quelle question répond « ${motT(tabState.courant)} » ?`, choix: CC_CODES, une: true, labels: { 'F.ccl': 'Où ? (CC de lieu)', 'F.cct': 'Quand ? (CC de temps)', 'F.ccm': 'Comment ? (CC de manière)', 'F.ccc': 'Pourquoi ? (CC de cause)' } }),
+  tccq: () => {
+    const v = tabState.verbes[tabState.vi];
+    return { vert: false, texte: `${tabState.msg}« ${groupeVerbalT(v)} » : est-ce qu'on donne ${tabState.ccFait ? 'une autre circonstance' : 'une circonstance'} ? Où ? Quand ? Comment ? Pourquoi ?`, choix: ['oui', 'non'] };
+  },
+  tcc: () => ({ vert: false, texte: `Appuie sur le mot qui donne cette circonstance : c'est un complément circonstanciel.` }),
+  tcctype: () => {
+    const gv = groupeVerbalT(tabState.verbes[tabState.vi]);
+    return { vert: false, texte: `À quelle question répond « ${motT(tabState.courant)} » ?`, choix: CC_CODES, une: true,
+      labels: { 'F.ccl': `${gv}… où ? (CC de lieu)`, 'F.cct': `${gv}… quand ? (CC de temps)`, 'F.ccm': `${gv}… comment ? (CC de manière)`, 'F.ccc': `${gv}… pourquoi ? (CC de cause)` } };
+  },
   tdetq: () => ({ vert: true, texte: `${tabState.msg}Passons au groupe du nom « ${motT(tabState.noms[tabState.ni])} ». Le nom « ${motT(tabState.noms[tabState.ni])} » a-t-il un déterminant ?`, choix: ['oui', 'non'] }),
   tdet: () => ({ vert: true, texte: `Appuie sur le déterminant du nom « ${motT(tabState.noms[tabState.ni])} ».` }),
   tdetnat: () => ({ vert: true, texte: `Quelle est la nature précise du déterminant « ${motT(tabState.courant)} » ?`, choix: ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int'], petits: true }),
@@ -1846,6 +1853,18 @@ const CARTES_TAB = {
   tinv: () => ({ vert: true, texte: `${tabState.msg}${tabState.invVu ? 'Appuie sur un autre mot invariable.' : 'Il reste des mots invariables, qui n\'ont pas de fonction. Appuie sur l\'un d\'eux.'}` }),
   tinvnat: () => ({ vert: true, texte: `Quelle est la nature du mot « ${motT(tabState.courant)} » ?`, choix: ['P', 'Av', 'CC', 'CS', 'I'], labels: NAT_LIB }),
 };
+/* v33 : les compléments circonstanciels se cherchent verbe par verbe, en repartant du groupe déjà trouvé :
+   « Le professeur a organisé une discussion » : où ? quand ? comment ? pourquoi ? */
+function groupeVerbalT(v) {
+  const C = tabCases();
+  const tetes = C.map((c, i) => i).filter((i) => i === v || (C[i].v === v && ['F.suj', 'F.cod', 'F.coi', 'F.cos'].includes(C[i].fn)) || (C[i].fn === 'F.att' && C[C[i].s].v === v));
+  const avecDet = new Set(tetes);
+  C.forEach((c, i) => { if (/^D\./.test(c.nat) && tetes.includes(c.n)) avecDet.add(i); });
+  const x = [...avecDet].sort((a, b) => a - b).map((i) => { const t = C[i].t.replace(/[.,]$/, ''); return C[i].nat === 'NP' ? t : t.toLowerCase(); }).join(' ');
+  return x.charAt(0).toUpperCase() + x.slice(1);
+}
+/* les compléments circonstanciels qui dépendent de ce verbe (ou de l'infinitif qui le complète : « veut participer oralement ») */
+const ccDuVerbe = (v, j) => { const C = tabCases(), c = C[j]; return CC_CODES.includes(c.fn) && (c.v === v || (C[c.v] && C[c.v].v === v)); };
 const reste = (filtre) => tabCases().map((c, i) => (filtre(c, i) ? i : -1)).filter((i) => i >= 0);
 function etapeTab(e, msg, meme) { tabState.msg = msg ? `${capitalize(msg)} ` : ''; gnVers(e, meme); }
 /* l'enchaînement de la méthode */
@@ -1869,7 +1888,14 @@ function suiteObjets() {
   if (tabState.objet === 'F.cod') { tabState.objet = objetT('F.cod') >= 0 ? 'F.cos' : 'F.coi'; etapeTab('tobjq'); return; }
   tabState.vi += 1;
   if (tabState.vi < tabState.verbes.length) { debutObjets(); return; }
-  tabState.ccFait = false; etapeTab('tccq', `Les compléments des verbes sont trouvés : ${pointsTab()}.`);
+  tabState.vi = 0; tabState.ccFait = false;
+  etapeTab('tccq', `Les compléments d'objet et l'attribut sont trouvés : ${pointsTab()}. Cherchons maintenant les circonstances, verbe par verbe.`);
+}
+function suiteCC(msg) {
+  tabState.vi += 1; tabState.ccFait = false;
+  if (tabState.vi < tabState.verbes.length) { etapeTab('tccq', msg); return; }
+  tabState.ni = 0; tabState.adjFaits = new Set();
+  suiteGN(`Les verbes et leurs compléments sont analysés : ${pointsTab()}. Passons aux groupes nominaux.`);
 }
 function suiteGN(msg) {
   while (tabState.ni < tabState.noms.length) {
@@ -1909,7 +1935,7 @@ function clicMotTab(i, el) {
     tabState.courant = k; compteTab(k, 'fn'); poseTab(k, fnTab(k).replace(/ (du|au) /, '<br>$1 '), true); gnVers('tnat', true); return;
   }
   if (e === 'tcc') {
-    const k = prendre(reste((x, j) => CC_CODES.includes(x.fn) && !tabState.fnOk.has(j)), 'un complément circonstanciel');
+    const k = prendre(reste((x, j) => ccDuVerbe(tabState.verbes[tabState.vi], j) && !tabState.fnOk.has(j)), 'un complément circonstanciel de ce verbe');
     if (k === null || k === undefined) return;
     tabState.courant = k; tabState.ccFait = true; gnVers('tcctype', true); return;
   }
@@ -1973,7 +1999,7 @@ function answerBoutonTab(code, btn) {
     setTimeout(vrai ? suiteOui : suiteNon, 500);
   };
   if (e === 'tobjq') { const k = objetT(tabState.objet); ouiNon(k >= 0, () => gnVers('tobj', true), suiteObjets, NOM_FN[tabState.objet]); return; }
-  if (e === 'tccq') { ouiNon(reste((x, j) => CC_CODES.includes(x.fn) && !tabState.fnOk.has(j)).length > 0, () => gnVers('tcc', true), () => { tabState.ni = 0; tabState.adjFaits = new Set(); suiteGN(`Les verbes et leurs compléments sont analysés : ${pointsTab()}. Passons aux groupes nominaux.`); }, 'complément circonstanciel'); return; }
+  if (e === 'tccq') { ouiNon(reste((x, j) => ccDuVerbe(tabState.verbes[tabState.vi], j) && !tabState.fnOk.has(j)).length > 0, () => gnVers('tcc', true), () => suiteCC(), 'circonstance'); return; }
   if (e === 'tdetq') { ouiNon(reste((x) => /^D\./.test(x.nat) && x.n === n).length > 0, () => gnVers('tdet', true), () => etapeTab('tadjq'), 'déterminant'); return; }
   if (e === 'tadjq') { ouiNon(reste((x, j) => (x.fn === 'F.epi' || x.fn === 'F.app') && x.n === n && !tabState.fnOk.has(j)).length > 0, () => gnVers('tadj', true), () => etapeTab('tcdnq'), 'adjectif épithète ou apposé'); return; }
   if (e === 'tcdnq') { ouiNon(reste((x) => x.fn === 'F.cdn' && x.n === n).length > 0, () => gnVers('tcdn', true), nomSuivant, 'complément du nom'); }
