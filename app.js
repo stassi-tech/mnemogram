@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v51';
+const APP_VERSION = 'v52';
 
 const $ = (id) => document.getElementById(id);
 
@@ -918,7 +918,7 @@ function openGame(id) {
   $('natures-panel').classList.toggle('game8', !!GAMES[id].sx);
   $('natures-panel').classList.toggle('game7v', !!GAMES[id].valeurs);
   $('nat-ready-explanation').innerHTML = id === 'phrase1'
-    ? 'Dans ce petit texte, décris la <strong>syntaxe</strong> de chaque phrase, puis la <strong>nature</strong> de ses propositions. À droite, choisis une bande : en <strong>bleu</strong>, phrase nominale, verbale simple ou verbale complexe ; en <strong>vert</strong>, la nature des propositions (indépendante, principale ou subordonnée). Puis <strong>étire-la</strong> sous le texte, du premier mot au dernier : glisse ton doigt, ou touche le premier mot puis le dernier. Chaque bande juste vaut 1 point.'
+    ? 'Dans ce petit texte, décris la <strong>syntaxe</strong> de chaque phrase et la <strong>nature</strong> de ses propositions. Sous le texte, des bandes vierges sont déjà tracées : en <strong>bleu</strong> sous chaque phrase, en <strong>vert</strong> sous chaque proposition. Touche une bande, puis choisis à droite ce qu\'elle est : phrase nominale, verbale simple ou verbale complexe ; proposition indépendante, principale ou subordonnée. Chaque bande juste du premier coup vaut 1 point.'
     : id === 'temps5'
     ? 'Voici un texte au <strong>système du passé</strong>. Réécris-le au <strong>système du présent</strong>, comme si les choses se passaient au moment où on les lit. Les mots soulignés doivent changer : des <strong>formes verbales</strong>, mais aussi des <strong>indicateurs de temps</strong> (<em>ce jour-là</em> devient <em>aujourd\'hui</em>, <em>la veille</em> devient <em>hier</em>, <em>le lendemain</em> devient <em>demain</em>…). Appuie sur chacun et écris ce qu\'il devient. Chaque changement réussi vaut 1 point.'
     : id === 'temps6'
@@ -2872,7 +2872,7 @@ const TEXTES_SX = [
 ];
 /* les subordonnées du texte (relative, circonstancielle…) comptent toutes comme « subordonnée » */
 const natSX = (k) => (k === 'I' || k === 'P' ? k : 'SUB');
-const sx = { mots: [], phrases: [], props: [], bandes: [], sel: null, debut: null, glisse: null, cibles: {} };
+const sx = { mots: [], phrases: [], props: [], sel: null, cibles: {} };
 const SX_T = () => TEXTES_SX[game.questions[game.index].t];
 function decoupeSX(src) {
   const mots = [], phrases = [], props = [];
@@ -2900,13 +2900,20 @@ function bornesSouples(pr) {
   for (let i = pr.b + 1; libre(i); i++) fins.push(i);
   return { debuts, fins };
 }
+/* v52 : les bandes sont déjà tracées, vierges, sous chaque phrase (bleu) et chaque proposition (vert).
+   L'enfant touche une bande vierge, puis choisit à droite ce qu'elle est. Un seul essai : 1 point si c'est juste ;
+   sinon la bonne réponse s'écrit sur la bande, en hachuré, marquée ✗. */
+const ciblesSX = () => {
+  const l = [];
+  sx.phrases.forEach((ph, s) => { l.push({ cle: `syn${s}`, lane: 'syn', a: ph.a, b: ph.b, k: ph.k }); sx.props.forEach((pr, k) => { if (pr.s === s) l.push({ cle: `nat${k}`, lane: 'nat', a: pr.a, b: pr.b, k: natSX(pr.k) }); }); });
+  return l;
+};
 function showQuestionSX() {
   const d = decoupeSX(SX_T().texte);
-  Object.assign(sx, d, { bandes: [], sel: null, debut: null, glisse: null, cibles: {} });
-  d.phrases.forEach((p, k) => { sx.cibles[`syn${k}`] = { essais: 0, fait: false }; });
-  d.props.forEach((p, k) => { sx.cibles[`nat${k}`] = { essais: 0, fait: false }; });
+  Object.assign(sx, d, { sel: null, cibles: {} });
   currentGame.total = d.phrases.length + d.props.length;
   $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">« ${esc(SX_T().titre)} »</h3><div class="tm-texte sx-texte">${d.mots.map((m, i) => `<span class="w sx-mot" data-i="${i}"><span class="tx">${esc(m.t)}</span><span class="sx-lanes"><span class="sx-lane syn"></span><span class="sx-lane nat"></span></span></span>`).join('')}</div></div>`;
+  ciblesSX().forEach((c) => { sx.cibles[c.cle] = { ...c, fait: false }; peintSX(c.lane, c.a, c.b, `vide ${c.lane === 'syn' ? 'bleu' : 'vert'}`, ''); marqueCibleSX(c); });
   $('nat-character-stage').innerHTML = '';
   $('nat-correction').classList.add('hidden');
   $('nat-verdict-square').className = 'verdict-square';
@@ -2914,8 +2921,35 @@ function showQuestionSX() {
   $('nat-buttons-invariables').innerHTML = '';
   $('nat-progress-label').textContent = `« ${SX_T().titre} »`;
   game.score = 0;
-  branchePointeurSX();
+  $('nat-sentence').onclick = (ev) => {
+    const l = ev.target.closest('.sx-lane[data-cle]');
+    if (!l || !isSX() || game.fini) return;
+    choisitCibleSX(l.dataset.cle);
+  };
   majScoreSX(); panneauSX();
+  choisitCibleSX(ciblesSX()[0].cle);
+}
+/* dessiner une bande : les mots a…b, dans la rangée bleue (syn) ou verte (nat) ; l'étiquette au début de la bande
+   et de nouveau au début de chaque ligne quand la bande continue */
+function peintSX(lane, a, b, classe, texte) {
+  let haut = null;
+  for (let i = a; i <= b; i++) {
+    const w = wordEl(i), l = w?.querySelector(`.sx-lane.${lane}`);
+    if (!l) continue;
+    const nouvelleLigne = haut !== null && w.offsetTop > haut + 5;
+    haut = w.offsetTop;
+    l.className = `sx-lane ${lane} ${classe}${i === a ? ' debut' : ''}${i === b ? ' fin' : ''}`;
+    l.innerHTML = (i === a || nouvelleLigne) && texte ? `<span class="sx-etq">${texte}</span>` : '';
+  }
+}
+/* chaque morceau d'une bande connaît sa cible, pour qu'on puisse la toucher n'importe où */
+function marqueCibleSX(c) { for (let i = c.a; i <= c.b; i++) { const l = wordEl(i)?.querySelector(`.sx-lane.${c.lane}`); if (l) l.dataset.cle = c.cle; } }
+function choisitCibleSX(cle) {
+  const c = sx.cibles[cle]; if (!c || c.fait) return;
+  document.querySelectorAll('.sx-lane.choisie').forEach((l) => l.classList.remove('choisie'));
+  for (let i = c.a; i <= c.b; i++) wordEl(i)?.querySelector(`.sx-lane.${c.lane}`)?.classList.add('choisie');
+  sx.sel = cle;
+  panneauSX();
 }
 const sxFaits = () => Object.values(sx.cibles).filter((c) => c.fait).length;
 function majScoreSX() {
@@ -2923,119 +2957,45 @@ function majScoreSX() {
   $('nat-progress-bar').style.width = `${(sxFaits() / currentGame.total) * 100}%`;
 }
 function panneauSX(message) {
-  $('nat-instruction').textContent = 'Pose les bandes sous le texte';
-  const bouton = (lane, x) => `<button type="button" class="sx-bande-btn ${lane}${sx.sel && sx.sel.code === x.code ? ' choisie' : ''}" data-bande="${lane}:${x.code}">${x.nom}</button>`;
-  $('nat-buttons-variables').innerHTML = nbspFr(`<div class="carte sx-carte bleue libre"><p><strong>La phrase</strong> : quelle est sa syntaxe ?</p><div class="sx-palette">${BANDES.syn.map((x) => bouton('syn', x)).join('')}</div></div>
-    <div class="carte sx-carte verte active libre"><p><strong>Les propositions</strong> : quelle est leur nature ?</p><div class="sx-palette">${BANDES.nat.map((x) => bouton('nat', x)).join('')}</div></div>
-    <p class="sous sx-aide">${message || (sx.sel ? `Bande choisie : <strong>${NATURE_BY_CODE[sx.sel.code].nom}</strong>. Pose ton doigt sous le <strong>premier mot</strong> et glisse jusqu'au <strong>dernier mot</strong> (ou touche le premier mot, puis le dernier).` : 'Choisis une bande, puis étire-la sous les mots de la phrase ou de la proposition.')}</p>
-    <p class="sous">${sxFaits()} bande${sxFaits() > 1 ? 's' : ''} sur ${currentGame.total} posée${sxFaits() > 1 ? 's' : ''}.</p>`);
-  document.querySelectorAll('[data-bande]').forEach((b) => b.addEventListener('click', () => {
-    const [lane, code] = b.dataset.bande.split(':');
-    sx.sel = { lane, code }; sx.debut = null; effaceApercuSX(); panneauSX();
-  }));
+  $('nat-instruction').textContent = 'La syntaxe des phrases et la nature des propositions';
+  const c = sx.sel ? sx.cibles[sx.sel] : null;
+  const bouton = (lane, x) => `<button type="button" class="sx-bande-btn ${lane}" data-bande="${x.code}"${!c || c.lane !== lane ? ' disabled' : ''}>${x.nom}</button>`;
+  const morceau = c ? sx.mots.slice(c.a, c.b + 1).map((m) => m.t).join(' ') : '';
+  $('nat-buttons-variables').innerHTML = nbspFr(`${c ? `<p class="sx-question">${c.lane === 'syn' ? 'Quelle est la <strong>syntaxe</strong> de cette phrase ?' : 'Quelle est la <strong>nature</strong> de cette proposition ?'}<br><em>« ${esc(morceau)} »</em></p>` : ''}
+    <div class="carte sx-carte bleue libre${c && c.lane === 'syn' ? ' active' : ' eteinte'}"><p><strong>La phrase</strong> : quelle est sa syntaxe ?</p><div class="sx-palette">${BANDES.syn.map((x) => bouton('syn', x)).join('')}</div></div>
+    <div class="carte sx-carte verte libre${c && c.lane === 'nat' ? ' active' : ' eteinte'}"><p><strong>Les propositions</strong> : quelle est leur nature ?</p><div class="sx-palette">${BANDES.nat.map((x) => bouton('nat', x)).join('')}</div></div>
+    <p class="sous sx-aide">${message || 'Touche une bande vierge sous le texte (en bleu : une phrase ; en vert : une proposition), puis choisis ce qu\'elle est.'}</p>
+    <p class="sous">${sxFaits()} bande${sxFaits() > 1 ? 's' : ''} sur ${currentGame.total} remplie${sxFaits() > 1 ? 's' : ''}.</p>`);
+  document.querySelectorAll('[data-bande]').forEach((b) => b.addEventListener('click', () => repondSX(b.dataset.bande)));
 }
-/* dessiner une bande : les mots a…b, dans la rangée bleue (syn) ou verte (nat) */
-function peintSX(lane, a, b, classe, texte) {
-  let haut = null;
-  for (let i = a; i <= b; i++) {
-    const w = wordEl(i), l = w?.querySelector(`.sx-lane.${lane}`);
-    if (!l) continue;
-    /* l'étiquette au début de la bande, et de nouveau au début de chaque ligne quand la bande continue */
-    const nouvelleLigne = haut !== null && w.offsetTop > haut + 5;
-    haut = w.offsetTop;
-    l.className = `sx-lane ${lane} ${classe}${i === a ? ' debut' : ''}${i === b ? ' fin' : ''}`;
-    l.innerHTML = (i === a || nouvelleLigne) && texte ? `<span class="sx-etq">${texte}</span>` : '';
-  }
-}
-function effaceApercuSX() {
-  document.querySelectorAll('.sx-lane.apercu').forEach((l) => { l.className = l.className.replace(/ apercu.*$/, ''); l.innerHTML = ''; });
-  document.querySelectorAll('.sx-mot.depart').forEach((w) => w.classList.remove('depart'));
-}
-function apercuSX(a, b) {
-  effaceApercuSX();
-  if (!sx.sel) return;
-  const [x, y] = a <= b ? [a, b] : [b, a];
-  for (let i = x; i <= y; i++) {
-    const l = wordEl(i)?.querySelector(`.sx-lane.${sx.sel.lane}`);
-    if (l && !/\b(ok|revele)\b/.test(l.className)) { l.className = `sx-lane ${sx.sel.lane} apercu ${sx.sel.lane === 'syn' ? 'bleu' : 'vert'}${i === x ? ' debut' : ''}${i === y ? ' fin' : ''}`; }
-  }
-}
-function branchePointeurSX() {
-  const zone = $('nat-sentence');
-  const motSous = (ev) => { const el = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.sx-mot'); return el ? Number(el.dataset.i) : null; };
-  zone.onpointerdown = (ev) => {
-    if (!isSX() || game.fini) return;
-    const i = motSous(ev); if (i === null) return;
-    if (!sx.sel) { panneauSX('Choisis d\'abord une bande, à droite.'); return; }
-    ev.preventDefault();
-    sx.glisse = { a: i, b: i, bouge: false };
-    apercuSX(i, i);
-  };
-  zone.onpointermove = (ev) => {
-    if (!sx.glisse) return;
-    const i = motSous(ev); if (i === null || i === sx.glisse.b) return;
-    sx.glisse.b = i; sx.glisse.bouge = true; apercuSX(sx.glisse.a, i);
-  };
-  zone.onpointerup = () => {
-    if (!sx.glisse) return;
-    const g = sx.glisse; sx.glisse = null;
-    if (g.bouge && g.a !== g.b) { sx.debut = null; poseSX(Math.min(g.a, g.b), Math.max(g.a, g.b)); return; }
-    /* un simple toucher : premier mot, puis dernier mot */
-    if (sx.debut === null) { sx.debut = g.a; effaceApercuSX(); apercuSX(g.a, g.a); wordEl(g.a)?.classList.add('depart'); panneauSX('Bien ! Touche maintenant le <strong>dernier mot</strong> de la bande (ou le même mot si elle n\'en a qu\'un).'); return; }
-    const a = sx.debut; sx.debut = null;
-    poseSX(Math.min(a, g.a), Math.max(a, g.a));
-  };
-  zone.onpointerleave = () => { if (sx.glisse && sx.glisse.bouge) zone.onpointerup(); };
-}
-/* une bande posée : on cherche la phrase ou la proposition visée, puis on vérifie la couleur et les limites */
-function poseSX(a, b) {
-  effaceApercuSX();
-  const { lane, code } = sx.sel, item = NATURE_BY_CODE[code];
-  let cle, juste = false, cible, bonne, ba, bb, msg = '';
-  if (lane === 'syn') {
-    const s = sx.mots[a].s, ph = sx.phrases[s];
-    cle = `syn${s}`; cible = sx.cibles[cle]; bonne = BANDES.syn.find((x) => x.k === ph.k); ba = ph.a; bb = ph.b;
-    juste = item.k === ph.k && a === ph.a && b === ph.b;
-    if (!juste) msg = item.k !== ph.k ? 'Ce n\'est pas la bonne syntaxe pour cette phrase.' : 'La bande doit aller du premier au dernier mot de la phrase, jusqu\'au signe de ponctuation.';
-  } else {
-    let k = sx.mots[a].p;
-    if (k === -1) { for (let i = a; i <= b; i++) if (sx.mots[i].p !== -1) { k = sx.mots[i].p; break; } }
-    if (k === -1) {
-      const nominale = sx.phrases[sx.mots[a].s].k === 'N';
-      panneauSX(nominale ? 'Une phrase <strong>nominale</strong> n\'a pas de verbe, donc pas de proposition : pas de bande verte ici.' : 'Il n\'y a pas de proposition ici.');
-      return;
-    }
-    const pr = sx.props[k], bs = bornesSouples(pr);
-    cle = `nat${k}`; cible = sx.cibles[cle]; bonne = BANDES.nat.find((x) => x.k === natSX(pr.k)); ba = pr.a; bb = pr.b;
-    juste = item.k === natSX(pr.k) && bs.debuts.includes(a) && bs.fins.includes(b);
-    if (!juste) msg = item.k !== natSX(pr.k) ? 'Ce n\'est pas la bonne nature pour cette proposition.' : 'La bande ne s\'arrête pas aux limites de la proposition : une proposition se construit autour d\'un verbe conjugué.';
-  }
-  if (cible.fait) { panneauSX('Cette bande est déjà posée.'); return; }
+function repondSX(code) {
+  const c = sx.sel ? sx.cibles[sx.sel] : null; if (!c || c.fait || game.fini) return;
+  const item = NATURE_BY_CODE[code], bonne = (c.lane === 'syn' ? BANDES.syn : BANDES.nat).find((x) => x.k === c.k);
+  const juste = item.k === c.k, coul = c.lane === 'syn' ? 'bleu' : 'vert';
+  c.fait = true;
+  let msg;
   if (juste) {
-    cible.fait = true;
     game.score = Math.round((game.score + 1) * 10) / 10;
-    peintSX(lane, a, b, `ok ${lane === 'syn' ? 'bleu' : 'vert'}`, item.court);
+    peintSX(c.lane, c.a, c.b, `ok ${coul}`, item.court);
     msg = `✔ Juste : ${item.nom.toLowerCase()}.`;
   } else {
-    cible.essais += 1;
-    game.erreurs.push({ mot: sx.mots.slice(a, b + 1).map((m) => m.t).join(' '), bonne: bonne.nom.toLowerCase(), choisie: item.nom.toLowerCase(), phrase: `texte « ${SX_T().titre} »` });
-    peintSX(lane, a, b, `faux ${lane === 'syn' ? 'bleu' : 'vert'}`, item.court);
-    setTimeout(() => { for (let i = a; i <= b; i++) { const l = wordEl(i)?.querySelector(`.sx-lane.${lane}`); if (l && /\bfaux\b/.test(l.className)) { l.className = `sx-lane ${lane}`; l.innerHTML = ''; } } }, 1100);
-    if (cible.essais >= 2) {
-      cible.fait = true;
-      setTimeout(() => peintSX(lane, ba, bb, `revele ${lane === 'syn' ? 'bleu' : 'vert'}`, `✗ ${bonne.court}`), 1150);
-      msg += ` Deux erreurs : voici la bonne bande (${bonne.nom.toLowerCase()}).`;
-    } else msg += ' Essaie encore !';
+    game.erreurs.push({ mot: sx.mots.slice(c.a, c.b + 1).map((m) => m.t).join(' '), bonne: bonne.nom.toLowerCase(), choisie: item.nom.toLowerCase(), phrase: `texte « ${SX_T().titre} »` });
+    peintSX(c.lane, c.a, c.b, `revele ${coul}`, `✗ ${bonne.court}`);
+    msg = `Non : c'est une ${bonne.nom.toLowerCase()}.${c.lane === 'syn' ? (c.k === 'N' ? ' Elle n\'a pas de verbe.' : c.k === 'S' ? ' Elle n\'a qu\'un verbe conjugué.' : ' Elle a plusieurs verbes conjugués.') : (c.k === 'SUB' ? ' Elle porte en tête un mot subordonnant (qui, que, où, quand, si…).' : c.k === 'P' ? ' Une subordonnée dépend d\'elle.' : ' Elle peut être isolée par un point.')}`;
   }
+  sx.sel = null;
   majScoreSX(); panneauSX(msg);
-  if (sxFaits() === currentGame.total) setTimeout(finSX, 1600);
+  if (sxFaits() === currentGame.total) { setTimeout(finSX, 1500); return; }
+  /* la bande vierge suivante */
+  const l = ciblesSX(), p = l.findIndex((x) => x.cle === c.cle);
+  for (let d = 1; d <= l.length; d++) { const n = l[(p + d) % l.length]; if (!sx.cibles[n.cle].fait) { setTimeout(() => { if (!sx.sel) { choisitCibleSX(n.cle); panneauSX(msg); } }, juste ? 700 : 1800); break; } }
 }
 function finSX() {
-  sx.sel = null; effaceApercuSX();
+  sx.sel = null;
   $('nat-buttons-variables').innerHTML = '';
   $('nat-instruction').textContent = 'Toutes les bandes sont posées !';
   const total = currentGame.total;
-  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. Une phrase sans verbe est une <strong>phrase nominale</strong> ; avec un seul verbe conjugué, c'est une <strong>phrase verbale simple</strong>, qui forme une proposition indépendante ; avec plusieurs verbes, une <strong>phrase verbale complexe</strong> : elle a autant de propositions que de verbes conjugués. Ces propositions peuvent être <strong>indépendantes</strong> (juxtaposées ou coordonnées), ou former des couples <strong>principale + subordonnée</strong> : la subordonnée porte un mot subordonnant en tête (<em>qui, que, où, quand, si, parce que…</em>). Les bandes hachurées marquées ✗ montrent la bonne réponse, là où tu t'es trompé deux fois.`);
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. Une phrase sans verbe est une <strong>phrase nominale</strong> ; avec un seul verbe conjugué, c'est une <strong>phrase verbale simple</strong>, qui forme une proposition indépendante ; avec plusieurs verbes, une <strong>phrase verbale complexe</strong> : elle a autant de propositions que de verbes conjugués. Ces propositions peuvent être <strong>indépendantes</strong> (juxtaposées ou coordonnées), ou former des couples <strong>principale + subordonnée</strong> : la subordonnée porte un mot subordonnant en tête (<em>qui, que, où, quand, si, parce que…</em>). Les bandes hachurées marquées ✗ montrent la bonne réponse, là où tu t'es trompé.`);
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${game.score >= total - 0.05 ? 'correct' : game.score < total / 2 ? 'wrong' : 'half'}`;
   $('nat-next-button').textContent = 'Voir mon résultat →';

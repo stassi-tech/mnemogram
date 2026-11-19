@@ -687,3 +687,17 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .carte.sx-carte.bleue { border-color:#2a6fdb; background:#eef4ff; }
 .carte.sx-carte.bleue p { color:#173d7a; }
 .sx-aide { font-weight:700; }
+/* v52 : bandes vierges déjà tracées : on les touche, puis on choisit */
+.sx-texte { touch-action:auto; }
+.sx-lane { height:26px; line-height:26px; }
+.sx-lane[data-cle] { cursor:pointer; }
+.sx-lane.vide.bleu { background:rgba(42,111,219,.35); border:1px dashed rgba(170,200,255,.8); }
+.sx-lane.vide.vert { background:rgba(46,125,79,.35); border:1px dashed rgba(160,230,190,.8); }
+.sx-lane.vide.debut { border-left-style:solid; } .sx-lane.vide.fin { border-right-style:solid; }
+.sx-lane.choisie { outline:3px solid #ffd54a; outline-offset:-1px; background-color:rgba(255,213,74,.35) !important; }
+.sx-carte.eteinte { opacity:.45; }
+.sx-bande-btn:disabled { cursor:default; filter:grayscale(.3); }
+.sx-question { font-family:Georgia,serif; font-size:1.05rem; margin:0 0 10px; }
+.sx-lane.vide { border-left:none !important; border-right:none !important; }
+.sx-lane.vide.debut { border-left:1px solid rgba(255,255,255,.7) !important; }
+.sx-lane.vide.fin { border-right:1px solid rgba(255,255,255,.7) !important; }
