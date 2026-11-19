@@ -620,3 +620,10 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .game7 .sentence .w.forme.remplie .f { text-decoration-color:rgba(255,255,255,.35); }
 .game7 .character-stage { position:static; }
 .game7 .sentence-card { padding-bottom:64px; }
+/* v40 : les formes du 19e siècle à remettre dans la langue d'aujourd'hui */
+.game7 .sentence .w.trou .ancien { font-size:.6em; text-decoration:line-through; opacity:.9; line-height:1; margin-bottom:2px; }
+.game7 .sentence .w.trou .f { color:#ffe9a8; }
+.game7 .sentence .w.forme-corrigee .f { color:#ffc27a; }
+.carte.neutre { background:#f3f1ea; border-color:#8a7a5c; }
+.carte.neutre p { color:#3a3328; }
+.nature-button.forme-button { background:#5a4a32; border-color:#3a2f1e; color:#fff; }

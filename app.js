@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v39';
+const APP_VERSION = 'v40';
 
 const $ = (id) => document.getElementById(id);
 
@@ -211,6 +211,11 @@ const GAMES = {
   /* v39 : les temps et les modes, exercice 1 */
   temps1: { titre: 'Temps et modes, exercice 1 : reconnaissance des temps et des modes dans un texte au système du présent', type: 'Temps et modes dans un texte au système du présent, niveau 7', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 7, nb: 1, tm: true, total: 20, partie: 'temps' },
+  /* v40 : exercice 2, au système du passé : 1re partie dans la langue du 19e siècle, 2e partie dans celle d'aujourd'hui */
+  temps2: { titre: 'Temps et modes, exercice 2, 1re partie : un texte au système du passé, dans la langue du 19e siècle', type: 'Temps et modes au système du passé (langue du 19e siècle), niveau 8', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 8, nb: 1, tm: true, texte: 1, total: 20, partie: 'temps' },
+  temps3: { titre: 'Temps et modes, exercice 2, 2e partie : le même texte dans la langue d\'aujourd\'hui', type: 'Temps et modes au système du passé (langue d\'aujourd\'hui), niveau 9', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 9, nb: 1, tm: true, tm2: true, texte: 0, total: 12, partie: 'temps' },
 };
 GAMES.natures.niveau = 1; GAMES.natures2.niveau = 2;
 const nbQuestions = () => currentGame.nb || NB_QUESTIONS;
@@ -800,7 +805,7 @@ function buildNatureSequence() {
   return shuffle(liste);
 }
 function buildQuestions() {
-  if (currentGame.tm) return [{ tm: true, t: 0 }];
+  if (currentGame.tm) return [{ tm: true, t: currentGame.texte || 0 }];
   if (currentGame.tab) { marqueTexte(texteChoisi); return [{ tab: true, t: texteChoisi }]; }
   if (currentGame.gn) return buildQuestionsGN();
   if (currentGame.gv) return buildQuestionsGV();
@@ -888,9 +893,13 @@ function openGame(id) {
   /* v27 : le jeu 3 marche maintenant comme le jeu 4 (consignes, carrés verts et rouges sous les mots) */
   $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions' || id === 'tableau' || id === 'libre');
   $('natures-panel').classList.toggle('game5', id === 'tableau' || id === 'libre');
-  ['game3', 'game4'].forEach((c) => { if (id === 'temps1') $('natures-panel').classList.add(c); });
-  $('natures-panel').classList.toggle('game7', id === 'temps1');
-  $('nat-ready-explanation').innerHTML = id === 'temps1'
+  ['game3', 'game4'].forEach((c) => { if (GAMES[id].tm) $('natures-panel').classList.add(c); });
+  $('natures-panel').classList.toggle('game7', !!GAMES[id].tm);
+  $('nat-ready-explanation').innerHTML = id === 'temps2'
+    ? 'Voici un texte au <strong>système du passé</strong> : il se présente comme un <strong>souvenir</strong>. Il est écrit dans la langue du <strong>19e siècle</strong>, avec des passés simples et des subjonctifs imparfaits. Vingt <strong>formes verbales</strong> y sont soulignées : donne le <strong>temps</strong> (étiquette verte) et le <strong>mode</strong> (étiquette rouge) de chacune. 0,5 point pour le temps, 0,5 pour le mode, s\'ils sont justes du premier coup.'
+    : id === 'temps3'
+    ? 'Aujourd\'hui, on ne parle plus comme au 19e siècle : certaines formes ont changé. Dans ce texte, <strong>six formes anciennes</strong> sont écrites en petit et barrées. Pour chacune, choisis la <strong>forme d\'aujourd\'hui</strong> (1 point), puis donne son <strong>temps</strong> (0,5 point) et son <strong>mode</strong> (0,5 point).'
+    : id === 'temps1'
     ? 'Voici un texte au <strong>système du présent</strong> : l\'action se passe au moment où on le lit. Vingt <strong>formes verbales</strong> y sont soulignées. Appuie sur chacune, dans l\'ordre que tu veux, et donne son <strong>temps</strong> (étiquette verte) puis son <strong>mode</strong> (étiquette rouge). Chaque forme vaut 1 point : 0,5 pour le temps, 0,5 pour le mode, s\'ils sont justes du premier coup.'
     : id === 'libre'
     ? 'Cette fois, <strong>pas de guide</strong> : remplis le tableau de vingt cases <strong>seul</strong>, dans l\'ordre que tu veux. Appuie sur une case, choisis la <strong>nature</strong> du mot (en vert) et sa <strong>fonction</strong> (en rouge), puis appuie sur le mot dont elle dépend (le verbe, le sujet ou le nom). Tu peux revenir sur une case autant que tu veux. Quand tu as fini, appuie sur <strong>« Corriger mon tableau »</strong> : chaque case vaut 1 point, 0,5 pour la nature et 0,5 pour la fonction.'
@@ -917,7 +926,7 @@ const isG4 = () => currentGame === GAMES.gn;
 const isG5 = () => currentGame === GAMES.tableau;
 const isG6 = () => currentGame === GAMES.libre;
 function scoreLabel(n) {
-  if (isG5() || isG6() || isT1()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''} sur 20`;
+  if (isG5() || isG6() || isT1()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''} sur ${currentGame.total || 20}`;
   if (isG3() || isG4()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''}`;
   return `${n} bonne${n > 1 ? 's' : ''} réponse${n > 1 ? 's' : ''}`;
 }
@@ -943,7 +952,7 @@ function showQuestion() {
   if (isG3()) { showQuestionGV(); return; }
   if (isG5()) { showQuestionTab(); return; }
   if (isG6()) { showQuestionLibre(); return; }
-  if (isT1()) { showQuestionTM(); return; }
+  if (isT1()) { (currentGame.tm2 ? showQuestionTrous : showQuestionTM)(); return; }
   const q = game.questions[game.index];
   game.essais = 0;
   $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mots || q.mot);
@@ -2400,18 +2409,37 @@ const NOM_TM = (code) => NATURE_BY_CODE[code]?.nom || code;
 const TEXTES_TM = [
   { titre: 'Champignons', systeme: 'présent',
     texte: "Aujourd'hui il {fait|pres|ind} beau et nous nous {promenons|pres|ind} dans la forêt où nous {cherchons|pres|ind} souvent des champignons. Nous {pouvons|pres|ind} y {passer|pres|inf} des heures, {marchant|pres|part} , {plaisantant|pres|part} , sans jamais nous {lasser|pres|inf} . Hier nous en {avons trouvé|pc|ind} trois kilos et nous {voudrions|pres|cond} que la cueillette {soit|pres|subj} aussi bonne aujourd'hui. Soudain ma sœur {crie|pres|ind} : « {Venez|pres|imp} ! » Alors nous {courons|pres|ind} vers elle {en espérant|pres|ger} que nous {découvrirons|fut|ind} un splendide bolet ! Mais, hélas, ce ne {sont|pres|ind} que de petits champignons et je {crains|pres|ind} bien qu'ils {soient|pres|subj} vénéneux. Nous {repartons|pres|ind} vers d'autres découvertes." },
+  /* v40 : le même texte au système du passé, dans la langue du 19e siècle (passé simple, imparfait du subjonctif…) */
+  { titre: 'Champignons, dans la langue du 19e siècle', systeme: 'passé',
+    texte: "Ce jour-là il {faisait|imp|ind} beau et nous nous {promenions|imp|ind} dans la forêt où nous {cherchions|imp|ind} souvent des champignons. Nous {pouvions|imp|ind} y {passer|pres|inf} des heures, {marchant|pres|part} , {plaisantant|pres|part} , sans jamais nous {lasser|pres|inf} . La veille nous en {avions trouvé|pqp|ind} trois kilos et nous {aurions voulu|passe|cond} que la cueillette {fût|imp|subj} aussi bonne pendant cette journée. Soudain ma sœur {cria|ps|ind} : « {Venez|pres|imp} ! » Alors nous {courûmes|ps|ind} vers elle {en espérant|pres|ger} que nous {découvririons|pres|cond} un splendide bolet ! Mais, hélas, ce n'{étaient|imp|ind} que de petits champignons et je {craignais|imp|ind} bien qu'ils {fussent|imp|subj} vénéneux. Nous {repartîmes|ps|ind} vers d'autres découvertes.",
+    bilan: "Le texte se présente comme un <strong>souvenir</strong> : c'est le système du passé. Les actions qui font avancer l'histoire, à un moment précis, sont au <strong>passé simple</strong> (premier plan) : <em>cria, courûmes, repartîmes</em>. Le décor et ce qui dure sont à l'<strong>imparfait</strong> (second plan) : <em>faisait, promenions, cherchions…</em> Ce qui s'est passé avant est au <strong>plus-que-parfait</strong> : <em>avions trouvé</em>. Ce qui se passera après est au <strong>conditionnel présent</strong> : <em>découvririons</em>. Et après « que », le subjonctif est à l'<strong>imparfait</strong> : <em>fût, fussent</em>." },
+];
+/* v40 : exercice 2, 2e partie : la langue d'aujourd'hui. Les formes du 19e siècle qui ont changé sont enlevées ;
+   l'enfant choisit la forme moderne, puis donne son temps et son mode. 1 point pour la forme, 0,5 pour le temps,
+   0,5 pour le mode : 2 points par forme. */
+const TROUS_TM = [
+  { titre: 'Champignons, dans la langue d\'aujourd\'hui', ancien: 1,
+    texte: "Ce jour-là il faisait beau et nous nous promenions dans la forêt où nous cherchions souvent des champignons. Nous pouvions y passer des heures, marchant, plaisantant, sans jamais nous lasser. La veille nous en avions trouvé trois kilos et nous aurions voulu que la cueillette {#0} aussi bonne pendant cette journée. Soudain ma sœur {#1} : « Venez ! » Alors nous {#2} vers elle en espérant que nous {#3} un splendide bolet ! Mais, hélas, ce n'étaient que de petits champignons et je craignais bien qu'ils {#4} vénéneux. Nous {#5} vers d'autres découvertes.",
+    trous: [
+      { ancien: 'fût', ancienTm: 'imparfait du subjonctif', moderne: 'soit', faux: ['était', 'serait'], tps: 'TPS.pres', mode: 'MODE.subj', pourquoi: "L'imparfait du subjonctif a disparu de la langue courante : on le remplace par le <strong>subjonctif présent</strong>." },
+      { ancien: 'cria', ancienTm: 'passé simple', moderne: 'a crié', faux: ['criait', 'crie'], tps: 'TPS.pc', mode: 'MODE.ind', pourquoi: "On n'emploie presque plus le passé simple : on le remplace par le <strong>passé composé</strong>." },
+      { ancien: 'courûmes', ancienTm: 'passé simple', moderne: 'avons couru', faux: ['courions', 'courons'], tps: 'TPS.pc', mode: 'MODE.ind', pourquoi: "Le passé simple est remplacé par le <strong>passé composé</strong>." },
+      { ancien: 'découvririons', ancienTm: 'conditionnel présent', moderne: 'allions découvrir', faux: ['découvrons', 'avons découvert'], tps: 'TPS.imp', mode: 'MODE.ind', pourquoi: "Pour dire le futur dans le passé, on n'emploie plus guère le conditionnel présent : on dit <strong>aller à l'imparfait + infinitif</strong> (<em>nous allions découvrir</em>). Le temps et le mode sont ceux de <em>allions</em> : imparfait de l'indicatif." },
+      { ancien: 'fussent', ancienTm: 'imparfait du subjonctif', moderne: 'soient', faux: ['étaient', 'seraient'], tps: 'TPS.pres', mode: 'MODE.subj', pourquoi: "L'imparfait du subjonctif est remplacé par le <strong>subjonctif présent</strong>." },
+      { ancien: 'repartîmes', ancienTm: 'passé simple', moderne: 'sommes repartis', faux: ['repartions', 'repartirons'], tps: 'TPS.pc', mode: 'MODE.ind', pourquoi: "Le passé simple est remplacé par le <strong>passé composé</strong>." },
+    ] },
 ];
 /* le texte découpé : des mots, et des formes verbales { t, tps, mode } */
 function decoupeTM(src) {
   const mots = [], formes = [];
-  src.replace(/\{([^}|]+)\|([^}|]+)\|([^}|]+)\}|(\S+)/g, (m, f, tps, mode, w) => {
+  src.replace(/\{([^}|]+)\|([^}|]+)\|([^}|]+)\}|([^\s{]+)/g, (m, f, tps, mode, w) => {
     if (f) { mots.push({ t: f, k: formes.length }); formes.push({ t: f, tps: `TPS.${tps}`, mode: `MODE.${mode}` }); } else mots.push({ t: w });
     return m;
   });
   return { mots, formes };
 }
 const tm = { rep: {}, sel: null, texte: null };
-const isT1 = () => currentGame === GAMES.temps1;
+const isT1 = () => !!currentGame.tm;   /* v40 : tous les exercices des temps et des modes */
 function showQuestionTM() {
   const q = game.questions[game.index];
   tm.texte = decoupeTM(TEXTES_TM[q.t].texte);
@@ -2422,6 +2450,7 @@ function showQuestionTM() {
   tm.texte.mots.forEach((m) => {
     if (/^[.,;:!?»]$/.test(m.t) && items.length) { items[items.length - 1].suf += (/^[;:!?»]$/.test(m.t) ? '\u00a0' : '') + m.t; return; }
     if (m.t === '«') { avant = '«\u00a0'; return; }
+    if (m.k === undefined && /['’]$/.test(m.t)) { avant += m.t; return; }
     items.push({ ...m, pre: avant, suf: '' }); avant = '';
   });
   $('nat-sentence').innerHTML = items.map((m) => (m.k !== undefined
@@ -2502,11 +2531,108 @@ function finTM() {
   $('nat-instruction').textContent = 'Toutes les formes verbales sont faites !';
   const modes = [...new Set(tm.texte.formes.map((f) => NOM_TM(f.mode).toLowerCase()))];
   const pres = tm.texte.formes.filter((f) => f.tps === 'TPS.pres' && f.mode === 'MODE.ind').length, presTous = tm.texte.formes.filter((f) => f.tps === 'TPS.pres').length;
-  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur 20. « ${esc(T.titre)} » est un texte au <strong>système du ${T.systeme}</strong> : l'action se passe au moment où on la lit. C'est pourquoi presque toutes les formes sont au <strong>présent</strong> (${presTous} sur ${tm.texte.formes.length}), dont ${pres} au présent de l'indicatif. On y trouve aussi les ${modes.length} modes : ${modes.join(', ')}. Une étiquette marquée ✗ montre la bonne réponse, là où tu t'es trompé.`);
+  $('nat-correction-details').innerHTML = T.bilan ? nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur 20. ${T.bilan} On y trouve les ${modes.length} modes : ${modes.join(', ')}. Une étiquette marquée ✗ montre la bonne réponse, là où tu t'es trompé.`) : nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur 20. « ${esc(T.titre)} » est un texte au <strong>système du ${T.systeme}</strong> : l'action se passe au moment où on la lit. C'est pourquoi presque toutes les formes sont au <strong>présent</strong> (${presTous} sur ${tm.texte.formes.length}), dont ${pres} au présent de l'indicatif. On y trouve aussi les ${modes.length} modes : ${modes.join(', ')}. Une étiquette marquée ✗ montre la bonne réponse, là où tu t'es trompé.`);
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${game.score >= 19.95 ? 'correct' : game.score < 10 ? 'wrong' : 'half'}`;
   $('nat-next-button').textContent = 'Voir mon résultat →';
   showCharacter(game.score >= 10 ? 'good' : 'bad', null);
+}
+
+/* v40 : exercice 2, 2e partie — les formes qui ont changé : on choisit la forme d'aujourd'hui, puis son temps et son mode */
+const trous = { rep: {}, sel: null, ordre: {} };
+function showQuestionTrous() {
+  const q = game.questions[game.index], T = TROUS_TM[q.t];
+  Object.assign(trous, { rep: {}, sel: null, ordre: {} });
+  T.trous.forEach((x, k) => { trous.ordre[k] = shuffle([x.moderne, ...x.faux]); });
+  const items = []; let avant = '';
+  T.texte.replace(/\{#(\d+)\}|([^\s{]+)/g, (m, k, w) => {
+    if (k !== undefined) { items.push({ k: Number(k), pre: avant, suf: '' }); avant = ''; return m; }
+    if (/^[.,;:!?»]$/.test(w) && items.length) { items[items.length - 1].suf += (/^[;:!?»]$/.test(w) ? ' ' : '') + w; return m; }
+    if (w === '«') { avant = '« '; return m; }
+    items.push({ t: w, pre: avant, suf: '' }); avant = ''; return m;
+  });
+  $('nat-sentence').innerHTML = items.map((m) => (m.k !== undefined
+    ? `<span class="w forme trou" data-i="${m.k}"><span class="ancien">${esc(T.trous[m.k].ancien)}</span><span class="tx">${m.pre}<span class="f">……</span>${m.suf}</span></span>`
+    : `<span class="w mot"><span class="tx">${m.pre}${esc(m.t)}${m.suf}</span></span>`)).join('');
+  $('nat-character-stage').innerHTML = '';
+  $('nat-correction').classList.add('hidden');
+  $('nat-verdict-square').className = 'verdict-square';
+  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
+  $('nat-buttons-invariables').innerHTML = '';
+  $('nat-progress-label').textContent = `« ${T.titre} »`;
+  game.score = 0;
+  majScoreTrous();
+  panneauTrous();
+}
+const trousFaits = () => Object.values(trous.rep).filter((r) => r.forme && r.tps && r.mode).length;
+function majScoreTrous() {
+  $('nat-score-label').textContent = scoreLabel(game.score);
+  $('nat-progress-bar').style.width = `${(trousFaits() / TROUS_TM[game.questions[game.index].t].trous.length) * 100}%`;
+}
+function panneauTrous() {
+  const T = TROUS_TM[game.questions[game.index].t], i = trous.sel, N = T.trous.length;
+  $('nat-instruction').textContent = 'Comment le dit-on aujourd\'hui ?';
+  if (i === null) {
+    $('nat-buttons-variables').innerHTML = `<div class="carte verte active libre"><p>C'est le même texte, mais dans la langue d'aujourd'hui. ${N} formes du 19e siècle, barrées en petit, ne s'emploient plus : appuie sur l'une d'elles et choisis la forme d'aujourd'hui. Puis donne son <strong>temps</strong> et son <strong>mode</strong>.</p><p class="sous">${trousFaits()} forme${trousFaits() > 1 ? 's' : ''} sur ${N} déjà faite${trousFaits() > 1 ? 's' : ''}.</p></div>`;
+    return;
+  }
+  const x = T.trous[i], r = trous.rep[i] || (trous.rep[i] = {});
+  const cls = (code, rep, bon) => (!rep ? '' : code === bon ? ' correct' : code === rep ? ' wrong' : ' faded');
+  let html = `<div class="carte neutre active libre"><p>Au 19e siècle, on écrivait « <strong>${esc(x.ancien)}</strong> » (${x.ancienTm}). Comment le dit-on aujourd'hui ?</p><div class="carte-choix carte-choix-3">${trous.ordre[i].map((f) => `<button type="button" class="nature-button forme-button${cls(f, r.forme, x.moderne)}" data-trou="${esc(f)}"${r.forme ? ' disabled' : ''}>${esc(f)}</button>`).join('')}</div></div>`;
+  if (r.forme) {
+    const b = (code, rouge, rep, bon) => `<button type="button" class="nature-button${rouge ? ' fonction-button' : ''}${cls(code, rep, bon)}" data-tm="${code}"${rep ? ' disabled' : ''}>${NOM_TM(code)}</button>`;
+    html += `<div class="carte verte active libre"><p>« ${esc(x.moderne)} » : quel est son <strong>temps</strong> ?</p><div class="carte-choix carte-choix-3">${TEMPS_TM.map((t) => b(t.code, false, r.tps, x.tps)).join('')}</div></div>`;
+    html += `<div class="carte rouge active libre"><p>Quel est son <strong>mode</strong> ?</p><div class="carte-choix carte-choix-3">${MODES_TM.map((t) => b(t.code, true, r.mode, x.mode)).join('')}</div></div>`;
+  }
+  if (r.forme && r.tps && r.mode) html += `<p class="sous tm-bilan">« ${esc(x.ancien)} » → « ${esc(x.moderne)} » : ${x.pourquoi}</p>`;
+  $('nat-buttons-variables').innerHTML = nbspFr(html);
+  document.querySelectorAll('[data-trou]').forEach((btn) => btn.addEventListener('click', () => repondTrou('forme', btn.dataset.trou)));
+  document.querySelectorAll('[data-tm]').forEach((btn) => btn.addEventListener('click', () => repondTrou(btn.dataset.tm.startsWith('TPS.') ? 'tps' : 'mode', btn.dataset.tm)));
+}
+function clicTrou(i) {
+  if (game.fini || i === trous.sel) return;
+  const avant = trous.sel; trous.sel = i;
+  if (avant !== null) wordEl(avant)?.classList.remove('choisie');
+  wordEl(i)?.classList.add('choisie');
+  panneauTrous();
+}
+function repondTrou(champ, val) {
+  const i = trous.sel; if (i === null || game.fini) return;
+  const T = TROUS_TM[game.questions[game.index].t], x = T.trous[i], r = trous.rep[i] || (trous.rep[i] = {});
+  if (r[champ] || (champ !== 'forme' && !r.forme)) return;
+  r[champ] = val;
+  const bon = champ === 'forme' ? x.moderne : x[champ], juste = val === bon;
+  if (juste) game.score = Math.round((game.score + (champ === 'forme' ? 1 : 0.5)) * 10) / 10;
+  else game.erreurs.push({ mot: champ === 'forme' ? x.ancien : x.moderne, bonne: champ === 'forme' ? `« ${x.moderne} »` : NOM_TM(bon).toLowerCase(), choisie: champ === 'forme' ? `« ${val} »` : NOM_TM(val).toLowerCase(), phrase: `texte « ${T.titre} »` });
+  if (champ !== 'forme') { const pn = game.parNature[bon] || (game.parNature[bon] = { c: 0, p: 0 }); pn.p += 1; if (juste) pn.c += 1; }
+  const el = wordEl(i);
+  if (champ === 'forme') { el.querySelector('.f').textContent = x.moderne; if (!juste) el.classList.add('forme-corrigee'); }
+  else {
+    carre(i, `${juste ? '' : '✗ '}${NOM_TM(bon).toLowerCase().replace(/ /, '<br>')}`, champ === 'mode', champ === 'tps');
+    const lab = champ === 'tps' ? el.querySelector('.labs .lab') : [...el.querySelectorAll('.labs .lab')].pop();
+    if (!juste) lab.classList.add('corrige');
+  }
+  majScoreTrous(); panneauTrous();
+  if (r.forme && r.tps && r.mode) {
+    el.classList.add('remplie');
+    if (trousFaits() === T.trous.length) { setTimeout(finTrous, 2500); return; }
+    setTimeout(() => {
+      if (trous.sel !== i) return;
+      const N = T.trous.length;
+      for (let d = 1; d <= N; d++) { const k = (i + d) % N; const rr = trous.rep[k]; if (!(rr && rr.forme && rr.tps && rr.mode)) { clicTrou(k); return; } }
+    }, 2500);
+  }
+}
+function finTrous() {
+  const T = TROUS_TM[game.questions[game.index].t];
+  wordEl(trous.sel)?.classList.remove('choisie'); trous.sel = null;
+  $('nat-buttons-variables').innerHTML = '';
+  $('nat-instruction').textContent = 'Le texte est passé dans la langue d\'aujourd\'hui !';
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${currentGame.total}. Le texte est toujours au <strong>système du passé</strong>, mais dans la langue courante d'aujourd'hui : le <strong>passé simple</strong> devient un <strong>passé composé</strong> (<em>a crié, avons couru, sommes repartis</em>) ; l'<strong>imparfait du subjonctif</strong> devient un <strong>subjonctif présent</strong> (<em>soit, soient</em>) ; et le futur dans le passé ne se dit plus au conditionnel présent, mais avec <strong>aller à l'imparfait + infinitif</strong> (<em>allions découvrir</em>). Le passé simple et l'imparfait du subjonctif restent la langue des livres.`);
+  $('nat-correction').classList.remove('hidden');
+  $('nat-verdict-square').className = `verdict-square ${game.score >= currentGame.total - 0.05 ? 'correct' : game.score < currentGame.total / 2 ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = 'Voir mon résultat →';
+  showCharacter(game.score >= currentGame.total / 2 ? 'good' : 'bad', null);
 }
 
 function nextQuestion() {
@@ -2567,7 +2693,9 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    niveauOf(r) === 7 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (20 formes verbales : 0,5 point pour le temps et 0,5 point pour le mode de chacune).`
+    niveauOf(r) === 9 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 12 (6 formes du 19e siècle à remettre dans la langue d'aujourd'hui : 1 point pour la forme, 0,5 pour le temps, 0,5 pour le mode).`
+      : niveauOf(r) === 8 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (20 formes verbales : 0,5 point pour le temps et 0,5 point pour le mode de chacune).`
+      : niveauOf(r) === 7 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (20 formes verbales : 0,5 point pour le temps et 0,5 point pour le mode de chacune).`
       : niveauOf(r) === 6 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (tableau rempli seul, sans guide : 0,5 point pour la nature et 0,5 point pour la fonction de chaque case).`
       : niveauOf(r) === 5 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (1 point par case du tableau bien remplie).`
       : niveauOf(r) === 4 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le nom, le déterminant, l'adjectif et le complément du nom trouvés du premier coup).`
@@ -2892,7 +3020,7 @@ function openProfile(first) {
 
 /* v10 : nom du type d'exercice ; les scores enregistrés avant la v10 portaient d'autres noms. */
 function scoreType(jeu) {
-  if (/niveau [1234567]/.test(jeu || '')) return jeu;
+  if (/niveau [1-9]/.test(jeu || '')) return jeu;
   if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
   return 'Reconnaissance des natures, niveau 1';
 }
@@ -2940,7 +3068,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -2977,7 +3105,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2, 3, 4, 5, 6, 7].map((n) => {
+  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -2998,7 +3126,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent' };
+const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : système du passé, langue du 19e siècle', 9: 'Temps et modes, exercice 2 : système du passé, langue d\'aujourd\'hui' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
@@ -3284,7 +3412,9 @@ $('open-gn').addEventListener('click', () => openGame('gn'));
 $('open-tableau').addEventListener('click', () => openGame('tableau'));
 $('open-libre').addEventListener('click', () => openGame('libre'));
 $('open-temps1').addEventListener('click', () => openGame('temps1'));
-$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && w.dataset.i !== undefined) clicFormeTM(Number(w.dataset.i)); });
+$('open-temps2').addEventListener('click', () => openGame('temps2'));
+$('open-temps3').addEventListener('click', () => openGame('temps3'));
+$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && w.dataset.i !== undefined) (currentGame.tm2 ? clicTrou : clicFormeTM)(Number(w.dataset.i)); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
