@@ -704,3 +704,18 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .sx-etq.deborde { padding:0 6px; border-radius:5px; left:0; }
 .sx-lane.bleu .sx-etq.deborde { background:#2a6fdb; } .sx-lane.vert .sx-etq.deborde { background:#2e7d4f; }
 .sx-lane.revele .sx-etq.deborde, .sx-lane.vide .sx-etq.deborde { box-shadow:0 0 0 1px rgba(255,255,255,.6); }
+/* v54 : la rangée rouge : fonction des subordonnées */
+.sx-lane.rouge { background:#b3261e; }
+.sx-lane.vide.rouge { background:rgba(179,38,30,.35); border:1px dashed rgba(255,180,170,.85); }
+.sx-lane.rouge .sx-etq.deborde { background:#b3261e; }
+.sx-bande-btn.fn { background:#b3261e; }
+.carte.sx-carte.rouge { border-color:#b3261e; background:#fdf0ee; }
+.carte.sx-carte.rouge p { color:#7a1a14; }
+.game8 .sx-palette .sx-bande-btn { font-size:.8rem; padding:8px 8px; }
+/* v54 : texte long : le panneau des bandes reste visible quand on fait défiler le texte */
+.game8 .quiz-grid { align-items:start; }
+.game8 .answer-card { position:sticky; top:52px; max-height:calc(100vh - 60px); overflow-y:auto; }
+/* v55 : étiquettes centrées dans leur bande */
+.sx-etq { text-align:center; }
+.sx-etq.serre { white-space:normal; font-size:.82em; line-height:1.05; top:1px; display:block; }
+.sx-etq.deborde { left:auto; }

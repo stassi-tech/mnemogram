@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v53';
+const APP_VERSION = 'v55';
 
 const $ = (id) => document.getElementById(id);
 
@@ -221,6 +221,9 @@ const GAMES = {
   /* v50 : la phrase, exercice 1 : syntaxe de la phrase (bandes à étirer) */
   phrase1: { titre: 'La phrase, exercice 1 : syntaxe de la phrase', type: 'Syntaxe de la phrase, niveau 13', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 13, nb: 1, sx: true, texte: 0, total: 20, partie: 'phrase' },
+  /* v54 : la phrase, exercice 2 : nature précise et fonction des propositions (bandes bleues, vertes, rouges) */
+  phrase2: { titre: 'La phrase, exercice 2 : analyse, nature et fonction des propositions', type: 'Nature et fonction des propositions, niveau 14', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 14, nb: 1, sx: true, sxFn: true, texte: 1, total: 37, partie: 'phrase' },
   /* v47 : transformer un texte */
   temps5: { titre: 'Temps et modes, exercice 5 : transformer un texte au système du passé en texte au système du présent', type: 'Transformer un texte du passé au présent, niveau 11', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 11, nb: 1, tf: 'passe2pres', total: 10, partie: 'temps' },
@@ -917,7 +920,9 @@ function openGame(id) {
   $('natures-panel').classList.toggle('game7', !!(GAMES[id].tm || GAMES[id].tf || GAMES[id].sx));
   $('natures-panel').classList.toggle('game8', !!GAMES[id].sx);
   $('natures-panel').classList.toggle('game7v', !!GAMES[id].valeurs);
-  $('nat-ready-explanation').innerHTML = id === 'phrase1'
+  $('nat-ready-explanation').innerHTML = id === 'phrase2'
+    ? 'On va plus loin dans l\'analyse des propositions. Sous le texte, trois rangées de bandes vierges : en <strong>bleu</strong>, la <strong>syntaxe</strong> de chaque phrase ; en <strong>vert</strong>, la <strong>nature précise</strong> de chaque proposition (indépendante, principale, subordonnée relative, conjonctive complétive, conjonctive circonstancielle…) ; en <strong>rouge</strong>, la <strong>fonction</strong> de chaque subordonnée (complément de l\'antécédent, COD du verbe, complément circonstanciel…). Touche une bande, puis choisis à droite. Chaque bande juste du premier coup vaut 1 point.'
+    : id === 'phrase1'
     ? 'Dans ce petit texte, décris la <strong>syntaxe</strong> de chaque phrase et la <strong>nature</strong> de ses propositions. Sous le texte, des bandes vierges sont déjà tracées : en <strong>bleu</strong> sous chaque phrase, en <strong>vert</strong> sous chaque proposition. Touche une bande, puis choisis à droite ce qu\'elle est : phrase nominale, verbale simple ou verbale complexe ; proposition indépendante, principale ou subordonnée. Chaque bande juste du premier coup vaut 1 point.'
     : id === 'temps5'
     ? 'Voici un texte au <strong>système du passé</strong>. Réécris-le au <strong>système du présent</strong>, comme si les choses se passaient au moment où on les lit. Les mots soulignés doivent changer : des <strong>formes verbales</strong>, mais aussi des <strong>indicateurs de temps</strong> (<em>ce jour-là</em> devient <em>aujourd\'hui</em>, <em>la veille</em> devient <em>hier</em>, <em>le lendemain</em> devient <em>demain</em>…). Appuie sur chacun et écris ce qu\'il devient. Chaque changement réussi vaut 1 point.'
@@ -2867,12 +2872,31 @@ const BANDES = {
     { code: 'PR.sub', k: 'SUB', nom: 'Proposition subordonnée', court: 'Proposition subordonnée' },
   ],
 };
-[...BANDES.syn, ...BANDES.nat].forEach((x) => { x.article = x.nom.toLowerCase(); x.explication = ''; NATURE_BY_CODE[x.code] = x; });
+/* v54 : exercice 2 : la nature précise des propositions (vert) et la fonction des subordonnées (rouge) */
+BANDES.natFin = [
+  { code: 'PR.ind', k: 'I', nom: 'Proposition indépendante' }, { code: 'PR.princ', k: 'P', nom: 'Proposition principale' },
+  { code: 'PR.rel', k: 'R', nom: 'Proposition subordonnée relative' }, { code: 'PR.compl', k: 'K', nom: 'Proposition subordonnée conjonctive complétive' },
+  { code: 'PR.circ', k: 'C', nom: 'Proposition subordonnée conjonctive circonstancielle' }, { code: 'PR.interr', k: 'Q', nom: 'Proposition subordonnée interrogative indirecte' },
+  { code: 'PR.inf', k: 'INF', nom: 'Proposition subordonnée infinitive' }, { code: 'PR.part', k: 'PART', nom: 'Proposition subordonnée participiale' },
+].map((x) => ({ ...x, court: x.nom }));
+BANDES.fn = [
+  { code: 'FP.ant', k: 'ant', nom: 'Complément de l\'antécédent', court: 'Complément de l\'antécédent' },
+  { code: 'FP.cod', k: 'cod', nom: 'COD du verbe de la principale', court: 'COD du verbe' },
+  { code: 'FP.suj', k: 'suj', nom: 'Sujet du verbe de la principale', court: 'Sujet du verbe' },
+  { code: 'FP.cct', k: 'cct', nom: 'CC de temps', court: 'CC de temps du verbe' }, { code: 'FP.ccc', k: 'ccc', nom: 'CC de cause', court: 'CC de cause du verbe' },
+  { code: 'FP.cco', k: 'cco', nom: 'CC d\'opposition', court: 'CC d\'opposition du verbe' }, { code: 'FP.ccq', k: 'ccq', nom: 'CC de conséquence', court: 'CC de conséquence du verbe' },
+  { code: 'FP.ccb', k: 'ccb', nom: 'CC de but', court: 'CC de but du verbe' }, { code: 'FP.cch', k: 'cch', nom: 'CC d\'hypothèse', court: 'CC d\'hypothèse du verbe' },
+  { code: 'FP.ccm', k: 'ccm', nom: 'CC de manière', court: 'CC de manière du verbe' },
+];
+[...BANDES.syn, ...BANDES.nat, ...BANDES.natFin, ...BANDES.fn].forEach((x) => { x.article = x.nom.toLowerCase(); x.explication = ''; NATURE_BY_CODE[x.code] = x; });
+const LISTE_SX = (lane) => (lane === 'syn' ? BANDES.syn : lane === 'fn' ? BANDES.fn : currentGame.sxFn ? BANDES.natFin : BANDES.nat);
 const TEXTES_SX = [
   { titre: 'Attention à la marche', texte: "[N] {-|Attention !} [S] {I|Tu ne vois pas la marche ?} [C] {P|Vraiment, il y a des moments} {R|où on se demande} {Q|si tu n'as pas la tête dans les nuages !} [C] {C|Quand on marche,} {P|on regarde devant soi.} [S] {I|Tu as compris ?} [C] {I|Ce n'est pas la peine de faire la tête,} {I|cela ne changera rien !} [N] {-|Courage !} [C] {I|Nous sommes presque arrivés,} et {C|si tu accélères,} {P|nous serons arrivés avant midi.}" },
+  /* v54 : exercice 2 : nature précise et fonction des subordonnées (texte de Stéphane) */
+  { titre: 'Vacances de Pâques', texte: "[C] {C/cco/suis|Bien que j'aime les vacances de Pâques,} {P|chaque année je ne suis pas content} {C/ccc/suis|parce que je suis obligé d'aller pendant trois jours chez mes cousins} {R/ant/cousins|qui habitent en pleine campagne.} [S] {I|L'endroit est désolé.} [C] {P|Il n'y a pas de route} {R/ant/route|qui relie leur maison au village.} [S] {I|Il faut deux heures de marche pour y arriver.} [C] {C/cct/faut|Quand l'orage éclate,} {P|il en faut quelquefois le double.} [C] {I|Le village est pratiquement désert,} {I|tous les habitants sont partis en ville.} [S] {I|Il ne reste que les personnes âgées.} [C] {I|Il n'y a pas d'enfants} donc {I|je m'ennuie toute la journée.} [C] {I|Mes cousins sont gentils} mais {P|ils ne comprennent pas} {K/cod/comprennent|qu'un petit de la ville ne s'intéresse pas à la vie de la campagne.} [C] {P|Ils me disent} {K/cod/disent|que cela n'est pas normal.}" },
 ];
 /* les subordonnées du texte (relative, circonstancielle…) comptent toutes comme « subordonnée » */
-const natSX = (k) => (k === 'I' || k === 'P' ? k : 'SUB');
+const natSX = (k) => (currentGame.sxFn || k === 'I' || k === 'P' ? k : 'SUB');
 const sx = { mots: [], phrases: [], props: [], sel: null, cibles: {} };
 const SX_T = () => TEXTES_SX[game.questions[game.index].t];
 function decoupeSX(src) {
@@ -2885,8 +2909,10 @@ function decoupeSX(src) {
     if (ph) { phrases.push({ k: ph, a: mots.length, b: mots.length }); return m; }
     if (code !== undefined) {
       const a = mots.length;
-      ajoute(txt, code === '-' ? -1 : props.length);
-      if (code !== '-') props.push({ k: code, a, b: mots.length - 1, s: phrases.length - 1 });
+      /* v54 : « R/ant/cousins » : nature / fonction / mot complété (antécédent ou verbe de la principale) */
+      const [k, fn, ref] = code.split('/');
+      ajoute(txt, k === '-' ? -1 : props.length);
+      if (k !== '-') props.push({ k, fn, ref, a, b: mots.length - 1, s: phrases.length - 1 });
     } else ajoute(w, -1);
     phrases[phrases.length - 1].b = mots.length - 1;
     return m;
@@ -2906,15 +2932,19 @@ function bornesSouples(pr) {
    sinon la bonne réponse s'écrit sur la bande, en hachuré, marquée ✗. */
 const ciblesSX = () => {
   const l = [];
-  sx.phrases.forEach((ph, s) => { l.push({ cle: `syn${s}`, lane: 'syn', a: ph.a, b: ph.b, k: ph.k }); sx.props.forEach((pr, k) => { if (pr.s === s) l.push({ cle: `nat${k}`, lane: 'nat', a: pr.a, b: pr.b, k: natSX(pr.k) }); }); });
+  sx.phrases.forEach((ph, s) => {
+    l.push({ cle: `syn${s}`, lane: 'syn', a: ph.a, b: ph.b, k: ph.k });
+    sx.props.forEach((pr, k) => { if (pr.s === s) l.push({ cle: `nat${k}`, lane: 'nat', a: pr.a, b: pr.b, k: natSX(pr.k) }); });
+    if (currentGame.sxFn) sx.props.forEach((pr, k) => { if (pr.s === s && pr.fn) l.push({ cle: `fn${k}`, lane: 'fn', a: pr.a, b: pr.b, k: pr.fn, ref: pr.ref }); });
+  });
   return l;
 };
 function showQuestionSX() {
   const d = decoupeSX(SX_T().texte);
   Object.assign(sx, d, { sel: null, cibles: {} });
-  currentGame.total = d.phrases.length + d.props.length;
-  $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">« ${esc(SX_T().titre)} »</h3><div class="tm-texte sx-texte">${d.mots.map((m, i) => `<span class="w sx-mot" data-i="${i}"><span class="tx">${esc(m.t)}</span><span class="sx-lanes"><span class="sx-lane syn"></span><span class="sx-lane nat"></span></span></span>`).join('')}</div></div>`;
-  ciblesSX().forEach((c) => { sx.cibles[c.cle] = { ...c, fait: false }; peintSX(c.lane, c.a, c.b, `vide ${c.lane === 'syn' ? 'bleu' : 'vert'}`, ''); marqueCibleSX(c); });
+  $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">« ${esc(SX_T().titre)} »</h3><div class="tm-texte sx-texte">${d.mots.map((m, i) => `<span class="w sx-mot" data-i="${i}"><span class="tx">${esc(m.t)}</span><span class="sx-lanes"><span class="sx-lane syn"></span><span class="sx-lane nat"></span>${currentGame.sxFn ? '<span class="sx-lane fn"></span>' : ''}</span></span>`).join('')}</div></div>`;
+  ciblesSX().forEach((c) => { sx.cibles[c.cle] = { ...c, fait: false }; peintSX(c.lane, c.a, c.b, `vide ${COUL_SX[c.lane]}`, ''); marqueCibleSX(c); });
+  currentGame.total = Object.keys(sx.cibles).length;
   $('nat-character-stage').innerHTML = '';
   $('nat-correction').classList.add('hidden');
   $('nat-verdict-square').className = 'verdict-square';
@@ -2948,7 +2978,15 @@ function peintSX(lane, a, b, classe, texte) {
   const besoin = texte.length * 7.5 + 14;
   let ou = morceaux.filter((m) => m.larg >= besoin);
   if (!ou.length) ou = [morceaux.reduce((x, y) => (y.larg > x.larg ? y : x))];
-  ou.forEach((m) => { m.l[0].innerHTML = `<span class="sx-etq${m.larg < besoin ? ' deborde' : ''}">${texte}</span>`; });
+  /* v55 : l'étiquette est centrée dans son morceau de bande ; trop longue, elle passe sur deux lignes plus petites,
+     et seulement si cela ne suffit pas, elle déborde (centrée, sur un fond de sa couleur) */
+  ou.forEach((m) => {
+    m.l[0].innerHTML = `<span class="sx-etq">${texte}</span>`;
+    const e = m.l[0].firstChild, larg = m.l.reduce((t, l) => t + l.offsetWidth, 0);
+    if (e.offsetWidth > larg - 8) { e.classList.add('serre'); e.style.width = `${Math.max(40, larg - 8)}px`; }
+    if (e.scrollHeight > m.l[0].offsetHeight + 2) { e.classList.remove('serre'); e.style.width = ''; e.classList.add('deborde'); }
+    e.style.left = `${Math.round((larg - e.offsetWidth) / 2)}px`;
+  });
 }
 /* chaque morceau d'une bande connaît sa cible, pour qu'on puisse la toucher n'importe où */
 function marqueCibleSX(c) { for (let i = c.a; i <= c.b; i++) { const l = wordEl(i)?.querySelector(`.sx-lane.${c.lane}`); if (l) l.dataset.cle = c.cle; } }
@@ -2958,38 +2996,56 @@ function choisitCibleSX(cle) {
   for (let i = c.a; i <= c.b; i++) wordEl(i)?.querySelector(`.sx-lane.${c.lane}`)?.classList.add('choisie');
   sx.sel = cle;
   panneauSX();
+  /* la bande choisie reste visible dans le texte */
+  wordEl(c.a)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 const sxFaits = () => Object.values(sx.cibles).filter((c) => c.fait).length;
+const COUL_SX = { syn: 'bleu', nat: 'vert', fn: 'rouge' };
+/* l'étiquette de fonction nomme le mot complété : « Complément de l'antécédent « cousins » », « CC de cause du verbe « suis » » */
+const etqFnSX = (item, c) => (item.k === 'ant' ? `${item.court} « ${c.ref} »` : `${item.court} « ${c.ref} »`);
 function majScoreSX() {
   $('nat-score-label').textContent = scoreLabel(game.score);
   $('nat-progress-bar').style.width = `${(sxFaits() / currentGame.total) * 100}%`;
 }
 function panneauSX(message) {
-  $('nat-instruction').textContent = 'La syntaxe des phrases et la nature des propositions';
+  $('nat-instruction').textContent = currentGame.sxFn ? 'Syntaxe, nature et fonction des propositions' : 'La syntaxe des phrases et la nature des propositions';
   const c = sx.sel ? sx.cibles[sx.sel] : null;
   const bouton = (lane, x) => `<button type="button" class="sx-bande-btn ${lane}" data-bande="${x.code}"${!c || c.lane !== lane ? ' disabled' : ''}>${x.nom}</button>`;
   const morceau = c ? sx.mots.slice(c.a, c.b + 1).map((m) => m.t).join(' ') : '';
-  $('nat-buttons-variables').innerHTML = nbspFr(`${c ? `<p class="sx-question">${c.lane === 'syn' ? 'Quelle est la <strong>syntaxe</strong> de cette phrase ?' : 'Quelle est la <strong>nature</strong> de cette proposition ?'}<br><em>« ${esc(morceau)} »</em></p>` : ''}
+  const q = !c ? '' : c.lane === 'syn' ? 'Quelle est la <strong>syntaxe</strong> de cette phrase ?' : c.lane === 'nat' ? 'Quelle est la <strong>nature</strong> de cette proposition ?' : 'Quelle est la <strong>fonction</strong> de cette subordonnée ?';
+  $('nat-buttons-variables').innerHTML = nbspFr(`${c ? `<p class="sx-question">${q}<br><em>« ${esc(morceau)} »</em></p>` : ''}
     <div class="carte sx-carte bleue libre${c && c.lane === 'syn' ? ' active' : ' eteinte'}"><p><strong>La phrase</strong> : quelle est sa syntaxe ?</p><div class="sx-palette">${BANDES.syn.map((x) => bouton('syn', x)).join('')}</div></div>
-    <div class="carte sx-carte verte libre${c && c.lane === 'nat' ? ' active' : ' eteinte'}"><p><strong>Les propositions</strong> : quelle est leur nature ?</p><div class="sx-palette">${BANDES.nat.map((x) => bouton('nat', x)).join('')}</div></div>
-    <p class="sous sx-aide">${message || 'Touche une bande vierge sous le texte (en bleu : une phrase ; en vert : une proposition), puis choisis ce qu\'elle est.'}</p>
+    <div class="carte sx-carte verte libre${c && c.lane === 'nat' ? ' active' : ' eteinte'}"><p><strong>Les propositions</strong> : quelle est leur nature ?</p><div class="sx-palette">${LISTE_SX('nat').map((x) => bouton('nat', x)).join('')}</div></div>
+    ${currentGame.sxFn ? `<div class="carte sx-carte rouge libre${c && c.lane === 'fn' ? ' active' : ' eteinte'}"><p><strong>Les subordonnées</strong> : quelle est leur fonction ?</p><div class="sx-palette">${BANDES.fn.map((x) => bouton('fn', x)).join('')}</div></div>` : ''}
+    <p class="sous sx-aide">${message || `Touche une bande vierge sous le texte (en bleu : une phrase ; en vert : une proposition${currentGame.sxFn ? ' ; en rouge : la fonction d\'une subordonnée' : ''}), puis choisis ce qu'elle est.`}</p>
     <p class="sous">${sxFaits()} bande${sxFaits() > 1 ? 's' : ''} sur ${currentGame.total} remplie${sxFaits() > 1 ? 's' : ''}.</p>`);
   document.querySelectorAll('[data-bande]').forEach((b) => b.addEventListener('click', () => repondSX(b.dataset.bande)));
 }
 function repondSX(code) {
   const c = sx.sel ? sx.cibles[sx.sel] : null; if (!c || c.fait || game.fini) return;
-  const item = NATURE_BY_CODE[code], bonne = (c.lane === 'syn' ? BANDES.syn : BANDES.nat).find((x) => x.k === c.k);
-  const juste = item.k === c.k, coul = c.lane === 'syn' ? 'bleu' : 'vert';
+  const item = NATURE_BY_CODE[code], bonne = LISTE_SX(c.lane).find((x) => x.k === c.k);
+  const juste = item.k === c.k, coul = COUL_SX[c.lane];
+  const etq = (x) => (c.lane === 'fn' ? etqFnSX(x, c) : x.court);
   c.fait = true;
   let msg;
   if (juste) {
     game.score = Math.round((game.score + 1) * 10) / 10;
-    peintSX(c.lane, c.a, c.b, `ok ${coul}`, item.court);
-    msg = `✔ Juste : ${item.nom.toLowerCase()}.`;
+    peintSX(c.lane, c.a, c.b, `ok ${coul}`, etq(item));
+    msg = `✔ Juste : ${c.lane === 'fn' ? etq(item) : item.nom.toLowerCase()}.`;
   } else {
-    game.erreurs.push({ mot: sx.mots.slice(c.a, c.b + 1).map((m) => m.t).join(' '), bonne: bonne.nom.toLowerCase(), choisie: item.nom.toLowerCase(), phrase: `texte « ${SX_T().titre} »` });
-    peintSX(c.lane, c.a, c.b, `revele ${coul}`, `✗ ${bonne.court}`);
-    msg = `Non : c'est une ${bonne.nom.toLowerCase()}.${c.lane === 'syn' ? (c.k === 'N' ? ' Elle n\'a pas de verbe.' : c.k === 'S' ? ' Elle n\'a qu\'un verbe conjugué.' : ' Elle a plusieurs verbes conjugués.') : (c.k === 'SUB' ? ' Elle porte en tête un mot subordonnant (qui, que, où, quand, si…).' : c.k === 'P' ? ' Une subordonnée dépend d\'elle.' : ' Elle peut être isolée par un point.')}`;
+    game.erreurs.push({ mot: sx.mots.slice(c.a, c.b + 1).map((m) => m.t).join(' '), bonne: (c.lane === 'fn' ? etqFnSX(bonne, c) : bonne.nom).toLowerCase(), choisie: (c.lane === 'fn' ? etqFnSX(item, c) : item.nom).toLowerCase(), phrase: `texte « ${SX_T().titre} »` });
+    peintSX(c.lane, c.a, c.b, `revele ${coul}`, `✗ ${etq(bonne)}`);
+    const pourquoi = {
+      N: 'Elle n\'a pas de verbe.', S: 'Elle n\'a qu\'un verbe conjugué.', SUB: 'Elle porte en tête un mot subordonnant (qui, que, où, quand, si…).',
+      P: 'Une subordonnée dépend d\'elle.', I: 'Elle peut être isolée par un point.',
+      R: 'Elle est introduite par un pronom relatif (qui, que, dont, où…) et complète un nom, son antécédent.',
+      K: 'Elle est introduite par « que » et complète le verbe de la principale.',
+      Q: 'Elle rapporte une question au discours indirect (si, pourquoi, quel…).',
+      INF: 'Son verbe est à l\'infinitif, avec son propre sujet.', PART: 'Son verbe est au participe, avec son propre sujet.',
+      ant: `Elle complète le nom « ${c.ref} », son antécédent.`, cod: `Elle complète le verbe « ${c.ref} » : ${c.ref} quoi ?`, suj: `Elle est le sujet du verbe « ${c.ref} ».`,
+    };
+    const exp = c.lane === 'syn' && c.k === 'C' ? 'Elle a plusieurs verbes conjugués.' : c.lane === 'nat' && c.k === 'C' ? 'Elle est introduite par une conjonction de subordination (quand, parce que, bien que, si…) et précise une circonstance.' : c.lane === 'fn' && /^cc/.test(c.k) ? `Elle précise une circonstance du verbe « ${c.ref} ».` : (pourquoi[c.k] || '');
+    msg = `Non : c'est ${c.lane === 'fn' ? `« ${etq(bonne)} »` : `une ${bonne.nom.toLowerCase()}`}. ${exp}`;
   }
   sx.sel = null;
   majScoreSX(); panneauSX(msg);
@@ -3003,7 +3059,7 @@ function finSX() {
   $('nat-buttons-variables').innerHTML = '';
   $('nat-instruction').textContent = 'Toutes les bandes sont posées !';
   const total = currentGame.total;
-  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. Une phrase sans verbe est une <strong>phrase nominale</strong> ; avec un seul verbe conjugué, c'est une <strong>phrase verbale simple</strong>, qui forme une proposition indépendante ; avec plusieurs verbes, une <strong>phrase verbale complexe</strong> : elle a autant de propositions que de verbes conjugués. Ces propositions peuvent être <strong>indépendantes</strong> (juxtaposées ou coordonnées), ou former des couples <strong>principale + subordonnée</strong> : la subordonnée porte un mot subordonnant en tête (<em>qui, que, où, quand, si, parce que…</em>). Les bandes hachurées marquées ✗ montrent la bonne réponse, là où tu t'es trompé.`);
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. Une phrase sans verbe est une <strong>phrase nominale</strong> ; avec un seul verbe conjugué, c'est une <strong>phrase verbale simple</strong>, qui forme une proposition indépendante ; avec plusieurs verbes, une <strong>phrase verbale complexe</strong> : elle a autant de propositions que de verbes conjugués. Ces propositions peuvent être <strong>indépendantes</strong> (juxtaposées ou coordonnées), ou former des couples <strong>principale + subordonnée</strong> : la subordonnée porte un mot subordonnant en tête (<em>qui, que, où, quand, si, parce que…</em>). ${currentGame.sxFn ? ' Chaque subordonnée a une <strong>fonction</strong> : la relative est <strong>complément de son antécédent</strong> ; la conjonctive complétive est en général <strong>COD du verbe de la principale</strong> ; la conjonctive circonstancielle est <strong>complément circonstanciel</strong> (de temps, de cause, d\'opposition…) du verbe de la principale.' : ''} Les bandes hachurées marquées ✗ montrent la bonne réponse, là où tu t'es trompé.`);
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${game.score >= total - 0.05 ? 'correct' : game.score < total / 2 ? 'wrong' : 'half'}`;
   $('nat-next-button').textContent = 'Voir mon résultat →';
@@ -3069,7 +3125,8 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    niveauOf(r) === 13 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par bande juste : la syntaxe de chaque phrase, la nature de chaque proposition).`
+    niveauOf(r) === 14 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par bande juste : syntaxe des phrases, nature et fonction des propositions).`
+      : niveauOf(r) === 13 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par bande juste : la syntaxe de chaque phrase, la nature de chaque proposition).`
       : niveauOf(r) >= 11 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par changement réussi : formes verbales et indicateurs de temps).`
       : niveauOf(r) === 10 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 26 (10 verbes en français classique, puis 3 en français contemporain : 0,5 point pour le temps, le mode et leurs valeurs).`
       : niveauOf(r) === 9 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (10 verbes : 0,5 point pour le temps, le mode, la valeur du temps et la valeur du mode de chacun).`
@@ -3400,7 +3457,7 @@ function openProfile(first) {
 
 /* v10 : nom du type d'exercice ; les scores enregistrés avant la v10 portaient d'autres noms. */
 function scoreType(jeu) {
-  if (/niveau (1[0-3]|[1-9])/.test(jeu || '')) return jeu;
+  if (/niveau (1[0-4]|[1-9])/.test(jeu || '')) return jeu;
   if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
   return 'Reconnaissance des natures, niveau 1';
 }
@@ -3448,7 +3505,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 13/.test(r.jeu || '') ? 13 : /niveau 12/.test(r.jeu || '') ? 12 : /niveau 11/.test(r.jeu || '') ? 11 : /niveau 10/.test(r.jeu || '') ? 10 : /niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 14/.test(r.jeu || '') ? 14 : /niveau 13/.test(r.jeu || '') ? 13 : /niveau 12/.test(r.jeu || '') ? 12 : /niveau 11/.test(r.jeu || '') ? 11 : /niveau 10/.test(r.jeu || '') ? 10 : /niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -3485,7 +3542,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((n) => {
+  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -3506,7 +3563,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : un texte au système du passé', 9: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels (système du présent)', 10: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels (système du passé)', 11: 'Temps et modes, exercice 5 : du passé au présent', 12: 'Temps et modes, exercice 6 : du présent au passé', 13: 'La phrase, exercice 1 : syntaxe de la phrase' };
+const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : un texte au système du passé', 9: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels (système du présent)', 10: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels (système du passé)', 11: 'Temps et modes, exercice 5 : du passé au présent', 12: 'Temps et modes, exercice 6 : du présent au passé', 13: 'La phrase, exercice 1 : syntaxe de la phrase', 14: 'La phrase, exercice 2 : nature et fonction des propositions' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
@@ -3798,6 +3855,7 @@ $('open-temps4').addEventListener('click', () => openGame('temps4'));
 $('open-temps5').addEventListener('click', () => openGame('temps5'));
 $('open-temps6').addEventListener('click', () => openGame('temps6'));
 $('open-phrase1').addEventListener('click', () => openGame('phrase1'));
+$('open-phrase2').addEventListener('click', () => openGame('phrase2'));
 $('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && !currentGame.sx && w.dataset.i !== undefined) (currentGame.tf ? clicTF : clicFormeTM)(Number(w.dataset.i)); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
