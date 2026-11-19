@@ -546,3 +546,4 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .carte .nature-button { text-align:center; animation:none; }
 .carte.gn-flash { animation:gnFlash .5s 2; }
 @media (prefers-reduced-motion:no-preference) { .carte.active { animation:fnApparait .3s ease-out, cueBlink 1.4s ease-in-out .3s 3; } }
+.game4 .sentence .pn.suite { margin-left:10px; }

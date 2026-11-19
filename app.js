@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v24';
+const APP_VERSION = 'v26';
 
 const $ = (id) => document.getElementById(id);
 
@@ -434,7 +434,7 @@ function phraseHtml(mots, cible) {
       else if (m.texte === '!' || m.texte === '?') html += '&nbsp;';
       else if (!/'$/.test(prev) && !/^-/.test(m.texte)) html += ' ';
     }
-    if (!m.tag) { html += `<span class="pn">${m.texte}</span>`; return; }
+    if (!m.tag) { html += `<span class="pn${m.texte === '(…)' ? ' suite' : ''}">${m.texte}</span>`; return; }
     html += `<span class="w${cibles.includes(i) ? ' target' : ''}" data-i="${i}">${m.texte}</span>`;
   });
   return html;
@@ -1103,7 +1103,10 @@ const PHRASES_GN = [
   /* v24 : seulement des groupes nominaux, sans verbe ; « (…) » montre que la phrase continue, mais qu'on ne
      prend que le groupe nominal. Les adjectifs n'y ont que deux fonctions : épithète ou apposé
      (l'attribut reste pour le groupe verbal). */
-  'Le/D.def chien/N blanc/A=epi du/P voisin/N=cdn (…)',
+  'Le/D.def chien/N blanc/A=epi du/D.def=contr voisin/N=cdn (…)',
+  'Le/D.def chien/N blanc/A=epi de/P mon/D.pos voisin/N=cdn proche/A=epi (…)',
+  'Le/D.def jouet/N de/P la/D.def petite/A=epi fille/N=cdn (…)',
+  'La/D.def voiture/N rouge/A=epi de/P mon/D.pos oncle/N=cdn (…)',
   '(…) ce/D.dem joli/A=epi chat/N noir/A=epi',
   'Mon/D.pos vélo/N rouge/A=epi (…)',
   'La/D.def maison/N de/P ma/D.pos grand-mère/N=cdn (…)',
@@ -1113,7 +1116,7 @@ const PHRASES_GN = [
   'Chaque/D.idf élève/N (…)',
   'Quel/D.int bruit/N étrange/A=epi (…)',
   'Trois/D.num petits/A=epi canards/N (…)',
-  'Plusieurs/D.idf oiseaux/N du/P jardin/N=cdn (…)',
+  'Plusieurs/D.idf oiseaux/N du/D.def=contr jardin/N=cdn voisin/A=epi (…)',
   'Cette/D.dem robe/N de/P soie/N=cdn (…)',
   'Le/D.def cheval/N , rapide/A=app , (…)',
   'Notre/D.pos voiture/N neuve/A=epi (…)',
@@ -1121,7 +1124,7 @@ const PHRASES_GN = [
   'Ces/D.dem fleurs/N fragiles/A=epi (…)',
   'Joyeux/A=app , le/D.def bébé/N (…)',
   'Quelques/D.idf feuilles/N jaunes/A=epi (…)',
-  'Deux/D.num chats/N du/P voisin/N=cdn (…)',
+  'Deux/D.num chats/N du/D.def=contr voisin/N=cdn (…)',
   '(…) la/D.def grande/A=epi tour/N de/P Paris/NP=cdn',
   'Ta/D.pos sœur/N , heureuse/A=app , (…)',
   'Leur/D.pos vieux/A=epi chien/N (…)',
@@ -1151,14 +1154,40 @@ const motsDe = (q) => (q && q.gn ? PARSED_GN[q.phrase] : PARSED[q.phrase]);
       « Quelle est la fonction de cet adjectif qualificatif ? » (et l'on redemande s'il y en a un autre)
    4. « Y a-t-il un complément du nom ? » oui / non ; si oui : on appuie dessus, puis « Quelle est la nature du
       complément du nom ? » */
+/* v26 : un groupe nominal peut en contenir un autre : dans « le chien blanc du voisin », le complément du nom
+   « voisin » a lui-même son groupe (son déterminant « du », article défini contracté = de + le ; ses adjectifs ;
+   son complément du nom). On analyse donc le groupe du nom principal, puis celui du nom complément.
+   Chaque adjectif se rattache au nom le plus proche. */
 function analyseGN(mots) {
-  const t = mots.findIndex((m) => (m.tag === 'N' || /^Pr\./.test(m.tag)) && m.fn !== 'cdn');
-  const g = { t, pronom: /^Pr\./.test(mots[t].tag), d: null, dType: '', adj: [], cdn: null };
-  if (!g.pronom) { let k = t - 1; while (k >= 0 && mots[k].tag === 'A') k--; if (k >= 0 && /^D\./.test(mots[k].tag)) { g.d = k; g.dType = mots[k].tag; } }
-  mots.forEach((m, i) => { if (m.tag === 'A' && m.fn) g.adj.push(i); });
-  const c = mots.findIndex((m) => m.fn === 'cdn');
-  if (c >= 0) { let d = c; while (d > 0 && mots[d - 1].tag !== 'P') d--; g.cdn = { debut: d - 1, fin: c, tete: c }; }
-  return g;
+  const estTete = (m) => m.tag === 'N' || m.tag === 'NP' || /^Pr\./.test(m.tag);
+  const tetes = mots.map((m, i) => (estTete(m) ? i : -1)).filter((i) => i >= 0);
+  const procheDe = (i) => tetes.reduce((best, h) => (Math.abs(h - i) < Math.abs(best - i) ? h : best), tetes[0]);
+  const groupe = (h) => {
+    const g = { t: h, pronom: /^Pr\./.test(mots[h].tag), d: null, dType: '', contr: false, adj: [], cdn: null };
+    if (!g.pronom) {
+      let k = h - 1; while (k >= 0 && mots[k].tag === 'A') k--;
+      if (k >= 0 && /^D\./.test(mots[k].tag)) { g.d = k; g.dType = mots[k].tag; g.contr = mots[k].fn === 'contr'; }
+    }
+    mots.forEach((m, i) => { if (m.tag === 'A' && m.fn && procheDe(i) === h) g.adj.push(i); });
+    return g;
+  };
+  const t = tetes.find((i) => mots[i].fn !== 'cdn');
+  const g1 = groupe(t);
+  const groupes = [g1];
+  const c = tetes.find((i) => mots[i].fn === 'cdn');
+  if (c !== undefined) {
+    const g2 = groupe(c);
+    /* le complément du nom : (de) (déterminant) (adjectifs de ce nom) nom (adjectifs de ce nom) */
+    let debut = c;
+    while (debut > 0 && mots[debut - 1].tag === 'A' && procheDe(debut - 1) === c) debut--;
+    if (debut > 0 && /^D\./.test(mots[debut - 1].tag)) debut--;
+    if (debut > 0 && mots[debut - 1].tag === 'P') debut--;
+    const fin = Math.max(c, ...g2.adj);
+    g1.cdn = { debut, fin, tete: c };
+    groupes.push(g2);
+  }
+  g1.groupes = groupes;
+  return g1;
 }
 const ADJ_FN = { epi: 'F.epi', att: 'F.att', app: 'F.app' };
 const natBase = (tag) => (tag === 'N' ? 'N' : tag === 'NP' ? 'NP' : /^Pr\./.test(tag) ? 'Pr' : tag);
@@ -1182,6 +1211,7 @@ function carre(i, texte, rouge, avant) {
 }
 function showQuestionGN() {
   const q = game.questions[game.index];
+  q.gs = q.gs || q.g.groupes; q.g = q.gs[0];
   $('nat-sentence').innerHTML = phraseHtml(motsDe(q), -1);
   $('nat-character-stage').innerHTML = '';
   $('nat-correction').classList.add('hidden');
@@ -1195,27 +1225,38 @@ function showQuestionGN() {
 }
 /* Les cartes-consignes de l'étape : chaque sujet (nom, déterminant, adjectif, complément du nom) a ses cartes,
    qui s'empilent ; quand le sujet est fini, elles disparaissent et la consigne suivante arrive. */
+/* v25 : les consignes et les fonctions nomment le mot précis du groupe nominal (« le nom souris »,
+   « épithète du nom souris ») : la fonction de l'adjectif ou du complément se rapporte toujours à un nom. */
+const motGN = (q, i) => { const m = motsDe(q)[i]; return m.tag === 'NP' ? m.texte : m.texte.toLowerCase(); };
+const teteGN = (q) => `${q.g.pronom ? 'le pronom' : 'le nom'} « ${motGN(q, q.g.t)} »`;
+const teteCourte = (q) => `${q.g.pronom ? 'pronom' : 'nom'} ${motGN(q, q.g.t)}`;
+/* « épithète du nom souris », « apposé au nom lion », « complément du nom chien » */
+const fonctionPrecise = (q, code) => (code === 'F.epi' ? `épithète du ${teteCourte(q)}` : code === 'F.app' ? `apposé au ${teteCourte(q)}` : `complément du ${teteCourte(q)}`);
 const CARTES = {
   /* quand le groupe a un complément du nom, il y a deux noms : on demande le nom principal (« chien », pas « voisin ») */
   nom: (q) => ({ vert: true, texte: q.g.pronom ? 'Appuie sur le pronom dans ce groupe nominal.' : q.g.cdn ? 'Appuie sur le nom commun principal de ce groupe nominal.' : 'Appuie sur le nom commun dans ce groupe nominal.' }),
-  det: () => ({ vert: true, texte: 'Appuie maintenant sur le déterminant.' }),
-  detnat: () => ({ vert: true, texte: 'Quelle est la nature précise de ce déterminant ?', choix: ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int'], petits: true }),
-  prnat: () => ({ vert: true, texte: 'Quelle est la nature précise de ce pronom ?', choix: ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int'], petits: true }),
-  adjq: (q) => ({ vert: true, texte: `Dans ce groupe nominal, ${q.g.pronom ? 'le pronom' : 'le nom'} est-il décrit par ${gnState.adjFaits.size ? 'un autre' : 'un'} adjectif qualificatif ?`, choix: ['oui', 'non'] }),
-  adj: () => ({ vert: true, texte: 'Appuie sur l\'adjectif qualificatif.' }),
-  adjfn: () => ({ vert: false, texte: 'Quelle est la fonction de cet adjectif qualificatif ?', choix: ['F.epi', 'F.app'] }),
-  cdnq: (q) => ({ vert: false, texte: `Dans ce groupe nominal, ${q.g.pronom ? 'le pronom' : 'le nom'} est-il décrit par un mot qui a la fonction complément du nom ?`, choix: ['oui', 'non'] }),
-  cdn: () => ({ vert: false, texte: 'Appuie sur le complément du nom.' }),
-  cdnnat: () => ({ vert: true, texte: 'Quelle est la nature du complément du nom ?', choix: ['N', 'NP', 'Pr'] }),
+  det: (q) => ({ vert: true, texte: `Appuie maintenant sur le déterminant du nom « ${motGN(q, q.g.t)} ».` }),
+  /* le groupe du nom complément : on demande d'abord s'il a un déterminant (« de lait » n'en a pas) */
+  detq: (q) => ({ vert: true, texte: `Passons au groupe du nom « ${motGN(q, q.g.t)} ». Le nom « ${motGN(q, q.g.t)} » a-t-il un déterminant ?`, choix: ['oui', 'non'] }),
+  detnat: (q) => ({ vert: true, texte: `Quelle est la nature précise du déterminant « ${motGN(q, q.g.d)} » ?`, choix: ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int'], petits: true }),
+  prnat: (q) => ({ vert: true, texte: `Quelle est la nature précise du pronom « ${motGN(q, q.g.t)} » ?`, choix: ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int'], petits: true }),
+  adjq: (q) => ({ vert: true, texte: `Dans ce groupe nominal, ${teteGN(q)} est-il décrit par ${gnState.adjFaits.size ? 'un autre' : 'un'} adjectif qualificatif ?`, choix: ['oui', 'non'] }),
+  adj: (q) => ({ vert: true, texte: `Appuie sur l'adjectif qualificatif qui décrit ${teteGN(q)}.` }),
+  adjfn: (q) => ({ vert: false, texte: `Quelle est la fonction de l'adjectif qualificatif « ${motGN(q, gnState.courant)} » ?`, choix: ['F.epi', 'F.app'] }),
+  cdnq: (q) => ({ vert: false, texte: `Dans ce groupe nominal, ${teteGN(q)} est-il décrit par un mot qui a la fonction complément du nom ?`, choix: ['oui', 'non'] }),
+  cdn: (q) => ({ vert: false, texte: `Appuie sur le complément du nom « ${motGN(q, q.g.t)} ».` }),
+  cdnnat: (q) => ({ vert: true, texte: `Quelle est la nature du mot « ${motGN(q, q.g.cdn.tete)} », complément du nom « ${motGN(q, q.g.t)} » ?`, choix: ['N', 'NP', 'Pr'] }),
 };
-const LIB = { oui: 'Oui', non: 'Non', 'F.att': 'Attribut', 'F.epi': 'Épithète', 'F.app': 'Apposé' };
+const LIB = { oui: 'Oui', non: 'Non', 'F.att': 'Attribut' };
 function gnEtape(nouveauSujet) {
   const q = game.questions[game.index];
   if (nouveauSujet) gnState.cartes = [];
-  gnState.cartes.push(gnState.etape);
-  const html = gnState.cartes.map((e, n) => {
-    const c = CARTES[e](q), actif = n === gnState.cartes.length - 1;
-    const bouton = (code) => `<button type="button" class="nature-button${c.petits ? ' small' : ''}${c.vert ? '' : ' fonction-button'}" data-gn="${code}">${LIB[code] || (c.petits ? NATURE_BY_CODE[code].court : NATURE_BY_CODE[code].nom)}</button>`;
+  /* la carte garde le texte qu'elle avait quand elle est apparue (« un adjectif », puis plus tard « un autre ») */
+  gnState.cartes.push(CARTES[gnState.etape](q));
+  const html = gnState.cartes.map((c, n) => {
+    const actif = n === gnState.cartes.length - 1;
+    const texteBouton = (code) => (code === 'F.epi' || code === 'F.app' ? capitalize(fonctionPrecise(q, code)) : LIB[code] || (c.petits ? NATURE_BY_CODE[code].court : NATURE_BY_CODE[code].nom));
+    const bouton = (code) => `<button type="button" class="nature-button${c.petits ? ' small' : ''}${c.vert ? '' : ' fonction-button'}" data-gn="${code}">${texteBouton(code)}</button>`;
     const choix = c.choix && actif ? (c.petits ? `<div class="nature-row nature-row-7">${c.choix.map(bouton).join('')}</div>` : `<div class="carte-choix carte-choix-${c.choix.length}">${c.choix.map(bouton).join('')}</div>`) : '';
     return `<div class="carte ${c.vert ? 'verte' : 'rouge'}${actif ? ' active' : ' faite'}"><p>${c.texte}</p>${choix}</div>`;
   }).join('');
@@ -1261,7 +1302,7 @@ function clicMotGN(i, el) {
     gnCompte('A'); gnState.adjFaits.add(pris); gnState.courant = pris; carre(pris, 'adjectif<br>qualificatif'); gnVers('adjfn', true);
   } else if (e === 'cdn') {
     if ((i >= g.cdn.debut && i <= g.cdn.fin) || gnErreur(el, 'le complément du nom', choisi)) {
-      gnCompte('F.cdn'); carre(g.cdn.tete, 'complément<br>du nom', true);
+      gnCompte('F.cdn'); carre(g.cdn.tete, `complément<br>du ${teteCourte(q)}`, true);
       for (let k = g.cdn.debut; k <= g.cdn.fin; k++) wordEl(k)?.classList.add('gn-groupe');
       gnVers('cdnnat', true);
     }
@@ -1283,10 +1324,10 @@ function answerBoutonGN(code, btn) {
     if (code !== bon && !faux(NATURE_BY_CODE[bon].article, NATURE_BY_CODE[code].article, mots[k].texte)) return;
     if (code === bon) btn.classList.add('correct'); else montrer(bon);
     gnCompte(bon);
-    if (e === 'detnat') { wordEl(k).querySelector('.lab').innerHTML = `déterminant<br>${NOM_COURT(bon)}`; suite(() => gnVers('adjq')); }
+    if (e === 'detnat') { wordEl(k).querySelector('.lab').innerHTML = `déterminant<br>${NOM_COURT(bon)}${g.contr ? '<br>contracté' : ''}`; suite(() => gnVers('adjq')); }
     else if (e === 'prnat') { wordEl(k).querySelector('.lab').innerHTML = `pronom<br>${NOM_COURT(bon)}`; suite(() => gnVers('adjq')); }
-    else if (e === 'adjfn') { carre(k, NOM_COURT(bon), true); suite(() => gnVers('adjq')); }
-    else { carre(k, NATURE_BY_CODE[bon].nom.toLowerCase().replace(' ', '<br>'), false, true); suite(() => gnVers('fini')); }
+    else if (e === 'adjfn') { carre(k, fonctionPrecise(q, bon).replace(/ (du|au) /, '<br>$1 '), true); suite(() => gnVers('adjq')); }
+    else { carre(k, NATURE_BY_CODE[bon].nom.toLowerCase().replace(' ', '<br>'), false, true); suite(() => finGroupe(q)); }
     return;
   }
   if (e === 'adjq') {
@@ -1300,20 +1341,63 @@ function answerBoutonGN(code, btn) {
     const juste = (code === 'oui') === !!g.cdn;
     if (!juste && !faux(g.cdn ? 'oui, il y a un complément du nom' : 'non, il n\'y a pas de complément du nom', code, '—')) return;
     gnCompte('F.cdn?');
-    suite(() => gnVers(g.cdn ? 'cdn' : 'fini', true));
+    suite(() => (g.cdn ? gnVers('cdn', true) : finGroupe(q)));
+    return;
+  }
+  if (e === 'detq') {
+    const juste = (code === 'oui') === (g.d !== null);
+    if (!juste && !faux(g.d !== null ? 'oui, il y a un déterminant' : 'non, il n\'y a pas de déterminant', code, '—')) return;
+    gnCompte('D?');
+    suite(() => (g.d !== null ? gnVers('det', true) : gnVers('adjq')));
   }
 }
+/* fin d'un groupe : s'il y a un groupe suivant (celui du nom complément), on l'analyse à son tour */
+function finGroupe(q) {
+  const tous = q.gs;
+  const n = tous.indexOf(q.g);
+  if (n + 1 < tous.length) { q.g = tous[n + 1]; gnState.adjFaits = new Set(); gnVers('detq'); return; }
+  gnVers('fini');
+}
+/* v25 : le bilan de chaque groupe nominal est un petit discours qui s'enchaîne (c'est aussi ce que dit la voix) :
+   « Tu as bien analysé le groupe nominal du nom souris. Le nom souris est d'abord précisé par un déterminant,
+   un article indéfini, « une », qui n'a pas de fonction. Ensuite, il est décrit par deux adjectifs qualificatifs
+   qui ont la fonction épithète : le premier est « petite », le second est « grise ». » */
 function resumeGN(q, html) {
-  const mots = motsDe(q), g = q.g;
-  const t = (a, b) => mots.slice(a, b + 1).map((m) => m.texte).join(' ').replace(/' /g, "'");
+  const mots = motsDe(q), tous = q.gs || q.g.groupes || [q.g];
   const B = (x) => (html ? `<strong>${esc(x)}</strong>` : x);
-  const items = [[g.t, `« ${B(mots[g.t].texte)} » : ${NATURE_BY_CODE[mots[g.t].tag].nom.toLowerCase()}`]];
-  if (g.d !== null) items.push([g.d, `« ${B(mots[g.d].texte)} » : ${NATURE_BY_CODE[g.dType].nom.toLowerCase()}`]);
-  g.adj.forEach((i) => items.push([i, `« ${B(mots[i].texte)} » : adjectif qualificatif (nature), ${NATURE_BY_CODE[ADJ_FN[mots[i].fn]].nom.toLowerCase()} (fonction)`]));
-  const parts = items.sort((x, y) => x[0] - y[0]).map((x) => x[1]);
-  if (!g.adj.length) parts.push('pas d\'adjectif qualificatif');
-  parts.push(g.cdn ? `« ${B(t(g.cdn.debut, g.cdn.fin))} » : complément du nom (fonction) ; « ${B(mots[g.cdn.tete].texte)} » est ${NATURE_BY_CODE[mots[g.cdn.tete].tag].article} (nature)` : 'pas de complément du nom');
-  return parts.join(html ? ' ;<br>' : ', ') + '.';
+  const mw = (i) => { const m = mots[i]; return m.tag === 'NP' ? m.texte : m.texte.toLowerCase(); };
+  const mot = (i) => `« ${B(mw(i))} »`;
+  const nomDe = (g) => `${g.pronom ? 'pronom' : mots[g.t].tag === 'NP' ? 'nom propre' : 'nom'} ${B(mw(g.t))}`;
+  const nombres = ['', 'un', 'deux', 'trois', 'quatre'];
+  const rangs = ['le premier', 'le second', 'le troisième'];
+  const phr = [`Tu as bien analysé le groupe nominal du ${nomDe(tous[0])}.`];
+  tous.forEach((g, n) => {
+    const tete = nomDe(g);
+    const debut = n === 0 ? `Le ${tete}` : `Le ${tete} a lui aussi son groupe : il`;
+    let dejaSujet = false;
+    if (g.pronom) { phr.push(`Le ${tete} est ${NATURE_BY_CODE[mots[g.t].tag].article}.`); dejaSujet = true; }
+    else if (g.d !== null) {
+      const nd = NATURE_BY_CODE[g.dType].nom.toLowerCase() + (g.contr ? ' contracté' : '');
+      const det = /^déterminant/.test(nd) ? `le ${nd}` : `un déterminant, l'${nd}`;
+      phr.push(`${debut} est ${n === 0 ? 'd\'abord ' : ''}précisé par ${det} ${mot(g.d)}${g.contr ? ` (${mw(g.d)} = de + le)` : ''}, qui n'a pas de fonction.`);
+      dejaSujet = true;
+    }
+    const il = dejaSujet ? (n === 0 ? 'Ensuite, il' : 'Il') : (n === 0 ? 'Il' : `Le ${tete} n'a pas de déterminant ; il`);
+    if (!g.adj.length) phr.push(`${il} n'est décrit par aucun adjectif qualificatif.`);
+    else {
+      const fns = [...new Set(g.adj.map((i) => mots[i].fn))];
+      if (fns.length === 1) {
+        const fn = NATURE_BY_CODE[ADJ_FN[fns[0]]].nom.toLowerCase(), k = g.adj.length;
+        if (k === 1) phr.push(`${il} est décrit par un adjectif qualificatif qui a la fonction ${fn} : ${mot(g.adj[0])}.`);
+        else phr.push(`${il} est décrit par ${nombres[k] || k} adjectifs qualificatifs qui ont la fonction ${fn} : ${g.adj.map((i, r) => `${rangs[r] || 'puis'} est ${mot(i)}`).join(', ')}.`);
+      } else {
+        phr.push(`${il} est décrit par ${nombres[g.adj.length]} adjectifs qualificatifs : ${g.adj.map((i) => `${mot(i)}, qui a la fonction ${NATURE_BY_CODE[ADJ_FN[mots[i].fn]].nom.toLowerCase()}`).join(', et ')}.`);
+      }
+    }
+    if (g.cdn) phr.push(`Enfin, il est décrit par le ${NATURE_BY_CODE[mots[g.cdn.tete].tag].nom.toLowerCase()} ${mot(g.cdn.tete)}, qui a la fonction complément du ${tete}.`);
+    else phr.push('Il n\'a pas de complément du nom.');
+  });
+  return phr.join(' ');
 }
 function finishQuestionGN() {
   const q = game.questions[game.index];
