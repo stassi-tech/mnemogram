@@ -719,3 +719,23 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .sx-etq { text-align:center; }
 .sx-etq.serre { white-space:normal; font-size:.82em; line-height:1.05; top:1px; display:block; }
 .sx-etq.deborde { left:auto; }
+
+/* v58 : la phrase, exercice 3 : discours direct et discours indirect */
+.game9 .dr-texte { font-family:Georgia,serif; line-height:1.9; text-align:left; }
+.game9 .dr-mot { cursor:pointer; border-radius:3px; }
+.game9 .dr-mot:hover { background:rgba(255,255,255,.12); }
+.game9 .dr-seg.trouve-d { background:rgba(255,150,50,.35); box-shadow:0 0 0 2px #ff9a3c; border-radius:4px; }
+.game9 .dr-seg.trouve-i { background:rgba(80,160,255,.35); box-shadow:0 0 0 2px #5aa8ff; border-radius:4px; }
+.game9 .dr-seg.choisi { outline:3px solid #ffd54a; outline-offset:2px; border-radius:4px; }
+.game9 .dr-faux { background:rgba(230,60,60,.55) !important; transition:background .3s; }
+.game9 .dr-nouveau { display:none; }
+.game9 .dr-seg.transforme .dr-ancien { text-decoration:line-through; opacity:.55; font-size:.78em; }
+.game9 .dr-seg.transforme .dr-nouveau { display:inline; font-weight:700; margin-left:.35em; padding:0 .2em; border-radius:4px; }
+.game9 .dr-seg.transforme.juste .dr-nouveau { color:#8ef0a0; }
+.game9 .dr-seg.transforme.corrige .dr-nouveau { color:#ff8a8a; }
+.game9 .dr-choix { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+.game9 .dr-option { white-space:normal; text-align:left; height:auto; min-height:44px; padding:8px 12px; line-height:1.3; font-size:.95rem; }
+.game9 .carte.dr-d { border-left:6px solid #ff9a3c; }
+.game9 .carte.dr-i { border-left:6px solid #5aa8ff; }
+.game9 .dr-rappel { opacity:.7; }
+.game9 .dr-option.faded { background:#f1f1f1; color:#777; border-color:#ddd; }

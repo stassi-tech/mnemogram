@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v57';
+const APP_VERSION = 'v58';
 
 const $ = (id) => document.getElementById(id);
 
@@ -224,6 +224,9 @@ const GAMES = {
   /* v54 : la phrase, exercice 2 : nature précise et fonction des propositions (bandes bleues, vertes, rouges) */
   phrase2: { titre: 'La phrase, exercice 2 : analyse, nature et fonction des propositions', type: 'Nature et fonction des propositions, niveau 14', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 14, nb: 1, sx: true, sxFn: true, texte: 1, total: 37, partie: 'phrase' },
+  /* v58 : la phrase, exercice 3 : transformer les paroles rapportées (discours direct ↔ discours indirect) */
+  phrase3: { titre: 'La phrase, exercice 3 : du discours direct au discours indirect, et inversement', type: 'Discours direct et discours indirect, niveau 15', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 15, nb: 1, dr: true, total: 12, partie: 'phrase' },
   /* v47 : transformer un texte */
   temps5: { titre: 'Temps et modes, exercice 5 : transformer un texte au système du passé en texte au système du présent', type: 'Transformer un texte du passé au présent, niveau 11', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 11, nb: 1, tf: 'passe2pres', total: 10, partie: 'temps' },
@@ -820,6 +823,7 @@ function buildNatureSequence() {
   return shuffle(liste);
 }
 function buildQuestions() {
+  if (currentGame.dr) { marqueTexte(texteChoisi); return [{ dr: true, t: texteChoisi }]; }
   if (currentGame.sx) { marqueTexte(texteChoisi); return [{ sx: true, t: texteChoisi }]; }
   if (currentGame.tf) { marqueTexte(texteChoisi); return [{ tf: true, t: texteChoisi }]; }
   if (currentGame.tm) return [{ tm: true, t: currentGame.texte || 0 }];
@@ -878,9 +882,9 @@ function buildNatureButtons() {
    le dernier joué ; les textes déjà faits portent une coche. On garde ces souvenirs dans le navigateur. */
 let texteChoisi = 0;
 const NIVEAU_TEXTE = (k, n = 20) => { const q = k / n; return q < 0.25 ? 'facile' : q < 0.5 ? 'moyen' : q < 0.75 ? 'difficile' : 'très difficile'; };
-const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : currentGame.tf ? currentGame.tf : currentGame.sx ? (currentGame.sxFn ? 'phrase2' : 'phrase1') : 'tableau'}`;
+const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : currentGame.tf ? currentGame.tf : currentGame.dr ? 'phrase3' : currentGame.sx ? (currentGame.sxFn ? 'phrase2' : 'phrase1') : 'tableau'}`;
 /* v47 : la liste des textes au choix : les tableaux (exercices 5 et 6 des mots) ou les textes à transformer */
-const listeTextes = () => (currentGame.tab ? TABLEAUX : currentGame.tf ? TRANSFOS[currentGame.tf] : currentGame.sx ? TEXTES_SX[currentGame.sxFn ? 'fn' : 'syn'] : null);
+const listeTextes = () => (currentGame.tab ? TABLEAUX : currentGame.tf ? TRANSFOS[currentGame.tf] : currentGame.dr ? TEXTES_DR : currentGame.sx ? TEXTES_SX[currentGame.sxFn ? 'fn' : 'syn'] : null);
 function textesFaits() { try { return JSON.parse(localStorage.getItem(cleTextes()) || '{"faits":[],"dernier":-1}'); } catch (e) { return { faits: [], dernier: -1 }; } }
 function marqueTexte(k) {
   const m = textesFaits();
@@ -903,6 +907,7 @@ function choixTexte() {
     }).join('')}</div>`).join('');
     $('nat-progress-label').textContent = `Texte n° ${texteChoisi + 1} (${NIV(texteChoisi)})`;
     if (currentGame.tf) { currentGame.total = decoupeTF(L[texteChoisi].texte).elts.length; $('nat-score-label').textContent = scoreLabel(0); }
+    if (currentGame.dr) { currentGame.total = L[texteChoisi].passages.length * 2; $('nat-score-label').textContent = scoreLabel(0); }
     if (currentGame.sx) { const dd = decoupeSX(L[texteChoisi].texte); currentGame.total = dd.phrases.length + dd.props.length + (currentGame.sxFn ? dd.props.filter((p) => p.fn).length : 0); $('nat-score-label').textContent = scoreLabel(0); }
     box.innerHTML = `<p class="texte-titre">Choisis ton texte : le <strong>texte n° ${texteChoisi + 1}</strong>${L[texteChoisi].titre ? ` « ${esc(L[texteChoisi].titre)} »` : ''} (${NIV(texteChoisi)}) t'attend. Les textes déjà faits sont cochés.</p><div class="texte-grille">${groupes}</div>`;
     box.querySelectorAll('[data-texte]').forEach((b) => b.addEventListener('click', () => { texteChoisi = Number(b.dataset.texte); dessine(); }));
@@ -917,11 +922,14 @@ function openGame(id) {
   /* v27 : le jeu 3 marche maintenant comme le jeu 4 (consignes, carrés verts et rouges sous les mots) */
   $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions' || id === 'tableau' || id === 'libre');
   $('natures-panel').classList.toggle('game5', id === 'tableau' || id === 'libre');
-  ['game3', 'game4'].forEach((c) => { if (GAMES[id].tm || GAMES[id].tf || GAMES[id].sx) $('natures-panel').classList.add(c); });
-  $('natures-panel').classList.toggle('game7', !!(GAMES[id].tm || GAMES[id].tf || GAMES[id].sx));
+  ['game3', 'game4'].forEach((c) => { if (GAMES[id].tm || GAMES[id].tf || GAMES[id].sx || GAMES[id].dr) $('natures-panel').classList.add(c); });
+  $('natures-panel').classList.toggle('game7', !!(GAMES[id].tm || GAMES[id].tf || GAMES[id].sx || GAMES[id].dr));
+  $('natures-panel').classList.toggle('game9', !!GAMES[id].dr);
   $('natures-panel').classList.toggle('game8', !!GAMES[id].sx);
   $('natures-panel').classList.toggle('game7v', !!GAMES[id].valeurs);
-  $('nat-ready-explanation').innerHTML = id === 'phrase2'
+  $('nat-ready-explanation').innerHTML = id === 'phrase3'
+    ? 'Dans un récit, on peut rapporter les paroles des personnages de deux façons. Au <strong>discours direct</strong>, on les cite telles qu\'elles ont été prononcées, <strong>entre guillemets</strong>. Au <strong>discours indirect</strong>, on les rapporte dans une <strong>proposition subordonnée</strong>, après un verbe de parole, en changeant les personnes et les temps. Quatre étapes : <strong>1.</strong> trouve les paroles au discours direct ; <strong>2.</strong> mets-les au discours indirect ; <strong>3.</strong> trouve les paroles au discours indirect ; <strong>4.</strong> mets-les au discours direct. Chaque passage trouvé vaut 1 point (une erreur coûte 0,5 point), chaque transformation réussie du premier coup vaut 1 point.'
+    : id === 'phrase2'
     ? 'On va plus loin dans l\'analyse des propositions. Sous le texte, trois rangées de bandes vierges : en <strong>bleu</strong>, la <strong>syntaxe</strong> de chaque phrase ; en <strong>vert</strong>, la <strong>nature précise</strong> de chaque proposition (indépendante, principale, subordonnée relative, conjonctive complétive, conjonctive circonstancielle…) ; en <strong>rouge</strong>, la <strong>fonction</strong> de chaque subordonnée (complément de l\'antécédent, COD du verbe, complément circonstanciel…). Touche une bande, puis choisis à droite. Chaque bande juste du premier coup vaut 1 point.'
     : id === 'phrase1'
     ? 'Dans ce petit texte, décris la <strong>syntaxe</strong> de chaque phrase et la <strong>nature</strong> de ses propositions. Sous le texte, des bandes vierges sont déjà tracées : en <strong>bleu</strong> sous chaque phrase, en <strong>vert</strong> sous chaque proposition. Touche une bande, puis choisis à droite ce qu\'elle est : phrase nominale, verbale simple ou verbale complexe ; proposition indépendante, principale ou subordonnée. Chaque bande juste du premier coup vaut 1 point.'
@@ -988,7 +996,7 @@ function showQuestion() {
   if (isG3()) { showQuestionGV(); return; }
   if (isG5()) { showQuestionTab(); return; }
   if (isG6()) { showQuestionLibre(); return; }
-  if (isT1()) { (currentGame.sx ? showQuestionSX : currentGame.tf ? showQuestionTF : showQuestionTM)(); return; }
+  if (isT1()) { (currentGame.dr ? showQuestionDR : currentGame.sx ? showQuestionSX : currentGame.tf ? showQuestionTF : showQuestionTM)(); return; }
   const q = game.questions[game.index];
   game.essais = 0;
   $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mots || q.mot);
@@ -2515,7 +2523,7 @@ function decoupeTM(src) {
   return { mots, formes };
 }
 const tm = { rep: {}, sel: null, texte: null, phase: 1 };
-const isT1 = () => !!(currentGame.tm || currentGame.tf || currentGame.sx);   /* v40 : tous les exercices des temps et des modes */
+const isT1 = () => !!(currentGame.tm || currentGame.tf || currentGame.sx || currentGame.dr);   /* v40 : tous les exercices des temps et des modes */
 /* les formes : 0…19 dans le premier cadre ; 100, 101… pour les formes modernes du second cadre */
 const TM_T = () => TEXTES_TM[game.questions[game.index].t];
 const formeTM = (i) => (i >= 100 ? TM_T().suite[i - 100] : tm.texte.formes[i]);
@@ -3093,6 +3101,166 @@ function finSX() {
   showCharacter(game.score >= total / 2 ? 'good' : 'bad', null);
 }
 const isSX = () => !!(currentGame && currentGame.sx);
+/* ------------------------------------------------------------
+   v58 : LA PHRASE — EXERCICE 3 : TRANSFORMER LES PAROLES RAPPORTÉES
+   Quatre étapes : 1. trouver les paroles au discours direct ; 2. les mettre au discours indirect ;
+   3. trouver les paroles au discours indirect ; 4. les mettre au discours direct.
+   Trouver un passage : 1 point (une erreur de passage : –0,5). Le transformer : 1 point (un seul essai, parmi trois propositions).
+   Dans le texte : [[k|début ((paroles))fin]] ; k = numéro du passage dans « passages » ; « (( )) » entoure les paroles
+   elles-mêmes (ce qu'on touche pour les trouver) ; tout le segment entre [[ ]] est remplacé par la transformation.
+   ------------------------------------------------------------ */
+const TEXTES_DR = [
+  { titre: 'Le gendarme',
+    texte: "Le terrible gendarme approcha de la voiture qu'il avait arrêtée au carrefour et [[0|dit au chauffeur : ((« Avez-vous vos papiers ? »))]] Le chauffeur se mit à rougir parce qu'il les avait oubliés chez lui. [[1|Il demanda au gendarme ((s'il pourrait les apporter le lendemain.))]] Mais [[2|le gendarme lui dit : ((« Cela n'est pas possible, vous devez toujours les avoir sur vous ! »))]] Bien que le gendarme fût aimable, il donna à l'automobiliste une contravention de cinquante euros parce qu'il n'avait pas ses papiers sur lui, et [[3|il lui dit ((qu'il devrait les présenter à la gendarmerie.))]] [[4|((« Très bien, cela sera fait ! »)) dit le chauffeur.]] [[5|Le gendarme lui répondit ((qu'il y comptait sans faute.))]]",
+    passages: [
+      { type: 'D', bon: "demanda au chauffeur s'il avait ses papiers.", faux: ["demanda au chauffeur s'il a ses papiers.", "demanda au chauffeur si vous aviez vos papiers."],
+        pourquoi: "La question devient une subordonnée interrogative indirecte introduite par « si » ; « vous » devient « il », et le présent devient un imparfait." },
+      { type: 'I', bon: "Il demanda au gendarme : « Pourrai-je les apporter demain ? »", faux: ["Il demanda au gendarme : « Pourrait-il les apporter le lendemain ? »", "Il demanda au gendarme : « Pourrai-je les apporter le lendemain ? »"],
+        pourquoi: "Au discours direct, le chauffeur parle lui-même : « il » devient « je », le conditionnel redevient un futur, et « le lendemain » redevient « demain »." },
+      { type: 'D', bon: "le gendarme lui dit que cela n'était pas possible et qu'il devait toujours les avoir sur lui.", faux: ["le gendarme lui dit que cela n'est pas possible et qu'il doit toujours les avoir sur lui.", "le gendarme lui dit que cela n'était pas possible et que vous deviez toujours les avoir sur vous."],
+        pourquoi: "Les paroles deviennent des subordonnées complétives introduites par « que » ; les présents deviennent des imparfaits, « vous » devient « il »." },
+      { type: 'I', bon: "il lui dit : « Vous devrez les présenter à la gendarmerie. »", faux: ["il lui dit : « Il devrait les présenter à la gendarmerie. »", "il lui dit : « Vous devriez les présenter à la gendarmerie. »"],
+        pourquoi: "Le gendarme s'adresse au chauffeur : « il » devient « vous », et le conditionnel (futur dans le passé) redevient un futur." },
+      { type: 'D', bon: "Le chauffeur dit que c'était très bien et que cela serait fait.", faux: ["Le chauffeur dit que c'est très bien et que cela sera fait.", "Le chauffeur dit : très bien, que cela serait fait."],
+        pourquoi: "Le verbe de parole passe devant ; les paroles deviennent deux complétives introduites par « que » ; le présent devient un imparfait et le futur un conditionnel (le futur dans le passé)." },
+      { type: 'I', bon: "Le gendarme lui répondit : « J'y compte sans faute ! »", faux: ["Le gendarme lui répondit : « Il y comptait sans faute ! »", "Le gendarme lui répondit : « J'y comptais sans faute ! »"],
+        pourquoi: "Le gendarme parle lui-même : « il » devient « je », et l'imparfait redevient un présent." },
+    ] },
+];
+const dr = { etape: 0, sel: null, trouves: {}, faits: {}, ordre: {} };
+const ETAPES_DR = [
+  { type: 'D', quoi: 'trouver', titre: 'Trouve les paroles au discours direct' },
+  { type: 'D', quoi: 'transformer', titre: 'Mets-les au discours indirect' },
+  { type: 'I', quoi: 'trouver', titre: 'Trouve les paroles au discours indirect' },
+  { type: 'I', quoi: 'transformer', titre: 'Mets-les au discours direct' },
+];
+const DR_T = () => TEXTES_DR[game.questions[game.index].t];
+const isDR = () => !!(currentGame && currentGame.dr);
+function decoupeDR(src) {
+  /* morceaux : texte libre (mots) ou passage { k, avant, paroles, apres } */
+  const morceaux = [];
+  src.replace(/\[\[(\d+)\|([^\]]*?)\(\(([^)]*?)\)\)([^\]]*?)\]\]|([^[]+)/g, (m, k, av, par, ap, libre) => {
+    if (libre !== undefined) morceaux.push({ libre });
+    else morceaux.push({ k: Number(k), avant: av, paroles: par, apres: ap });
+    return m;
+  });
+  return morceaux;
+}
+function showQuestionDR() {
+  const T = DR_T();
+  Object.assign(dr, { etape: 0, sel: null, trouves: {}, faits: {}, ordre: {} });
+  T.passages.forEach((p, k) => { dr.ordre[k] = shuffle([p.bon, ...p.faux]); });
+  currentGame.total = T.passages.length * 2;
+  const mots = (txt) => txt.split(/(\s+)/).map((w) => (/^\s+$/.test(w) || !w ? w : `<span class="dr-mot">${esc(w)}</span>`)).join('');
+  $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">« ${esc(T.titre)} »</h3><div class="dr-texte">${decoupeDR(T.texte).map((m) => (m.libre !== undefined
+    ? mots(m.libre)
+    : `<span class="dr-seg" data-k="${m.k}"><span class="dr-ancien">${mots(m.avant)}<span class="dr-paroles">${mots(m.paroles)}</span>${mots(m.apres)}</span><span class="dr-nouveau"></span></span>`)).join('')}</div></div>`;
+  $('nat-character-stage').innerHTML = '';
+  $('nat-correction').classList.add('hidden');
+  $('nat-verdict-square').className = 'verdict-square';
+  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
+  $('nat-buttons-invariables').innerHTML = '';
+  $('nat-progress-label').textContent = `« ${T.titre} »`;
+  game.score = 0;
+  $('nat-sentence').onclick = (ev) => { if (isDR() && !game.fini) clicDR(ev.target.closest('.dr-seg'), ev.target.closest('.dr-mot')); };
+  majScoreDR(); panneauDR();
+}
+const passagesDR = (type) => DR_T().passages.map((p, k) => ({ ...p, k })).filter((p) => p.type === type);
+function majScoreDR() {
+  $('nat-score-label').textContent = scoreLabel(Math.max(0, game.score));
+  const fait = Object.keys(dr.trouves).length + Object.keys(dr.faits).length;
+  $('nat-progress-bar').style.width = `${(fait / currentGame.total) * 100}%`;
+}
+const segDR = (k) => document.querySelector(`#nat-sentence .dr-seg[data-k="${k}"]`);
+function panneauDR(message) {
+  const E = ETAPES_DR[dr.etape], L = passagesDR(E.type);
+  $('nat-instruction').textContent = `Étape ${dr.etape + 1} sur 4 : ${E.titre.toLowerCase()}`;
+  const nom = E.type === 'D' ? 'discours direct' : 'discours indirect';
+  const vers = E.type === 'D' ? 'discours indirect' : 'discours direct';
+  let html = '';
+  if (E.quoi === 'trouver') {
+    const n = L.filter((p) => dr.trouves[p.k]).length;
+    html = `<div class="carte ${E.type === 'D' ? 'dr-d' : 'dr-i'} active libre"><p><strong>${E.titre}</strong> : touche-les dans le texte.</p><p class="sous">${E.type === 'D'
+      ? 'Au discours direct, les paroles sont citées telles qu\'elles ont été prononcées, <strong>entre guillemets</strong>, souvent après deux-points.'
+      : 'Au discours indirect, les paroles sont rapportées dans une <strong>proposition subordonnée</strong> (introduite par <em>que</em>, <em>si</em>…), après un verbe de parole, sans guillemets.'}</p><p class="sous">${n} passage${n > 1 ? 's' : ''} sur ${L.length} trouvé${n > 1 ? 's' : ''}.</p></div>`;
+  } else if (dr.sel === null) {
+    html = `<div class="carte ${E.type === 'D' ? 'dr-d' : 'dr-i'} active libre"><p><strong>${E.titre}</strong> : touche un passage ${E.type === 'D' ? 'au discours direct' : 'au discours indirect'}, puis choisis sa transformation.</p></div>`;
+  } else {
+    const p = DR_T().passages[dr.sel], r = dr.faits[dr.sel];
+    html = `<div class="carte ${E.type === 'D' ? 'dr-d' : 'dr-i'} active libre"><p>Comment écrire ce passage au <strong>${vers}</strong> ?</p><div class="dr-choix">${dr.ordre[dr.sel].map((o, j) => `<button type="button" class="nature-button dr-option${!r ? '' : o === p.bon ? ' correct' : o === r ? ' wrong' : ' faded'}" data-opt="${j}"${r ? ' disabled' : ''}>${esc(o)}</button>`).join('')}</div>${r ? `<p class="sous tm-bilan">${r === p.bon ? '✔ Bravo !' : 'Non.'} ${p.pourquoi}</p>` : ''}</div>`;
+  }
+  $('nat-buttons-variables').innerHTML = nbspFr(`${html}${message ? `<p class="sous sx-aide">${message}</p>` : ''}<p class="sous dr-rappel">${nom === 'discours direct' ? '🟠 discours direct' : '🔵 discours indirect'}</p>`);
+  document.querySelectorAll('[data-opt]').forEach((b) => b.addEventListener('click', () => transformeDR(dr.ordre[dr.sel][Number(b.dataset.opt)])));
+}
+function clicDR(seg, mot) {
+  const E = ETAPES_DR[dr.etape];
+  if (E.quoi === 'trouver') {
+    const k = seg ? Number(seg.dataset.k) : null, p = k !== null ? DR_T().passages[k] : null;
+    if (p && dr.faits[k]) { panneauDR('Ce passage est déjà transformé.'); return; }
+    if (p && p.type === E.type) {
+      if (dr.trouves[k]) { panneauDR('Tu l\'as déjà trouvé.'); return; }
+      dr.trouves[k] = true; game.score = Math.round((game.score + 1) * 10) / 10;
+      seg.classList.add(E.type === 'D' ? 'trouve-d' : 'trouve-i');
+      majScoreDR();
+      const reste = passagesDR(E.type).filter((x) => !dr.trouves[x.k]).length;
+      panneauDR(reste ? '✔ Oui, en voici un !' : '✔ Tu les as tous trouvés !');
+      if (!reste) setTimeout(etapeSuivanteDR, 1200);
+      return;
+    }
+    if (!mot) return;
+    game.score = Math.round((game.score - 0.5) * 10) / 10;   /* le score peut passer un moment sous zéro ; on l'arrête à zéro à la fin */
+    game.erreurs.push({ mot: (seg || mot).textContent.trim().slice(0, 60), bonne: E.type === 'D' ? 'pas de discours direct ici' : 'pas de discours indirect ici', choisie: E.type === 'D' ? 'discours direct' : 'discours indirect', phrase: `texte « ${DR_T().titre} »` });
+    (seg || mot).classList.add('dr-faux'); setTimeout(() => (seg || mot).classList.remove('dr-faux'), 900);
+    majScoreDR();
+    panneauDR(p ? (p.type === 'D' ? 'Non : ces paroles sont entre guillemets, c\'est du discours direct (– 0,5 point).' : 'Non : ces paroles sont dans une subordonnée, sans guillemets : c\'est du discours indirect (– 0,5 point).') : 'Non : ce n\'est pas une parole rapportée, c\'est le récit (– 0,5 point).');
+    return;
+  }
+  /* transformer : on touche un passage du bon type, pas encore transformé */
+  if (!seg) return;
+  const k = Number(seg.dataset.k), p = DR_T().passages[k];
+  if (p.type !== E.type || dr.faits[k]) return;
+  document.querySelectorAll('.dr-seg.choisi').forEach((s) => s.classList.remove('choisi'));
+  seg.classList.add('choisi'); dr.sel = k; panneauDR();
+}
+function transformeDR(o) {
+  const k = dr.sel; if (k === null || dr.faits[k]) return;
+  const p = DR_T().passages[k], juste = o === p.bon;
+  dr.faits[k] = o;
+  if (juste) game.score = Math.round((game.score + 1) * 10) / 10;
+  else game.erreurs.push({ mot: segDR(k).querySelector('.dr-ancien').textContent.trim().slice(0, 60), bonne: `« ${p.bon} »`, choisie: `« ${o} »`, phrase: `texte « ${DR_T().titre} »` });
+  /* dans le texte : l'ancien passage barré en petit, la transformation à sa place */
+  const s = segDR(k);
+  s.classList.remove('choisi', 'trouve-d', 'trouve-i'); s.classList.add('transforme', juste ? 'juste' : 'corrige');
+  s.querySelector('.dr-nouveau').textContent = p.bon;
+  majScoreDR(); panneauDR();
+  const reste = passagesDR(ETAPES_DR[dr.etape].type).filter((x) => !dr.faits[x.k]);
+  setTimeout(() => {
+    if (!reste.length) { etapeSuivanteDR(); return; }
+    dr.sel = null; clicDR(segDR(reste[0].k), null);
+  }, juste ? 1600 : 3200);
+}
+function etapeSuivanteDR() {
+  dr.sel = null; document.querySelectorAll('.dr-seg.choisi').forEach((s) => s.classList.remove('choisi'));
+  /* une étape sans passage (aucun discours indirect, par exemple) est sautée */
+  do { dr.etape += 1; } while (dr.etape < 4 && !passagesDR(ETAPES_DR[dr.etape].type).length);
+  if (dr.etape >= 4) { finDR(); return; }
+  const E = ETAPES_DR[dr.etape];
+  panneauDR(E.quoi === 'transformer' ? 'À toi de les transformer !' : '');
+  if (E.quoi === 'transformer') { const l = passagesDR(E.type); clicDR(segDR(l[0].k), null); }
+}
+function finDR() {
+  $('nat-buttons-variables').innerHTML = '';
+  $('nat-instruction').textContent = 'Toutes les paroles sont transformées !';
+  game.score = Math.max(0, game.score);
+  const total = currentGame.total;
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. Pour passer du <strong>discours direct</strong> au <strong>discours indirect</strong>, les paroles deviennent une <strong>subordonnée</strong> : complétive introduite par <em>que</em> pour une déclaration, interrogative indirecte introduite par <em>si</em> (ou <em>qui, quand, pourquoi…</em>) pour une question. On enlève les guillemets ; les personnes changent (<em>je, vous → il</em>) ; dans un récit au passé, les temps changent (<em>présent → imparfait, passé composé → plus-que-parfait, futur → conditionnel</em>) ; et les indicateurs de temps aussi (<em>aujourd'hui → ce jour-là, hier → la veille, demain → le lendemain</em>). Pour revenir au discours direct, on fait l'inverse. Dans le texte, l'ancien passage est barré et la transformation écrite à sa place : en vert quand tu as trouvé, en rouge quand c'est la correction.`);
+  $('nat-correction').classList.remove('hidden');
+  $('nat-verdict-square').className = `verdict-square ${game.score >= total - 0.05 ? 'correct' : game.score < total / 2 ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = 'Voir mon résultat →';
+  showCharacter(game.score >= total / 2 ? 'good' : 'bad', null);
+}
+
+
 
 function nextQuestion() {
   if (game.index + 1 < game.questions.length) { game.index += 1; showQuestion(); }
@@ -3152,7 +3320,8 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    niveauOf(r) === 14 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par bande juste : syntaxe des phrases, nature et fonction des propositions).`
+    niveauOf(r) === 15 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par passage trouvé, 1 point par transformation réussie : discours direct et discours indirect).`
+      : niveauOf(r) === 14 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par bande juste : syntaxe des phrases, nature et fonction des propositions).`
       : niveauOf(r) === 13 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par bande juste : la syntaxe de chaque phrase, la nature de chaque proposition).`
       : niveauOf(r) >= 11 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par changement réussi : formes verbales et indicateurs de temps).`
       : niveauOf(r) === 10 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 26 (10 verbes en français classique, puis 3 en français contemporain : 0,5 point pour le temps, le mode et leurs valeurs).`
@@ -3532,7 +3701,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 14/.test(r.jeu || '') ? 14 : /niveau 13/.test(r.jeu || '') ? 13 : /niveau 12/.test(r.jeu || '') ? 12 : /niveau 11/.test(r.jeu || '') ? 11 : /niveau 10/.test(r.jeu || '') ? 10 : /niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 15/.test(r.jeu || '') ? 15 : /niveau 14/.test(r.jeu || '') ? 14 : /niveau 13/.test(r.jeu || '') ? 13 : /niveau 12/.test(r.jeu || '') ? 12 : /niveau 11/.test(r.jeu || '') ? 11 : /niveau 10/.test(r.jeu || '') ? 10 : /niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -3569,7 +3738,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((n) => {
+  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -3590,7 +3759,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : un texte au système du passé', 9: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels (système du présent)', 10: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels (système du passé)', 11: 'Temps et modes, exercice 5 : du passé au présent', 12: 'Temps et modes, exercice 6 : du présent au passé', 13: 'La phrase, exercice 1 : syntaxe de la phrase', 14: 'La phrase, exercice 2 : nature et fonction des propositions' };
+const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : un texte au système du passé', 9: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels (système du présent)', 10: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels (système du passé)', 11: 'Temps et modes, exercice 5 : du passé au présent', 12: 'Temps et modes, exercice 6 : du présent au passé', 13: 'La phrase, exercice 1 : syntaxe de la phrase', 14: 'La phrase, exercice 2 : nature et fonction des propositions', 15: 'La phrase, exercice 3 : discours direct et discours indirect' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
@@ -3883,12 +4052,14 @@ $('open-temps5').addEventListener('click', () => openGame('temps5'));
 $('open-temps6').addEventListener('click', () => openGame('temps6'));
 $('open-phrase1').addEventListener('click', () => openGame('phrase1'));
 $('open-phrase2').addEventListener('click', () => openGame('phrase2'));
-$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && !currentGame.sx && w.dataset.i !== undefined) (currentGame.tf ? clicTF : clicFormeTM)(Number(w.dataset.i)); });
+$('open-phrase3').addEventListener('click', () => openGame('phrase3'));
+$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && !currentGame.sx && !currentGame.dr && w.dataset.i !== undefined) (currentGame.tf ? clicTF : clicFormeTM)(Number(w.dataset.i)); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
+  if (q.dr) { speak(TEXTES_DR[q.t].texte.replace(/\[\[\d+\||\]\]|\(\(|\)\)/g, ''), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (q.sx) { speak(SX_T().texte.replace(/\[[NSC]\]/g, '').replace(/\{[^|}]+\|([^}]*)\}/g, '$1').replace(/\s+/g, ' '), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (q.tf) { speak(TRANSFOS[currentGame.tf][q.t].texte.replace(/\{([^>}]+)>[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (q.tm) { speak(TEXTES_TM[q.t].texte.replace(/\{([^}|]+)\|[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
