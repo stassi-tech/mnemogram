@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v34';
+const APP_VERSION = 'v35';
 
 const $ = (id) => document.getElementById(id);
 
@@ -205,6 +205,9 @@ const GAMES = {
   /* v32 : jeu 5, le bilan : un tableau de vingt cases à remplir en suivant la méthode des jeux 3 et 4 */
   tableau: { titre: 'Bilan : le tableau des vingt cases', type: 'Bilan : le tableau des vingt cases, niveau 5', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 5, nb: 1, tab: true, total: 20 },
+  /* v35 : jeu 6, le même tableau, mais sans guide : l'enfant remplit les cases dans l'ordre qu'il veut, puis corrige */
+  libre: { titre: 'Bilan sans guide : remplis le tableau seul', type: 'Bilan sans guide : le tableau des vingt cases, niveau 6', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 6, nb: 1, tab: true, total: 20 },
 };
 GAMES.natures.niveau = 1; GAMES.natures2.niveau = 2;
 const nbQuestions = () => currentGame.nb || NB_QUESTIONS;
@@ -839,11 +842,13 @@ function buildNatureButtons() {
 function openGame(id) {
   currentGame = GAMES[id];
   $('natures-panel').classList.toggle('game2', id === 'natures2');
-  $('natures-panel').classList.toggle('game3', id === 'fonctions' || id === 'gn' || id === 'tableau');
+  $('natures-panel').classList.toggle('game3', id === 'fonctions' || id === 'gn' || id === 'tableau' || id === 'libre');
   /* v27 : le jeu 3 marche maintenant comme le jeu 4 (consignes, carrés verts et rouges sous les mots) */
-  $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions' || id === 'tableau');
-  $('natures-panel').classList.toggle('game5', id === 'tableau');
-  $('nat-ready-explanation').innerHTML = id === 'tableau'
+  $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions' || id === 'tableau' || id === 'libre');
+  $('natures-panel').classList.toggle('game5', id === 'tableau' || id === 'libre');
+  $('nat-ready-explanation').innerHTML = id === 'libre'
+    ? 'Cette fois, <strong>pas de guide</strong> : remplis le tableau de vingt cases <strong>seul</strong>, dans l\'ordre que tu veux. Appuie sur une case, choisis la <strong>nature</strong> du mot (en vert) et sa <strong>fonction</strong> (en rouge), puis appuie sur le mot dont elle dépend (le verbe, le sujet ou le nom). Tu peux revenir sur une case autant que tu veux. Quand tu as fini, appuie sur <strong>« Corriger mon tableau »</strong> : chaque case vaut 1 point, 0,5 pour la nature et 0,5 pour la fonction.'
+    : id === 'tableau'
     ? 'Voici un <strong>tableau de vingt cases</strong> : chaque case contient un mot (ou un verbe en deux mots). Remplis-le en suivant la méthode, étape par étape : d\'abord les <strong>verbes</strong>, puis leurs <strong>sujets</strong>, puis leurs <strong>compléments</strong> ; ensuite les <strong>groupes nominaux</strong> ; enfin les <strong>mots invariables</strong>. Chaque case vaut 1 point : 0,5 pour trouver le mot (et sa fonction), 0,5 pour sa nature. Attention : une erreur, et la moitié de point est perdue, même si tu trouves ensuite.'
     : id === 'fonctions'
     ? 'Des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Trouve d\'abord le <strong>verbe</strong> et sa nature, puis son <strong>sujet</strong>, puis ses <strong>compléments</strong> (COD, COI, COS, attribut, compléments circonstanciels). Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> pour une nature, dans un <strong>carré rouge</strong> pour une fonction.'
@@ -863,8 +868,9 @@ const fmtPts = (n) => String(Math.round((n || 0) * 10) / 10).replace('.', ',');
 const isG3 = () => currentGame === GAMES.fonctions;
 const isG4 = () => currentGame === GAMES.gn;
 const isG5 = () => currentGame === GAMES.tableau;
+const isG6 = () => currentGame === GAMES.libre;
 function scoreLabel(n) {
-  if (isG5()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''} sur 20`;
+  if (isG5() || isG6()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''} sur 20`;
   if (isG3() || isG4()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''}`;
   return `${n} bonne${n > 1 ? 's' : ''} réponse${n > 1 ? 's' : ''}`;
 }
@@ -889,6 +895,7 @@ function showQuestion() {
   if (isG4()) { showQuestionGN(); return; }
   if (isG3()) { showQuestionGV(); return; }
   if (isG5()) { showQuestionTab(); return; }
+  if (isG6()) { showQuestionLibre(); return; }
   const q = game.questions[game.index];
   game.essais = 0;
   $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mots || q.mot);
@@ -961,7 +968,7 @@ function showCharacter(camp, nature) {
 function explanationSpoken() {
   const q = game.questions[game.index];
   if (isG4()) return resumeGN(q, false).replace(/«|»/g, '');
-  if (isG5()) return '';
+  if (isG5() || isG6()) return '';
   if (isG3()) return resumeGV(q, false).replace(/«|»/g, '').replace(/\bCO([DIS])\b/g, 'C O $1');
   const n = NATURE_BY_CODE[q.code];
   if (q.fn) {
@@ -976,7 +983,7 @@ function answer(code, btn) {
   if (game.fini) return;
   if (isG4()) { answerBoutonGN(code, btn); return; }
   if (isG3() && currentGame.gv) return;
-  if (isG5()) return;
+  if (isG5() || isG6()) return;
   if (isG3()) { answerNature3(code, btn); return; }
   const q = game.questions[game.index];
   const bonne = NATURE_BY_CODE[q.code];
@@ -2046,6 +2053,152 @@ function finishQuestionTab() {
   showCharacter(game.score >= 10 ? 'good' : 'bad', null);
 }
 
+/* ------------------------------------------------------------
+   v35 : JEU 6 — LE TABLEAU SANS GUIDE
+   L'enfant appuie sur une case, choisit la nature (vert) puis la fonction (rouge) et, pour une fonction, le mot
+   dont elle dépend (on appuie sur ce mot dans le tableau). Quand il a fini : « Corriger mon tableau ».
+   Barème : 0,5 point pour la nature, 0,5 point pour la fonction (avec le bon mot) ; une case sans fonction
+   compte sa moitié « fonction » juste si l'enfant n'en a pas donné. Une case vide vaut zéro.
+   ------------------------------------------------------------ */
+const NATS6 = ['N', 'NP', 'Pr', 'D', 'A', 'VA', 'VE', 'VINF', 'Av', 'P', 'CC', 'CS', 'I'];
+const FNS6 = ['aucune', 'F.suj', 'F.cod', 'F.coi', 'F.cos', 'F.att', 'F.ccl', 'F.cct', 'F.ccm', 'F.ccc', 'F.epi', 'F.app', 'F.cdn'];
+const LIB6 = { aucune: 'Pas de fonction', 'F.suj': 'Sujet', 'F.cod': 'COD', 'F.coi': 'COI', 'F.cos': 'COS', 'F.att': 'Attribut du sujet', 'F.ccl': 'CC de lieu', 'F.cct': 'CC de temps', 'F.ccm': 'CC de manière', 'F.ccc': 'CC de cause', 'F.epi': 'Épithète', 'F.app': 'Apposé', 'F.cdn': 'Complément du nom' };
+const natLib6 = (code) => (code === 'VINF' ? 'Verbe à l\'infinitif' : code === 'D' ? 'Déterminant' : code === 'Pr' ? 'Pronom' : (NAT_LIB[code] || NATURE_BY_CODE[code]?.nom || code).replace(/&shy;/g, ''));
+const lienDe = (fn) => (fn === 'F.att' ? 'sujet' : ['F.epi', 'F.app', 'F.cdn'].includes(fn) ? 'nom' : 'verbe');
+const libre = { rep: {}, sel: null, attente: false, corrige: false };
+function showQuestionLibre() {
+  const cases = tabCases();
+  $('nat-sentence').innerHTML = cases.map((c, i) => `<span class="w case" data-i="${i}">${esc(c.t)}</span>`).join('');
+  $('nat-character-stage').innerHTML = '';
+  $('nat-correction').classList.add('hidden');
+  $('nat-verdict-square').className = 'verdict-square';
+  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
+  $('nat-buttons-invariables').innerHTML = '';
+  $('nat-progress-label').textContent = 'Le tableau sans guide';
+  Object.assign(libre, { rep: {}, sel: null, attente: false, corrige: false });
+  game.score = 0;
+  majScoreLibre();
+  panneauLibre();
+}
+function majScoreLibre() {
+  const n = Object.values(libre.rep).filter((r) => r.nat).length;
+  $('nat-score-label').textContent = libre.corrige ? scoreLabel(game.score) : `${n} case${n > 1 ? 's' : ''} remplie${n > 1 ? 's' : ''} sur 20`;
+  $('nat-progress-bar').style.width = `${(n / 20) * 100}%`;
+}
+/* le texte de la fonction choisie : « sujet du verbe organiser », « épithète du nom souris »… */
+function fnLibreTexte(r) {
+  if (!r.fn || r.fn === 'aucune') return '';
+  if (r.lien === undefined || r.lien === null) return `${LIB6[r.fn].toLowerCase()} de… ?`;
+  const C = tabCases(), l = r.lien;
+  if (r.fn === 'F.att') return `attribut du sujet ${motT(l)}`;
+  if (r.fn === 'F.cdn') return `complément du nom ${motT(l)}`;
+  if (r.fn === 'F.epi') return `épithète du nom ${motT(l)}`;
+  if (r.fn === 'F.app') return `apposé au nom ${motT(l)}`;
+  return `${NOM_FN[r.fn]} du ${estVerbeT(C[l]) || C[l].nat === 'VINF' ? 'verbe' : 'mot'} ${C[l].inf || motT(l)}`;
+}
+function dessineCaseLibre(i) {
+  const el = wordEl(i); if (!el) return;
+  el.querySelector('.labs')?.remove();
+  const r = libre.rep[i] || {};
+  if (r.nat) carre(i, natLib6(r.nat).toLowerCase().replace(/^(\S+) /, '$1<br>'));
+  const f = fnLibreTexte(r);
+  if (f) carre(i, f.replace(/ (du|de|au) /, '<br>$1 '), true);
+  el.classList.toggle('choisie', libre.sel === i);
+}
+function panneauLibre() {
+  const i = libre.sel;
+  if (libre.corrige) return;
+  if (i === null) {
+    $('nat-instruction').textContent = 'Remplis le tableau seul';
+    $('nat-buttons-variables').innerHTML = `<div class="carte verte active libre"><p>Appuie sur une case du tableau pour la remplir. Tu peux commencer par où tu veux, et revenir sur une case autant de fois que tu veux.</p></div>${boutonCorriger()}`;
+    brancheLibre(); return;
+  }
+  const r = libre.rep[i] || (libre.rep[i] = {});
+  const b = (code, lib, actif, rouge, petit) => `<button type="button" class="nature-button${petit ? ' small' : ''}${rouge ? ' fonction-button' : ''}${actif ? ' correct' : ''}" data-libre="${code}">${lib}</button>`;
+  const base = r.nat ? (r.nat.startsWith('D.') ? 'D' : r.nat.startsWith('Pr.') ? 'Pr' : r.nat) : null;
+  let html = `<div class="carte verte active libre"><p>Case « ${esc(tabCases()[i].t.replace(/[.,]$/, ''))} » : quelle est sa nature ?</p><div class="carte-choix carte-choix-3">${NATS6.map((c) => b(`n:${c}`, natLib6(c), base === c)).join('')}</div>`;
+  if (base === 'D') html += `<p class="sous">Quelle sorte de déterminant ?</p><div class="nature-row nature-row-7">${['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int'].map((c) => b(`n:${c}`, NATURE_BY_CODE[c].court, r.nat === c, false, true)).join('')}</div>`;
+  if (base === 'Pr') html += `<p class="sous">Quelle sorte de pronom ?</p><div class="nature-row nature-row-7">${['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int'].map((c) => b(`n:${c}`, NATURE_BY_CODE[c].court, r.nat === c, false, true)).join('')}</div>`;
+  html += '</div>';
+  html += `<div class="carte rouge active libre"><p>Quelle est sa fonction ?</p><div class="carte-choix carte-choix-3">${FNS6.map((c) => b(`f:${c}`, LIB6[c], r.fn === c, true)).join('')}</div>`;
+  if (r.fn && r.fn !== 'aucune') html += `<p class="sous lien">${libre.attente ? `Appuie maintenant dans le tableau sur le ${lienDe(r.fn)} dont dépend « ${esc(motT(i))} ».` : `→ ${esc(fnLibreTexte(r))} (appuie sur « Changer le mot » pour en choisir un autre)`}</p>${libre.attente ? '' : b('lien', 'Changer le mot', false, true)}`;
+  html += `</div><div class="carte-choix carte-choix-2">${b('effacer', 'Effacer la case')}${b('fermer', 'Case suivante →')}</div>${boutonCorriger()}`;
+  $('nat-instruction').textContent = 'Remplis le tableau seul';
+  $('nat-buttons-variables').innerHTML = html;
+  brancheLibre();
+}
+const boutonCorriger = () => `<button type="button" class="nature-button corriger" data-libre="corriger">✔ Corriger mon tableau</button>`;
+function brancheLibre() {
+  document.querySelectorAll('[data-libre]').forEach((btn) => btn.addEventListener('click', () => actionLibre(btn.dataset.libre)));
+}
+function clicCaseLibre(i) {
+  if (game.fini || libre.corrige) return;
+  if (libre.attente && libre.sel !== null) {
+    if (i === libre.sel) return;
+    libre.rep[libre.sel].lien = i; libre.attente = false;
+    dessineCaseLibre(libre.sel); panneauLibre(); return;
+  }
+  const avant = libre.sel; libre.sel = i;
+  if (avant !== null) dessineCaseLibre(avant);
+  dessineCaseLibre(i); panneauLibre();
+}
+function actionLibre(a) {
+  const i = libre.sel;
+  if (a === 'corriger') { corrigerLibre(); return; }
+  if (i === null) return;
+  const r = libre.rep[i] || (libre.rep[i] = {});
+  if (a.startsWith('n:')) { const c = a.slice(2); r.nat = (c === 'D' || c === 'Pr') && r.nat && r.nat.startsWith(c + '.') ? r.nat : c; }
+  else if (a.startsWith('f:')) { r.fn = a.slice(2); r.lien = null; libre.attente = r.fn !== 'aucune'; }
+  else if (a === 'lien') libre.attente = true;
+  else if (a === 'effacer') { libre.rep[i] = {}; libre.attente = false; }
+  else if (a === 'fermer') { libre.attente = false; libre.sel = i + 1 < 20 ? i + 1 : null; dessineCaseLibre(i); if (libre.sel !== null) dessineCaseLibre(libre.sel); panneauLibre(); majScoreLibre(); return; }
+  dessineCaseLibre(i); panneauLibre(); majScoreLibre();
+}
+/* la correction : 0,5 pour la nature, 0,5 pour la fonction (avec le bon mot) */
+function corrigerLibre() {
+  const vides = 20 - Object.values(libre.rep).filter((r) => r.nat).length;
+  if (vides && !confirm(`Il reste ${vides} case${vides > 1 ? 's' : ''} vide${vides > 1 ? 's' : ''}. Corriger quand même ?`)) return;
+  libre.corrige = true; libre.attente = false;
+  const C = tabCases(); let total = 0;
+  const phrase = C.map((c) => c.t).join(' ');
+  C.forEach((c, i) => {
+    const r = libre.rep[i] || {};
+    const natOk = !!r.nat && r.nat === c.nat;
+    let fnOk;
+    if (!r.nat) fnOk = false;
+    else if (!c.fn) fnOk = !r.fn || r.fn === 'aucune';
+    else {
+      const attendu = c.fn === 'F.att' ? c.s : ['F.epi', 'F.app', 'F.cdn'].includes(c.fn) ? c.n : c.v;
+      const autre = c.v !== undefined && C[c.v] && C[c.v].nat === 'VINF' ? C[c.v].v : undefined;
+      fnOk = r.fn === c.fn && (r.lien === attendu || (autre !== undefined && r.lien === autre));
+    }
+    const pts = (natOk ? 0.5 : 0) + (fnOk ? 0.5 : 0);
+    total += pts;
+    const code = c.nat; if (NATURE_BY_CODE[code]) { const pn = game.parNature[code] || (game.parNature[code] = { c: 0, p: 0 }); pn.p += 1; if (natOk) pn.c += 1; }
+    if (c.fn && NATURE_BY_CODE[c.fn]) { const pn = game.parNature[c.fn] || (game.parNature[c.fn] = { c: 0, p: 0 }); pn.p += 1; if (fnOk) pn.c += 1; }
+    if (!natOk) game.erreurs.push({ mot: motT(i), bonne: natLib6(c.nat).toLowerCase(), choisie: r.nat ? natLib6(r.nat).toLowerCase() : 'rien', phrase });
+    if (!fnOk && r.nat) game.erreurs.push({ mot: motT(i), bonne: c.fn ? fnTab(i) : 'pas de fonction', choisie: r.fn && r.fn !== 'aucune' ? fnLibreTexte(r) : 'pas de fonction', phrase });
+    const el = wordEl(i);
+    el.classList.remove('choisie');
+    el.classList.add(pts === 1 ? 'juste' : pts === 0.5 ? 'moitie' : 'fausse');
+    if (pts < 1) {
+      const sol = document.createElement('span'); sol.className = 'solution';
+      sol.textContent = `→ ${natLib6(c.nat).toLowerCase()}${c.contr ? ' contracté' : ''}${c.fn ? `, ${fnTab(i)}` : ''}`;
+      el.appendChild(sol);
+    }
+  });
+  game.score = Math.round(total * 100) / 100;
+  majScoreLibre();
+  $('nat-buttons-variables').innerHTML = '';
+  $('nat-instruction').textContent = 'Ton tableau est corrigé !';
+  const n1 = C.filter((c, i) => wordEl(i).classList.contains('juste')).length;
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur 20. ${n1} case${n1 > 1 ? 's sont' : ' est'} entièrement juste${n1 > 1 ? 's' : ''} (en vert). Les cases en orange ont la moitié des points ; les cases en rouge n'en ont pas. Sous chaque case incomplète, la bonne réponse est écrite.`);
+  $('nat-correction').classList.remove('hidden');
+  $('nat-verdict-square').className = `verdict-square ${game.score >= 19.95 ? 'correct' : game.score < 10 ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = 'Voir mon résultat →';
+  showCharacter(game.score >= 10 ? 'good' : 'bad', null);
+}
+
 function finishQuestion(reussi, nature, mot) {
   /* v11 : pour le bilan, on compte chaque nature : demandée (p) et trouvée du premier coup (c). */
   const pn = game.parNature[nature.code] || (game.parNature[nature.code] = { c: 0, p: 0 });
@@ -2075,7 +2228,7 @@ function showResults() {
   const id = content ? pick(['bonaccord', 'virgule']) : pick(['rature', 'gribouille']);
   const pe = playerProfile?.enfant?.photo;
   $('results-character').innerHTML = characterSvg(id) + (pe ? `<img class="results-photo" src="${pe}" alt="" />` : '');
-  $('results-title').textContent = isG3() || isG4() || isG5() ? `${fmtPts(s)} point${s >= 2 ? 's' : ''} sur ${n}` : `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
+  $('results-title').textContent = isG3() || isG4() || isG5() || isG6() ? `${fmtPts(s)} point${s >= 2 ? 's' : ''} sur ${n}` : `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
   const E = playerProfile?.enfant?.prenom;
   const adultes = (playerProfile?.adultes || []).filter((a) => a.lien);
   const a = adultes.length ? pick(adultes) : null;
@@ -2121,7 +2274,8 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    niveauOf(r) === 5 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (1 point par case du tableau bien remplie).`
+    niveauOf(r) === 6 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (tableau rempli seul, sans guide : 0,5 point pour la nature et 0,5 point pour la fonction de chaque case).`
+      : niveauOf(r) === 5 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (1 point par case du tableau bien remplie).`
       : niveauOf(r) === 4 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le nom, le déterminant, l'adjectif et le complément du nom trouvés du premier coup).`
       : niveauOf(r) === 3 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le verbe, le sujet et les compléments trouvés du premier coup).`
       : `Mon score : ${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}.`,
@@ -2442,7 +2596,7 @@ function openProfile(first) {
 
 /* v10 : nom du type d'exercice ; les scores enregistrés avant la v10 portaient d'autres noms. */
 function scoreType(jeu) {
-  if (/niveau [12345]/.test(jeu || '')) return jeu;
+  if (/niveau [123456]/.test(jeu || '')) return jeu;
   if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
   return 'Reconnaissance des natures, niveau 1';
 }
@@ -2490,7 +2644,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -2527,7 +2681,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2, 3, 4, 5].map((n) => {
+  const niveaux = [1, 2, 3, 4, 5, 6].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -2548,7 +2702,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Reconnaissance des natures, niveau 1', 2: 'Reconnaissance des natures, niveau 2', 3: 'Natures et fonctions (groupe verbal), niveau 3', 4: 'Natures et fonctions (groupe nominal), niveau 4', 5: 'Bilan : le tableau des vingt cases, niveau 5' };
+const NIVEAU_TITRE = { 1: 'Reconnaissance des natures, niveau 1', 2: 'Reconnaissance des natures, niveau 2', 3: 'Natures et fonctions (groupe verbal), niveau 3', 4: 'Natures et fonctions (groupe nominal), niveau 4', 5: 'Bilan : le tableau des vingt cases, niveau 5', 6: 'Bilan sans guide : le tableau des vingt cases, niveau 6' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
@@ -2832,7 +2986,8 @@ $('open-natures2').addEventListener('click', () => openGame('natures2'));
 $('open-fonctions').addEventListener('click', () => openGame('fonctions'));
 $('open-gn').addEventListener('click', () => openGame('gn'));
 $('open-tableau').addEventListener('click', () => openGame('tableau'));
-$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); });
+$('open-libre').addEventListener('click', () => openGame('libre'));
+$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {

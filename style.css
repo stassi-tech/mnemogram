@@ -567,3 +567,19 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .game5 .character-stage { position:static; align-self:flex-end; margin-top:10px; min-height:0; }
 .game5 .character-stage .bubble { font-size:1rem; }
 @media (max-width:900px) { .game5 .quiz-grid { grid-template-columns:1fr; } }
+
+/* ============================================================
+   v35 : JEU 6 — le tableau sans guide
+   ============================================================ */
+.game5 .sentence .w.case.choisie { box-shadow:0 0 0 4px #ffe066; border-color:#ffe066; }
+.game5 .sentence .w.case.juste { border-color:#7fe0a0; background:rgba(127,224,160,.14); }
+.game5 .sentence .w.case.moitie { border-color:#f5b041; background:rgba(245,176,65,.14); }
+.game5 .sentence .w.case.fausse { border-color:#ff7b6b; background:rgba(255,123,107,.14); }
+.game5 .sentence .w.case .solution { margin-top:6px; font-family:Arial,sans-serif; font-size:max(.55em, 10px); line-height:1.2; color:#ffe9a8; }
+.carte .sous { margin:10px 0 0; font-size:.95rem; }
+.carte .sous.lien { color:#8e2a1f; }
+.carte .carte-choix-3 .nature-button { font-size:.9rem; padding:8px 6px; }
+.carte .nature-button.correct { box-shadow:0 0 0 3px #ffe066; }
+.nature-button.corriger { margin-top:6px; background:#24313f; border-color:#24313f; color:#fff; font-size:1.05rem; }
+/* les cartes du tableau sans guide se redessinent à chaque clic : sans animation */
+.carte.libre, .carte.libre.active { animation:none !important; box-shadow:none; }
