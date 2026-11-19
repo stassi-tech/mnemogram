@@ -551,3 +551,19 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .carte-choix-1 .nature-button { text-align:left; font-size:1rem; }
 /* v31 : « L'éléphant » : le mot avec apostrophe reste collé au suivant */
 .game4 .sentence .w.apos { padding-right:0; margin-right:-6px; }
+
+/* ============================================================
+   v32 : JEU 5 — le tableau des vingt cases
+   ============================================================ */
+.game5 .sentence { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:6px; font-size:clamp(1rem,1.5vw,1.35rem); line-height:1.2; width:100%; }
+.game5 .sentence .w.case { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; border:2px solid rgba(255,255,255,.35); border-radius:6px; padding:8px 4px 10px; min-height:7.5em; text-align:center; cursor:pointer; }
+.game5 .sentence .w.case.remplie { border-color:#7fe0a0; background:rgba(127,224,160,.10); }
+.game5 .sentence .w .labs .lab { font-size:max(.6em, 10px); white-space:normal; }
+.game5 .character-stage .character { height:min(220px,30vh); }
+@media (max-width:640px) { .game5 .sentence { font-size:.85rem; gap:3px; } .game5 .sentence .w.case { padding:4px 2px; min-height:6em; } }
+/* le sorcier se place sous le tableau (il ne doit pas cacher la dernière ligne) */
+.game5 .quiz-grid { grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); }
+.game5 .sentence-card { padding-top:24px; }
+.game5 .character-stage { position:static; align-self:flex-end; margin-top:10px; min-height:0; }
+.game5 .character-stage .bubble { font-size:1rem; }
+@media (max-width:900px) { .game5 .quiz-grid { grid-template-columns:1fr; } }

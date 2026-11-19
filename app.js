@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v31';
+const APP_VERSION = 'v32';
 
 const $ = (id) => document.getElementById(id);
 
@@ -202,6 +202,9 @@ const GAMES = {
      (et la sorte exacte de déterminant, sur les boutons), son adjectif s'il y en a, son complément du nom s'il y en a. */
   gn: { titre: 'Natures et fonctions des mots dans le groupe nominal', type: 'Natures et fonctions (groupe nominal), niveau 4', rows: BUTTON_ROWS_4,
     reponse: (tag) => tag, niveau: 4, nb: 10, gn: true },
+  /* v32 : jeu 5, le bilan : un tableau de vingt cases à remplir en suivant la méthode des jeux 3 et 4 */
+  tableau: { titre: 'Bilan : le tableau des vingt cases', type: 'Bilan : le tableau des vingt cases, niveau 5', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 5, nb: 1, tab: true, total: 20 },
 };
 GAMES.natures.niveau = 1; GAMES.natures2.niveau = 2;
 const nbQuestions = () => currentGame.nb || NB_QUESTIONS;
@@ -782,6 +785,7 @@ function buildNatureSequence() {
   return shuffle(liste);
 }
 function buildQuestions() {
+  if (currentGame.tab) return [{ tab: true, t: shuffle(TABLEAUX.map((x, i) => i))[0] }];
   if (currentGame.gn) return buildQuestionsGN();
   if (currentGame.gv) return buildQuestionsGV();
   const natures = buildNatureSequence();
@@ -835,10 +839,13 @@ function buildNatureButtons() {
 function openGame(id) {
   currentGame = GAMES[id];
   $('natures-panel').classList.toggle('game2', id === 'natures2');
-  $('natures-panel').classList.toggle('game3', id === 'fonctions' || id === 'gn');
+  $('natures-panel').classList.toggle('game3', id === 'fonctions' || id === 'gn' || id === 'tableau');
   /* v27 : le jeu 3 marche maintenant comme le jeu 4 (consignes, carrés verts et rouges sous les mots) */
-  $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions');
-  $('nat-ready-explanation').innerHTML = id === 'fonctions'
+  $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions' || id === 'tableau');
+  $('natures-panel').classList.toggle('game5', id === 'tableau');
+  $('nat-ready-explanation').innerHTML = id === 'tableau'
+    ? 'Voici un <strong>tableau de vingt cases</strong> : chaque case contient un mot (ou un verbe en deux mots). Remplis-le en suivant la méthode, étape par étape : d\'abord les <strong>verbes</strong>, puis leurs <strong>sujets</strong>, puis leurs <strong>compléments</strong> ; ensuite les <strong>groupes nominaux</strong> ; enfin les <strong>mots invariables</strong>. Chaque case bien remplie rapporte 1 point : il y a 20 points à gagner.'
+    : id === 'fonctions'
     ? 'Des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Trouve d\'abord le <strong>verbe</strong> et sa nature, puis son <strong>sujet</strong>, puis ses <strong>compléments</strong> (COD, COI, COS, attribut, compléments circonstanciels). Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> pour une nature, dans un <strong>carré rouge</strong> pour une fonction.'
     : id === 'gn' ? 'Cette fois, des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Les petits points « (…) » montrent que la phrase continue : on ne garde que le groupe nominal. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> si c\'est une nature (nom commun, déterminant, adjectif qualificatif…), dans un <strong>carré rouge</strong> si c\'est une fonction (épithète, complément du nom…).'
     : 'Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.';
@@ -855,7 +862,9 @@ function openGame(id) {
 const fmtPts = (n) => String(Math.round((n || 0) * 10) / 10).replace('.', ',');
 const isG3 = () => currentGame === GAMES.fonctions;
 const isG4 = () => currentGame === GAMES.gn;
+const isG5 = () => currentGame === GAMES.tableau;
 function scoreLabel(n) {
+  if (isG5()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''} sur 20`;
   if (isG3() || isG4()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''}`;
   return `${n} bonne${n > 1 ? 's' : ''} réponse${n > 1 ? 's' : ''}`;
 }
@@ -879,6 +888,7 @@ function showQuestion() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   if (isG4()) { showQuestionGN(); return; }
   if (isG3()) { showQuestionGV(); return; }
+  if (isG5()) { showQuestionTab(); return; }
   const q = game.questions[game.index];
   game.essais = 0;
   $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mots || q.mot);
@@ -951,6 +961,7 @@ function showCharacter(camp, nature) {
 function explanationSpoken() {
   const q = game.questions[game.index];
   if (isG4()) return resumeGN(q, false).replace(/«|»/g, '');
+  if (isG5()) return '';
   if (isG3()) return resumeGV(q, false).replace(/«|»/g, '').replace(/\bCO([DIS])\b/g, 'C O $1');
   const n = NATURE_BY_CODE[q.code];
   if (q.fn) {
@@ -965,6 +976,7 @@ function answer(code, btn) {
   if (game.fini) return;
   if (isG4()) { answerBoutonGN(code, btn); return; }
   if (isG3() && currentGame.gv) return;
+  if (isG5()) return;
   if (isG3()) { answerNature3(code, btn); return; }
   const q = game.questions[game.index];
   const bonne = NATURE_BY_CODE[q.code];
@@ -1144,7 +1156,7 @@ const PHRASES_GN = [
   'Les_deux/Pr.num (…)',
 ];
 const PARSED_GN = PHRASES_GN.map(parsePhrase);
-const motsDe = (q) => (q && q.gn ? PARSED_GN[q.phrase] : q && q.gv ? PARSED_GV[q.phrase] : PARSED[q.phrase]);
+const motsDe = (q) => (q && q.tab ? TABLEAUX[q.t].map((c) => ({ texte: c.t, tag: c.nat })) : q && q.gn ? PARSED_GN[q.phrase] : q && q.gv ? PARSED_GV[q.phrase] : PARSED[q.phrase]);
 /* v23 : jeu 4, d'après les consignes de Stéphane.
    Les mots gardent leur couleur. À droite, des BOUTONS CONSIGNES apparaissent l'un après l'autre (vert pour une
    question de nature, rouge pour une question de fonction). On répond en appuyant sur le mot dans la phrase, ou sur
@@ -1257,7 +1269,7 @@ function gnEtape(nouveauSujet) {
   const q = game.questions[game.index];
   if (nouveauSujet) gnState.cartes = [];
   /* la carte garde le texte qu'elle avait quand elle est apparue (« un adjectif », puis plus tard « un autre ») */
-  gnState.cartes.push((isG3() ? CARTES_GV : CARTES)[gnState.etape](q));
+  gnState.cartes.push((isG5() ? CARTES_TAB : isG3() ? CARTES_GV : CARTES)[gnState.etape](q));
   const html = gnState.cartes.map((c, n) => {
     const actif = n === gnState.cartes.length - 1;
     const texteBouton = (code) => (c.labels && c.labels[code]) || (code === 'F.epi' || code === 'F.app' ? capitalize(fonctionPrecise(q, code)) : LIB[code] || (c.petits ? NATURE_BY_CODE[code].court : NATURE_BY_CODE[code].nom));
@@ -1266,7 +1278,7 @@ function gnEtape(nouveauSujet) {
     return `<div class="carte ${c.vert ? 'verte' : 'rouge'}${actif ? ' active' : ' faite'}"><p>${c.texte}</p>${choix}</div>`;
   }).join('');
   $('nat-buttons-variables').innerHTML = html;
-  document.querySelectorAll('[data-gn]').forEach((b) => b.addEventListener('click', () => (isG3() ? answerBoutonGV : answerBoutonGN)(b.dataset.gn, b)));
+  document.querySelectorAll('[data-gn]').forEach((b) => b.addEventListener('click', () => (isG5() ? answerBoutonTab : isG3() ? answerBoutonGV : answerBoutonGN)(b.dataset.gn, b)));
 }
 function gnErreur(el, attendu, choisi) {
   const q = game.questions[game.index];
@@ -1284,7 +1296,7 @@ function gnCompte(c) {
   gnState.essais = 0;
 }
 /* « meme » : la nouvelle carte s'ajoute sous les précédentes du même sujet ; sinon on repart d'une pile vide */
-function gnVers(etape, meme) { gnState.etape = etape; if (etape === 'fini') (isG3() ? finishQuestionGV : finishQuestionGN)(); else gnEtape(!meme); }
+function gnVers(etape, meme) { gnState.etape = etape; if (etape === 'fini') (isG5() ? finishQuestionTab : isG3() ? finishQuestionGV : finishQuestionGN)(); else gnEtape(!meme); }
 const natOf = (m) => NATURE_BY_CODE[m.tag] || NATURE_BY_CODE[m.tag.split('.')[0]] || { article: m.texte };
 const NOM_COURT = (code) => (NATURE_BY_CODE[code].court || NATURE_BY_CODE[code].nom).replace(/&shy;/g, '').toLowerCase();
 function clicMotGN(i, el) {
@@ -1723,6 +1735,261 @@ function finishQuestionGV() {
   showCharacter(part >= 0.5 ? 'good' : 'bad', null);
 }
 
+/* ------------------------------------------------------------
+   v32 : JEU 5 — LE BILAN : LE TABLEAU DES VINGT CASES
+   On remplit le tableau en suivant la méthode : 1. les verbes (et leur nature) ; 2. le sujet de chaque verbe ;
+   3. ses compléments d'objet ou son attribut ; 4. les compléments circonstanciels ; 5. les groupes nominaux
+   (déterminants, adjectifs, compléments du nom) ; 6. les mots invariables. Chaque case vaut 1 point, partagé
+   entre les réponses de cette case trouvées du premier coup ; le point est compté quand la case est remplie.
+   Dans les données : nat = nature ; fn = fonction ; v = la case du verbe dont dépend le mot ; n = la case du nom
+   dont dépend le mot (déterminant, adjectif, complément du nom) ; s = la case du sujet (attribut) ; inf = infinitif.
+   ------------------------------------------------------------ */
+const TABLEAUX = [
+  [
+    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'matin', nat: 'N', fn: 'F.cct', v: 4 }, { t: 'le', nat: 'D.def', n: 3 }, { t: 'professeur', nat: 'N', fn: 'F.suj', v: 4 }, { t: 'a organisé', nat: 'VA', inf: 'organiser', q: 'a organisé' },
+    { t: 'une', nat: 'D.ind', n: 6 }, { t: 'discussion', nat: 'N', fn: 'F.cod', v: 4 }, { t: 'sur', nat: 'P' }, { t: 'la', nat: 'D.def', n: 9 }, { t: 'pollution.', nat: 'N', fn: 'F.cdn', n: 6 },
+    { t: 'Les', nat: 'D.def', n: 11 }, { t: 'élèves', nat: 'N', fn: 'F.suj', v: 12 }, { t: 'sont', nat: 'VE', inf: 'être' }, { t: 'enthousiastes', nat: 'A', fn: 'F.att', s: 11 }, { t: 'donc', nat: 'CC' },
+    { t: 'Chaque', nat: 'D.idf', n: 16 }, { t: 'élève', nat: 'N', fn: 'F.suj', v: 17 }, { t: 'veut', nat: 'VA', inf: 'vouloir' }, { t: 'participer', nat: 'VINF', fn: 'F.cod', v: 17, inf: 'participer' }, { t: 'oralement.', nat: 'Av', fn: 'F.ccm', v: 18 },
+  ],
+];
+const tabCases = () => TABLEAUX[game.questions[game.index].t];
+const motT = (i) => { const c = tabCases()[i]; const x = c.t.replace(/[.,!?]$/, ''); return c.nat === 'NP' ? x : x.toLowerCase(); };
+const infT = (i) => tabCases()[i].inf || motT(i);
+const estVerbeT = (c) => c.nat === 'VA' || c.nat === 'VE';
+const NAT_LIB = { VINF: 'Verbe à l\'infinitif', A: 'Adjectif qualificatif', Av: 'Adverbe', P: 'Préposition', CC: 'Conjonction de coordination', CS: 'Conjonction de subordination', I: 'Interjection' };
+const natNomT = (code) => (code === 'VINF' ? 'verbe à l\'infinitif' : (NATURE_BY_CODE[code]?.nom || code).replace(/&shy;/g, '').toLowerCase());
+/* « sujet du verbe organiser », « complément du nom discussion », « attribut du sujet élèves » */
+function fnTab(i) {
+  const c = tabCases()[i];
+  if (c.fn === 'F.att') return `attribut du sujet ${motT(c.s)}`;
+  if (c.fn === 'F.cdn') return `complément du nom ${motT(c.n)}`;
+  if (c.fn === 'F.epi') return `épithète du nom ${motT(c.n)}`;
+  if (c.fn === 'F.app') return `apposé au nom ${motT(c.n)}`;
+  return `${NOM_FN[c.fn]} du verbe ${infT(c.v)}`;
+}
+const tabState = { faits: {}, natOk: new Set(), fnOk: new Set(), msg: '', vi: 0, verbes: [], objet: null, ni: 0, noms: [], courant: null };
+function showQuestionTab() {
+  const cases = tabCases();
+  $('nat-sentence').innerHTML = cases.map((c, i) => `<span class="w case" data-i="${i}">${esc(c.t)}</span>`).join('');
+  $('nat-character-stage').innerHTML = '';
+  $('nat-correction').classList.add('hidden');
+  $('nat-verdict-square').className = 'verdict-square';
+  $('nat-instruction').textContent = 'Remplis le tableau';
+  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
+  $('nat-buttons-invariables').innerHTML = '';
+  Object.assign(gnState, { etape: 'tverbe', essais: 0, cartes: [] });
+  Object.assign(tabState, { faits: {}, natOk: new Set(), fnOk: new Set(), msg: '', vi: 0, objet: null, ni: 0, courant: null, invDebut: false, invVu: false, ccFait: false,
+    verbes: cases.map((c, i) => (estVerbeT(c) ? i : -1)).filter((i) => i >= 0),
+    noms: cases.map((c, i) => (c.nat === 'N' ? i : -1)).filter((i) => i >= 0) });
+  $('nat-progress-label').textContent = 'Le tableau des vingt cases';
+  majScoreTab();
+  gnEtape(true);
+}
+/* le compte des points : chaque case a ses réponses (trouver le mot, sa nature, sa fonction) ; elle rapporte
+   1 point × (réponses du premier coup / réponses) quand elle est remplie */
+function compteTab(i, partie) {
+  const f = tabState.faits[i] || (tabState.faits[i] = { ok: 0, total: 0, fini: false });
+  f.total += 1; if (gnState.essais === 0) f.ok += 1;
+  const code = partie === 'fn' ? tabCases()[i].fn : tabCases()[i].nat;
+  if (NATURE_BY_CODE[code]) { const pn = game.parNature[code] || (game.parNature[code] = { c: 0, p: 0 }); pn.p += 1; if (gnState.essais === 0) pn.c += 1; }
+  gnState.essais = 0;
+  if (partie === 'nat') tabState.natOk.add(i); else if (partie === 'fn') tabState.fnOk.add(i);
+  const c = tabCases()[i];
+  if (!f.fini && tabState.natOk.has(i) && (!c.fn || tabState.fnOk.has(i))) {
+    f.fini = true;
+    game.score = Math.round((game.score + f.ok / f.total) * 100) / 100;
+    wordEl(i)?.classList.add('remplie');
+  }
+  majScoreTab();
+}
+function majScoreTab() {
+  const n = Object.values(tabState.faits).filter((f) => f.fini).length;
+  $('nat-score-label').textContent = scoreLabel(game.score);
+  $('nat-progress-bar').style.width = `${(n / 20) * 100}%`;
+}
+const pointsTab = () => `tu as déjà ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur 20`;
+/* les cartes-consignes du tableau */
+const CARTES_TAB = {
+  tverbe: () => ({ vert: true, texte: `${tabState.msg}Dans ce tableau, appuie sur ${Object.keys(tabState.faits).some((k) => estVerbeT(tabCases()[k])) ? 'un autre verbe conjugué' : 'un verbe conjugué'}.` }),
+  tverbenat: () => ({ vert: true, texte: `Quelle est la nature du verbe « ${motT(tabState.courant)} » ?`, choix: ['VA', 'VE'] }),
+  tsuj: () => {
+    const v = tabState.verbes[tabState.vi], c = tabCases()[v];
+    const att = tabCases().filter((x) => x.fn === 'F.att' && tabCases()[x.s].v === v).map((x) => `« ${x.t.replace(/[.,]$/, '')} »`).join(' ');
+    const qui = c.nat === 'VE' ? `Qui est-ce que l'on décrit${att ? ` avec le mot ${att}` : ''} ?` : `Qui est-ce qui ${c.q || motT(v)} ? Qui est-ce qui fait l'action ${deInf(infT(v))} ?`;
+    return { vert: false, texte: `${tabState.msg}Quel mot a la fonction sujet du verbe « ${infT(v)} » ? ${qui} Appuie dessus.` };
+  },
+  tnat: () => {
+    const i = tabState.courant, c = tabCases()[i];
+    const choix = c.fn === 'F.att' ? ['N', 'NP', 'Pr', 'A'] : CC_CODES.includes(c.fn) ? ['N', 'NP', 'Pr', 'Av'] : c.fn === 'F.cod' ? ['N', 'NP', 'Pr', 'VINF'] : ['N', 'NP', 'Pr'];
+    return { vert: true, texte: `Quelle est la nature du mot « ${motT(i)} », ${fnTab(i)} ?`, choix, labels: NAT_LIB };
+  },
+  tprnat: () => ({ vert: true, texte: `Quel est le type du pronom « ${motT(tabState.courant)} » ?`, choix: ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int'], petits: true }),
+  tobjq: () => {
+    const v = tabState.verbes[tabState.vi], inf = infT(v), k = tabState.objet;
+    if (k === 'F.att') { const sj = tabCases().findIndex((x) => x.fn === 'F.suj' && x.v === v); return { vert: false, texte: `${tabState.msg}Le sujet « ${motT(sj)} » est-il décrit par un attribut, un mot qui lui attribue une caractéristique ?`, choix: ['oui', 'non'] }; }
+    if (k === 'F.cod') return { vert: false, texte: `${tabState.msg}Le verbe « ${inf} » a-t-il un mot de fonction COD, qui répondrait à la question « ${inf} + quoi ? » et qui désignerait ${OBJET} sur lequel porte l'action ${deInf(inf)} ?`, choix: ['oui', 'non'] };
+    if (k === 'F.coi') return { vert: false, texte: `Le verbe « ${inf} » a-t-il un mot de fonction COI, qui répondrait à la question « ${inf} + à qui ? à quoi ? de quoi ? » ?`, choix: ['oui', 'non'] };
+    return { vert: false, texte: `Le verbe « ${inf} » a-t-il aussi un mot de fonction COS, qui répondrait à la question « ${inf} quelque chose + à qui ? » ?`, choix: ['oui', 'non'] };
+  },
+  tobj: () => { const v = tabState.verbes[tabState.vi]; return { vert: false, texte: tabState.objet === 'F.att' ? 'Appuie sur l\'attribut du sujet.' : `Appuie sur le ${NOM_FN[tabState.objet]} du verbe « ${infT(v)} ».` }; },
+  tccq: () => ({ vert: false, texte: `${tabState.msg}Dans ce tableau, donne-t-on ${tabState.ccFait ? 'd\'autres circonstances' : 'des circonstances'} : où, quand, comment, pourquoi ?`, choix: ['oui', 'non'] }),
+  tcc: () => ({ vert: false, texte: 'Appuie sur le mot qui donne cette circonstance : c\'est un complément circonstanciel.' }),
+  tcctype: () => ({ vert: false, texte: `À quelle question répond « ${motT(tabState.courant)} » ?`, choix: CC_CODES, une: true, labels: { 'F.ccl': 'Où ? (CC de lieu)', 'F.cct': 'Quand ? (CC de temps)', 'F.ccm': 'Comment ? (CC de manière)', 'F.ccc': 'Pourquoi ? (CC de cause)' } }),
+  tdetq: () => ({ vert: true, texte: `${tabState.msg}Passons au groupe du nom « ${motT(tabState.noms[tabState.ni])} ». Le nom « ${motT(tabState.noms[tabState.ni])} » a-t-il un déterminant ?`, choix: ['oui', 'non'] }),
+  tdet: () => ({ vert: true, texte: `Appuie sur le déterminant du nom « ${motT(tabState.noms[tabState.ni])} ».` }),
+  tdetnat: () => ({ vert: true, texte: `Quelle est la nature précise du déterminant « ${motT(tabState.courant)} » ?`, choix: ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int'], petits: true }),
+  tadjq: () => ({ vert: true, texte: `Dans ce groupe nominal, le nom « ${motT(tabState.noms[tabState.ni])} » est-il décrit par un adjectif qualificatif épithète ou apposé ?`, choix: ['oui', 'non'] }),
+  tadj: () => ({ vert: true, texte: `Appuie sur l'adjectif qualificatif qui décrit le nom « ${motT(tabState.noms[tabState.ni])} ».` }),
+  tadjfn: () => ({ vert: false, texte: `Quelle est la fonction de l'adjectif « ${motT(tabState.courant)} » ?`, choix: ['F.epi', 'F.app'], labels: { 'F.epi': `Épithète du nom ${motT(tabState.noms[tabState.ni])}`, 'F.app': `Apposé au nom ${motT(tabState.noms[tabState.ni])}` } }),
+  tcdnq: () => ({ vert: false, texte: `Dans ce groupe nominal, le nom « ${motT(tabState.noms[tabState.ni])} » est-il décrit par un mot qui a la fonction complément du nom ?`, choix: ['oui', 'non'] }),
+  tcdn: () => ({ vert: false, texte: `Appuie sur le complément du nom « ${motT(tabState.noms[tabState.ni])} ».` }),
+  tinv: () => ({ vert: true, texte: `${tabState.msg}${tabState.invVu ? 'Appuie sur un autre mot invariable.' : 'Il reste des mots invariables, qui n\'ont pas de fonction. Appuie sur l\'un d\'eux.'}` }),
+  tinvnat: () => ({ vert: true, texte: `Quelle est la nature du mot « ${motT(tabState.courant)} » ?`, choix: ['P', 'Av', 'CC', 'CS', 'I'], labels: NAT_LIB }),
+};
+const reste = (filtre) => tabCases().map((c, i) => (filtre(c, i) ? i : -1)).filter((i) => i >= 0);
+function etapeTab(e, msg, meme) { tabState.msg = msg ? `${capitalize(msg)} ` : ''; gnVers(e, meme); }
+/* l'enchaînement de la méthode */
+function suiteVerbes() {
+  if (reste((c, i) => estVerbeT(c) && !tabState.natOk.has(i)).length) { etapeTab('tverbe'); return; }
+  tabState.vi = 0;
+  etapeTab('tsuj', `Bravo, tu as trouvé tous les verbes ! Les verbes n'ont pas de fonction : ${pointsTab()}.`);
+}
+function suiteSujets() {
+  tabState.vi += 1;
+  if (tabState.vi < tabState.verbes.length) { etapeTab('tsuj'); return; }
+  tabState.vi = 0; debutObjets(`Tous les sujets sont trouvés : ${pointsTab()}.`);
+}
+function debutObjets(msg) {
+  const v = tabState.verbes[tabState.vi];
+  tabState.objet = tabCases()[v].nat === 'VE' ? 'F.att' : 'F.cod';
+  etapeTab('tobjq', msg || `Passons au verbe « ${infT(v)} ».`);
+}
+function objetT(code) { const v = tabState.verbes[tabState.vi]; return tabCases().findIndex((c) => c.fn === code && (code === 'F.att' ? tabCases()[c.s].v === v : c.v === v)); }
+function suiteObjets() {
+  if (tabState.objet === 'F.cod') { tabState.objet = objetT('F.cod') >= 0 ? 'F.cos' : 'F.coi'; etapeTab('tobjq'); return; }
+  tabState.vi += 1;
+  if (tabState.vi < tabState.verbes.length) { debutObjets(); return; }
+  tabState.ccFait = false; etapeTab('tccq', `Les compléments des verbes sont trouvés : ${pointsTab()}.`);
+}
+function suiteGN(msg) {
+  while (tabState.ni < tabState.noms.length) {
+    etapeTab('tdetq', msg); return;
+  }
+  if (reste((c, i) => !c.fn && !estVerbeT(c) && !/^D\./.test(c.nat) && !tabState.natOk.has(i)).length) {
+    const premier = !tabState.invDebut; tabState.invDebut = true;
+    etapeTab('tinv', msg || (premier ? `Les groupes nominaux sont analysés : ${pointsTab()}.` : `${pointsTab()}.`)); return;
+  }
+  gnVers('fini');
+}
+function nomSuivant() { tabState.ni += 1; tabState.adjFaits = new Set(); suiteGN(); }
+function poseTab(i, html, rouge, avant) { carre(i, html, rouge, avant); }
+function clicMotTab(i, el) {
+  if (game.fini) return;
+  const cases = tabCases(), c = cases[i], e = gnState.etape;
+  const choisi = { texte: motT(i), article: c.nat === 'VINF' ? 'un verbe à l\'infinitif' : natOf({ tag: c.nat, texte: c.t }).article };
+  const prendre = (cibles, attendu) => {
+    let k = cibles.includes(i) ? i : null;
+    if (k === null && gnErreur(el, attendu, choisi)) k = cibles[0];
+    return k;
+  };
+  if (e === 'tverbe') {
+    const k = prendre(reste((x, j) => estVerbeT(x) && !tabState.natOk.has(j)), 'un verbe conjugué');
+    if (k === null || k === undefined) return;
+    tabState.courant = k; compteTab(k, 'trouve'); poseTab(k, 'verbe'); gnVers('tverbenat', true); return;
+  }
+  if (e === 'tsuj') {
+    const v = tabState.verbes[tabState.vi];
+    const k = prendre(reste((x) => x.fn === 'F.suj' && x.v === v), 'le sujet');
+    if (k === null || k === undefined) return;
+    tabState.courant = k; compteTab(k, 'fn'); poseTab(k, fnTab(k).replace(/ (du|au) /, '<br>$1 '), true); gnVers('tnat', true); return;
+  }
+  if (e === 'tobj') {
+    const k = prendre([objetT(tabState.objet)], tabState.objet === 'F.att' ? 'l\'attribut du sujet' : `le ${NOM_FN[tabState.objet]}`);
+    if (k === null || k === undefined) return;
+    tabState.courant = k; compteTab(k, 'fn'); poseTab(k, fnTab(k).replace(/ (du|au) /, '<br>$1 '), true); gnVers('tnat', true); return;
+  }
+  if (e === 'tcc') {
+    const k = prendre(reste((x, j) => CC_CODES.includes(x.fn) && !tabState.fnOk.has(j)), 'un complément circonstanciel');
+    if (k === null || k === undefined) return;
+    tabState.courant = k; tabState.ccFait = true; gnVers('tcctype', true); return;
+  }
+  if (e === 'tdet') {
+    const n = tabState.noms[tabState.ni];
+    const k = prendre(reste((x) => /^D\./.test(x.nat) && x.n === n), 'le déterminant');
+    if (k === null || k === undefined) return;
+    tabState.courant = k; compteTab(k, 'trouve'); poseTab(k, 'déterminant'); gnVers('tdetnat', true); return;
+  }
+  if (e === 'tadj') {
+    const n = tabState.noms[tabState.ni];
+    const k = prendre(reste((x, j) => (x.fn === 'F.epi' || x.fn === 'F.app') && x.n === n && !tabState.fnOk.has(j)), 'un adjectif qualificatif');
+    if (k === null || k === undefined) return;
+    tabState.courant = k; compteTab(k, 'nat'); poseTab(k, 'adjectif<br>qualificatif'); gnVers('tadjfn', true); return;
+  }
+  if (e === 'tcdn') {
+    const n = tabState.noms[tabState.ni];
+    const k = prendre(reste((x) => x.fn === 'F.cdn' && x.n === n), 'le complément du nom');
+    if (k === null || k === undefined) return;
+    tabState.courant = k; compteTab(k, 'fn'); poseTab(k, fnTab(k).replace(/ (du|au) /, '<br>$1 '), true); gnVers('tnat', true); return;
+  }
+  if (e === 'tinv') {
+    const k = prendre(reste((x, j) => !x.fn && !estVerbeT(x) && !/^D\./.test(x.nat) && !tabState.natOk.has(j)), 'un mot invariable');
+    if (k === null || k === undefined) return;
+    tabState.courant = k; tabState.invVu = true; compteTab(k, 'trouve'); gnVers('tinvnat', true); return;
+  }
+  const act = document.querySelector('.carte.active'); if (act) { act.classList.remove('gn-flash'); void act.offsetWidth; act.classList.add('gn-flash'); }
+}
+function answerBoutonTab(code, btn) {
+  if (game.fini) return;
+  const cases = tabCases(), e = gnState.etape, i = tabState.courant, c = i !== null ? cases[i] : null;
+  const faux = (attendu, choisiArticle) => { btn.classList.add('wrong'); btn.disabled = true; return gnErreur(null, attendu, { texte: c ? motT(i) : '—', article: choisiArticle }); };
+  const montrer = (x) => document.querySelector(`.carte.active [data-gn="${x}"]`)?.classList.add('correct');
+  const art = (x) => (x === 'VINF' ? 'un verbe à l\'infinitif' : NATURE_BY_CODE[x] ? NATURE_BY_CODE[x].article : x);
+  const choix = (bon, suite) => {
+    if (code !== bon && !faux(art(bon), art(code))) return false;
+    if (code === bon) btn.classList.add('correct'); else montrer(bon);
+    setTimeout(suite, 600); return true;
+  };
+  if (e === 'tverbenat') { choix(c.nat, () => { compteTab(i, 'nat'); wordEl(i).querySelector('.lab').innerHTML = c.nat === 'VA' ? 'verbe<br>d\'action' : 'verbe<br>d\'état'; suiteVerbes(); }); return; }
+  if (e === 'tnat') {
+    const bon = c.nat === 'VINF' ? 'VINF' : natBase(c.nat);
+    choix(bon, () => {
+      poseTab(i, natNomT(bon).replace(' ', '<br>'), false, true);
+      if (bon === 'Pr') { gnVers('tprnat', true); return; }
+      compteTab(i, 'nat');
+      if (c.fn === 'F.suj') suiteSujets(); else if (CC_CODES.includes(c.fn)) etapeTab('tccq', `${pointsTab()}.`); else if (c.fn === 'F.cdn') nomSuivant(); else suiteObjets();
+    });
+    return;
+  }
+  if (e === 'tprnat') { choix(c.nat, () => { compteTab(i, 'nat'); wordEl(i).querySelector('.lab').innerHTML = `pronom<br>${NOM_COURT(c.nat)}`; if (c.fn === 'F.suj') suiteSujets(); else suiteObjets(); }); return; }
+  if (e === 'tcctype') { choix(c.fn, () => { compteTab(i, 'fn'); poseTab(i, fnTab(i).replace(/ (du|au) /, '<br>$1 '), true); gnVers('tnat', true); }); return; }
+  if (e === 'tdetnat') { choix(c.nat, () => { compteTab(i, 'nat'); wordEl(i).querySelector('.lab').innerHTML = `déterminant<br>${NOM_COURT(c.nat)}`; etapeTab('tadjq', '', true); }); return; }
+  if (e === 'tadjfn') { choix(c.fn, () => { compteTab(i, 'fn'); poseTab(i, fnTab(i).replace(/ (du|au) /, '<br>$1 '), true); etapeTab('tadjq'); }); return; }
+  if (e === 'tinvnat') { choix(c.nat, () => { compteTab(i, 'nat'); poseTab(i, natNomT(c.nat).replace(/ (de) /, '<br>$1 ')); suiteGN(); }); return; }
+  /* questions oui / non */
+  const n = tabState.noms[tabState.ni];
+  const ouiNon = (vrai, suiteOui, suiteNon, quoi) => {
+    if ((code === 'oui') !== vrai && !faux(vrai ? `oui, ${quoi}` : `non, pas de ${quoi}`, code)) return;
+    gnState.essais = 0;
+    setTimeout(vrai ? suiteOui : suiteNon, 500);
+  };
+  if (e === 'tobjq') { const k = objetT(tabState.objet); ouiNon(k >= 0, () => gnVers('tobj', true), suiteObjets, NOM_FN[tabState.objet]); return; }
+  if (e === 'tccq') { ouiNon(reste((x, j) => CC_CODES.includes(x.fn) && !tabState.fnOk.has(j)).length > 0, () => gnVers('tcc', true), () => { tabState.ni = 0; tabState.adjFaits = new Set(); suiteGN(`Les verbes et leurs compléments sont analysés : ${pointsTab()}. Passons aux groupes nominaux.`); }, 'complément circonstanciel'); return; }
+  if (e === 'tdetq') { ouiNon(reste((x) => /^D\./.test(x.nat) && x.n === n).length > 0, () => gnVers('tdet', true), () => etapeTab('tadjq'), 'déterminant'); return; }
+  if (e === 'tadjq') { ouiNon(reste((x, j) => (x.fn === 'F.epi' || x.fn === 'F.app') && x.n === n && !tabState.fnOk.has(j)).length > 0, () => gnVers('tadj', true), () => etapeTab('tcdnq'), 'adjectif épithète ou apposé'); return; }
+  if (e === 'tcdnq') { ouiNon(reste((x) => x.fn === 'F.cdn' && x.n === n).length > 0, () => gnVers('tcdn', true), nomSuivant, 'complément du nom'); }
+}
+function finishQuestionTab() {
+  gnState.etape = 'fini';
+  $('nat-buttons-variables').innerHTML = '';
+  $('nat-instruction').textContent = 'Le tableau est rempli !';
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as rempli les vingt cases en suivant la méthode : d'abord les verbes, puis leurs sujets et leurs compléments, ensuite les groupes nominaux, et enfin les mots invariables. Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur 20.`);
+  $('nat-correction').classList.remove('hidden');
+  $('nat-verdict-square').className = `verdict-square ${game.score >= 19.95 ? 'correct' : game.score < 10 ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = 'Voir mon résultat →';
+  majScoreTab();
+  showCharacter(game.score >= 10 ? 'good' : 'bad', null);
+}
+
 function finishQuestion(reussi, nature, mot) {
   /* v11 : pour le bilan, on compte chaque nature : demandée (p) et trouvée du premier coup (c). */
   const pn = game.parNature[nature.code] || (game.parNature[nature.code] = { c: 0, p: 0 });
@@ -1747,12 +2014,12 @@ function nextQuestion() {
 
 function showResults() {
   game.fini = true;
-  const n = game.questions.length, s = Math.round(game.score * 10) / 10;
+  const n = currentGame.total || game.questions.length, s = Math.round(game.score * 10) / 10;
   const content = s >= Math.ceil(n * 0.6);
   const id = content ? pick(['bonaccord', 'virgule']) : pick(['rature', 'gribouille']);
   const pe = playerProfile?.enfant?.photo;
   $('results-character').innerHTML = characterSvg(id) + (pe ? `<img class="results-photo" src="${pe}" alt="" />` : '');
-  $('results-title').textContent = isG3() || isG4() ? `${fmtPts(s)} point${s >= 2 ? 's' : ''} sur ${n}` : `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
+  $('results-title').textContent = isG3() || isG4() || isG5() ? `${fmtPts(s)} point${s >= 2 ? 's' : ''} sur ${n}` : `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
   const E = playerProfile?.enfant?.prenom;
   const adultes = (playerProfile?.adultes || []).filter((a) => a.lien);
   const a = adultes.length ? pick(adultes) : null;
@@ -1798,7 +2065,8 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    niveauOf(r) === 4 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le nom, le déterminant, l'adjectif et le complément du nom trouvés du premier coup).`
+    niveauOf(r) === 5 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (1 point par case du tableau bien remplie).`
+      : niveauOf(r) === 4 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le nom, le déterminant, l'adjectif et le complément du nom trouvés du premier coup).`
       : niveauOf(r) === 3 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le verbe, le sujet et les compléments trouvés du premier coup).`
       : `Mon score : ${r.score} bonne${r.score > 1 ? 's' : ''} réponse${r.score > 1 ? 's' : ''} du premier coup sur ${r.total}.`,
   ];
@@ -2118,7 +2386,7 @@ function openProfile(first) {
 
 /* v10 : nom du type d'exercice ; les scores enregistrés avant la v10 portaient d'autres noms. */
 function scoreType(jeu) {
-  if (/niveau [1234]/.test(jeu || '')) return jeu;
+  if (/niveau [12345]/.test(jeu || '')) return jeu;
   if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
   return 'Reconnaissance des natures, niveau 1';
 }
@@ -2166,7 +2434,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -2203,7 +2471,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2, 3, 4].map((n) => {
+  const niveaux = [1, 2, 3, 4, 5].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -2224,7 +2492,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Reconnaissance des natures, niveau 1', 2: 'Reconnaissance des natures, niveau 2', 3: 'Natures et fonctions (groupe verbal), niveau 3', 4: 'Natures et fonctions (groupe nominal), niveau 4' };
+const NIVEAU_TITRE = { 1: 'Reconnaissance des natures, niveau 1', 2: 'Reconnaissance des natures, niveau 2', 3: 'Natures et fonctions (groupe verbal), niveau 3', 4: 'Natures et fonctions (groupe nominal), niveau 4', 5: 'Bilan : le tableau des vingt cases, niveau 5' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
@@ -2507,13 +2775,14 @@ $('open-natures').addEventListener('click', () => openGame('natures'));
 $('open-natures2').addEventListener('click', () => openGame('natures2'));
 $('open-fonctions').addEventListener('click', () => openGame('fonctions'));
 $('open-gn').addEventListener('click', () => openGame('gn'));
-$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); });
+$('open-tableau').addEventListener('click', () => openGame('tableau'));
+$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
-  speak(phraseTexte(q.gv ? motsGV(q) : motsDe(q)).replace(/\(…\)/g, '').trim(), 'femme', 'phrase');
+  speak(phraseTexte(q.gv ? motsGV(q) : motsDe(q)).replace(/(\S)\.(\S)/g, '$1. $2').replace(/\(…\)/g, '').trim(), 'femme', 'phrase');
   volumeLevel = prev;
 });
 $('results-replay').addEventListener('click', startGame);
