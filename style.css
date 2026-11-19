@@ -627,3 +627,15 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .carte.neutre { background:#f3f1ea; border-color:#8a7a5c; }
 .carte.neutre p { color:#3a3328; }
 .nature-button.forme-button { background:#5a4a32; border-color:#3a2f1e; color:#fff; }
+/* v41 : un ou deux cadres de texte (exercice 2 : la langue du 19e siècle, puis celle d'aujourd'hui) */
+.game7 .sentence { display:block; }
+.game7 .tm-texte { display:flex; flex-wrap:wrap; align-items:flex-start; gap:16px 0; }
+.game7 .tm-cadre2 { margin-top:28px; padding-top:18px; border-top:2px dashed rgba(255,255,255,.35); }
+.game7 .tm-titre { font-family:Georgia,serif; font-size:.75em; font-weight:400; font-style:italic; color:#ffe9a8; margin:0 0 12px; }
+.game7 .sentence .w.fige { cursor:default; }
+.game7 .sentence .w.fige .f { text-decoration-color:rgba(255,255,255,.35); }
+.game7 .sentence .w.fige:hover { background:none; }
+.game7 .tm-cadre.replie .tm-texte { display:none; }
+.game7 .tm-cadre.replie .tm-titre, .game7 .tm-cadre2 ~ .tm-cadre .tm-titre { cursor:pointer; }
+.game7 .tm-cadre .tm-titre:hover { text-decoration:underline; }
+.game7 .tm-cadre.replie + .tm-cadre2 { margin-top:10px; }
