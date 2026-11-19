@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v38';
+const APP_VERSION = 'v39';
 
 const $ = (id) => document.getElementById(id);
 
@@ -208,6 +208,9 @@ const GAMES = {
   /* v35 : jeu 6, le même tableau, mais sans guide : l'enfant remplit les cases dans l'ordre qu'il veut, puis corrige */
   libre: { titre: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', type: 'Bilan sans guide : le tableau des vingt cases, niveau 6', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 6, nb: 1, tab: true, total: 20 },
+  /* v39 : les temps et les modes, exercice 1 */
+  temps1: { titre: 'Temps et modes, exercice 1 : reconnaissance des temps et des modes dans un texte au système du présent', type: 'Temps et modes dans un texte au système du présent, niveau 7', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 7, nb: 1, tm: true, total: 20, partie: 'temps' },
 };
 GAMES.natures.niveau = 1; GAMES.natures2.niveau = 2;
 const nbQuestions = () => currentGame.nb || NB_QUESTIONS;
@@ -797,6 +800,7 @@ function buildNatureSequence() {
   return shuffle(liste);
 }
 function buildQuestions() {
+  if (currentGame.tm) return [{ tm: true, t: 0 }];
   if (currentGame.tab) { marqueTexte(texteChoisi); return [{ tab: true, t: texteChoisi }]; }
   if (currentGame.gn) return buildQuestionsGN();
   if (currentGame.gv) return buildQuestionsGV();
@@ -884,7 +888,11 @@ function openGame(id) {
   /* v27 : le jeu 3 marche maintenant comme le jeu 4 (consignes, carrés verts et rouges sous les mots) */
   $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions' || id === 'tableau' || id === 'libre');
   $('natures-panel').classList.toggle('game5', id === 'tableau' || id === 'libre');
-  $('nat-ready-explanation').innerHTML = id === 'libre'
+  ['game3', 'game4'].forEach((c) => { if (id === 'temps1') $('natures-panel').classList.add(c); });
+  $('natures-panel').classList.toggle('game7', id === 'temps1');
+  $('nat-ready-explanation').innerHTML = id === 'temps1'
+    ? 'Voici un texte au <strong>système du présent</strong> : l\'action se passe au moment où on le lit. Vingt <strong>formes verbales</strong> y sont soulignées. Appuie sur chacune, dans l\'ordre que tu veux, et donne son <strong>temps</strong> (étiquette verte) puis son <strong>mode</strong> (étiquette rouge). Chaque forme vaut 1 point : 0,5 pour le temps, 0,5 pour le mode, s\'ils sont justes du premier coup.'
+    : id === 'libre'
     ? 'Cette fois, <strong>pas de guide</strong> : remplis le tableau de vingt cases <strong>seul</strong>, dans l\'ordre que tu veux. Appuie sur une case, choisis la <strong>nature</strong> du mot (en vert) et sa <strong>fonction</strong> (en rouge), puis appuie sur le mot dont elle dépend (le verbe, le sujet ou le nom). Tu peux revenir sur une case autant que tu veux. Quand tu as fini, appuie sur <strong>« Corriger mon tableau »</strong> : chaque case vaut 1 point, 0,5 pour la nature et 0,5 pour la fonction.'
     : id === 'tableau'
     ? 'Voici un <strong>tableau de vingt cases</strong> : chaque case contient un mot (ou un verbe en deux mots). Remplis-le en suivant la méthode, étape par étape : d\'abord les <strong>verbes</strong>, puis leurs <strong>sujets</strong>, puis leurs <strong>compléments</strong> ; ensuite les <strong>groupes nominaux</strong> ; enfin les <strong>mots invariables</strong>. Chaque case vaut 1 point : 0,5 pour trouver le mot (et sa fonction), 0,5 pour sa nature. Attention : une erreur, et la moitié de point est perdue, même si tu trouves ensuite.'
@@ -909,7 +917,7 @@ const isG4 = () => currentGame === GAMES.gn;
 const isG5 = () => currentGame === GAMES.tableau;
 const isG6 = () => currentGame === GAMES.libre;
 function scoreLabel(n) {
-  if (isG5() || isG6()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''} sur 20`;
+  if (isG5() || isG6() || isT1()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''} sur 20`;
   if (isG3() || isG4()) return `${fmtPts(n)} point${n >= 2 ? 's' : ''}`;
   return `${n} bonne${n > 1 ? 's' : ''} réponse${n > 1 ? 's' : ''}`;
 }
@@ -935,6 +943,7 @@ function showQuestion() {
   if (isG3()) { showQuestionGV(); return; }
   if (isG5()) { showQuestionTab(); return; }
   if (isG6()) { showQuestionLibre(); return; }
+  if (isT1()) { showQuestionTM(); return; }
   const q = game.questions[game.index];
   game.essais = 0;
   $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mots || q.mot);
@@ -1007,7 +1016,7 @@ function showCharacter(camp, nature) {
 function explanationSpoken() {
   const q = game.questions[game.index];
   if (isG4()) return resumeGN(q, false).replace(/«|»/g, '');
-  if (isG5() || isG6()) return '';
+  if (isG5() || isG6() || isT1()) return '';
   if (isG3()) return resumeGV(q, false).replace(/«|»/g, '').replace(/\bCO([DIS])\b/g, 'C O $1');
   const n = NATURE_BY_CODE[q.code];
   if (q.fn) {
@@ -1022,7 +1031,7 @@ function answer(code, btn) {
   if (game.fini) return;
   if (isG4()) { answerBoutonGN(code, btn); return; }
   if (isG3() && currentGame.gv) return;
-  if (isG5() || isG6()) return;
+  if (isG5() || isG6() || isT1()) return;
   if (isG3()) { answerNature3(code, btn); return; }
   const q = game.questions[game.index];
   const bonne = NATURE_BY_CODE[q.code];
@@ -2370,6 +2379,136 @@ function finishQuestion(reussi, nature, mot) {
   $('nat-progress-bar').style.width = `${((game.index + 1) / game.questions.length) * 100}%`;
 }
 
+/* ------------------------------------------------------------
+   v39 : LES TEMPS ET LES MODES — EXERCICE 1
+   Un texte au système du présent : vingt formes verbales, soulignées. L'enfant appuie sur une forme, choisit
+   son temps (étiquette verte) et son mode (étiquette rouge). 0,5 point par temps juste, 0,5 point par mode juste,
+   du premier coup : une erreur, et la moitié est perdue (la bonne réponse s'affiche alors).
+   Dans le texte : {forme|temps|mode} ; les codes sont ceux de la fiche temps et modes (TPS.…, MODE.…).
+   ------------------------------------------------------------ */
+const TEMPS_TM = [
+  { code: 'TPS.pres', nom: 'Présent' }, { code: 'TPS.imp', nom: 'Imparfait' }, { code: 'TPS.ps', nom: 'Passé simple' },
+  { code: 'TPS.fut', nom: 'Futur simple' }, { code: 'TPS.pc', nom: 'Passé composé' }, { code: 'TPS.pqp', nom: 'Plus-que-parfait' },
+  { code: 'TPS.pa', nom: 'Passé antérieur' }, { code: 'TPS.fa', nom: 'Futur antérieur' }, { code: 'TPS.passe', nom: 'Passé' },
+];
+const MODES_TM = [
+  { code: 'MODE.ind', nom: 'Indicatif' }, { code: 'MODE.cond', nom: 'Conditionnel' }, { code: 'MODE.subj', nom: 'Subjonctif' },
+  { code: 'MODE.imp', nom: 'Impératif' }, { code: 'MODE.inf', nom: 'Infinitif' }, { code: 'MODE.part', nom: 'Participe' }, { code: 'MODE.ger', nom: 'Gérondif' },
+];
+[...TEMPS_TM, ...MODES_TM].forEach((x) => { x.article = x.nom.toLowerCase(); x.explication = ''; NATURE_BY_CODE[x.code] = x; });
+const NOM_TM = (code) => NATURE_BY_CODE[code]?.nom || code;
+const TEXTES_TM = [
+  { titre: 'Champignons', systeme: 'présent',
+    texte: "Aujourd'hui il {fait|pres|ind} beau et nous nous {promenons|pres|ind} dans la forêt où nous {cherchons|pres|ind} souvent des champignons. Nous {pouvons|pres|ind} y {passer|pres|inf} des heures, {marchant|pres|part} , {plaisantant|pres|part} , sans jamais nous {lasser|pres|inf} . Hier nous en {avons trouvé|pc|ind} trois kilos et nous {voudrions|pres|cond} que la cueillette {soit|pres|subj} aussi bonne aujourd'hui. Soudain ma sœur {crie|pres|ind} : « {Venez|pres|imp} ! » Alors nous {courons|pres|ind} vers elle {en espérant|pres|ger} que nous {découvrirons|fut|ind} un splendide bolet ! Mais, hélas, ce ne {sont|pres|ind} que de petits champignons et je {crains|pres|ind} bien qu'ils {soient|pres|subj} vénéneux. Nous {repartons|pres|ind} vers d'autres découvertes." },
+];
+/* le texte découpé : des mots, et des formes verbales { t, tps, mode } */
+function decoupeTM(src) {
+  const mots = [], formes = [];
+  src.replace(/\{([^}|]+)\|([^}|]+)\|([^}|]+)\}|(\S+)/g, (m, f, tps, mode, w) => {
+    if (f) { mots.push({ t: f, k: formes.length }); formes.push({ t: f, tps: `TPS.${tps}`, mode: `MODE.${mode}` }); } else mots.push({ t: w });
+    return m;
+  });
+  return { mots, formes };
+}
+const tm = { rep: {}, sel: null, texte: null };
+const isT1 = () => currentGame === GAMES.temps1;
+function showQuestionTM() {
+  const q = game.questions[game.index];
+  tm.texte = decoupeTM(TEXTES_TM[q.t].texte);
+  Object.assign(tm, { rep: {}, sel: null });
+  /* la ponctuation reste collée au mot (« Venez ! ») : chaque mot et sa ponctuation forment un groupe qui ne se coupe pas */
+  const items = [];
+  let avant = '';
+  tm.texte.mots.forEach((m) => {
+    if (/^[.,;:!?»]$/.test(m.t) && items.length) { items[items.length - 1].suf += (/^[;:!?»]$/.test(m.t) ? '\u00a0' : '') + m.t; return; }
+    if (m.t === '«') { avant = '«\u00a0'; return; }
+    items.push({ ...m, pre: avant, suf: '' }); avant = '';
+  });
+  $('nat-sentence').innerHTML = items.map((m) => (m.k !== undefined
+    ? `<span class="w forme" data-i="${m.k}"><span class="tx">${m.pre}<span class="f">${esc(m.t)}</span>${m.suf}</span></span>`
+    : `<span class="w mot"><span class="tx">${m.pre}${esc(m.t)}${m.suf}</span></span>`)).join('');
+  $('nat-character-stage').innerHTML = '';
+  $('nat-correction').classList.add('hidden');
+  $('nat-verdict-square').className = 'verdict-square';
+  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
+  $('nat-buttons-invariables').innerHTML = '';
+  $('nat-progress-label').textContent = `« ${TEXTES_TM[q.t].titre} »`;
+  game.score = 0;
+  majScoreTM();
+  panneauTM();
+}
+const formesFaites = () => Object.values(tm.rep).filter((r) => r.tps && r.mode).length;
+function majScoreTM() {
+  const n = formesFaites();
+  $('nat-score-label').textContent = scoreLabel(game.score);
+  $('nat-progress-bar').style.width = `${(n / tm.texte.formes.length) * 100}%`;
+}
+function panneauTM() {
+  const i = tm.sel, N = tm.texte.formes.length;
+  $('nat-instruction').textContent = 'Le temps et le mode de chaque forme verbale';
+  if (i === null) {
+    $('nat-buttons-variables').innerHTML = `<div class="carte verte active libre"><p>Dans ce texte, ${N} formes verbales sont soulignées. Appuie sur l'une d'elles, dans l'ordre que tu veux : tu donneras son <strong>temps</strong> (étiquette verte) et son <strong>mode</strong> (étiquette rouge).</p><p class="sous">${formesFaites()} forme${formesFaites() > 1 ? 's' : ''} sur ${N} déjà faite${formesFaites() > 1 ? 's' : ''}.</p></div>`;
+    return;
+  }
+  const f = tm.texte.formes[i], r = tm.rep[i] || (tm.rep[i] = {});
+  const b = (code, rouge, rep, bon) => {
+    const fait = !!rep, cls = !fait ? '' : code === bon ? ' correct' : code === rep ? ' wrong' : ' faded';
+    return `<button type="button" class="nature-button${rouge ? ' fonction-button' : ''}${cls}" data-tm="${code}"${fait ? ' disabled' : ''}>${NOM_TM(code)}</button>`;
+  };
+  let html = `<div class="carte verte active libre"><p>« ${esc(f.t)} » : quel est son <strong>temps</strong> ?</p><div class="carte-choix carte-choix-3">${TEMPS_TM.map((x) => b(x.code, false, r.tps, f.tps)).join('')}</div></div>`;
+  html += `<div class="carte rouge active libre"><p>Quel est son <strong>mode</strong> ?</p><div class="carte-choix carte-choix-3">${MODES_TM.map((x) => b(x.code, true, r.mode, f.mode)).join('')}</div></div>`;
+  if (r.tps && r.mode) html += `<p class="sous tm-bilan">« ${esc(f.t)} » : ${NOM_TM(f.mode).toLowerCase()} ${NOM_TM(f.tps).toLowerCase()}.</p>`;
+  $('nat-buttons-variables').innerHTML = html;
+  document.querySelectorAll('[data-tm]').forEach((btn) => btn.addEventListener('click', () => repondTM(btn.dataset.tm)));
+}
+function clicFormeTM(i) {
+  if (game.fini || i === tm.sel) return;
+  const avant = tm.sel; tm.sel = i;
+  if (avant !== null) wordEl(avant)?.classList.remove('choisie');
+  wordEl(i)?.classList.add('choisie');
+  panneauTM();
+}
+function repondTM(code) {
+  const i = tm.sel; if (i === null || game.fini) return;
+  const f = tm.texte.formes[i], r = tm.rep[i] || (tm.rep[i] = {});
+  const champ = code.startsWith('TPS.') ? 'tps' : 'mode';
+  if (r[champ]) return;
+  r[champ] = code;
+  const bon = f[champ], juste = code === bon;
+  if (juste) game.score = Math.round((game.score + 0.5) * 10) / 10;
+  else game.erreurs.push({ mot: f.t, bonne: NOM_TM(bon).toLowerCase(), choisie: NOM_TM(code).toLowerCase(), phrase: `texte « ${TEXTES_TM[game.questions[game.index].t].titre} »` });
+  const pn = game.parNature[bon] || (game.parNature[bon] = { c: 0, p: 0 }); pn.p += 1; if (juste) pn.c += 1;
+  /* l'étiquette se pose sous la forme : le temps en vert au-dessus, le mode en rouge en dessous */
+  carre(i, `${juste ? '' : '✗ '}${NOM_TM(bon).toLowerCase().replace(/ /, '<br>')}`, champ === 'mode', champ === 'tps');
+  const lab = champ === 'tps' ? wordEl(i).querySelector('.labs .lab') : [...wordEl(i).querySelectorAll('.labs .lab')].pop();
+  if (!juste) lab.classList.add('corrige');
+  majScoreTM();
+  panneauTM();
+  if (r.tps && r.mode) {
+    wordEl(i).classList.add('remplie');
+    if (formesFaites() === tm.texte.formes.length) { setTimeout(finTM, 900); return; }
+    /* on passe à la forme suivante qui reste à faire */
+    setTimeout(() => {
+      if (tm.sel !== i) return;
+      const N = tm.texte.formes.length;
+      for (let d = 1; d <= N; d++) { const k = (i + d) % N; if (!(tm.rep[k] && tm.rep[k].tps && tm.rep[k].mode)) { clicFormeTM(k); return; } }
+    }, 1300);
+  }
+}
+function finTM() {
+  const q = game.questions[game.index], T = TEXTES_TM[q.t];
+  wordEl(tm.sel)?.classList.remove('choisie'); tm.sel = null;
+  $('nat-buttons-variables').innerHTML = '';
+  $('nat-instruction').textContent = 'Toutes les formes verbales sont faites !';
+  const modes = [...new Set(tm.texte.formes.map((f) => NOM_TM(f.mode).toLowerCase()))];
+  const pres = tm.texte.formes.filter((f) => f.tps === 'TPS.pres' && f.mode === 'MODE.ind').length, presTous = tm.texte.formes.filter((f) => f.tps === 'TPS.pres').length;
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur 20. « ${esc(T.titre)} » est un texte au <strong>système du ${T.systeme}</strong> : l'action se passe au moment où on la lit. C'est pourquoi presque toutes les formes sont au <strong>présent</strong> (${presTous} sur ${tm.texte.formes.length}), dont ${pres} au présent de l'indicatif. On y trouve aussi les ${modes.length} modes : ${modes.join(', ')}. Une étiquette marquée ✗ montre la bonne réponse, là où tu t'es trompé.`);
+  $('nat-correction').classList.remove('hidden');
+  $('nat-verdict-square').className = `verdict-square ${game.score >= 19.95 ? 'correct' : game.score < 10 ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = 'Voir mon résultat →';
+  showCharacter(game.score >= 10 ? 'good' : 'bad', null);
+}
+
 function nextQuestion() {
   if (game.index + 1 < game.questions.length) { game.index += 1; showQuestion(); }
   else showResults();
@@ -2382,7 +2521,7 @@ function showResults() {
   const id = content ? pick(['bonaccord', 'virgule']) : pick(['rature', 'gribouille']);
   const pe = playerProfile?.enfant?.photo;
   $('results-character').innerHTML = characterSvg(id) + (pe ? `<img class="results-photo" src="${pe}" alt="" />` : '');
-  $('results-title').textContent = isG3() || isG4() || isG5() || isG6() ? `${fmtPts(s)} point${s >= 2 ? 's' : ''} sur ${n}` : `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
+  $('results-title').textContent = isG3() || isG4() || isG5() || isG6() || isT1() ? `${fmtPts(s)} point${s >= 2 ? 's' : ''} sur ${n}` : `${s} bonne${s > 1 ? 's' : ''} réponse${s > 1 ? 's' : ''} sur ${n}`;
   const E = playerProfile?.enfant?.prenom;
   const adultes = (playerProfile?.adultes || []).filter((a) => a.lien);
   const a = adultes.length ? pick(adultes) : null;
@@ -2428,7 +2567,8 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    niveauOf(r) === 6 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (tableau rempli seul, sans guide : 0,5 point pour la nature et 0,5 point pour la fonction de chaque case).`
+    niveauOf(r) === 7 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (20 formes verbales : 0,5 point pour le temps et 0,5 point pour le mode de chacune).`
+      : niveauOf(r) === 6 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (tableau rempli seul, sans guide : 0,5 point pour la nature et 0,5 point pour la fonction de chaque case).`
       : niveauOf(r) === 5 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (1 point par case du tableau bien remplie).`
       : niveauOf(r) === 4 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le nom, le déterminant, l'adjectif et le complément du nom trouvés du premier coup).`
       : niveauOf(r) === 3 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par phrase, partagé entre le verbe, le sujet et les compléments trouvés du premier coup).`
@@ -2461,7 +2601,7 @@ function renderSendBox() {
    « Fiche fonction des mots » = fiche-fonction.html (avec la formule de chaque fonction). Le jeu lit les deux.
    Tant que les nouveaux fichiers ne sont pas sur GitHub, il se rabat sur les anciens noms. */
 const FICHE_ANCIEN_NOM = { 'fiche-nature.html': 'fiche.html', 'fiche-fonction.html': 'fiche-fonctions.html' };
-async function loadFiche() { await Promise.all(['fiche-nature.html', 'fiche-fonction.html'].map(loadUneFiche)); }
+async function loadFiche() { await Promise.all(['fiche-nature.html', 'fiche-fonction.html', 'fiche-temps.html'].map(loadUneFiche)); }
 async function loadUneFiche(nom) {
   try {
     let r = await fetch(`${nom}?v=${Date.now()}`, { cache: 'no-store' });
@@ -2488,7 +2628,8 @@ function showFiche(nom) {
 function openFiche() {
   /* pendant le jeu des fonctions, la fiche des fonctions s'ouvre d'abord ; l'autre reste à un clic */
   const enJeu3 = isG3() && !$('natures-panel').classList.contains('hidden');
-  showFiche(enJeu3 ? 'fiche-fonction.html' : 'fiche-nature.html');
+  const enTemps = currentGame?.partie === 'temps' && $('welcome-panel').classList.contains('hidden');
+  showFiche(enTemps ? 'fiche-temps.html' : enJeu3 ? 'fiche-fonction.html' : 'fiche-nature.html');
   $('fiche-modal').classList.remove('hidden');
 }
 document.querySelectorAll('.fiche-tab').forEach((b) => b.addEventListener('click', () => showFiche(b.dataset.fiche)));
@@ -2751,7 +2892,7 @@ function openProfile(first) {
 
 /* v10 : nom du type d'exercice ; les scores enregistrés avant la v10 portaient d'autres noms. */
 function scoreType(jeu) {
-  if (/niveau [123456]/.test(jeu || '')) return jeu;
+  if (/niveau [1234567]/.test(jeu || '')) return jeu;
   if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
   return 'Reconnaissance des natures, niveau 1';
 }
@@ -2799,7 +2940,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -2836,7 +2977,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2, 3, 4, 5, 6].map((n) => {
+  const niveaux = [1, 2, 3, 4, 5, 6, 7].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -2857,7 +2998,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide' };
+const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
@@ -3142,12 +3283,14 @@ $('open-fonctions').addEventListener('click', () => openGame('fonctions'));
 $('open-gn').addEventListener('click', () => openGame('gn'));
 $('open-tableau').addEventListener('click', () => openGame('tableau'));
 $('open-libre').addEventListener('click', () => openGame('libre'));
-$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); });
+$('open-temps1').addEventListener('click', () => openGame('temps1'));
+$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && w.dataset.i !== undefined) clicFormeTM(Number(w.dataset.i)); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
+  if (q.tm) { speak(TEXTES_TM[q.t].texte.replace(/\{([^}|]+)\|[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
   speak(phraseTexte(q.gv ? motsGV(q) : motsDe(q)).replace(/(\S)\.(\S)/g, '$1. $2').replace(/\(…\)/g, '').trim(), 'femme', 'phrase');
   volumeLevel = prev;
 });
@@ -3168,7 +3311,7 @@ function goBack() {
   if (!$('welcome-panel').classList.contains('hidden') && partieAccueil) { montrePartie(''); return; }
   showPanel('welcome');
   /* d'un exercice, on revient à la page de sa partie */
-  if (currentGame && !partieAccueil) montrePartie('mots');
+  if (currentGame && !partieAccueil) montrePartie(currentGame.partie || 'mots');
 }
 $('global-back-button').addEventListener('click', goBack);
 /* hauteur réelle du bandeau (il peut passer sur deux lignes sur un petit écran) */

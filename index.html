@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=38" />
+    <link rel="stylesheet" href="style.css?v=39" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -116,7 +116,11 @@
             </div>
             <div class="home-section hidden" id="home-temps">
               <h2 class="home-section-title">Les temps et les modes</h2>
-              <p class="intro-banner home-bientot">Les exercices sur les verbes, leurs temps et leurs modes arrivent bientôt.</p>
+              <div class="home-games-row">
+                <button type="button" class="home-mode-button" id="open-temps1">
+                  <span class="label"><strong>Exercice 1</strong><br>Reconnaissance des temps et des modes dans un texte au système du présent</span>
+                </button>
+              </div>
               <button type="button" class="link-label home-retour" data-partie="">← Revenir aux trois parties</button>
             </div>
             <div class="home-section hidden" id="home-phrase">
@@ -212,6 +216,7 @@
         <div class="fiche-tabs" id="fiche-tabs">
           <button type="button" class="fiche-tab on" data-fiche="fiche-nature.html">Fiche nature des mots</button>
           <button type="button" class="fiche-tab" data-fiche="fiche-fonction.html">Fiche fonction des mots</button>
+          <button type="button" class="fiche-tab" data-fiche="fiche-temps.html">Fiche temps et modes</button>
         </div>
         <iframe id="fiche-frame" class="fiche-frame" title="La fiche des natures"></iframe>
       </div>
@@ -344,6 +349,6 @@
       <div id="report-send" class="report-send no-print"></div>
     </div>
 
-    <script defer src="app.js?v=38"></script>
+    <script defer src="app.js?v=39"></script>
   </body>
 </html>

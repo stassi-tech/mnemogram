@@ -600,3 +600,23 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .home-retour { display:block; margin:14px auto 0; }
 .home-bientot { text-align:center; }
 @media (max-width:640px) { .home-parties { grid-template-columns:1fr; } }
+/* v39 : temps et modes : un texte entier ; les formes verbales soulignées */
+.game7 .sentence { font-size:clamp(1.1rem,1.75vw,1.6rem); gap:16px 0; justify-content:flex-start; }
+.game7 .sentence .w { padding:0 4px; }
+.game7 .sentence .w.mot { cursor:default; }
+.game7 .sentence .w.mot:hover { background:none; }
+.game7 .sentence .w.pn { padding-left:0; margin-left:-4px; }
+.game7 .sentence .w.forme { text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:5px; color:#ffe9a8; }
+.game7 .sentence .w.forme.choisie { background:rgba(255,224,102,.35); outline:2px solid #ffd54a; }
+.game7 .sentence .w.forme.remplie { text-decoration-color:rgba(255,255,255,.35); }
+.game7 .sentence .w .labs .lab { font-size:max(.5em, 10px); }
+.game7 .sentence .w .labs .lab.corrige { background:#e08a1e; }
+.game7 .tm-bilan { font-weight:700; }
+.game7 .quiz-grid { grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); }
+@media (max-width:900px) { .game7 .quiz-grid { grid-template-columns:1fr; } }
+.game7 .sentence .w .tx { white-space:nowrap; }
+.game7 .sentence .w.forme { text-decoration:none; }
+.game7 .sentence .w.forme .f { text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:5px; }
+.game7 .sentence .w.forme.remplie .f { text-decoration-color:rgba(255,255,255,.35); }
+.game7 .character-stage { position:static; }
+.game7 .sentence-card { padding-bottom:64px; }
