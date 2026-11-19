@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v46';
+const APP_VERSION = 'v47';
 
 const $ = (id) => document.getElementById(id);
 
@@ -218,6 +218,11 @@ const GAMES = {
   temps3: { titre: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels dans un texte au système du présent', type: 'Analyse des temps et des modes personnels au système du présent, niveau 9', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 9, nb: 1, tm: true, texte: 2, total: 20, valeurs: true, partie: 'temps' },
   /* v45 : exercice 4 : le même travail au système du passé, en français classique puis contemporain */
+  /* v47 : transformer un texte */
+  temps5: { titre: 'Temps et modes, exercice 5 : transformer un texte au système du passé en texte au système du présent', type: 'Transformer un texte du passé au présent, niveau 11', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 11, nb: 1, tf: 'passe2pres', total: 10, partie: 'temps' },
+  temps6: { titre: 'Temps et modes, exercice 6 : transformer un texte au système du présent en texte au système du passé', type: 'Transformer un texte du présent au passé, niveau 12', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 12, nb: 1, tf: 'pres2passe', total: 10, partie: 'temps' },
   temps4: { titre: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels dans un texte au système du passé', type: 'Analyse des temps et des modes personnels au système du passé, niveau 10', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 10, nb: 1, tm: true, texte: 3, total: 26, valeurs: true, partie: 'temps' },
 };
@@ -809,6 +814,7 @@ function buildNatureSequence() {
   return shuffle(liste);
 }
 function buildQuestions() {
+  if (currentGame.tf) { marqueTexte(texteChoisi); return [{ tf: true, t: texteChoisi }]; }
   if (currentGame.tm) return [{ tm: true, t: currentGame.texte || 0 }];
   if (currentGame.tab) { marqueTexte(texteChoisi); return [{ tab: true, t: texteChoisi }]; }
   if (currentGame.gn) return buildQuestionsGN();
@@ -864,8 +870,10 @@ function buildNatureButtons() {
 /* v36 : vingt textes numérotés, du plus facile au plus difficile. L'écran de départ propose le texte qui suit
    le dernier joué ; les textes déjà faits portent une coche. On garde ces souvenirs dans le navigateur. */
 let texteChoisi = 0;
-const NIVEAU_TEXTE = (k) => (k < 5 ? 'facile' : k < 10 ? 'moyen' : k < 15 ? 'difficile' : 'très difficile');
-const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : 'tableau'}`;
+const NIVEAU_TEXTE = (k, n = 20) => { const q = k / n; return q < 0.25 ? 'facile' : q < 0.5 ? 'moyen' : q < 0.75 ? 'difficile' : 'très difficile'; };
+const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : currentGame.tf ? currentGame.tf : 'tableau'}`;
+/* v47 : la liste des textes au choix : les tableaux (exercices 5 et 6 des mots) ou les textes à transformer */
+const listeTextes = () => (currentGame.tab ? TABLEAUX : currentGame.tf ? TRANSFOS[currentGame.tf] : null);
 function textesFaits() { try { return JSON.parse(localStorage.getItem(cleTextes()) || '{"faits":[],"dernier":-1}'); } catch (e) { return { faits: [], dernier: -1 }; } }
 function marqueTexte(k) {
   const m = textesFaits();
@@ -875,16 +883,20 @@ function marqueTexte(k) {
 }
 function choixTexte() {
   const box = $('nat-texte-choix');
-  if (!currentGame.tab) { box.classList.add('hidden'); box.innerHTML = ''; return; }
-  const m = textesFaits();
-  texteChoisi = (m.dernier + 1) % TABLEAUX.length;
+  const L = listeTextes();
+  if (!L) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+  const m = textesFaits(), N = L.length;
+  texteChoisi = (m.dernier + 1) % N;
+  const NIV = (k) => NIVEAU_TEXTE(k, N);
+  const debuts = [...new Set(L.map((x, k) => NIV(k)))].map((nv) => L.findIndex((x, k) => NIV(k) === nv));
   const dessine = () => {
-    const groupes = [0, 5, 10, 15].map((d) => `<div class="texte-groupe"><span class="texte-niveau">${NIVEAU_TEXTE(d)}</span>${TABLEAUX.slice(d, d + 5).map((x, j) => {
+    const groupes = debuts.map((d, g) => `<div class="texte-groupe"><span class="texte-niveau">${NIV(d)}</span>${L.slice(d, g + 1 < debuts.length ? debuts[g + 1] : N).map((x, j) => {
       const k = d + j;
       return `<button type="button" class="texte-num${k === texteChoisi ? ' choisi' : ''}${m.faits.includes(k) ? ' fait' : ''}" data-texte="${k}" title="${m.faits.includes(k) ? 'déjà fait' : 'pas encore fait'}">${k + 1}</button>`;
     }).join('')}</div>`).join('');
-    $('nat-progress-label').textContent = `Texte n° ${texteChoisi + 1} (${NIVEAU_TEXTE(texteChoisi)})`;
-    box.innerHTML = `<p class="texte-titre">Choisis ton texte : le <strong>texte n° ${texteChoisi + 1}</strong> (${NIVEAU_TEXTE(texteChoisi)}) t'attend. Les textes déjà faits sont cochés.</p><div class="texte-grille">${groupes}</div>`;
+    $('nat-progress-label').textContent = `Texte n° ${texteChoisi + 1} (${NIV(texteChoisi)})`;
+    if (currentGame.tf) { currentGame.total = decoupeTF(L[texteChoisi].texte).elts.length; $('nat-score-label').textContent = scoreLabel(0); }
+    box.innerHTML = `<p class="texte-titre">Choisis ton texte : le <strong>texte n° ${texteChoisi + 1}</strong>${L[texteChoisi].titre ? ` « ${esc(L[texteChoisi].titre)} »` : ''} (${NIV(texteChoisi)}) t'attend. Les textes déjà faits sont cochés.</p><div class="texte-grille">${groupes}</div>`;
     box.querySelectorAll('[data-texte]').forEach((b) => b.addEventListener('click', () => { texteChoisi = Number(b.dataset.texte); dessine(); }));
   };
   box.classList.remove('hidden');
@@ -897,10 +909,14 @@ function openGame(id) {
   /* v27 : le jeu 3 marche maintenant comme le jeu 4 (consignes, carrés verts et rouges sous les mots) */
   $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions' || id === 'tableau' || id === 'libre');
   $('natures-panel').classList.toggle('game5', id === 'tableau' || id === 'libre');
-  ['game3', 'game4'].forEach((c) => { if (GAMES[id].tm) $('natures-panel').classList.add(c); });
-  $('natures-panel').classList.toggle('game7', !!GAMES[id].tm);
+  ['game3', 'game4'].forEach((c) => { if (GAMES[id].tm || GAMES[id].tf) $('natures-panel').classList.add(c); });
+  $('natures-panel').classList.toggle('game7', !!(GAMES[id].tm || GAMES[id].tf));
   $('natures-panel').classList.toggle('game7v', !!GAMES[id].valeurs);
-  $('nat-ready-explanation').innerHTML = id === 'temps4'
+  $('nat-ready-explanation').innerHTML = id === 'temps5'
+    ? 'Voici un texte au <strong>système du passé</strong>. Réécris-le au <strong>système du présent</strong>, comme si les choses se passaient au moment où on les lit. Les mots soulignés doivent changer : des <strong>formes verbales</strong>, mais aussi des <strong>indicateurs de temps</strong> (<em>ce jour-là</em> devient <em>aujourd\'hui</em>, <em>la veille</em> devient <em>hier</em>, <em>le lendemain</em> devient <em>demain</em>…). Appuie sur chacun et écris ce qu\'il devient. Chaque changement réussi vaut 1 point.'
+    : id === 'temps6'
+    ? 'Voici un texte au <strong>système du présent</strong>. Réécris-le <strong>au passé</strong>, comme un souvenir, en <strong>français classique</strong> (passé simple, subjonctif imparfait…) ou en <strong>français contemporain</strong> (passé composé, « aller » + infinitif…) : tu choisiras. Les mots soulignés doivent changer : des formes verbales et des indicateurs de temps (<em>aujourd\'hui</em> devient <em>ce jour-là</em>…). Chaque changement réussi vaut 1 point. C\'est le plus difficile !'
+    : id === 'temps4'
     ? 'Voici un texte au <strong>système du passé</strong>, d\'abord en <strong>français classique</strong>. Ses dix verbes sont conjugués à un <strong>mode personnel</strong> : pour chacun, donne son <strong>temps</strong> et son <strong>mode</strong>, puis la <strong>valeur du temps</strong> et la <strong>valeur du mode</strong>. Ensuite, le même texte apparaîtra en <strong>français contemporain</strong> : tu analyseras de la même façon les formes qui ont changé. Chaque réponse juste du premier coup vaut 0,5 point : 26 points en tout.'
     : id === 'temps3'
     ? 'Dans ce texte au <strong>système du présent</strong>, dix verbes sont conjugués à un <strong>mode personnel</strong> : indicatif, conditionnel, subjonctif ou impératif. Pour chacun, tu donneras quatre choses : son <strong>temps</strong> et son <strong>mode</strong>, puis la <strong>valeur du temps</strong> (pourquoi on emploie ce temps) et la <strong>valeur du mode</strong> (pourquoi on emploie ce mode). Chaque réponse juste du premier coup vaut 0,5 point : 2 points par verbe, 20 points en tout.'
@@ -922,7 +938,7 @@ function openGame(id) {
   showPanel('natures');
   $('nat-ready-screen').classList.remove('hidden');
   $('nat-quiz-grid').classList.add('hidden');
-  if (!currentGame.tab) $('nat-progress-label').textContent = `Question 1 / ${nbQuestions()}`;
+  if (!listeTextes()) $('nat-progress-label').textContent = `Question 1 / ${nbQuestions()}`;
   $('nat-score-label').textContent = scoreLabel(0);
   $('nat-progress-bar').style.width = '0';
 }
@@ -959,7 +975,7 @@ function showQuestion() {
   if (isG3()) { showQuestionGV(); return; }
   if (isG5()) { showQuestionTab(); return; }
   if (isG6()) { showQuestionLibre(); return; }
-  if (isT1()) { showQuestionTM(); return; }
+  if (isT1()) { (currentGame.tf ? showQuestionTF : showQuestionTM)(); return; }
   const q = game.questions[game.index];
   game.essais = 0;
   $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mots || q.mot);
@@ -2486,7 +2502,7 @@ function decoupeTM(src) {
   return { mots, formes };
 }
 const tm = { rep: {}, sel: null, texte: null, phase: 1 };
-const isT1 = () => !!currentGame.tm;   /* v40 : tous les exercices des temps et des modes */
+const isT1 = () => !!(currentGame.tm || currentGame.tf);   /* v40 : tous les exercices des temps et des modes */
 /* les formes : 0…19 dans le premier cadre ; 100, 101… pour les formes modernes du second cadre */
 const TM_T = () => TEXTES_TM[game.questions[game.index].t];
 const formeTM = (i) => (i >= 100 ? TM_T().suite[i - 100] : tm.texte.formes[i]);
@@ -2671,6 +2687,159 @@ function finTM() {
   showCharacter(game.score >= total / 2 ? 'good' : 'bad', null);
 }
 
+/* ------------------------------------------------------------
+   v47 : TEMPS ET MODES — EXERCICES 5 ET 6 : TRANSFORMER UN TEXTE
+   Exercice 5 : un texte au système du passé, à réécrire au système du présent.
+   Exercice 6 : un texte au système du présent, à réécrire au passé, en français classique ou contemporain.
+   Les mots à changer (formes verbales, indicateurs de temps) sont soulignés ; l'enfant écrit la nouvelle forme.
+   1 point par changement réussi (0,5 si seuls les accents sont faux).
+   Dans les textes : {ancien>nouveau} ; plusieurs réponses acceptées : séparées par « ; » ;
+   exercice 6 : {présent>français classique//français contemporain} (sans « // », la même réponse pour les deux).
+   ------------------------------------------------------------ */
+const TRANSFOS = {
+  /* exercice 5 : du passé au présent, du plus facile au plus difficile */
+  passe2pres: [
+    { titre: 'Le jardin', texte: "{Ce jour-là>Aujourd'hui}, il {faisait>fait} chaud. Les enfants {jouaient>jouent} dans le jardin et leur chien {courait>court} après le ballon. Il y {avait>a} des fleurs partout. Leur mère les {regardait>regarde} depuis la fenêtre." },
+    { titre: 'Le bus', texte: "{Ce matin-là>Ce matin}, Paul {attendait>attend} le bus sous la pluie. Il {avait>a} froid et il {regardait>regarde} sa montre. Soudain, le bus {arriva>arrive}. Paul {monta>monte} et {s'assit>s'assoit;s'assied} près de la fenêtre." },
+    { titre: 'Pompon', texte: "{Ce jour-là>Aujourd'hui}, Léa {était>est} heureuse : {la veille>hier}, elle {avait reçu>a reçu} un petit chat. Elle le {caressait>caresse} doucement quand sa sœur {entra>entre} dans la chambre. « Il s'appelle Pompon ! » {dit>dit} Léa." },
+    { titre: 'Les valises', texte: "{Ce soir-là>Ce soir}, nous {préparions>préparons} nos valises car nous {partions>partons} en vacances {le lendemain>demain}. Papa {pensait>pense} que nous {arriverions>arriverons} à la mer avant midi. Maman {vérifiait>vérifie} les billets et mon petit frère {dormait>dort} déjà." },
+    { titre: 'Le grand-père', texte: "{Cette année-là>Cette année}, mon grand-père {fêta>fête} ses quatre-vingts ans. Toute la famille {était>est} réunie dans sa maison. {L'année précédente>L'année dernière}, il {avait été>a été} malade, mais il {allait>va} beaucoup mieux. Il nous {raconta>raconte} des souvenirs de son enfance et nous {riions>rions} tous. Il {promit>promet} qu'il {viendrait>viendra} nous voir {l'année suivante>l'année prochaine}." },
+    { titre: 'Bonbons', texte: "{Ce jour-là>Aujourd'hui} le temps {était>est} pluvieux. D'habitude nous {allions>allons} nous promener, mais là nous {paressions>paressons} dans le salon devant la télé. Soudain mon frère s'{écria>écrie} : « J'ai mangé mes derniers bonbons ! » Je lui {répondis>réponds} que nous {irions>irons} en chercher quand il ne {pleuvrait>pleuvra} plus, et que moi, je n'{avais>ai} pas fini mon paquet qui {était>est} encore à moitié plein." },
+    { titre: 'Le poème', texte: "{Ce matin-là>Ce matin}, la maîtresse {voulait>veut} que chaque élève {lût>lise} un poème. Julien {tremblait>tremble} : il {craignait>craint} qu'on ne se {moquât>moque} de lui. Il {avait appris>a appris} son texte {la veille>hier}, mais il {oubliait>oublie} tout. Finalement, il {récita>récite} sans erreur et tout le monde l'{applaudit>applaudit}." },
+    { titre: 'Champignons', texte: "{Ce jour-là>Aujourd'hui} il {faisait>fait} beau et nous nous {promenions>promenons} dans la forêt où nous {cherchions>cherchons} souvent des champignons. Nous {pouvions>pouvons} y passer des heures, marchant, plaisantant, sans jamais nous lasser. {La veille>Hier} nous en {avions trouvé>avons trouvé} trois kilos et nous {aurions voulu>voudrions} que la cueillette {fût>soit} aussi bonne {pendant cette journée>aujourd'hui}. Soudain ma sœur {cria>crie} : « Venez ! » Alors nous {courûmes>courons} vers elle en espérant que nous {découvririons>découvrirons} un splendide bolet ! Mais, hélas, ce {n'étaient>ne sont} que de petits champignons et je {craignais>crains} bien qu'ils {fussent>soient} vénéneux. Nous {repartîmes>repartons} vers d'autres découvertes." },
+    { titre: 'Le navigateur', texte: "{Ce jour-là>Aujourd'hui}, le navigateur {quittait>quitte} le port. Dès qu'il {eut hissé>a hissé} les voiles, le vent {se leva>se lève}. Il {savait>sait} qu'il {aurait traversé>aura traversé} l'océan avant l'hiver. {Deux jours plus tard>Dans deux jours}, il {atteindrait>atteindra} les premières îles. Il {regrettait>regrette} seulement que sa fille ne {pût>puisse} pas l'accompagner." },
+    { titre: 'Le théâtre', texte: "{Ce soir-là>Ce soir}, au théâtre, la salle {était>est} pleine. Les acteurs {avaient répété>ont répété} pendant des semaines et ils {espéraient>espèrent} que le public {serait>sera} conquis. Quand le rideau {se leva>se lève}, un silence {s'installa>s'installe}. « Je n'ai jamais eu aussi peur ! » {murmura>murmure} la jeune actrice. Elle {craignait>craint} d'oublier son texte, mais elle {joua>joue} merveilleusement. {Le lendemain>Demain}, les journaux {parleraient>parleront} d'elle." },
+  ],
+  /* exercice 6 : du présent au passé : {présent>classique//contemporain} */
+  pres2passe: [
+    { titre: 'La pluie', texte: "{Aujourd'hui>Ce jour-là}, il {pleut>pleuvait}. Les enfants {restent>restaient} à la maison. Ils {dessinent>dessinaient} et leur chat {dort>dormait} sur le canapé. Leur père {lit>lisait} le journal." },
+    { titre: 'Le petit chien', texte: "{Ce matin>Ce matin-là}, Marie {marche>marchait} vers l'école. Il {fait>faisait} froid et elle {porte>portait} son bonnet rouge. Soudain, elle {voit>vit//a vu} un petit chien perdu. Elle {s'approche>s'approcha//s'est approchée} et le {caresse>caressa//a caressé}." },
+    { titre: 'La médaille', texte: "{Aujourd'hui>Ce jour-là}, Tom {est>était} fier : {hier>la veille}, il {a gagné>avait gagné} la course de l'école. Il {montre>montrait} sa médaille à tout le monde. Tout à coup, son grand frère {arrive>arriva//est arrivé} et le {félicite>félicita//a félicité}." },
+    { titre: 'La montagne', texte: "{Ce soir>Ce soir-là}, nous {sommes>étions} impatients car nous {partons>partions} à la montagne {demain>le lendemain}. Papa {dit>dit//a dit} que nous {verrons>verrions//allions voir} de la neige. Ma sœur {range>rangeait} ses gants et moi, je {cherche>cherchais} mon bonnet." },
+    { titre: 'Bonbons', texte: "{Aujourd'hui>Ce jour-là} le temps {est>était} pluvieux. D'habitude nous {allons>allions} nous promener, mais là nous {paressons>paressions} dans le salon devant la télé. Soudain mon frère s'{écrie>écria//est écrié} : « J'ai mangé mes derniers bonbons ! » Je lui {réponds>répondis//ai répondu} que nous {irons>irions//allions aller} en chercher quand il ne {pleuvra>pleuvrait} plus, et que moi, je n'{ai>avais} pas fini mon paquet qui {est>était} encore à moitié plein." },
+    { titre: 'TGV', texte: "Tous les ans, je {vais>allais} passer Noël en famille en prenant le TGV. {Aujourd'hui>Ce jour-là}, j'{attends>attendais} mon train pour Marseille. Il y {a>avait} beaucoup de monde sur le quai {cette année>cette année-là} mais soudain on {annonce>annonça//a annoncé} que le TGV {aura>aurait//allait avoir} trois heures de retard, car il {a été bloqué>avait été bloqué} par la neige. Les voyageurs {voudraient>auraient voulu} que cela {change>changeât//change}, certains {crient>crièrent//ont crié} : « Informez-nous au moins ! »" },
+    { titre: 'Autofiction', texte: "Tous les ans, le professeur {donne>donnait} un sujet d'autofiction. Les élèves de la classe {sont>étaient} contents {cette année>cette année-là} : {hier>la veille} ils {ont rempli>avaient rempli} une fiche préparatoire. {Aujourd'hui>Ce jour-là}, ils {écrivent>écrivaient} leur rédaction mais soudain une élève se {met>mit//est mise} à pleurer. « Que s'est-il passé ? Calme-toi ! » Mais l'élève {craint>craignait} que la rédaction {soit>fût//soit} trop difficile. Dans sa tête, elle {n'y arrivera jamais>n'y arriverait jamais//n'allait jamais y arriver} !" },
+    { titre: 'Champignons', texte: "{Aujourd'hui>Ce jour-là} il {fait>faisait} beau et nous nous {promenons>promenions} dans la forêt où nous {cherchons>cherchions} souvent des champignons. Nous {pouvons>pouvions} y passer des heures, marchant, plaisantant, sans jamais nous lasser. {Hier>La veille} nous en {avons trouvé>avions trouvé} trois kilos et nous {voudrions>aurions voulu} que la cueillette {soit>fût//soit} aussi bonne {aujourd'hui>pendant cette journée;ce jour-là}. Soudain ma sœur {crie>cria//a crié} : « Venez ! » Alors nous {courons>courûmes//avons couru} vers elle en espérant que nous {découvrirons>découvririons//allions découvrir} un splendide bolet ! Mais, hélas, ce {ne sont>n'étaient} que de petits champignons et je {crains>craignais} bien qu'ils {soient>fussent//soient} vénéneux. Nous {repartons>repartîmes//sommes repartis} vers d'autres découvertes." },
+    { titre: 'Tristesse', texte: "{Aujourd'hui>Ce jour-là} mon frère {est>était} triste car son meilleur ami {est parti>était parti} {hier>la veille} et il {ne reviendra>ne reviendrait//n'allait revenir} que {dans un an>un an plus tard}. Mon frère {dort>dormait} dans sa chambre : il se {lève>levait} tous les jours à midi. Tout à coup ma mère me {dit>dit//a dit} : « Va réveiller ton frère pour que nous déjeunions ensemble ». {Je voudrais>J'aurais voulu} lui faire plaisir en lui obéissant : tous les enfants {veulent>veulent} faire plaisir à leurs parents." },
+    { titre: 'Le feu d\'artifice', texte: "{Ce soir>Ce soir-là}, la ville {est>était} en fête. Les habitants {attendent>attendaient} le feu d'artifice qu'on {tirera>tirerait//allait tirer} au-dessus du fleuve. Le maire {a promis>avait promis} qu'il {sera>serait//allait être} magnifique. Quand la première fusée {éclate>éclata//a éclaté}, les enfants {crient>crièrent//ont crié} de joie. Il {faut>fallait} que la fête {dure>durât//dure} jusqu'à minuit ! {Demain>Le lendemain}, tout le monde {en parlera>en parlerait//allait en parler}." },
+  ],
+};
+const tf = { elts: [], rep: {}, sel: null, registre: null };
+const isTF = () => !!currentGame.tf;
+const TF_T = () => TRANSFOS[currentGame.tf][game.questions[game.index].t];
+/* comparer deux écritures : sans majuscules, apostrophes et espaces unifiés ; « sans accents » à part */
+const normTF = (x) => String(x || '').toLowerCase().replace(/[’`]/g, '\'').replace(/\s+/g, ' ').replace(/^[\s«»"]+|[\s.,;:!?«»"]+$/g, '').trim();
+const sansAccTF = (x) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const attendusTF = (e) => (tf.registre === 'mod' ? e.mod : e.cls);
+function decoupeTF(src) {
+  const items = [], elts = []; let avant = '';
+  src.replace(/\{([^>}]+)>([^}]+)\}|([^\s{]+)/g, (m, a, b, w) => {
+    if (w !== undefined) {
+      if (/^[.,;:!?»]$/.test(w) && items.length) { items[items.length - 1].suf += (/^[;:!?»]$/.test(w) ? ' ' : '') + w; return m; }
+      if (w === '«') { avant += '« '; return m; }
+      if (/['’]$/.test(w)) { avant += w; return m; }
+      items.push({ t: w, pre: avant, suf: '' });
+    } else {
+      const [c, mo] = b.split('//');
+      elts.push({ src: a, cls: c.split(';').map((x) => x.trim()), mod: (mo || c).split(';').map((x) => x.trim()) });
+      items.push({ t: a, k: elts.length - 1, pre: avant, suf: '' });
+    }
+    avant = ''; return m;
+  });
+  return { items, elts };
+}
+function showQuestionTF() {
+  const T = TF_T(), d = decoupeTF(T.texte);
+  Object.assign(tf, { elts: d.elts, rep: {}, sel: null, registre: currentGame.tf === 'pres2passe' ? null : 'cls' });
+  currentGame.total = d.elts.length;
+  $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">Texte n° ${game.questions[game.index].t + 1} : « ${esc(T.titre)} »</h3><div class="tm-texte">${d.items.map((m) => (m.k !== undefined
+    ? `<span class="w forme tf" data-i="${m.k}"><span class="ancien"></span><span class="tx">${m.pre}<span class="f">${esc(m.t)}</span>${m.suf}</span></span>`
+    : `<span class="w mot"><span class="tx">${m.pre}${esc(m.t)}${m.suf}</span></span>`)).join('')}</div></div>`;
+  $('nat-character-stage').innerHTML = '';
+  $('nat-correction').classList.add('hidden');
+  $('nat-verdict-square').className = 'verdict-square';
+  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
+  $('nat-buttons-invariables').innerHTML = '';
+  $('nat-progress-label').textContent = `Texte n° ${game.questions[game.index].t + 1} (${NIVEAU_TEXTE(game.questions[game.index].t, TRANSFOS[currentGame.tf].length)})`;
+  game.score = 0;
+  majScoreTF(); panneauTF();
+}
+const tfFaits = () => Object.keys(tf.rep).length;
+function majScoreTF() {
+  $('nat-score-label').textContent = scoreLabel(game.score);
+  $('nat-progress-bar').style.width = `${(tfFaits() / tf.elts.length) * 100}%`;
+}
+const versTF = () => (currentGame.tf === 'passe2pres' ? 'au système du présent' : tf.registre === 'mod' ? 'au passé, en français contemporain' : 'au passé, en français classique');
+function panneauTF() {
+  const N = tf.elts.length;
+  $('nat-instruction').textContent = currentGame.tf === 'passe2pres' ? 'Réécris le texte au système du présent' : 'Réécris le texte au système du passé';
+  if (!tf.registre) {
+    $('nat-buttons-variables').innerHTML = `<div class="carte verte active libre"><p>Ce texte est au <strong>système du présent</strong>. Tu vas le réécrire <strong>au passé</strong>, comme un souvenir. Choisis d'abord ta langue :</p><div class="carte-choix carte-choix-2"><button type="button" class="nature-button" data-reg="cls">En français classique<br><small>(passé simple, subjonctif imparfait…)</small></button><button type="button" class="nature-button" data-reg="mod">En français contemporain<br><small>(passé composé, « aller » + infinitif…)</small></button></div></div>`;
+    document.querySelectorAll('[data-reg]').forEach((b) => b.addEventListener('click', () => { tf.registre = b.dataset.reg; panneauTF(); }));
+    return;
+  }
+  if (tf.sel === null) {
+    $('nat-buttons-variables').innerHTML = `<div class="carte verte active libre"><p>${N} mots ou groupes de mots sont soulignés : ils doivent changer pour que le texte soit ${versTF()}. Ce sont des <strong>formes verbales</strong> et des <strong>indicateurs de temps</strong> (<em>${currentGame.tf === 'passe2pres' ? 'ce jour-là → aujourd\'hui' : 'aujourd\'hui → ce jour-là'}</em>). Appuie sur l'un d'eux et écris ce qu'il devient.</p><p class="sous">${tfFaits()} sur ${N} déjà fait${tfFaits() > 1 ? 's' : ''}.</p></div>`;
+    return;
+  }
+  const e = tf.elts[tf.sel], r = tf.rep[tf.sel];
+  let html = `<div class="carte verte active libre"><p>« <strong>${esc(e.src)}</strong> » : réécris-le ${versTF()}.</p>`;
+  if (!r) html += `<form class="tf-form" autocomplete="off"><input type="text" class="tf-input" id="tf-input" autocapitalize="off" spellcheck="false" placeholder="écris ici…"><button type="submit" class="primary-button tf-ok">Valider</button></form>`;
+  else html += `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? '✔ Bravo !' : r.pts ? `Presque : attention aux accents. On écrit « ${esc(r.bon)} ».` : `Non : tu as écrit « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
+  html += '</div>';
+  $('nat-buttons-variables').innerHTML = nbspFr(html);
+  const f = document.querySelector('.tf-form');
+  if (f) { f.addEventListener('submit', (ev) => { ev.preventDefault(); repondTF($('tf-input').value); }); setTimeout(() => $('tf-input')?.focus(), 50); }
+}
+function clicTF(i) {
+  if (game.fini || !tf.registre || i === tf.sel) return;
+  const avant = tf.sel; tf.sel = i;
+  if (avant !== null) wordEl(avant)?.classList.remove('choisie');
+  wordEl(i)?.classList.add('choisie');
+  panneauTF();
+}
+function repondTF(ecrit) {
+  const i = tf.sel; if (i === null || game.fini || tf.rep[i] || !normTF(ecrit)) return;
+  const e = tf.elts[i], ok = attendusTF(e), n = normTF(ecrit);
+  let pts = 0, bon = ok[0];
+  const exact = ok.find((x) => normTF(x) === n), accents = ok.find((x) => sansAccTF(normTF(x)) === sansAccTF(n));
+  if (exact) { pts = 1; bon = exact; } else if (accents) { pts = 0.5; bon = accents; }
+  tf.rep[i] = { ecrit: ecrit.trim(), pts, bon };
+  game.score = Math.round((game.score + pts) * 10) / 10;
+  if (pts < 1) game.erreurs.push({ mot: e.src, bonne: `« ${bon} »`, choisie: `« ${ecrit.trim()} »`, phrase: `texte « ${TF_T().titre} »` });
+  /* dans le texte : l'ancienne forme barrée en petit au-dessus, la nouvelle à sa place */
+  const el = wordEl(i);
+  el.querySelector('.ancien').textContent = e.src;
+  let nouveau = pts === 1 ? ecrit.trim() : bon;
+  if (/^[A-ZÀ-Ý]/.test(e.src)) nouveau = nouveau.charAt(0).toUpperCase() + nouveau.slice(1);
+  el.querySelector('.f').textContent = nouveau;
+  el.classList.add('remplie', 'trou');
+  if (pts < 1) el.classList.add('forme-corrigee');
+  majScoreTF(); panneauTF();
+  if (tfFaits() === tf.elts.length) { setTimeout(finTF, pts === 1 ? 1200 : 2600); return; }
+  setTimeout(() => {
+    if (tf.sel !== i) return;
+    const N = tf.elts.length;
+    for (let d = 1; d <= N; d++) { const k = (i + d) % N; if (!tf.rep[k]) { clicTF(k); return; } }
+  }, pts === 1 ? 1100 : 2600);
+}
+function finTF() {
+  wordEl(tf.sel)?.classList.remove('choisie'); tf.sel = null;
+  $('nat-buttons-variables').innerHTML = '';
+  $('nat-instruction').textContent = 'Le texte est réécrit !';
+  const total = tf.elts.length;
+  const regles = currentGame.tf === 'passe2pres'
+    ? 'Pour passer du système du passé au <strong>système du présent</strong> : l\'imparfait et le passé simple deviennent des <strong>présents</strong> ; le plus-que-parfait et le passé antérieur deviennent des <strong>passés composés</strong> ; le conditionnel qui dit le futur dans le passé devient un <strong>futur</strong> ; le subjonctif imparfait devient un <strong>subjonctif présent</strong>. Les indicateurs de temps changent aussi : <em>ce jour-là → aujourd\'hui, la veille → hier, le lendemain → demain</em>. Les paroles rapportées entre guillemets, elles, ne changent pas.'
+    : tf.registre === 'mod'
+      ? 'Pour passer au <strong>système du passé en français contemporain</strong> : le présent devient un <strong>imparfait</strong> (décor, habitude, second plan) ou un <strong>passé composé</strong> (actions du premier plan) ; le passé composé devient un <strong>plus-que-parfait</strong> ; le futur devient <strong>aller à l\'imparfait + infinitif</strong> ; le subjonctif présent ne change pas. Les indicateurs de temps changent : <em>aujourd\'hui → ce jour-là, hier → la veille, demain → le lendemain</em>. Une vérité générale reste au présent.'
+      : 'Pour passer au <strong>système du passé en français classique</strong> : le présent devient un <strong>imparfait</strong> (décor, habitude, second plan) ou un <strong>passé simple</strong> (actions du premier plan) ; le passé composé devient un <strong>plus-que-parfait</strong> ; le futur devient un <strong>conditionnel présent</strong> ; le subjonctif présent devient un <strong>subjonctif imparfait</strong>. Les indicateurs de temps changent : <em>aujourd\'hui → ce jour-là, hier → la veille, demain → le lendemain</em>. Une vérité générale reste au présent.';
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. ${regles} Les formes en orange montrent la bonne réponse, là où tu t'es trompé.`);
+  $('nat-correction').classList.remove('hidden');
+  $('nat-verdict-square').className = `verdict-square ${game.score >= total - 0.05 ? 'correct' : game.score < total / 2 ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = 'Voir mon résultat →';
+  showCharacter(game.score >= total / 2 ? 'good' : 'bad', null);
+}
+
 function nextQuestion() {
   if (game.index + 1 < game.questions.length) { game.index += 1; showQuestion(); }
   else showResults();
@@ -2729,7 +2898,8 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    niveauOf(r) === 10 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 26 (10 verbes en français classique, puis 3 en français contemporain : 0,5 point pour le temps, le mode et leurs valeurs).`
+    niveauOf(r) >= 11 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par changement réussi : formes verbales et indicateurs de temps).`
+      : niveauOf(r) === 10 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 26 (10 verbes en français classique, puis 3 en français contemporain : 0,5 point pour le temps, le mode et leurs valeurs).`
       : niveauOf(r) === 9 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (10 verbes : 0,5 point pour le temps, le mode, la valeur du temps et la valeur du mode de chacun).`
       : niveauOf(r) === 8 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 26 (20 formes en français classique, puis 6 formes en français contemporain : 0,5 point pour le temps et 0,5 point pour le mode de chacune).`
       : niveauOf(r) === 7 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (20 formes verbales : 0,5 point pour le temps et 0,5 point pour le mode de chacune).`
@@ -3057,7 +3227,7 @@ function openProfile(first) {
 
 /* v10 : nom du type d'exercice ; les scores enregistrés avant la v10 portaient d'autres noms. */
 function scoreType(jeu) {
-  if (/niveau (10|[1-9])/.test(jeu || '')) return jeu;
+  if (/niveau (1[0-2]|[1-9])/.test(jeu || '')) return jeu;
   if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
   return 'Reconnaissance des natures, niveau 1';
 }
@@ -3105,7 +3275,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 10/.test(r.jeu || '') ? 10 : /niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 12/.test(r.jeu || '') ? 12 : /niveau 11/.test(r.jeu || '') ? 11 : /niveau 10/.test(r.jeu || '') ? 10 : /niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -3142,7 +3312,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => {
+  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -3163,7 +3333,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : un texte au système du passé', 9: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels (système du présent)', 10: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels (système du passé)' };
+const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : un texte au système du passé', 9: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels (système du présent)', 10: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels (système du passé)', 11: 'Temps et modes, exercice 5 : du passé au présent', 12: 'Temps et modes, exercice 6 : du présent au passé' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
@@ -3452,12 +3622,15 @@ $('open-temps1').addEventListener('click', () => openGame('temps1'));
 $('open-temps2').addEventListener('click', () => openGame('temps2'));
 $('open-temps3').addEventListener('click', () => openGame('temps3'));
 $('open-temps4').addEventListener('click', () => openGame('temps4'));
-$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && w.dataset.i !== undefined) clicFormeTM(Number(w.dataset.i)); });
+$('open-temps5').addEventListener('click', () => openGame('temps5'));
+$('open-temps6').addEventListener('click', () => openGame('temps6'));
+$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && w.dataset.i !== undefined) (currentGame.tf ? clicTF : clicFormeTM)(Number(w.dataset.i)); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
+  if (q.tf) { speak(TRANSFOS[currentGame.tf][q.t].texte.replace(/\{([^>}]+)>[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (q.tm) { speak(TEXTES_TM[q.t].texte.replace(/\{([^}|]+)\|[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
   speak(phraseTexte(q.gv ? motsGV(q) : motsDe(q)).replace(/(\S)\.(\S)/g, '$1. $2').replace(/\(…\)/g, '').trim(), 'femme', 'phrase');
   volumeLevel = prev;

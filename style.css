@@ -654,3 +654,12 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 /* v44 : l'étiquette du temps ou du mode s'allonge avec sa valeur */
 .game7 .sentence .w .labs .lab.allonge { white-space:normal; max-width:10em; line-height:1.25; }
 .game7 .sentence .w .labs .lab .morceau.corrige { background:#e08a1e; border-radius:3px; padding:0 3px; }
+/* v47 : transformer un texte : on écrit la nouvelle forme */
+.tf-form { display:flex; gap:10px; margin-top:12px; }
+.tf-input { flex:1; font-size:1.25rem; padding:10px 12px; border:2px solid #2e7d4f; border-radius:8px; font-family:Georgia,serif; min-width:0; }
+.tf-ok { white-space:nowrap; }
+.tf-retour { margin-top:10px; font-weight:700; }
+.tf-retour.juste { color:#1f7a4d; } .tf-retour.moitie { color:#a35f00; } .tf-retour.faux { color:#b3261e; }
+.game7 .sentence .w.tf .ancien:empty { display:none; }
+.game7 .sentence .w.tf .ancien { font-size:.6em; text-decoration:line-through; opacity:.9; line-height:1; margin-bottom:2px; }
+.texte-choix .texte-grille { grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); }
