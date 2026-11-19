@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v37';
+const APP_VERSION = 'v38';
 
 const $ = (id) => document.getElementById(id);
 
@@ -731,6 +731,15 @@ if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};
 /* ------------------------------------------------------------
    ÉCRANS
    ------------------------------------------------------------ */
+/* v38 : l'accueil a trois parties (les mots, les temps et les modes, la phrase) ; chacune a sa page d'exercices */
+let partieAccueil = '';
+function montrePartie(p) {
+  partieAccueil = p || '';
+  $('home-parties').classList.toggle('hidden', !!partieAccueil);
+  ['mots', 'temps', 'phrase'].forEach((k) => $(`home-${k}`).classList.toggle('hidden', partieAccueil !== k));
+  window.scrollTo(0, partieAccueil ? $('home-mots').parentElement.offsetTop - 80 : 0);
+}
+document.querySelectorAll('[data-partie]').forEach((b) => b.addEventListener('click', () => montrePartie(b.dataset.partie)));
 function showPanel(name) {
   $('welcome-panel').classList.toggle('hidden', name !== 'welcome');
   $('natures-panel').classList.toggle('hidden', name !== 'natures');
@@ -3156,13 +3165,16 @@ function goBack() {
   if (!$('natures-panel').classList.contains('hidden') && $('nat-ready-screen').classList.contains('hidden')) {
     openGame(Object.keys(GAMES).find((k) => GAMES[k] === currentGame)); return;
   }
+  if (!$('welcome-panel').classList.contains('hidden') && partieAccueil) { montrePartie(''); return; }
   showPanel('welcome');
+  /* d'un exercice, on revient à la page de sa partie */
+  if (currentGame && !partieAccueil) montrePartie('mots');
 }
 $('global-back-button').addEventListener('click', goBack);
 /* hauteur réelle du bandeau (il peut passer sur deux lignes sur un petit écran) */
 function majHauteurBandeau() { const t = document.querySelector('.topbar-banner'); if (t) document.documentElement.style.setProperty('--topbar-h', `${t.offsetHeight}px`); }
 window.addEventListener('resize', majHauteurBandeau); majHauteurBandeau();
-$('global-home-button').addEventListener('click', () => { if ('speechSynthesis' in window) speechSynthesis.cancel(); showPanel('welcome'); });
+$('global-home-button').addEventListener('click', () => { if ('speechSynthesis' in window) speechSynthesis.cancel(); showPanel('welcome'); montrePartie(''); });
 $('global-fullscreen-button').addEventListener('click', () => {
   if (document.fullscreenElement) document.exitFullscreen?.(); else document.documentElement.requestFullscreen?.();
 });
@@ -3179,7 +3191,7 @@ $('global-quit-button').addEventListener('click', () => {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   game.fini = true;
   if (auth && currentUser) auth.signOut();
-  showPanel('welcome');
+  showPanel('welcome'); montrePartie('');
 });
 /* v14 : les ambiances de Mnemart (les couleurs et décors du site), gardées sur l'appareil */
 function applyAmbiance(v) { if (v) document.body.setAttribute('data-ambiance', v); else document.body.removeAttribute('data-ambiance'); }

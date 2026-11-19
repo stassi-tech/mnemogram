@@ -593,3 +593,10 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .texte-num.fait::after { content:'✓'; position:absolute; top:-7px; right:-5px; font-size:.75rem; color:#2e7d32; }
 .texte-num.choisi { background:#7a1f1f; color:#fff; border-color:#7a1f1f; }
 @media (max-width:700px) { .texte-grille { grid-template-columns:repeat(2, 1fr); } }
+/* v38 : les trois parties de l'accueil */
+.home-parties { grid-template-columns:1fr 1fr 1fr; }
+.home-partie .label { font-size:1.15rem; }
+.home-section-title { font-family:Georgia,serif; text-align:center; font-size:1.4rem; margin:4px 0 14px; color:inherit; }
+.home-retour { display:block; margin:14px auto 0; }
+.home-bientot { text-align:center; }
+@media (max-width:640px) { .home-parties { grid-template-columns:1fr; } }
