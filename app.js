@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v43';
+const APP_VERSION = 'v44';
 
 const $ = (id) => document.getElementById(id);
 
@@ -2413,7 +2413,7 @@ const VT_TM = [
   { code: 'VT.ant', nom: 'Antériorité', court: 'antériorité' }, { code: 'VT.post', nom: 'Postériorité', court: 'postériorité' },
 ];
 const VM_TM = [
-  { code: 'VM.reel', nom: 'Fait réel ou certain', court: 'fait réel' }, { code: 'VM.souhait', nom: 'Souhait ou regret', court: 'souhait' },
+  { code: 'VM.reel', nom: 'Réalité (fait réel ou certain)', court: 'réalité' }, { code: 'VM.souhait', nom: 'Souhait ou regret', court: 'souhait' },
   { code: 'VM.hyp', nom: 'Hypothèse', court: 'hypothèse' }, { code: 'VM.idee', nom: 'Idée, sentiment, volonté', court: 'idée, volonté' },
   { code: 'VM.ordre', nom: 'Ordre', court: 'ordre' },
 ];
@@ -2432,7 +2432,7 @@ const TEXTES_TM = [
    {forme|temps|mode|valeur du temps|valeur du mode} ; plusieurs valeurs acceptées : séparées par « / ». */
 TEXTES_TM.push({ titre: 'TGV', systeme: 'présent',
   texte: "Tous les ans, je {vais|pres|ind|hab|reel} passer Noël en famille en prenant le TGV. Aujourd'hui, j'{attends|pres|ind|mom|reel} mon train pour Marseille. Il y {a|pres|ind|desc|reel} beaucoup de monde sur le quai cette année mais soudain on {annonce|pres|ind|mom|reel} que le TGV {aura|fut|ind|post|reel} trois heures de retard, car il {a été bloqué|pc|ind|ant|reel} par la neige. Les voyageurs {voudraient|pres|cond|mom|souhait} que cela {change|pres|subj|mom/post|idee} , certains {crient|pres|ind|mom|reel} : « {Informez|pres|imp|mom/post|ordre} -nous au moins ! »",
-  bilan: "« TGV » est un texte au <strong>système du présent</strong> : on y dit ce qui se passe au moment où l'on parle. Les dix verbes sont conjugués à un <strong>mode personnel</strong> (indicatif, conditionnel, subjonctif, impératif) : ils changent avec la personne. Chaque temps a une <strong>valeur</strong> : l'habitude (<em>tous les ans, je vais</em>), la description (<em>il y a beaucoup de monde</em>), le présent d'énonciation, qui dit ce qui se passe au moment où l'on parle (<em>j'attends, on annonce, crient</em>), l'antériorité du passé composé (<em>a été bloqué</em>), la postériorité du futur (<em>aura</em>). Chaque mode aussi : le fait réel (indicatif), le souhait (<em>voudraient</em>), la volonté (<em>que cela change</em>), l'ordre (<em>Informez-nous</em>)." });
+  bilan: "« TGV » est un texte au <strong>système du présent</strong> : on y dit ce qui se passe au moment où l'on parle. Les dix verbes sont conjugués à un <strong>mode personnel</strong> (indicatif, conditionnel, subjonctif, impératif) : ils changent avec la personne. Chaque temps a une <strong>valeur</strong> : l'habitude (<em>tous les ans, je vais</em>), la description (<em>il y a beaucoup de monde</em>), le présent d'énonciation, qui dit ce qui se passe au moment où l'on parle (<em>j'attends, on annonce, crient</em>), l'antériorité du passé composé (<em>a été bloqué</em>), la postériorité du futur (<em>aura</em>). Chaque mode aussi : la réalité (indicatif), le souhait (<em>voudraient</em>), la volonté (<em>que cela change</em>), l'ordre (<em>Informez-nous</em>)." });
 /* v41 : la suite de l'exercice 2. Une fois le texte du 19e siècle fini, le même texte apparaît dans un second cadre,
    dans la langue d'aujourd'hui : les formes inchangées gardent les étiquettes (corrigées) du premier cadre ; les formes
    modernes apparaissent, et l'enfant donne leur temps et leur mode. Le barème s'ajoute : 20 + 6 = 26 points.
@@ -2475,17 +2475,24 @@ const bonneTM = (f, champ) => [].concat(f[champ])[0];
 const duTM = (code) => { const n = NOM_TM(code).toLowerCase(); return /^[aeiouéèi]/.test(n) ? `de l'${n}` : `du ${n}`; };
 const LISTE_TM = { tps: TEMPS_TM, mode: MODES_TM, vt: VT_TM, vm: VM_TM };
 const etiquetteTM = (code) => (NATURE_BY_CODE[code]?.court || NOM_TM(code).toLowerCase());
-/* les étiquettes d'une forme, toujours dans le même ordre : temps, mode, valeur du temps, valeur du mode */
+/* les étiquettes d'une forme : le temps (vert) et le mode (rouge). v44 : dans l'exercice 3, la valeur ne fait pas
+   une étiquette à part : elle prolonge celle du temps ou du mode (« présent d'habitude », « indicatif, mode de la réalité »).
+   Chaque morceau faux est marqué ✗ et montre la bonne réponse, sur fond orange. */
+const SUITE_VT = { 'VT.mom': 'd\'énonciation', 'VT.hab': 'd\'habitude', 'VT.desc': 'de description', 'VT.vg': 'de vérité générale', 'VT.ant': 'd\'antériorité', 'VT.post': 'de postériorité' };
+const SUITE_VM = { 'VM.reel': 'mode de la réalité', 'VM.souhait': 'mode du souhait', 'VM.hyp': 'mode de l\'hypothèse', 'VM.idee': 'mode de l\'idée, de la volonté', 'VM.ordre': 'mode de l\'ordre' };
 function poseLabelsTM(i) {
   const el = wordEl(i), f = formeTM(i), r = tm.rep[i] || {};
   el.querySelector('.labs')?.remove();
-  CHAMPS_TM().forEach((c) => {
+  const morceau = (c, texte) => { const juste = accepte(f, c, r[c]); return `<span class="morceau${juste ? '' : ' corrige'}">${juste ? '' : '✗ '}${texte}</span>`; };
+  const aff = (c) => (accepte(f, c, r[c]) ? r[c] : bonneTM(f, c));
+  [['tps', 'vt', false], ['mode', 'vm', true]].forEach(([c, v, rouge]) => {
     if (!r[c]) return;
-    const juste = accepte(f, c, r[c]), aff = juste ? r[c] : bonneTM(f, c);
-    carre(i, `${juste ? '' : '✗ '}${etiquetteTM(aff).replace(/ /, c.startsWith('v') ? ' ' : '<br>')}`, c === 'mode' || c === 'vm');
+    let html = morceau(c, etiquetteTM(aff(c)));
+    if (r[v]) html += (rouge ? ', ' : ' ') + morceau(v, (rouge ? SUITE_VM : SUITE_VT)[aff(v)] || etiquetteTM(aff(v)));
+    carre(i, html, rouge);
     const lab = [...el.querySelectorAll('.labs .lab')].pop();
-    if (!juste) lab.classList.add('corrige');
-    if (c.startsWith('v')) lab.classList.add('valeur');
+    if (r[v]) lab.classList.add('allonge');
+    if (!r[v] && !accepte(f, c, r[c])) lab.classList.add('corrige');
   });
 }
 const formesFaites = () => Object.keys(tm.rep).filter((k) => estFaite(Number(k))).length;

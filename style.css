@@ -651,3 +651,6 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 /* v43 : la flèche vers le français d'aujourd'hui */
 .suite-tm { display:block; width:100%; margin-top:12px; font-weight:700; cursor:pointer; }
 .game7 .suite-tm-texte { width:auto; margin:18px 0 0; padding:10px 18px; border-radius:10px; border:2px solid #ffd54a; background:rgba(255,213,74,.15); color:#ffe9a8; font-family:Georgia,serif; font-size:.7em; animation:gnFlash .6s 3; }
+/* v44 : l'étiquette du temps ou du mode s'allonge avec sa valeur */
+.game7 .sentence .w .labs .lab.allonge { white-space:normal; max-width:10em; line-height:1.25; }
+.game7 .sentence .w .labs .lab .morceau.corrige { background:#e08a1e; border-radius:3px; padding:0 3px; }
