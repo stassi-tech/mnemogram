@@ -583,3 +583,13 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .nature-button.corriger { margin-top:6px; background:#24313f; border-color:#24313f; color:#fff; font-size:1.05rem; }
 /* les cartes du tableau sans guide se redessinent à chaque clic : sans animation */
 .carte.libre, .carte.libre.active { animation:none !important; box-shadow:none; }
+/* v36 : choix du texte (exercices 5 et 6) */
+.texte-choix { margin:0 0 18px; font-family:Arial,sans-serif; }
+.texte-titre { font-size:.92rem; color:#4a4438; margin:0 0 10px; text-align:left; }
+.texte-grille { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; }
+.texte-groupe { display:flex; flex-wrap:wrap; gap:5px; justify-content:center; align-items:center; border:1px solid rgba(0,0,0,.15); border-radius:8px; padding:6px; }
+.texte-niveau { width:100%; text-align:center; font-size:.75rem; color:#6b6252; }
+.texte-num { width:34px; height:34px; border-radius:50%; border:1px solid #8a7a5c; background:#fffaf0; color:#3a3328; font-weight:bold; cursor:pointer; position:relative; }
+.texte-num.fait::after { content:'✓'; position:absolute; top:-7px; right:-5px; font-size:.75rem; color:#2e7d32; }
+.texte-num.choisi { background:#7a1f1f; color:#fff; border-color:#7a1f1f; }
+@media (max-width:700px) { .texte-grille { grid-template-columns:repeat(2, 1fr); } }

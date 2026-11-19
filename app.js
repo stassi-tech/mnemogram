@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v35';
+const APP_VERSION = 'v36';
 
 const $ = (id) => document.getElementById(id);
 
@@ -176,10 +176,10 @@ const NATURE_BY_CODE = Object.fromEntries([...NATURES, ...NATURES_DETAIL, ...FON
 /* Les deux jeux. « priorite » : natures demandées au moins une fois par partie ; le reste des 20 questions
    est tiré au hasard parmi « reste ». « reponse » : la nature attendue pour une étiquette de mot. */
 const GAMES = {
-  natures: { titre: 'Reconnaissance des natures de mots 1', type: 'Reconnaissance des natures, niveau 1', rows: BUTTON_ROWS,
+  natures: { titre: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', type: 'Reconnaissance des natures, niveau 1', rows: BUTTON_ROWS,
     priorite: NATURES.map((n) => n.code), reste: NATURES.map((n) => n.code),
     reponse: (tag) => tag.split('.')[0] },
-  natures2: { titre: 'Reconnaissance des natures de mots 2', type: 'Reconnaissance des natures, niveau 2', rows: BUTTON_ROWS_2,
+  natures2: { titre: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', type: 'Reconnaissance des natures, niveau 2', rows: BUTTON_ROWS_2,
     priorite: NATURES_DETAIL.map((n) => n.code),
     reste: ['N', 'VE', 'VA', 'A', 'NP', 'Av', 'P', 'CC', 'CS', 'I', 'O'],
     reponse: (tag) => tag,
@@ -192,7 +192,7 @@ const GAMES = {
   /* v15 : jeu 3. On ne demande que des mots qui ont une fonction dans le groupe verbal (nom, nom propre,
      pronom, adverbe) : pas d'adjectif (il ira dans le jeu 4). Une question = la nature (0,5 point) puis la
      fonction (0,5 point). */
-  fonctions: { titre: 'Natures et fonctions des mots dans le groupe verbal', type: 'Natures et fonctions (groupe verbal), niveau 3', rows: BUTTON_ROWS,
+  fonctions: { titre: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', type: 'Natures et fonctions (groupe verbal), niveau 3', rows: BUTTON_ROWS,
     reponse: (tag) => tag.split('.')[0], niveau: 3,
     /* les 20 questions se répartissent entre les fonctions (au moins une fois chacune), puis au hasard */
     priorite: ['suj', 'suj', 'suj', 'cod', 'cod', 'cod', 'ccl', 'ccl', 'cct', 'cct', 'ccm', 'ccm', 'mod', 'mod', 'coi', 'cos', 'att', 'ccc'],
@@ -200,13 +200,13 @@ const GAMES = {
     cle: (m) => m.fn || null, gv: true, nb: 10 },
   /* v18 : jeu 4. Les boutons clignotent, et c'est dans la phrase que l'on clique : le nom, puis son déterminant
      (et la sorte exacte de déterminant, sur les boutons), son adjectif s'il y en a, son complément du nom s'il y en a. */
-  gn: { titre: 'Natures et fonctions des mots dans le groupe nominal', type: 'Natures et fonctions (groupe nominal), niveau 4', rows: BUTTON_ROWS_4,
+  gn: { titre: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', type: 'Natures et fonctions (groupe nominal), niveau 4', rows: BUTTON_ROWS_4,
     reponse: (tag) => tag, niveau: 4, nb: 10, gn: true },
   /* v32 : jeu 5, le bilan : un tableau de vingt cases à remplir en suivant la méthode des jeux 3 et 4 */
-  tableau: { titre: 'Bilan : le tableau des vingt cases', type: 'Bilan : le tableau des vingt cases, niveau 5', rows: BUTTON_ROWS,
+  tableau: { titre: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', type: 'Bilan : le tableau des vingt cases, niveau 5', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 5, nb: 1, tab: true, total: 20 },
   /* v35 : jeu 6, le même tableau, mais sans guide : l'enfant remplit les cases dans l'ordre qu'il veut, puis corrige */
-  libre: { titre: 'Bilan sans guide : remplis le tableau seul', type: 'Bilan sans guide : le tableau des vingt cases, niveau 6', rows: BUTTON_ROWS,
+  libre: { titre: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', type: 'Bilan sans guide : le tableau des vingt cases, niveau 6', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 6, nb: 1, tab: true, total: 20 },
 };
 GAMES.natures.niveau = 1; GAMES.natures2.niveau = 2;
@@ -788,7 +788,7 @@ function buildNatureSequence() {
   return shuffle(liste);
 }
 function buildQuestions() {
-  if (currentGame.tab) return [{ tab: true, t: shuffle(TABLEAUX.map((x, i) => i))[0] }];
+  if (currentGame.tab) { marqueTexte(texteChoisi); return [{ tab: true, t: texteChoisi }]; }
   if (currentGame.gn) return buildQuestionsGN();
   if (currentGame.gv) return buildQuestionsGV();
   const natures = buildNatureSequence();
@@ -839,6 +839,35 @@ function buildNatureButtons() {
   document.querySelectorAll('#nat-nature-column .nature-button').forEach((b) => b.addEventListener('click', () => answer(b.dataset.code, b)));
 }
 
+/* v36 : vingt textes numérotés, du plus facile au plus difficile. L'écran de départ propose le texte qui suit
+   le dernier joué ; les textes déjà faits portent une coche. On garde ces souvenirs dans le navigateur. */
+let texteChoisi = 0;
+const NIVEAU_TEXTE = (k) => (k < 5 ? 'facile' : k < 10 ? 'moyen' : k < 15 ? 'difficile' : 'très difficile');
+const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : 'tableau'}`;
+function textesFaits() { try { return JSON.parse(localStorage.getItem(cleTextes()) || '{"faits":[],"dernier":-1}'); } catch (e) { return { faits: [], dernier: -1 }; } }
+function marqueTexte(k) {
+  const m = textesFaits();
+  if (!m.faits.includes(k)) m.faits.push(k);
+  m.dernier = k;
+  try { localStorage.setItem(cleTextes(), JSON.stringify(m)); } catch (e) {}
+}
+function choixTexte() {
+  const box = $('nat-texte-choix');
+  if (!currentGame.tab) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+  const m = textesFaits();
+  texteChoisi = (m.dernier + 1) % TABLEAUX.length;
+  const dessine = () => {
+    const groupes = [0, 5, 10, 15].map((d) => `<div class="texte-groupe"><span class="texte-niveau">${NIVEAU_TEXTE(d)}</span>${TABLEAUX.slice(d, d + 5).map((x, j) => {
+      const k = d + j;
+      return `<button type="button" class="texte-num${k === texteChoisi ? ' choisi' : ''}${m.faits.includes(k) ? ' fait' : ''}" data-texte="${k}" title="${m.faits.includes(k) ? 'déjà fait' : 'pas encore fait'}">${k + 1}</button>`;
+    }).join('')}</div>`).join('');
+    $('nat-progress-label').textContent = `Texte n° ${texteChoisi + 1} (${NIVEAU_TEXTE(texteChoisi)})`;
+    box.innerHTML = `<p class="texte-titre">Choisis ton texte : le <strong>texte n° ${texteChoisi + 1}</strong> (${NIVEAU_TEXTE(texteChoisi)}) t'attend. Les textes déjà faits sont cochés.</p><div class="texte-grille">${groupes}</div>`;
+    box.querySelectorAll('[data-texte]').forEach((b) => b.addEventListener('click', () => { texteChoisi = Number(b.dataset.texte); dessine(); }));
+  };
+  box.classList.remove('hidden');
+  dessine();
+}
 function openGame(id) {
   currentGame = GAMES[id];
   $('natures-panel').classList.toggle('game2', id === 'natures2');
@@ -855,11 +884,12 @@ function openGame(id) {
     : id === 'gn' ? 'Cette fois, des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Les petits points « (…) » montrent que la phrase continue : on ne garde que le groupe nominal. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> si c\'est une nature (nom commun, déterminant, adjectif qualificatif…), dans un <strong>carré rouge</strong> si c\'est une fonction (épithète, complément du nom…).'
     : 'Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.';
   buildNatureButtons();
+  choixTexte();
   $('nat-game-title').textContent = currentGame.titre;
   showPanel('natures');
   $('nat-ready-screen').classList.remove('hidden');
   $('nat-quiz-grid').classList.add('hidden');
-  $('nat-progress-label').textContent = `Question 1 / ${nbQuestions()}`;
+  if (!currentGame.tab) $('nat-progress-label').textContent = `Question 1 / ${nbQuestions()}`;
   $('nat-score-label').textContent = scoreLabel(0);
   $('nat-progress-bar').style.width = '0';
 }
@@ -1753,39 +1783,149 @@ function finishQuestionGV() {
    Dans les données : nat = nature ; fn = fonction ; v = la case du verbe dont dépend le mot ; n = la case du nom
    dont dépend le mot (déterminant, adjectif, complément du nom) ; s = la case du sujet (attribut) ; inf = infinitif.
    ------------------------------------------------------------ */
-/* v34 : cinq tableaux ; chacun a deux phrases de récit et une phrase de description, et des compléments
+/* v36 : vingt textes, numérotés du plus facile au plus difficile ; (v34) chacun chacun a deux phrases de récit et une phrase de description, et des compléments
    circonstanciels variés (adverbes, noms). « qui » = ce qui suit « Qui est-ce qui » dans la question du sujet ;
    contr = article défini contracté (du = de + le). */
 const TABLEAUX = [
+  /* texte 1 : Le petit chat noir dort sur le canapé. Mon frère caresse le chat doucement. Le grand canapé rouge est confortable. */
   [
-    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'matin', nat: 'N', fn: 'F.cct', v: 4 }, { t: 'le', nat: 'D.def', n: 3 }, { t: 'professeur', nat: 'N', fn: 'F.suj', v: 4 }, { t: 'a organisé', nat: 'VA', inf: 'organiser', qui: 'a organisé' },
-    { t: 'une', nat: 'D.ind', n: 6 }, { t: 'discussion', nat: 'N', fn: 'F.cod', v: 4 }, { t: 'sur', nat: 'P' }, { t: 'la', nat: 'D.def', n: 9 }, { t: 'pollution.', nat: 'N', fn: 'F.cdn', n: 6 },
-    { t: 'Les', nat: 'D.def', n: 11 }, { t: 'élèves', nat: 'N', fn: 'F.suj', v: 12 }, { t: 'sont', nat: 'VE', inf: 'être', qui: 'est enthousiaste' }, { t: 'enthousiastes', nat: 'A', fn: 'F.att', s: 11 }, { t: 'donc', nat: 'CC' },
-    { t: 'chaque', nat: 'D.idf', n: 16 }, { t: 'élève', nat: 'N', fn: 'F.suj', v: 17 }, { t: 'veut', nat: 'VA', inf: 'vouloir', qui: 'veut participer' }, { t: 'participer', nat: 'VINF', fn: 'F.cod', v: 17, inf: 'participer' }, { t: 'oralement.', nat: 'Av', fn: 'F.ccm', v: 18 },
+    { t: 'Le', nat: 'D.def', n: 2 }, { t: 'petit', nat: 'A', fn: 'F.epi', n: 2 }, { t: 'chat', nat: 'N', fn: 'F.suj', v: 4 }, { t: 'noir', nat: 'A', fn: 'F.epi', n: 2 }, { t: 'dort', nat: 'VA', inf: 'dormir', qui: 'dort' },
+    { t: 'sur', nat: 'P' }, { t: 'le', nat: 'D.def', n: 7 }, { t: 'canapé.', nat: 'N', fn: 'F.ccl', v: 4 }, { t: 'Mon', nat: 'D.pos', n: 9 }, { t: 'frère', nat: 'N', fn: 'F.suj', v: 10 },
+    { t: 'caresse', nat: 'VA', inf: 'caresser', qui: 'caresse le chat' }, { t: 'le', nat: 'D.def', n: 12 }, { t: 'chat', nat: 'N', fn: 'F.cod', v: 10 }, { t: 'doucement.', nat: 'Av', fn: 'F.ccm', v: 10 }, { t: 'Le', nat: 'D.def', n: 16 },
+    { t: 'grand', nat: 'A', fn: 'F.epi', n: 16 }, { t: 'canapé', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'rouge', nat: 'A', fn: 'F.epi', n: 16 }, { t: 'est', nat: 'VE', inf: 'être', qui: 'est confortable' }, { t: 'confortable.', nat: 'A', fn: 'F.att', s: 16 },
   ],
+  /* texte 2 : Ce matin, Julie mange une pomme. Elle croque le fruit lentement dans la cour. La grosse pomme rouge est sucrée. */
+  [
+    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'matin,', nat: 'N', fn: 'F.cct', v: 3 }, { t: 'Julie', nat: 'NP', fn: 'F.suj', v: 3 }, { t: 'mange', nat: 'VA', inf: 'manger', qui: 'mange une pomme' }, { t: 'une', nat: 'D.ind', n: 5 },
+    { t: 'pomme.', nat: 'N', fn: 'F.cod', v: 3 }, { t: 'Elle', nat: 'Pr.per', fn: 'F.suj', v: 7 }, { t: 'croque', nat: 'VA', inf: 'croquer', qui: 'croque le fruit' }, { t: 'le', nat: 'D.def', n: 9 }, { t: 'fruit', nat: 'N', fn: 'F.cod', v: 7 },
+    { t: 'lentement', nat: 'Av', fn: 'F.ccm', v: 7 }, { t: 'dans', nat: 'P' }, { t: 'la', nat: 'D.def', n: 13 }, { t: 'cour.', nat: 'N', fn: 'F.ccl', v: 7 }, { t: 'La', nat: 'D.def', n: 16 },
+    { t: 'grosse', nat: 'A', fn: 'F.epi', n: 16 }, { t: 'pomme', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'rouge', nat: 'A', fn: 'F.epi', n: 16 }, { t: 'est', nat: 'VE', inf: 'être', qui: 'est sucrée' }, { t: 'sucrée.', nat: 'A', fn: 'F.att', s: 16 },
+  ],
+  /* texte 3 : Le soleil brille dans le ciel bleu. Les petits oiseaux chantent joyeusement dans les arbres. Le vieux jardin semble magnifique. */
+  [
+    { t: 'Le', nat: 'D.def', n: 1 }, { t: 'soleil', nat: 'N', fn: 'F.suj', v: 2 }, { t: 'brille', nat: 'VA', inf: 'briller', qui: 'brille' }, { t: 'dans', nat: 'P' }, { t: 'le', nat: 'D.def', n: 5 },
+    { t: 'ciel', nat: 'N', fn: 'F.ccl', v: 2 }, { t: 'bleu.', nat: 'A', fn: 'F.epi', n: 5 }, { t: 'Les', nat: 'D.def', n: 9 }, { t: 'petits', nat: 'A', fn: 'F.epi', n: 9 }, { t: 'oiseaux', nat: 'N', fn: 'F.suj', v: 10 },
+    { t: 'chantent', nat: 'VA', inf: 'chanter', qui: 'chante' }, { t: 'joyeusement', nat: 'Av', fn: 'F.ccm', v: 10 }, { t: 'dans', nat: 'P' }, { t: 'les', nat: 'D.def', n: 14 }, { t: 'arbres.', nat: 'N', fn: 'F.ccl', v: 10 },
+    { t: 'Le', nat: 'D.def', n: 17 }, { t: 'vieux', nat: 'A', fn: 'F.epi', n: 17 }, { t: 'jardin', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'semble', nat: 'VE', inf: 'sembler', qui: 'semble magnifique' }, { t: 'magnifique.', nat: 'A', fn: 'F.att', s: 17 },
+  ],
+  /* texte 4 : Aujourd'hui, Paul lance le ballon rouge. Son chien noir court vite dans le grand pré. Le petit chien semble heureux. */
+  [
+    { t: 'Aujourd\'hui,', nat: 'Av', fn: 'F.cct', v: 2 }, { t: 'Paul', nat: 'NP', fn: 'F.suj', v: 2 }, { t: 'lance', nat: 'VA', inf: 'lancer', qui: 'lance le ballon' }, { t: 'le', nat: 'D.def', n: 4 }, { t: 'ballon', nat: 'N', fn: 'F.cod', v: 2 },
+    { t: 'rouge.', nat: 'A', fn: 'F.epi', n: 4 }, { t: 'Son', nat: 'D.pos', n: 7 }, { t: 'chien', nat: 'N', fn: 'F.suj', v: 9 }, { t: 'noir', nat: 'A', fn: 'F.epi', n: 7 }, { t: 'court', nat: 'VA', inf: 'courir', qui: 'court' },
+    { t: 'vite', nat: 'Av', fn: 'F.ccm', v: 9 }, { t: 'dans', nat: 'P' }, { t: 'le', nat: 'D.def', n: 14 }, { t: 'grand', nat: 'A', fn: 'F.epi', n: 14 }, { t: 'pré.', nat: 'N', fn: 'F.ccl', v: 9 },
+    { t: 'Le', nat: 'D.def', n: 17 }, { t: 'petit', nat: 'A', fn: 'F.epi', n: 17 }, { t: 'chien', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'semble', nat: 'VE', inf: 'sembler', qui: 'semble heureux' }, { t: 'heureux.', nat: 'A', fn: 'F.att', s: 17 },
+  ],
+  /* texte 5 : Ce soir, Lucie prépare une bonne soupe. Nous mangeons la soupe tranquillement dans la cuisine. Cette soupe chaude est délicieuse. */
+  [
+    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'soir,', nat: 'N', fn: 'F.cct', v: 3 }, { t: 'Lucie', nat: 'NP', fn: 'F.suj', v: 3 }, { t: 'prépare', nat: 'VA', inf: 'préparer', qui: 'prépare une soupe' }, { t: 'une', nat: 'D.ind', n: 6 },
+    { t: 'bonne', nat: 'A', fn: 'F.epi', n: 6 }, { t: 'soupe.', nat: 'N', fn: 'F.cod', v: 3 }, { t: 'Nous', nat: 'Pr.per', fn: 'F.suj', v: 8 }, { t: 'mangeons', nat: 'VA', inf: 'manger', qui: 'mange la soupe' }, { t: 'la', nat: 'D.def', n: 10 },
+    { t: 'soupe', nat: 'N', fn: 'F.cod', v: 8 }, { t: 'tranquillement', nat: 'Av', fn: 'F.ccm', v: 8 }, { t: 'dans', nat: 'P' }, { t: 'la', nat: 'D.def', n: 14 }, { t: 'cuisine.', nat: 'N', fn: 'F.ccl', v: 8 },
+    { t: 'Cette', nat: 'D.dem', n: 16 }, { t: 'soupe', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'chaude', nat: 'A', fn: 'F.epi', n: 16 }, { t: 'est', nat: 'VE', inf: 'être', qui: 'est délicieuse' }, { t: 'délicieuse.', nat: 'A', fn: 'F.att', s: 16 },
+  ],
+  /* texte 6 : Trois amis visitent le musée de la ville. Ils admirent longuement les tableaux anciens. Le guide du musée semble savant. */
+  [
+    { t: 'Trois', nat: 'D.num', n: 1 }, { t: 'amis', nat: 'N', fn: 'F.suj', v: 2 }, { t: 'visitent', nat: 'VA', inf: 'visiter', qui: 'visite le musée' }, { t: 'le', nat: 'D.def', n: 4 }, { t: 'musée', nat: 'N', fn: 'F.cod', v: 2 },
+    { t: 'de', nat: 'P' }, { t: 'la', nat: 'D.def', n: 7 }, { t: 'ville.', nat: 'N', fn: 'F.cdn', n: 4 }, { t: 'Ils', nat: 'Pr.per', fn: 'F.suj', v: 9 }, { t: 'admirent', nat: 'VA', inf: 'admirer', qui: 'admire les tableaux' },
+    { t: 'longuement', nat: 'Av', fn: 'F.ccm', v: 9 }, { t: 'les', nat: 'D.def', n: 12 }, { t: 'tableaux', nat: 'N', fn: 'F.cod', v: 9 }, { t: 'anciens.', nat: 'A', fn: 'F.epi', n: 12 }, { t: 'Le', nat: 'D.def', n: 15 },
+    { t: 'guide', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'du', nat: 'D.def', n: 17, contr: true }, { t: 'musée', nat: 'N', fn: 'F.cdn', n: 15 }, { t: 'semble', nat: 'VE', inf: 'sembler', qui: 'semble savant' }, { t: 'savant.', nat: 'A', fn: 'F.att', s: 15 },
+  ],
+  /* texte 7 : Hier, les enfants ont joué dans le jardin du voisin. Le ciel était bleu. Ils rentrent lentement à la petite maison. */
   [
     { t: 'Hier,', nat: 'Av', fn: 'F.cct', v: 3 }, { t: 'les', nat: 'D.def', n: 2 }, { t: 'enfants', nat: 'N', fn: 'F.suj', v: 3 }, { t: 'ont joué', nat: 'VA', inf: 'jouer', qui: 'a joué' }, { t: 'dans', nat: 'P' },
     { t: 'le', nat: 'D.def', n: 6 }, { t: 'jardin', nat: 'N', fn: 'F.ccl', v: 3 }, { t: 'du', nat: 'D.def', n: 8, contr: true }, { t: 'voisin.', nat: 'N', fn: 'F.cdn', n: 6 }, { t: 'Le', nat: 'D.def', n: 10 },
     { t: 'ciel', nat: 'N', fn: 'F.suj', v: 11 }, { t: 'était', nat: 'VE', inf: 'être', qui: 'était bleu' }, { t: 'bleu.', nat: 'A', fn: 'F.att', s: 10 }, { t: 'Ils', nat: 'Pr.per', fn: 'F.suj', v: 14 }, { t: 'rentrent', nat: 'VA', inf: 'rentrer', qui: 'rentre' },
     { t: 'lentement', nat: 'Av', fn: 'F.ccm', v: 14 }, { t: 'à', nat: 'P' }, { t: 'la', nat: 'D.def', n: 19 }, { t: 'petite', nat: 'A', fn: 'F.epi', n: 19 }, { t: 'maison.', nat: 'N', fn: 'F.ccl', v: 14 },
   ],
-  [
-    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'soir,', nat: 'N', fn: 'F.cct', v: 5 }, { t: 'ma', nat: 'D.pos', n: 4 }, { t: 'petite', nat: 'A', fn: 'F.epi', n: 4 }, { t: 'sœur', nat: 'N', fn: 'F.suj', v: 5 },
-    { t: 'prépare', nat: 'VA', inf: 'préparer', qui: 'prépare' }, { t: 'un', nat: 'D.ind', n: 7 }, { t: 'gâteau', nat: 'N', fn: 'F.cod', v: 5 }, { t: 'énorme.', nat: 'A', fn: 'F.epi', n: 7 }, { t: 'Il', nat: 'Pr.per', fn: 'F.suj', v: 10 },
-    { t: 'semble', nat: 'VE', inf: 'sembler', qui: 'semble délicieux' }, { t: 'délicieux.', nat: 'A', fn: 'F.att', s: 9 }, { t: 'Nous', nat: 'Pr.per', fn: 'F.suj', v: 14 }, { t: 'le', nat: 'Pr.per', fn: 'F.cod', v: 14 }, { t: 'mangerons', nat: 'VA', inf: 'manger', qui: 'le mangera' },
-    { t: 'demain', nat: 'Av', fn: 'F.cct', v: 14 }, { t: 'dans', nat: 'P' }, { t: 'la', nat: 'D.def', n: 19 }, { t: 'grande', nat: 'A', fn: 'F.epi', n: 19 }, { t: 'cuisine.', nat: 'N', fn: 'F.ccl', v: 14 },
-  ],
+  /* texte 8 : Pendant la récréation, le petit Léo court vite. Ses camarades semblent fatigués. Ils regardent les beaux oiseaux du parc voisin. */
   [
     { t: 'Pendant', nat: 'P' }, { t: 'la', nat: 'D.def', n: 2 }, { t: 'récréation,', nat: 'N', fn: 'F.cct', v: 6 }, { t: 'le', nat: 'D.def', n: 5 }, { t: 'petit', nat: 'A', fn: 'F.epi', n: 5 },
     { t: 'Léo', nat: 'NP', fn: 'F.suj', v: 6 }, { t: 'court', nat: 'VA', inf: 'courir', qui: 'court' }, { t: 'vite.', nat: 'Av', fn: 'F.ccm', v: 6 }, { t: 'Ses', nat: 'D.pos', n: 9 }, { t: 'camarades', nat: 'N', fn: 'F.suj', v: 10 },
     { t: 'semblent', nat: 'VE', inf: 'sembler', qui: 'semble fatigué' }, { t: 'fatigués.', nat: 'A', fn: 'F.att', s: 9 }, { t: 'Ils', nat: 'Pr.per', fn: 'F.suj', v: 13 }, { t: 'regardent', nat: 'VA', inf: 'regarder', qui: 'regarde les oiseaux' }, { t: 'les', nat: 'D.def', n: 16 },
     { t: 'beaux', nat: 'A', fn: 'F.epi', n: 16 }, { t: 'oiseaux', nat: 'N', fn: 'F.cod', v: 13 }, { t: 'du', nat: 'D.def', n: 18, contr: true }, { t: 'parc', nat: 'N', fn: 'F.cdn', n: 16 }, { t: 'voisin.', nat: 'A', fn: 'F.epi', n: 18 },
   ],
+  /* texte 9 : Ce soir, ma petite sœur prépare un gâteau énorme. Il semble délicieux. Nous le mangerons demain dans la grande cuisine. */
+  [
+    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'soir,', nat: 'N', fn: 'F.cct', v: 5 }, { t: 'ma', nat: 'D.pos', n: 4 }, { t: 'petite', nat: 'A', fn: 'F.epi', n: 4 }, { t: 'sœur', nat: 'N', fn: 'F.suj', v: 5 },
+    { t: 'prépare', nat: 'VA', inf: 'préparer', qui: 'prépare' }, { t: 'un', nat: 'D.ind', n: 7 }, { t: 'gâteau', nat: 'N', fn: 'F.cod', v: 5 }, { t: 'énorme.', nat: 'A', fn: 'F.epi', n: 7 }, { t: 'Il', nat: 'Pr.per', fn: 'F.suj', v: 10 },
+    { t: 'semble', nat: 'VE', inf: 'sembler', qui: 'semble délicieux' }, { t: 'délicieux.', nat: 'A', fn: 'F.att', s: 9 }, { t: 'Nous', nat: 'Pr.per', fn: 'F.suj', v: 14 }, { t: 'le', nat: 'Pr.per', fn: 'F.cod', v: 14 }, { t: 'mangerons', nat: 'VA', inf: 'manger', qui: 'le mangera' },
+    { t: 'demain', nat: 'Av', fn: 'F.cct', v: 14 }, { t: 'dans', nat: 'P' }, { t: 'la', nat: 'D.def', n: 19 }, { t: 'grande', nat: 'A', fn: 'F.epi', n: 19 }, { t: 'cuisine.', nat: 'N', fn: 'F.ccl', v: 14 },
+  ],
+  /* texte 10 : Ce matin, le facteur apporte une lettre. Il la pose sur la table de la cuisine. Cette lettre semble importante. */
+  [
+    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'matin,', nat: 'N', fn: 'F.cct', v: 4 }, { t: 'le', nat: 'D.def', n: 3 }, { t: 'facteur', nat: 'N', fn: 'F.suj', v: 4 }, { t: 'apporte', nat: 'VA', inf: 'apporter', qui: 'apporte une lettre' },
+    { t: 'une', nat: 'D.ind', n: 6 }, { t: 'lettre.', nat: 'N', fn: 'F.cod', v: 4 }, { t: 'Il', nat: 'Pr.per', fn: 'F.suj', v: 9 }, { t: 'la', nat: 'Pr.per', fn: 'F.cod', v: 9 }, { t: 'pose', nat: 'VA', inf: 'poser', qui: 'la pose' },
+    { t: 'sur', nat: 'P' }, { t: 'la', nat: 'D.def', n: 12 }, { t: 'table', nat: 'N', fn: 'F.ccl', v: 9 }, { t: 'de', nat: 'P' }, { t: 'la', nat: 'D.def', n: 15 },
+    { t: 'cuisine.', nat: 'N', fn: 'F.cdn', n: 12 }, { t: 'Cette', nat: 'D.dem', n: 17 }, { t: 'lettre', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'semble', nat: 'VE', inf: 'sembler', qui: 'semble important' }, { t: 'importante.', nat: 'A', fn: 'F.att', s: 17 },
+  ],
+  /* texte 11 : Mon père lit le journal tranquillement dans le salon. Ce vieux journal est intéressant. Il le prête à ma mère. */
   [
     { t: 'Mon', nat: 'D.pos', n: 1 }, { t: 'père', nat: 'N', fn: 'F.suj', v: 2 }, { t: 'lit', nat: 'VA', inf: 'lire', qui: 'lit le journal' }, { t: 'le', nat: 'D.def', n: 4 }, { t: 'journal', nat: 'N', fn: 'F.cod', v: 2 },
     { t: 'tranquillement', nat: 'Av', fn: 'F.ccm', v: 2 }, { t: 'dans', nat: 'P' }, { t: 'le', nat: 'D.def', n: 8 }, { t: 'salon.', nat: 'N', fn: 'F.ccl', v: 2 }, { t: 'Ce', nat: 'D.dem', n: 11 },
     { t: 'vieux', nat: 'A', fn: 'F.epi', n: 11 }, { t: 'journal', nat: 'N', fn: 'F.suj', v: 12 }, { t: 'est', nat: 'VE', inf: 'être', qui: 'est intéressant' }, { t: 'intéressant.', nat: 'A', fn: 'F.att', s: 11 }, { t: 'Il', nat: 'Pr.per', fn: 'F.suj', v: 16 },
     { t: 'le', nat: 'Pr.per', fn: 'F.cod', v: 16 }, { t: 'prête', nat: 'VA', inf: 'prêter', qui: 'le prête' }, { t: 'à', nat: 'P' }, { t: 'ma', nat: 'D.pos', n: 19 }, { t: 'mère.', nat: 'N', fn: 'F.cos', v: 16 },
+  ],
+  /* texte 12 : Le bébé pleure de faim dans son lit. Sa maman pense à son biberon. Le bébé de Lucie est gourmand. */
+  [
+    { t: 'Le', nat: 'D.def', n: 1 }, { t: 'bébé', nat: 'N', fn: 'F.suj', v: 2 }, { t: 'pleure', nat: 'VA', inf: 'pleurer', qui: 'pleure' }, { t: 'de', nat: 'P' }, { t: 'faim', nat: 'N', fn: 'F.ccc', v: 2 },
+    { t: 'dans', nat: 'P' }, { t: 'son', nat: 'D.pos', n: 7 }, { t: 'lit.', nat: 'N', fn: 'F.ccl', v: 2 }, { t: 'Sa', nat: 'D.pos', n: 9 }, { t: 'maman', nat: 'N', fn: 'F.suj', v: 10 },
+    { t: 'pense', nat: 'VA', inf: 'penser', qui: 'pense à son biberon' }, { t: 'à', nat: 'P' }, { t: 'son', nat: 'D.pos', n: 13 }, { t: 'biberon.', nat: 'N', fn: 'F.coi', v: 10 }, { t: 'Le', nat: 'D.def', n: 15 },
+    { t: 'bébé', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'de', nat: 'P' }, { t: 'Lucie', nat: 'NP', fn: 'F.cdn', n: 15 }, { t: 'est', nat: 'VE', inf: 'être', qui: 'est gourmand' }, { t: 'gourmand.', nat: 'A', fn: 'F.att', s: 15 },
+  ],
+  /* texte 13 : Hier, mon oncle a offert un livre à son neveu. Le garçon veut lire ce soir. Ce gros livre semble passionnant. */
+  [
+    { t: 'Hier,', nat: 'Av', fn: 'F.cct', v: 3 }, { t: 'mon', nat: 'D.pos', n: 2 }, { t: 'oncle', nat: 'N', fn: 'F.suj', v: 3 }, { t: 'a offert', nat: 'VA', inf: 'offrir', qui: 'a offert un livre' }, { t: 'un', nat: 'D.ind', n: 5 },
+    { t: 'livre', nat: 'N', fn: 'F.cod', v: 3 }, { t: 'à', nat: 'P' }, { t: 'son', nat: 'D.pos', n: 8 }, { t: 'neveu.', nat: 'N', fn: 'F.cos', v: 3 }, { t: 'Le', nat: 'D.def', n: 10 },
+    { t: 'garçon', nat: 'N', fn: 'F.suj', v: 11 }, { t: 'veut', nat: 'VA', inf: 'vouloir', qui: 'veut lire' }, { t: 'lire', nat: 'VINF', fn: 'F.cod', v: 11, inf: 'lire' }, { t: 'ce', nat: 'D.dem', n: 14 }, { t: 'soir.', nat: 'N', fn: 'F.cct', v: 12 },
+    { t: 'Ce', nat: 'D.dem', n: 17 }, { t: 'gros', nat: 'A', fn: 'F.epi', n: 17 }, { t: 'livre', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'semble', nat: 'VE', inf: 'sembler', qui: 'semble passionnant' }, { t: 'passionnant.', nat: 'A', fn: 'F.att', s: 17 },
+  ],
+  /* texte 14 : Ce matin le professeur a organisé une discussion sur la pollution. Les élèves sont enthousiastes donc chaque élève veut participer oralement. */
+  [
+    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'matin', nat: 'N', fn: 'F.cct', v: 4 }, { t: 'le', nat: 'D.def', n: 3 }, { t: 'professeur', nat: 'N', fn: 'F.suj', v: 4 }, { t: 'a organisé', nat: 'VA', inf: 'organiser', qui: 'a organisé' },
+    { t: 'une', nat: 'D.ind', n: 6 }, { t: 'discussion', nat: 'N', fn: 'F.cod', v: 4 }, { t: 'sur', nat: 'P' }, { t: 'la', nat: 'D.def', n: 9 }, { t: 'pollution.', nat: 'N', fn: 'F.cdn', n: 6 },
+    { t: 'Les', nat: 'D.def', n: 11 }, { t: 'élèves', nat: 'N', fn: 'F.suj', v: 12 }, { t: 'sont', nat: 'VE', inf: 'être', qui: 'est enthousiaste' }, { t: 'enthousiastes', nat: 'A', fn: 'F.att', s: 11 }, { t: 'donc', nat: 'CC' },
+    { t: 'chaque', nat: 'D.idf', n: 16 }, { t: 'élève', nat: 'N', fn: 'F.suj', v: 17 }, { t: 'veut', nat: 'VA', inf: 'vouloir', qui: 'veut participer' }, { t: 'participer', nat: 'VINF', fn: 'F.cod', v: 17, inf: 'participer' }, { t: 'oralement.', nat: 'Av', fn: 'F.ccm', v: 18 },
+  ],
+  /* texte 15 : Dans la savane, le lion chasse une gazelle. Les lionceaux attendent leur repas. Le lion est le roi des animaux. */
+  [
+    { t: 'Dans', nat: 'P' }, { t: 'la', nat: 'D.def', n: 2 }, { t: 'savane,', nat: 'N', fn: 'F.ccl', v: 5 }, { t: 'le', nat: 'D.def', n: 4 }, { t: 'lion', nat: 'N', fn: 'F.suj', v: 5 },
+    { t: 'chasse', nat: 'VA', inf: 'chasser', qui: 'chasse une gazelle' }, { t: 'une', nat: 'D.ind', n: 7 }, { t: 'gazelle.', nat: 'N', fn: 'F.cod', v: 5 }, { t: 'Les', nat: 'D.def', n: 9 }, { t: 'lionceaux', nat: 'N', fn: 'F.suj', v: 10 },
+    { t: 'attendent', nat: 'VA', inf: 'attendre', qui: 'attend leur repas' }, { t: 'leur', nat: 'D.pos', n: 12 }, { t: 'repas.', nat: 'N', fn: 'F.cod', v: 10 }, { t: 'Le', nat: 'D.def', n: 14 }, { t: 'lion', nat: 'N', fn: 'F.suj', v: 15 },
+    { t: 'est', nat: 'VE', inf: 'être', qui: 'est le roi des animaux' }, { t: 'le', nat: 'D.def', n: 17 }, { t: 'roi', nat: 'N', fn: 'F.att', s: 14 }, { t: 'des', nat: 'D.def', n: 19, contr: true }, { t: 'animaux.', nat: 'N', fn: 'F.cdn', n: 17 },
+  ],
+  /* texte 16 : Oh, le vent souffle fort ce soir. Fatiguée, la vieille dame ferme ses volets. Sa petite maison blanche paraît tranquille. */
+  [
+    { t: 'Oh,', nat: 'I' }, { t: 'le', nat: 'D.def', n: 2 }, { t: 'vent', nat: 'N', fn: 'F.suj', v: 3 }, { t: 'souffle', nat: 'VA', inf: 'souffler', qui: 'souffle' }, { t: 'fort', nat: 'Av', fn: 'F.ccm', v: 3 },
+    { t: 'ce', nat: 'D.dem', n: 6 }, { t: 'soir.', nat: 'N', fn: 'F.cct', v: 3 }, { t: 'Fatiguée,', nat: 'A', fn: 'F.app', n: 10 }, { t: 'la', nat: 'D.def', n: 10 }, { t: 'vieille', nat: 'A', fn: 'F.epi', n: 10 },
+    { t: 'dame', nat: 'N', fn: 'F.suj', v: 11 }, { t: 'ferme', nat: 'VA', inf: 'fermer', qui: 'ferme ses volets' }, { t: 'ses', nat: 'D.pos', n: 13 }, { t: 'volets.', nat: 'N', fn: 'F.cod', v: 11 }, { t: 'Sa', nat: 'D.pos', n: 16 },
+    { t: 'petite', nat: 'A', fn: 'F.epi', n: 16 }, { t: 'maison', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'blanche', nat: 'A', fn: 'F.epi', n: 16 }, { t: 'paraît', nat: 'VE', inf: 'paraître', qui: 'paraît tranquille' }, { t: 'tranquille.', nat: 'A', fn: 'F.att', s: 16 },
+  ],
+  /* texte 17 : Ce soir, le clown jongle sur la piste. Chacun applaudit le clown avec enthousiasme. Le costume du clown semble magnifique. */
+  [
+    { t: 'Ce', nat: 'D.dem', n: 1 }, { t: 'soir,', nat: 'N', fn: 'F.cct', v: 4 }, { t: 'le', nat: 'D.def', n: 3 }, { t: 'clown', nat: 'N', fn: 'F.suj', v: 4 }, { t: 'jongle', nat: 'VA', inf: 'jongler', qui: 'jongle' },
+    { t: 'sur', nat: 'P' }, { t: 'la', nat: 'D.def', n: 7 }, { t: 'piste.', nat: 'N', fn: 'F.ccl', v: 4 }, { t: 'Chacun', nat: 'Pr.idf', fn: 'F.suj', v: 9 }, { t: 'applaudit', nat: 'VA', inf: 'applaudir', qui: 'applaudit le clown' },
+    { t: 'le', nat: 'D.def', n: 11 }, { t: 'clown', nat: 'N', fn: 'F.cod', v: 9 }, { t: 'avec', nat: 'P' }, { t: 'enthousiasme.', nat: 'N', fn: 'F.ccm', v: 9 }, { t: 'Le', nat: 'D.def', n: 15 },
+    { t: 'costume', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'du', nat: 'D.def', n: 17, contr: true }, { t: 'clown', nat: 'N', fn: 'F.cdn', n: 15 }, { t: 'semble', nat: 'VE', inf: 'sembler', qui: 'semble magnifique' }, { t: 'magnifique.', nat: 'A', fn: 'F.att', s: 15 },
+  ],
+  /* texte 18 : Le soir, la petite Léa rejoint sa grand-mère. Elle lui raconte doucement deux histoires. Sa grand-mère est une conteuse formidable. */
+  [
+    { t: 'Le', nat: 'D.def', n: 1 }, { t: 'soir,', nat: 'N', fn: 'F.cct', v: 5 }, { t: 'la', nat: 'D.def', n: 4 }, { t: 'petite', nat: 'A', fn: 'F.epi', n: 4 }, { t: 'Léa', nat: 'NP', fn: 'F.suj', v: 5 },
+    { t: 'rejoint', nat: 'VA', inf: 'rejoindre', qui: 'rejoint sa grand-mère' }, { t: 'sa', nat: 'D.pos', n: 7 }, { t: 'grand-mère.', nat: 'N', fn: 'F.cod', v: 5 }, { t: 'Elle', nat: 'Pr.per', fn: 'F.suj', v: 10 }, { t: 'lui', nat: 'Pr.per', fn: 'F.cos', v: 10 },
+    { t: 'raconte', nat: 'VA', inf: 'raconter', qui: 'lui raconte deux histoires' }, { t: 'doucement', nat: 'Av', fn: 'F.ccm', v: 10 }, { t: 'deux', nat: 'D.num', n: 13 }, { t: 'histoires.', nat: 'N', fn: 'F.cod', v: 10 }, { t: 'Sa', nat: 'D.pos', n: 15 },
+    { t: 'grand-mère', nat: 'N', fn: 'F.suj', v: 16 }, { t: 'est', nat: 'VE', inf: 'être', qui: 'est une conteuse formidable' }, { t: 'une', nat: 'D.ind', n: 18 }, { t: 'conteuse', nat: 'N', fn: 'F.att', s: 15 }, { t: 'formidable.', nat: 'A', fn: 'F.epi', n: 18 },
+  ],
+  /* texte 19 : Cette nuit, le chien aboie de peur. Le tonnerre gronde fort et la pluie tombe. Le pauvre animal reste terrifié. */
+  [
+    { t: 'Cette', nat: 'D.dem', n: 1 }, { t: 'nuit,', nat: 'N', fn: 'F.cct', v: 4 }, { t: 'le', nat: 'D.def', n: 3 }, { t: 'chien', nat: 'N', fn: 'F.suj', v: 4 }, { t: 'aboie', nat: 'VA', inf: 'aboyer', qui: 'aboie' },
+    { t: 'de', nat: 'P' }, { t: 'peur.', nat: 'N', fn: 'F.ccc', v: 4 }, { t: 'Le', nat: 'D.def', n: 8 }, { t: 'tonnerre', nat: 'N', fn: 'F.suj', v: 9 }, { t: 'gronde', nat: 'VA', inf: 'gronder', qui: 'gronde' },
+    { t: 'fort', nat: 'Av', fn: 'F.ccm', v: 9 }, { t: 'et', nat: 'CC' }, { t: 'la', nat: 'D.def', n: 13 }, { t: 'pluie', nat: 'N', fn: 'F.suj', v: 14 }, { t: 'tombe.', nat: 'VA', inf: 'tomber', qui: 'tombe' },
+    { t: 'Le', nat: 'D.def', n: 17 }, { t: 'pauvre', nat: 'A', fn: 'F.epi', n: 17 }, { t: 'animal', nat: 'N', fn: 'F.suj', v: 18 }, { t: 'reste', nat: 'VE', inf: 'rester', qui: 'reste terrifié' }, { t: 'terrifié.', nat: 'A', fn: 'F.att', s: 17 },
+  ],
+  /* texte 20 : Curieux, plusieurs élèves posent des questions au maître. Celui-ci aime répondre patiemment. Leur classe est un endroit calme et joyeux. */
+  [
+    { t: 'Curieux,', nat: 'A', fn: 'F.app', n: 2 }, { t: 'plusieurs', nat: 'D.idf', n: 2 }, { t: 'élèves', nat: 'N', fn: 'F.suj', v: 3 }, { t: 'posent', nat: 'VA', inf: 'poser', qui: 'pose des questions' }, { t: 'des', nat: 'D.ind', n: 5 },
+    { t: 'questions', nat: 'N', fn: 'F.cod', v: 3 }, { t: 'au', nat: 'D.def', n: 7, contr: true }, { t: 'maître.', nat: 'N', fn: 'F.cos', v: 3 }, { t: 'Celui-ci', nat: 'Pr.dem', fn: 'F.suj', v: 9 }, { t: 'aime', nat: 'VA', inf: 'aimer', qui: 'aime répondre' },
+    { t: 'répondre', nat: 'VINF', fn: 'F.cod', v: 9, inf: 'répondre' }, { t: 'patiemment.', nat: 'Av', fn: 'F.ccm', v: 10 }, { t: 'Leur', nat: 'D.pos', n: 13 }, { t: 'classe', nat: 'N', fn: 'F.suj', v: 14 }, { t: 'est', nat: 'VE', inf: 'être', qui: 'est un endroit calme et joyeux' },
+    { t: 'un', nat: 'D.ind', n: 16 }, { t: 'endroit', nat: 'N', fn: 'F.att', s: 13 }, { t: 'calme', nat: 'A', fn: 'F.epi', n: 16 }, { t: 'et', nat: 'CC' }, { t: 'joyeux.', nat: 'A', fn: 'F.epi', n: 16 },
   ],
 ];
 const tabCases = () => TABLEAUX[game.questions[game.index].t];
@@ -1817,7 +1957,7 @@ function showQuestionTab() {
   Object.assign(tabState, { faits: {}, natOk: new Set(), fnOk: new Set(), msg: '', vi: 0, objet: null, ni: 0, courant: null, invDebut: false, invVu: false, ccFait: false,
     verbes: cases.map((c, i) => (estVerbeT(c) ? i : -1)).filter((i) => i >= 0),
     noms: cases.map((c, i) => (c.nat === 'N' || c.nat === 'NP' ? i : -1)).filter((i) => i >= 0) });
-  $('nat-progress-label').textContent = 'Le tableau des vingt cases';
+  $('nat-progress-label').textContent = `Texte n° ${game.questions[game.index].t + 1} (${NIVEAU_TEXTE(game.questions[game.index].t)})`;
   majScoreTab();
   gnEtape(true);
 }
@@ -1896,7 +2036,12 @@ function groupeVerbalT(v) {
   const C = tabCases();
   const tetes = C.map((c, i) => i).filter((i) => i === v || (C[i].v === v && ['F.suj', 'F.cod', 'F.coi', 'F.cos'].includes(C[i].fn)) || (C[i].fn === 'F.att' && C[C[i].s].v === v));
   const avecDet = new Set(tetes);
-  C.forEach((c, i) => { if (/^D\./.test(c.nat) && tetes.includes(c.n)) avecDet.add(i); });
+  /* v36 : avec les déterminants et les adjectifs épithètes des mots trouvés (« La petite Léa rejoint sa grand-mère ») */
+  C.forEach((c, i) => { if ((/^D\./.test(c.nat) || c.fn === 'F.epi') && tetes.includes(c.n)) avecDet.add(i); });
+  /* la préposition qui introduit un COI ou un COS (« pense à son biberon », « prête à ma mère ») */
+  [...avecDet].forEach((i) => { if (['F.coi', 'F.cos'].includes(C[i].fn) && C[i].v === v) { let k = i - 1; while (k >= 0 && /^D\./.test(C[k].nat)) k -= 1; if (k >= 0 && C[k].nat === 'P') avecDet.add(k); } });
+  /* « calme et joyeux » : la conjonction entre deux mots gardés */
+  C.forEach((c, i) => { if (c.nat === 'CC' && avecDet.has(i - 1) && avecDet.has(i + 1)) avecDet.add(i); });
   const x = [...avecDet].sort((a, b) => a - b).map((i) => { const t = C[i].t.replace(/[.,]$/, ''); return C[i].nat === 'NP' ? t : t.toLowerCase(); }).join(' ');
   return x.charAt(0).toUpperCase() + x.slice(1);
 }
@@ -2074,7 +2219,7 @@ function showQuestionLibre() {
   $('nat-verdict-square').className = 'verdict-square';
   $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
   $('nat-buttons-invariables').innerHTML = '';
-  $('nat-progress-label').textContent = 'Le tableau sans guide';
+  $('nat-progress-label').textContent = `Texte n° ${game.questions[game.index].t + 1} (${NIVEAU_TEXTE(game.questions[game.index].t)})`;
   Object.assign(libre, { rep: {}, sel: null, attente: false, corrige: false });
   game.score = 0;
   majScoreLibre();
@@ -2702,7 +2847,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Reconnaissance des natures, niveau 1', 2: 'Reconnaissance des natures, niveau 2', 3: 'Natures et fonctions (groupe verbal), niveau 3', 4: 'Natures et fonctions (groupe nominal), niveau 4', 5: 'Bilan : le tableau des vingt cases, niveau 5', 6: 'Bilan sans guide : le tableau des vingt cases, niveau 6' };
+const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {

@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=35" />
+    <link rel="stylesheet" href="style.css?v=36" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -86,28 +86,22 @@
           <div class="home-mode-buttons">
             <div class="home-games-row">
               <button type="button" class="home-mode-button" id="open-natures">
-                <span class="label">Reconnaissance des natures de mots 1</span>
-                <span class="desc">Un mot clignote dans la phrase : quelle est sa nature ?</span>
+                <span class="label"><strong>Exercice 1</strong><br>Reconnaissance des natures de mots, niveau 1</span>
               </button>
               <button type="button" class="home-mode-button" id="open-natures2">
-                <span class="label">Reconnaissance des natures de mots 2</span>
-                <span class="desc">Un mot clignote dans la phrase : quelle est sa nature précise ?</span>
+                <span class="label"><strong>Exercice 2</strong><br>Reconnaissance des natures de mots, niveau 2</span>
               </button>
               <button type="button" class="home-mode-button" id="open-fonctions">
-                <span class="label">Natures et fonctions des mots dans le groupe verbal</span>
-                <span class="desc">Suis les consignes : le verbe, son sujet, ses compléments ; la nature en vert, la fonction en rouge.</span>
+                <span class="label"><strong>Exercice 3</strong><br>Reconnaissance des natures et fonctions des mots dans le groupe verbal</span>
               </button>
               <button type="button" class="home-mode-button" id="open-gn">
-                <span class="label">Natures et fonctions des mots dans le groupe nominal</span>
-                <span class="desc">Suis les consignes : la nature en vert, la fonction en rouge, sous chaque mot.</span>
+                <span class="label"><strong>Exercice 4</strong><br>Reconnaissance des natures et fonctions des mots dans le groupe nominal</span>
               </button>
               <button type="button" class="home-mode-button" id="open-tableau">
-                <span class="label">Bilan : le tableau des vingt cases</span>
-                <span class="desc">Remplis tout le tableau en suivant la méthode : verbes, sujets, compléments, groupes nominaux, mots invariables.</span>
+                <span class="label"><strong>Exercice 5</strong><br>Bilan : le tableau des 20 cases avec guide</span>
               </button>
               <button type="button" class="home-mode-button" id="open-libre">
-                <span class="label">Bilan sans guide : remplis le tableau seul</span>
-                <span class="desc">Remplis les vingt cases dans l'ordre que tu veux, puis fais corriger ton tableau.</span>
+                <span class="label"><strong>Exercice 6</strong><br>Bilan : le tableau des 20 cases sans guide</span>
               </button>
             </div>
             <!-- Bloc compte, repris de Mnemart : libellé + e-mail + interrupteur connecté/déconnecté -->
@@ -136,6 +130,7 @@
             <div class="ready-card">
               <p class="ready-explanation" id="nat-ready-explanation">Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.</p>
               <p class="ready-title">Ce jeu t'attend.</p>
+              <div id="nat-texte-choix" class="texte-choix hidden"></div>
               <button type="button" class="primary-button" id="nat-start-button">Démarrer le jeu →</button>
             </div>
           </div>
@@ -329,6 +324,6 @@
       <div id="report-send" class="report-send no-print"></div>
     </div>
 
-    <script defer src="app.js?v=35"></script>
+    <script defer src="app.js?v=36"></script>
   </body>
 </html>
