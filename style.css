@@ -639,3 +639,15 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .game7 .tm-cadre.replie .tm-titre, .game7 .tm-cadre2 ~ .tm-cadre .tm-titre { cursor:pointer; }
 .game7 .tm-cadre .tm-titre:hover { text-decoration:underline; }
 .game7 .tm-cadre.replie + .tm-cadre2 { margin-top:10px; }
+/* v42 : exercice 3 : quatre étiquettes par verbe ; un texte plus gros, plus aéré */
+.game7v .sentence { font-size:clamp(1.3rem,2.1vw,2rem); }
+.game7v .tm-texte { gap:22px 0; }
+.game7v .sentence .w .labs .lab { font-size:max(.42em, 10px); }
+.game7 .sentence .w .labs .lab.valeur { background:#e7f4ec; color:#14532d; border:1px solid #2e7d4f; white-space:normal; max-width:9em; }
+.game7 .sentence .w .labs .lab.valeur.rouge { background:#fdecea; color:#8a1f12; border-color:#b3261e; }
+.game7 .sentence .w .labs .lab.valeur.corrige { background:#ffe2bf; color:#7a3d00; border-color:#e08a1e; }
+.carte-choix-2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.carte-valeur { border-style:dashed; }
+/* v43 : la flèche vers le français d'aujourd'hui */
+.suite-tm { display:block; width:100%; margin-top:12px; font-weight:700; cursor:pointer; }
+.game7 .suite-tm-texte { width:auto; margin:18px 0 0; padding:10px 18px; border-radius:10px; border:2px solid #ffd54a; background:rgba(255,213,74,.15); color:#ffe9a8; font-family:Georgia,serif; font-size:.7em; animation:gnFlash .6s 3; }
