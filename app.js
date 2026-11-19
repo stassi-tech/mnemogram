@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v49';
+const APP_VERSION = 'v51';
 
 const $ = (id) => document.getElementById(id);
 
@@ -218,6 +218,9 @@ const GAMES = {
   temps3: { titre: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels dans un texte au système du présent', type: 'Analyse des temps et des modes personnels au système du présent, niveau 9', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 9, nb: 1, tm: true, texte: 2, total: 20, valeurs: true, partie: 'temps' },
   /* v45 : exercice 4 : le même travail au système du passé, en français classique puis contemporain */
+  /* v50 : la phrase, exercice 1 : syntaxe de la phrase (bandes à étirer) */
+  phrase1: { titre: 'La phrase, exercice 1 : syntaxe de la phrase', type: 'Syntaxe de la phrase, niveau 13', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 13, nb: 1, sx: true, texte: 0, total: 20, partie: 'phrase' },
   /* v47 : transformer un texte */
   temps5: { titre: 'Temps et modes, exercice 5 : transformer un texte au système du passé en texte au système du présent', type: 'Transformer un texte du passé au présent, niveau 11', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 11, nb: 1, tf: 'passe2pres', total: 10, partie: 'temps' },
@@ -814,6 +817,7 @@ function buildNatureSequence() {
   return shuffle(liste);
 }
 function buildQuestions() {
+  if (currentGame.sx) return [{ sx: true, t: currentGame.texte || 0 }];
   if (currentGame.tf) { marqueTexte(texteChoisi); return [{ tf: true, t: texteChoisi }]; }
   if (currentGame.tm) return [{ tm: true, t: currentGame.texte || 0 }];
   if (currentGame.tab) { marqueTexte(texteChoisi); return [{ tab: true, t: texteChoisi }]; }
@@ -909,10 +913,13 @@ function openGame(id) {
   /* v27 : le jeu 3 marche maintenant comme le jeu 4 (consignes, carrés verts et rouges sous les mots) */
   $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions' || id === 'tableau' || id === 'libre');
   $('natures-panel').classList.toggle('game5', id === 'tableau' || id === 'libre');
-  ['game3', 'game4'].forEach((c) => { if (GAMES[id].tm || GAMES[id].tf) $('natures-panel').classList.add(c); });
-  $('natures-panel').classList.toggle('game7', !!(GAMES[id].tm || GAMES[id].tf));
+  ['game3', 'game4'].forEach((c) => { if (GAMES[id].tm || GAMES[id].tf || GAMES[id].sx) $('natures-panel').classList.add(c); });
+  $('natures-panel').classList.toggle('game7', !!(GAMES[id].tm || GAMES[id].tf || GAMES[id].sx));
+  $('natures-panel').classList.toggle('game8', !!GAMES[id].sx);
   $('natures-panel').classList.toggle('game7v', !!GAMES[id].valeurs);
-  $('nat-ready-explanation').innerHTML = id === 'temps5'
+  $('nat-ready-explanation').innerHTML = id === 'phrase1'
+    ? 'Dans ce petit texte, décris la <strong>syntaxe</strong> de chaque phrase, puis la <strong>nature</strong> de ses propositions. À droite, choisis une bande : en <strong>bleu</strong>, phrase nominale, verbale simple ou verbale complexe ; en <strong>vert</strong>, la nature des propositions (indépendante, principale ou subordonnée). Puis <strong>étire-la</strong> sous le texte, du premier mot au dernier : glisse ton doigt, ou touche le premier mot puis le dernier. Chaque bande juste vaut 1 point.'
+    : id === 'temps5'
     ? 'Voici un texte au <strong>système du passé</strong>. Réécris-le au <strong>système du présent</strong>, comme si les choses se passaient au moment où on les lit. Les mots soulignés doivent changer : des <strong>formes verbales</strong>, mais aussi des <strong>indicateurs de temps</strong> (<em>ce jour-là</em> devient <em>aujourd\'hui</em>, <em>la veille</em> devient <em>hier</em>, <em>le lendemain</em> devient <em>demain</em>…). Appuie sur chacun et écris ce qu\'il devient. Chaque changement réussi vaut 1 point.'
     : id === 'temps6'
     ? 'Voici un texte au <strong>système du présent</strong>. Réécris-le <strong>au passé</strong>, comme un souvenir, en <strong>français classique</strong> (passé simple, subjonctif imparfait…) ou en <strong>français contemporain</strong> (passé composé, « aller » + infinitif…) : tu choisiras. Les mots soulignés doivent changer : des formes verbales et des indicateurs de temps (<em>aujourd\'hui</em> devient <em>ce jour-là</em>…). Chaque changement réussi vaut 1 point. C\'est le plus difficile !'
@@ -975,7 +982,7 @@ function showQuestion() {
   if (isG3()) { showQuestionGV(); return; }
   if (isG5()) { showQuestionTab(); return; }
   if (isG6()) { showQuestionLibre(); return; }
-  if (isT1()) { (currentGame.tf ? showQuestionTF : showQuestionTM)(); return; }
+  if (isT1()) { (currentGame.sx ? showQuestionSX : currentGame.tf ? showQuestionTF : showQuestionTM)(); return; }
   const q = game.questions[game.index];
   game.essais = 0;
   $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mots || q.mot);
@@ -2502,7 +2509,7 @@ function decoupeTM(src) {
   return { mots, formes };
 }
 const tm = { rep: {}, sel: null, texte: null, phase: 1 };
-const isT1 = () => !!(currentGame.tm || currentGame.tf);   /* v40 : tous les exercices des temps et des modes */
+const isT1 = () => !!(currentGame.tm || currentGame.tf || currentGame.sx);   /* v40 : tous les exercices des temps et des modes */
 /* les formes : 0…19 dans le premier cadre ; 100, 101… pour les formes modernes du second cadre */
 const TM_T = () => TEXTES_TM[game.questions[game.index].t];
 const formeTM = (i) => (i >= 100 ? TM_T().suite[i - 100] : tm.texte.formes[i]);
@@ -2841,6 +2848,201 @@ function finTF() {
   showCharacter(game.score >= total / 2 ? 'good' : 'bad', null);
 }
 
+/* ------------------------------------------------------------
+   v50 : LA PHRASE — EXERCICE 1 : SYNTAXE DE LA PHRASE
+   Sous le texte, des bandes de couleur qu'on étire sous les mots : en bleu, la syntaxe de chaque phrase
+   (nominale, verbale simple, verbale complexe) ; en vert, la nature de chaque proposition. (Le rouge, pour les
+   fonctions des propositions, viendra dans un autre exercice.) 1 point par bande posée juste, du premier au dernier mot.
+   Deux erreurs sur la même phrase ou la même proposition : la bonne bande s'affiche, sans point.
+   Dans le texte : [N] [S] [C] ouvrent une phrase nominale, verbale simple, verbale complexe ;
+   {code|mots} est une proposition (code : I, P, R, CC complétive = K, circonstancielle = C, Q, INF, PART ; « - » : pas de
+   proposition) ; les mots hors accolades (« et ») peuvent être compris dans une bande ou non.
+   ------------------------------------------------------------ */
+const BANDES = {
+  syn: [{ code: 'PH.nom', k: 'N', nom: 'Phrase nominale', court: 'nominale' }, { code: 'PH.simple', k: 'S', nom: 'Phrase verbale simple', court: 'verbale simple' }, { code: 'PH.complexe', k: 'C', nom: 'Phrase verbale complexe', court: 'verbale complexe' }],
+  /* v51 : dans cet exercice, on distingue seulement indépendante, principale et subordonnée (le détail des subordonnées viendra plus tard) */
+  nat: [
+    { code: 'PR.ind', k: 'I', nom: 'Proposition indépendante', court: 'indépendante' }, { code: 'PR.princ', k: 'P', nom: 'Proposition principale', court: 'principale' },
+    { code: 'PR.sub', k: 'SUB', nom: 'Proposition subordonnée', court: 'subordonnée' },
+  ],
+};
+[...BANDES.syn, ...BANDES.nat].forEach((x) => { x.article = x.nom.toLowerCase(); x.explication = ''; NATURE_BY_CODE[x.code] = x; });
+const TEXTES_SX = [
+  { titre: 'Attention à la marche', texte: "[N] {-|Attention !} [S] {I|Tu ne vois pas la marche ?} [C] {P|Vraiment, il y a des moments} {R|où on se demande} {Q|si tu n'as pas la tête dans les nuages !} [C] {C|Quand on marche,} {P|on regarde devant soi.} [S] {I|Tu as compris ?} [C] {I|Ce n'est pas la peine de faire la tête,} {I|cela ne changera rien !} [N] {-|Courage !} [C] {I|Nous sommes presque arrivés,} et {C|si tu accélères,} {P|nous serons arrivés avant midi.}" },
+];
+/* les subordonnées du texte (relative, circonstancielle…) comptent toutes comme « subordonnée » */
+const natSX = (k) => (k === 'I' || k === 'P' ? k : 'SUB');
+const sx = { mots: [], phrases: [], props: [], bandes: [], sel: null, debut: null, glisse: null, cibles: {} };
+const SX_T = () => TEXTES_SX[game.questions[game.index].t];
+function decoupeSX(src) {
+  const mots = [], phrases = [], props = [];
+  const ajoute = (txt, p) => txt.split(/\s+/).filter(Boolean).forEach((w) => {
+    if (/^[.,;:!?»]$/.test(w) && mots.length) { mots[mots.length - 1].t += (/^[;:!?»]$/.test(w) ? ' ' : '') + w; return; }
+    mots.push({ t: w, s: phrases.length - 1, p });
+  });
+  src.replace(/\[([NSC])\]|\{([^|}]+)\|([^}]*)\}|([^\s[{]+)/g, (m, ph, code, txt, w) => {
+    if (ph) { phrases.push({ k: ph, a: mots.length, b: mots.length }); return m; }
+    if (code !== undefined) {
+      const a = mots.length;
+      ajoute(txt, code === '-' ? -1 : props.length);
+      if (code !== '-') props.push({ k: code, a, b: mots.length - 1, s: phrases.length - 1 });
+    } else ajoute(w, -1);
+    phrases[phrases.length - 1].b = mots.length - 1;
+    return m;
+  });
+  return { mots, phrases, props };
+}
+/* une bande de la proposition peut englober ou non les mots « libres » (et, mais…) qui la bordent */
+function bornesSouples(pr) {
+  const libre = (i) => i >= 0 && i < sx.mots.length && sx.mots[i].p === -1 && sx.mots[i].s === pr.s;
+  const debuts = [pr.a], fins = [pr.b];
+  for (let i = pr.a - 1; libre(i); i--) debuts.push(i);
+  for (let i = pr.b + 1; libre(i); i++) fins.push(i);
+  return { debuts, fins };
+}
+function showQuestionSX() {
+  const d = decoupeSX(SX_T().texte);
+  Object.assign(sx, d, { bandes: [], sel: null, debut: null, glisse: null, cibles: {} });
+  d.phrases.forEach((p, k) => { sx.cibles[`syn${k}`] = { essais: 0, fait: false }; });
+  d.props.forEach((p, k) => { sx.cibles[`nat${k}`] = { essais: 0, fait: false }; });
+  currentGame.total = d.phrases.length + d.props.length;
+  $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">« ${esc(SX_T().titre)} »</h3><div class="tm-texte sx-texte">${d.mots.map((m, i) => `<span class="w sx-mot" data-i="${i}"><span class="tx">${esc(m.t)}</span><span class="sx-lanes"><span class="sx-lane syn"></span><span class="sx-lane nat"></span></span></span>`).join('')}</div></div>`;
+  $('nat-character-stage').innerHTML = '';
+  $('nat-correction').classList.add('hidden');
+  $('nat-verdict-square').className = 'verdict-square';
+  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
+  $('nat-buttons-invariables').innerHTML = '';
+  $('nat-progress-label').textContent = `« ${SX_T().titre} »`;
+  game.score = 0;
+  branchePointeurSX();
+  majScoreSX(); panneauSX();
+}
+const sxFaits = () => Object.values(sx.cibles).filter((c) => c.fait).length;
+function majScoreSX() {
+  $('nat-score-label').textContent = scoreLabel(game.score);
+  $('nat-progress-bar').style.width = `${(sxFaits() / currentGame.total) * 100}%`;
+}
+function panneauSX(message) {
+  $('nat-instruction').textContent = 'Pose les bandes sous le texte';
+  const bouton = (lane, x) => `<button type="button" class="sx-bande-btn ${lane}${sx.sel && sx.sel.code === x.code ? ' choisie' : ''}" data-bande="${lane}:${x.code}">${x.nom}</button>`;
+  $('nat-buttons-variables').innerHTML = nbspFr(`<div class="carte sx-carte bleue libre"><p><strong>La phrase</strong> : quelle est sa syntaxe ?</p><div class="sx-palette">${BANDES.syn.map((x) => bouton('syn', x)).join('')}</div></div>
+    <div class="carte sx-carte verte active libre"><p><strong>Les propositions</strong> : quelle est leur nature ?</p><div class="sx-palette">${BANDES.nat.map((x) => bouton('nat', x)).join('')}</div></div>
+    <p class="sous sx-aide">${message || (sx.sel ? `Bande choisie : <strong>${NATURE_BY_CODE[sx.sel.code].nom}</strong>. Pose ton doigt sous le <strong>premier mot</strong> et glisse jusqu'au <strong>dernier mot</strong> (ou touche le premier mot, puis le dernier).` : 'Choisis une bande, puis étire-la sous les mots de la phrase ou de la proposition.')}</p>
+    <p class="sous">${sxFaits()} bande${sxFaits() > 1 ? 's' : ''} sur ${currentGame.total} posée${sxFaits() > 1 ? 's' : ''}.</p>`);
+  document.querySelectorAll('[data-bande]').forEach((b) => b.addEventListener('click', () => {
+    const [lane, code] = b.dataset.bande.split(':');
+    sx.sel = { lane, code }; sx.debut = null; effaceApercuSX(); panneauSX();
+  }));
+}
+/* dessiner une bande : les mots a…b, dans la rangée bleue (syn) ou verte (nat) */
+function peintSX(lane, a, b, classe, texte) {
+  let haut = null;
+  for (let i = a; i <= b; i++) {
+    const w = wordEl(i), l = w?.querySelector(`.sx-lane.${lane}`);
+    if (!l) continue;
+    /* l'étiquette au début de la bande, et de nouveau au début de chaque ligne quand la bande continue */
+    const nouvelleLigne = haut !== null && w.offsetTop > haut + 5;
+    haut = w.offsetTop;
+    l.className = `sx-lane ${lane} ${classe}${i === a ? ' debut' : ''}${i === b ? ' fin' : ''}`;
+    l.innerHTML = (i === a || nouvelleLigne) && texte ? `<span class="sx-etq">${texte}</span>` : '';
+  }
+}
+function effaceApercuSX() {
+  document.querySelectorAll('.sx-lane.apercu').forEach((l) => { l.className = l.className.replace(/ apercu.*$/, ''); l.innerHTML = ''; });
+  document.querySelectorAll('.sx-mot.depart').forEach((w) => w.classList.remove('depart'));
+}
+function apercuSX(a, b) {
+  effaceApercuSX();
+  if (!sx.sel) return;
+  const [x, y] = a <= b ? [a, b] : [b, a];
+  for (let i = x; i <= y; i++) {
+    const l = wordEl(i)?.querySelector(`.sx-lane.${sx.sel.lane}`);
+    if (l && !/\b(ok|revele)\b/.test(l.className)) { l.className = `sx-lane ${sx.sel.lane} apercu ${sx.sel.lane === 'syn' ? 'bleu' : 'vert'}${i === x ? ' debut' : ''}${i === y ? ' fin' : ''}`; }
+  }
+}
+function branchePointeurSX() {
+  const zone = $('nat-sentence');
+  const motSous = (ev) => { const el = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.sx-mot'); return el ? Number(el.dataset.i) : null; };
+  zone.onpointerdown = (ev) => {
+    if (!isSX() || game.fini) return;
+    const i = motSous(ev); if (i === null) return;
+    if (!sx.sel) { panneauSX('Choisis d\'abord une bande, à droite.'); return; }
+    ev.preventDefault();
+    sx.glisse = { a: i, b: i, bouge: false };
+    apercuSX(i, i);
+  };
+  zone.onpointermove = (ev) => {
+    if (!sx.glisse) return;
+    const i = motSous(ev); if (i === null || i === sx.glisse.b) return;
+    sx.glisse.b = i; sx.glisse.bouge = true; apercuSX(sx.glisse.a, i);
+  };
+  zone.onpointerup = () => {
+    if (!sx.glisse) return;
+    const g = sx.glisse; sx.glisse = null;
+    if (g.bouge && g.a !== g.b) { sx.debut = null; poseSX(Math.min(g.a, g.b), Math.max(g.a, g.b)); return; }
+    /* un simple toucher : premier mot, puis dernier mot */
+    if (sx.debut === null) { sx.debut = g.a; effaceApercuSX(); apercuSX(g.a, g.a); wordEl(g.a)?.classList.add('depart'); panneauSX('Bien ! Touche maintenant le <strong>dernier mot</strong> de la bande (ou le même mot si elle n\'en a qu\'un).'); return; }
+    const a = sx.debut; sx.debut = null;
+    poseSX(Math.min(a, g.a), Math.max(a, g.a));
+  };
+  zone.onpointerleave = () => { if (sx.glisse && sx.glisse.bouge) zone.onpointerup(); };
+}
+/* une bande posée : on cherche la phrase ou la proposition visée, puis on vérifie la couleur et les limites */
+function poseSX(a, b) {
+  effaceApercuSX();
+  const { lane, code } = sx.sel, item = NATURE_BY_CODE[code];
+  let cle, juste = false, cible, bonne, ba, bb, msg = '';
+  if (lane === 'syn') {
+    const s = sx.mots[a].s, ph = sx.phrases[s];
+    cle = `syn${s}`; cible = sx.cibles[cle]; bonne = BANDES.syn.find((x) => x.k === ph.k); ba = ph.a; bb = ph.b;
+    juste = item.k === ph.k && a === ph.a && b === ph.b;
+    if (!juste) msg = item.k !== ph.k ? 'Ce n\'est pas la bonne syntaxe pour cette phrase.' : 'La bande doit aller du premier au dernier mot de la phrase, jusqu\'au signe de ponctuation.';
+  } else {
+    let k = sx.mots[a].p;
+    if (k === -1) { for (let i = a; i <= b; i++) if (sx.mots[i].p !== -1) { k = sx.mots[i].p; break; } }
+    if (k === -1) {
+      const nominale = sx.phrases[sx.mots[a].s].k === 'N';
+      panneauSX(nominale ? 'Une phrase <strong>nominale</strong> n\'a pas de verbe, donc pas de proposition : pas de bande verte ici.' : 'Il n\'y a pas de proposition ici.');
+      return;
+    }
+    const pr = sx.props[k], bs = bornesSouples(pr);
+    cle = `nat${k}`; cible = sx.cibles[cle]; bonne = BANDES.nat.find((x) => x.k === natSX(pr.k)); ba = pr.a; bb = pr.b;
+    juste = item.k === natSX(pr.k) && bs.debuts.includes(a) && bs.fins.includes(b);
+    if (!juste) msg = item.k !== natSX(pr.k) ? 'Ce n\'est pas la bonne nature pour cette proposition.' : 'La bande ne s\'arrête pas aux limites de la proposition : une proposition se construit autour d\'un verbe conjugué.';
+  }
+  if (cible.fait) { panneauSX('Cette bande est déjà posée.'); return; }
+  if (juste) {
+    cible.fait = true;
+    game.score = Math.round((game.score + 1) * 10) / 10;
+    peintSX(lane, a, b, `ok ${lane === 'syn' ? 'bleu' : 'vert'}`, item.court);
+    msg = `✔ Juste : ${item.nom.toLowerCase()}.`;
+  } else {
+    cible.essais += 1;
+    game.erreurs.push({ mot: sx.mots.slice(a, b + 1).map((m) => m.t).join(' '), bonne: bonne.nom.toLowerCase(), choisie: item.nom.toLowerCase(), phrase: `texte « ${SX_T().titre} »` });
+    peintSX(lane, a, b, `faux ${lane === 'syn' ? 'bleu' : 'vert'}`, item.court);
+    setTimeout(() => { for (let i = a; i <= b; i++) { const l = wordEl(i)?.querySelector(`.sx-lane.${lane}`); if (l && /\bfaux\b/.test(l.className)) { l.className = `sx-lane ${lane}`; l.innerHTML = ''; } } }, 1100);
+    if (cible.essais >= 2) {
+      cible.fait = true;
+      setTimeout(() => peintSX(lane, ba, bb, `revele ${lane === 'syn' ? 'bleu' : 'vert'}`, `✗ ${bonne.court}`), 1150);
+      msg += ` Deux erreurs : voici la bonne bande (${bonne.nom.toLowerCase()}).`;
+    } else msg += ' Essaie encore !';
+  }
+  majScoreSX(); panneauSX(msg);
+  if (sxFaits() === currentGame.total) setTimeout(finSX, 1600);
+}
+function finSX() {
+  sx.sel = null; effaceApercuSX();
+  $('nat-buttons-variables').innerHTML = '';
+  $('nat-instruction').textContent = 'Toutes les bandes sont posées !';
+  const total = currentGame.total;
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. Une phrase sans verbe est une <strong>phrase nominale</strong> ; avec un seul verbe conjugué, c'est une <strong>phrase verbale simple</strong>, qui forme une proposition indépendante ; avec plusieurs verbes, une <strong>phrase verbale complexe</strong> : elle a autant de propositions que de verbes conjugués. Ces propositions peuvent être <strong>indépendantes</strong> (juxtaposées ou coordonnées), ou former des couples <strong>principale + subordonnée</strong> : la subordonnée porte un mot subordonnant en tête (<em>qui, que, où, quand, si, parce que…</em>). Les bandes hachurées marquées ✗ montrent la bonne réponse, là où tu t'es trompé deux fois.`);
+  $('nat-correction').classList.remove('hidden');
+  $('nat-verdict-square').className = `verdict-square ${game.score >= total - 0.05 ? 'correct' : game.score < total / 2 ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = 'Voir mon résultat →';
+  showCharacter(game.score >= total / 2 ? 'good' : 'bad', null);
+}
+const isSX = () => !!(currentGame && currentGame.sx);
+
 function nextQuestion() {
   if (game.index + 1 < game.questions.length) { game.index += 1; showQuestion(); }
   else showResults();
@@ -2899,7 +3101,8 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    niveauOf(r) >= 11 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par changement réussi : formes verbales et indicateurs de temps).`
+    niveauOf(r) === 13 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par bande juste : la syntaxe de chaque phrase, la nature de chaque proposition).`
+      : niveauOf(r) >= 11 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par changement réussi : formes verbales et indicateurs de temps).`
       : niveauOf(r) === 10 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 26 (10 verbes en français classique, puis 3 en français contemporain : 0,5 point pour le temps, le mode et leurs valeurs).`
       : niveauOf(r) === 9 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 20 (10 verbes : 0,5 point pour le temps, le mode, la valeur du temps et la valeur du mode de chacun).`
       : niveauOf(r) === 8 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur 26 (20 formes en français classique, puis 6 formes en français contemporain : 0,5 point pour le temps et 0,5 point pour le mode de chacune).`
@@ -2937,7 +3140,7 @@ function renderSendBox() {
    « Fiche fonction des mots » = fiche-fonction.html (avec la formule de chaque fonction). Le jeu lit les deux.
    Tant que les nouveaux fichiers ne sont pas sur GitHub, il se rabat sur les anciens noms. */
 const FICHE_ANCIEN_NOM = { 'fiche-nature.html': 'fiche.html', 'fiche-fonction.html': 'fiche-fonctions.html' };
-async function loadFiche() { await Promise.all(['fiche-nature.html', 'fiche-fonction.html', 'fiche-temps.html'].map(loadUneFiche)); }
+async function loadFiche() { await Promise.all(['fiche-nature.html', 'fiche-fonction.html', 'fiche-temps.html', 'fiche-phrase.html'].map(loadUneFiche)); }
 async function loadUneFiche(nom) {
   try {
     let r = await fetch(`${nom}?v=${Date.now()}`, { cache: 'no-store' });
@@ -2965,7 +3168,8 @@ function openFiche() {
   /* pendant le jeu des fonctions, la fiche des fonctions s'ouvre d'abord ; l'autre reste à un clic */
   const enJeu3 = isG3() && !$('natures-panel').classList.contains('hidden');
   const enTemps = currentGame?.partie === 'temps' && $('welcome-panel').classList.contains('hidden');
-  showFiche(enTemps ? 'fiche-temps.html' : enJeu3 ? 'fiche-fonction.html' : 'fiche-nature.html');
+  const enPhrase = currentGame?.partie === 'phrase' && $('welcome-panel').classList.contains('hidden');
+  showFiche(enPhrase ? 'fiche-phrase.html' : enTemps ? 'fiche-temps.html' : enJeu3 ? 'fiche-fonction.html' : 'fiche-nature.html');
   $('fiche-modal').classList.remove('hidden');
 }
 document.querySelectorAll('.fiche-tab').forEach((b) => b.addEventListener('click', () => showFiche(b.dataset.fiche)));
@@ -3228,7 +3432,7 @@ function openProfile(first) {
 
 /* v10 : nom du type d'exercice ; les scores enregistrés avant la v10 portaient d'autres noms. */
 function scoreType(jeu) {
-  if (/niveau (1[0-2]|[1-9])/.test(jeu || '')) return jeu;
+  if (/niveau (1[0-3]|[1-9])/.test(jeu || '')) return jeu;
   if (/ 2$/.test(jeu || '')) return 'Reconnaissance des natures, niveau 2';
   return 'Reconnaissance des natures, niveau 1';
 }
@@ -3276,7 +3480,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 12/.test(r.jeu || '') ? 12 : /niveau 11/.test(r.jeu || '') ? 11 : /niveau 10/.test(r.jeu || '') ? 10 : /niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 13/.test(r.jeu || '') ? 13 : /niveau 12/.test(r.jeu || '') ? 12 : /niveau 11/.test(r.jeu || '') ? 11 : /niveau 10/.test(r.jeu || '') ? 10 : /niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -3313,7 +3517,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => {
+  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -3334,7 +3538,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : un texte au système du passé', 9: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels (système du présent)', 10: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels (système du passé)', 11: 'Temps et modes, exercice 5 : du passé au présent', 12: 'Temps et modes, exercice 6 : du présent au passé' };
+const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : un texte au système du passé', 9: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels (système du présent)', 10: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels (système du passé)', 11: 'Temps et modes, exercice 5 : du passé au présent', 12: 'Temps et modes, exercice 6 : du présent au passé', 13: 'La phrase, exercice 1 : syntaxe de la phrase' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
@@ -3625,12 +3829,14 @@ $('open-temps3').addEventListener('click', () => openGame('temps3'));
 $('open-temps4').addEventListener('click', () => openGame('temps4'));
 $('open-temps5').addEventListener('click', () => openGame('temps5'));
 $('open-temps6').addEventListener('click', () => openGame('temps6'));
-$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && w.dataset.i !== undefined) (currentGame.tf ? clicTF : clicFormeTM)(Number(w.dataset.i)); });
+$('open-phrase1').addEventListener('click', () => openGame('phrase1'));
+$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && !currentGame.sx && w.dataset.i !== undefined) (currentGame.tf ? clicTF : clicFormeTM)(Number(w.dataset.i)); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
+  if (q.sx) { speak(TEXTES_SX[q.t].texte.replace(/\[[NSC]\]/g, '').replace(/\{[^|}]+\|([^}]*)\}/g, '$1').replace(/\s+/g, ' '), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (q.tf) { speak(TRANSFOS[currentGame.tf][q.t].texte.replace(/\{([^>}]+)>[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (q.tm) { speak(TEXTES_TM[q.t].texte.replace(/\{([^}|]+)\|[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
   speak(phraseTexte(q.gv ? motsGV(q) : motsDe(q)).replace(/(\S)\.(\S)/g, '$1. $2').replace(/\(…\)/g, '').trim(), 'femme', 'phrase');
