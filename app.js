@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v27';
+const APP_VERSION = 'v29';
 
 const $ = (id) => document.getElementById(id);
 
@@ -1457,6 +1457,7 @@ const PHRASES_GV = [
   'Le/D.def boulanger/N=suj fabrique/VA le/D.def pain/N=cod la/D.def nuit/N=cct .',
 ];
 const PARSED_GV = PHRASES_GV.map(parsePhrase);
+const INFINITIFS = { est: 'être', semble: 'sembler', devient: 'devenir', paraît: 'paraître', reste: 'rester', viens: 'venir', dort: 'dormir', mange: 'manger', lit: 'lire', parlons: 'parler', jouent: 'jouer', pleure: 'pleurer', chante: 'chanter', apporte: 'apporter', vois: 'voir', parles: 'parler', marche: 'marcher', chantent: 'chanter', pense: 'penser', aboie: 'aboyer', partirons: 'partir', souffle: 'souffler', prête: 'prêter', tremble: 'trembler', arrive: 'arriver', fabrique: 'fabriquer' };
 const FN_GV = { suj: 'F.suj', cod: 'F.cod', coi: 'F.coi', cos: 'F.cos', att: 'F.att', ccl: 'F.ccl', cct: 'F.cct', ccm: 'F.ccm', ccc: 'F.ccc' };
 const CC_CODES = ['F.ccl', 'F.cct', 'F.ccm', 'F.ccc'];
 /* le groupe d'un mot : (petit mot) (déterminant) (adjectifs) mot (adjectifs) */
@@ -1491,13 +1492,15 @@ const fnPreciseV = (q, code) => (code === 'F.att' ? `attribut du sujet ${motV(q,
 const CARTES_GV = {
   verbe: () => ({ vert: true, texte: 'Dans cette phrase, appuie sur le verbe.' }),
   verbenat: (q) => ({ vert: true, texte: `Quelle est la nature du verbe ${verbeV(q)} ?`, choix: ['VA', 'VE'] }),
-  suj: (q) => ({ vert: false, texte: `Quel est le sujet du verbe ${verbeV(q)} ? Appuie dessus.` }),
+  suj: (q) => ({ vert: false, texte: `Quel mot a la fonction sujet du verbe ${verbeV(q)} ? Appuie dessus.` }),
   objq: (q) => {
     const k = gnState.objet;
     const quoi = { 'F.cod': 'un COD', 'F.coi': 'un COI', 'F.cos': 'un COS', 'F.att': 'un attribut du sujet' }[k];
+    /* verbe d'état : c'est le sujet qui est décrit par un attribut (« Le sujet « Paul » est-il décrit par un attribut ? ») */
+    if (k === 'F.att') return { vert: false, texte: `Le sujet « ${motV(q, q.a.suj.i)} » est-il décrit par un attribut ?`, choix: ['oui', 'non'] };
     return { vert: false, texte: `Le verbe ${verbeV(q)} a-t-il ${k === 'F.cos' ? 'aussi ' : ''}${quoi} ?`, choix: ['oui', 'non'] };
   },
-  obj: (q) => ({ vert: false, texte: `Appuie sur le ${NOM_FN[gnState.objet]} du verbe ${verbeV(q)}.` }),
+  obj: (q) => ({ vert: false, texte: gnState.objet === 'F.att' ? `Appuie sur l'attribut du sujet « ${motV(q, q.a.suj.i)} ».` : `Appuie sur le ${NOM_FN[gnState.objet]} du verbe ${verbeV(q)}.` }),
   ccq: (q) => ({ vert: false, texte: `Le verbe ${verbeV(q)} a-t-il ${gnState.ccFaits.size ? 'un autre' : 'un'} complément circonstanciel ?`, choix: ['oui', 'non'] }),
   cc: (q) => ({ vert: false, texte: `Appuie sur le complément circonstanciel du verbe ${verbeV(q)}.` }),
   cctype: (q) => ({ vert: false, texte: `Quelle sorte de complément circonstanciel est « ${motV(q, gnState.comp.i)} » ?`, choix: CC_CODES, labels: { 'F.ccl': 'De lieu', 'F.cct': 'De temps', 'F.ccm': 'De manière', 'F.ccc': 'De cause' } }),
@@ -1603,23 +1606,40 @@ function answerBoutonGV(code, btn) {
   }
 }
 /* le bilan, en petit discours : « Le verbe « viens » est un verbe d'action. Son sujet est « je », un pronom personnel… » */
+/* v29 : deux sortes de bilan.
+   - verbe d'état → phrase de DESCRIPTION : le sujet est ce que l'on décrit ; l'attribut lui « attribue » (lui donne)
+     une qualité ;
+   - verbe d'action → phrase de RÉCIT : elle raconte un événement ; le sujet en est l'acteur ; l'action porte sur un
+     objet (COD, COI, COS) ; les compléments circonstanciels disent où, quand, comment, pourquoi. */
 function resumeGV(q, html) {
   const mots = motsGV(q), a = q.a;
   const B = (x) => (html ? `<strong>${esc(x)}</strong>` : x);
-  const t = (c) => `« ${B(mots.slice(c.debut, c.fin + 1).map((m) => m.texte).join(' ').replace(/' /g, "'").replace(/^./, (x) => (mots[c.debut].tag === 'NP' ? x : x.toLowerCase())))} »`;
-  const nat = (c) => { const m = mots[c.i]; const n = NATURE_BY_CODE[m.tag] || NATURE_BY_CODE[natBase(m.tag)]; return c.fin > c.debut ? `dont le mot principal, « ${B(motV(q, c.i))} », est ${n.article}` : n.article; };
-  const phr = [`Tu as bien analysé la phrase. Le verbe ${'« ' + B(motV(q, a.v)) + ' »'} est ${a.etat ? 'un verbe d\'état' : 'un verbe d\'action'}.`];
-  phr.push(`Son sujet est ${t(a.suj)}, ${nat(a.suj)}.`);
-  if (a.etat) phr.push(a.att ? `Il a un attribut du sujet : ${t(a.att)}, ${nat(a.att)}.` : 'Il n\'a pas d\'attribut du sujet.');
-  else {
-    if (a.cod) phr.push(`Il a un COD : ${t(a.cod)}, ${nat(a.cod)}.`);
-    if (a.cos) phr.push(`Il a aussi un COS : ${t(a.cos)}, ${nat(a.cos)}.`);
-    if (a.coi) phr.push(`Il a un COI : ${t(a.coi)}, ${nat(a.coi)}.`);
-    if (!a.cod && !a.coi) phr.push('Il n\'a ni COD ni COI.');
+  const g = (x) => `« ${B(x)} »`;
+  const t = (c) => g(mots.slice(c.debut, c.fin + 1).map((m) => m.texte).join(' ').replace(/' /g, "'").replace(/^./, (x) => (mots[c.debut].tag === 'NP' ? x : x.toLowerCase())));
+  const natArt = (i) => { const m = mots[i]; return (NATURE_BY_CODE[m.tag] || NATURE_BY_CODE[natBase(m.tag)]).article; };
+  /* « une pomme », dont le mot principal est le nom commun « pomme » ; « aujourd'hui », un adverbe */
+  const groupe = (c) => (c.fin > c.debut ? `${t(c)}, dont le mot principal est ${natArt(c.i).replace(/^une? /, 'le ')} ${g(motV(q, c.i))}` : `${t(c)}, ${natArt(c.i)}`);
+  const inf = INFINITIFS[motV(q, a.v)] || motV(q, a.v);
+  const sujet = `le sujet ${g(motV(q, a.suj.i))}, ${natArt(a.suj.i)}`;
+  const POUR = { 'F.ccl': 'où', 'F.cct': 'quand', 'F.ccm': 'comment', 'F.ccc': 'pourquoi' };
+  const ccs = (quoi) => (a.cc.length ? [`${quoi} est accompagné${quoi === 'Cette description' ? 'e' : ''} ${a.cc.map((c) => `d'un complément circonstanciel ${NOM_FN[c.fn].replace('CC ', '')}, ${groupe(c)}, qui dit ${POUR[c.fn]} cela se passe`).join(', et ')}.`] : []);
+  if (a.etat) {
+    const d = [`Tu as bien analysé cette phrase de description. Le verbe ${g(inf)} est un verbe d'état : il ne raconte pas une action, il sert à décrire.`];
+    d.push(`Le sujet ${g(motV(q, a.suj.i))}, ${natArt(a.suj.i)}, est ce que l'on décrit.`);
+    if (a.att) {
+      const adj = mots[a.att.i].tag === 'A';
+      d.push(`Il est décrit par un attribut, ${adj ? `l'adjectif qualificatif ${t(a.att)}` : groupe(a.att)} : attribuer, c'est donner ; l'attribut donne une qualité au sujet.`);
+    }
+    return d.concat(ccs('Cette description')).join(' ');
   }
-  if (!a.cc.length) phr.push('Il n\'a pas de complément circonstanciel.');
-  else a.cc.forEach((c, k) => phr.push(`Il a ${k ? 'aussi ' : ''}un complément circonstanciel ${NOM_FN[c.fn].replace('CC ', '')} : ${t(c)}, ${nat(c)}.`));
-  return phr.join(' ');
+  const r = [`Tu as bien analysé cette phrase de récit : elle raconte un événement. Le verbe ${g(inf)} est un verbe d'action : il dit ce qui se passe.`];
+  r.push(`${capitalize(sujet)}, est l'acteur de l'événement : c'est lui qui fait l'action.`);
+  if (a.cod) r.push(`L'action porte sur un objet, ${groupe(a.cod)} : c'est le COD, le complément d'objet direct, relié au verbe sans petit mot.`);
+  if (a.cos) r.push(`Elle a aussi un objet second, ${groupe(a.cos)} : c'est le COS, le complément d'objet second, relié au verbe par un petit mot.`);
+  /* un pronom COI (« lui ») contient déjà le petit mot : « lui » veut dire « à lui » */
+  if (a.coi) r.push(`L'action porte sur un objet, ${groupe(a.coi)} : c'est le COI, le complément d'objet indirect, ${/^Pr\./.test(mots[a.coi.i].tag) ? `car ${g(motV(q, a.coi.i))} veut dire ${g('à ' + motV(q, a.coi.i))}` : 'relié au verbe par un petit mot'}.`);
+  if (!a.cod && !a.coi) r.push('Ici, l\'action ne porte sur aucun objet : il n\'y a ni COD ni COI.');
+  return r.concat(ccs('Cet événement')).join(' ');
 }
 function finishQuestionGV() {
   const q = game.questions[game.index];
