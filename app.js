@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v52';
+const APP_VERSION = 'v53';
 
 const $ = (id) => document.getElementById(id);
 
@@ -2858,12 +2858,13 @@ function finTF() {
    {code|mots} est une proposition (code : I, P, R, CC complétive = K, circonstancielle = C, Q, INF, PART ; « - » : pas de
    proposition) ; les mots hors accolades (« et ») peuvent être compris dans une bande ou non.
    ------------------------------------------------------------ */
+/* v53 : sur les bandes, le nom complet (« phrase nominale », « proposition indépendante ») : la proposition est une partie de la phrase */
 const BANDES = {
-  syn: [{ code: 'PH.nom', k: 'N', nom: 'Phrase nominale', court: 'nominale' }, { code: 'PH.simple', k: 'S', nom: 'Phrase verbale simple', court: 'verbale simple' }, { code: 'PH.complexe', k: 'C', nom: 'Phrase verbale complexe', court: 'verbale complexe' }],
+  syn: [{ code: 'PH.nom', k: 'N', nom: 'Phrase nominale', court: 'Phrase nominale' }, { code: 'PH.simple', k: 'S', nom: 'Phrase verbale simple', court: 'Phrase verbale simple' }, { code: 'PH.complexe', k: 'C', nom: 'Phrase verbale complexe', court: 'Phrase verbale complexe' }],
   /* v51 : dans cet exercice, on distingue seulement indépendante, principale et subordonnée (le détail des subordonnées viendra plus tard) */
   nat: [
-    { code: 'PR.ind', k: 'I', nom: 'Proposition indépendante', court: 'indépendante' }, { code: 'PR.princ', k: 'P', nom: 'Proposition principale', court: 'principale' },
-    { code: 'PR.sub', k: 'SUB', nom: 'Proposition subordonnée', court: 'subordonnée' },
+    { code: 'PR.ind', k: 'I', nom: 'Proposition indépendante', court: 'Proposition indépendante' }, { code: 'PR.princ', k: 'P', nom: 'Proposition principale', court: 'Proposition principale' },
+    { code: 'PR.sub', k: 'SUB', nom: 'Proposition subordonnée', court: 'Proposition subordonnée' },
   ],
 };
 [...BANDES.syn, ...BANDES.nat].forEach((x) => { x.article = x.nom.toLowerCase(); x.explication = ''; NATURE_BY_CODE[x.code] = x; });
@@ -2932,15 +2933,22 @@ function showQuestionSX() {
 /* dessiner une bande : les mots a…b, dans la rangée bleue (syn) ou verte (nat) ; l'étiquette au début de la bande
    et de nouveau au début de chaque ligne quand la bande continue */
 function peintSX(lane, a, b, classe, texte) {
-  let haut = null;
+  /* v53 : la bande est coupée en morceaux, un par ligne ; l'étiquette va sur chaque morceau assez long pour elle,
+     ou, s'il n'y en a aucun, sur le plus long (elle déborde alors, sur un fond de sa couleur) */
+  const morceaux = [];
   for (let i = a; i <= b; i++) {
     const w = wordEl(i), l = w?.querySelector(`.sx-lane.${lane}`);
     if (!l) continue;
-    const nouvelleLigne = haut !== null && w.offsetTop > haut + 5;
-    haut = w.offsetTop;
     l.className = `sx-lane ${lane} ${classe}${i === a ? ' debut' : ''}${i === b ? ' fin' : ''}`;
-    l.innerHTML = (i === a || nouvelleLigne) && texte ? `<span class="sx-etq">${texte}</span>` : '';
+    l.innerHTML = '';
+    const der = morceaux[morceaux.length - 1];
+    if (der && Math.abs(w.offsetTop - der.haut) < 6) { der.l.push(l); der.larg += w.offsetWidth; } else morceaux.push({ haut: w.offsetTop, l: [l], larg: w.offsetWidth });
   }
+  if (!texte || !morceaux.length) return;
+  const besoin = texte.length * 7.5 + 14;
+  let ou = morceaux.filter((m) => m.larg >= besoin);
+  if (!ou.length) ou = [morceaux.reduce((x, y) => (y.larg > x.larg ? y : x))];
+  ou.forEach((m) => { m.l[0].innerHTML = `<span class="sx-etq${m.larg < besoin ? ' deborde' : ''}">${texte}</span>`; });
 }
 /* chaque morceau d'une bande connaît sa cible, pour qu'on puisse la toucher n'importe où */
 function marqueCibleSX(c) { for (let i = c.a; i <= c.b; i++) { const l = wordEl(i)?.querySelector(`.sx-lane.${c.lane}`); if (l) l.dataset.cle = c.cle; } }

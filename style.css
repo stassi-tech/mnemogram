@@ -701,3 +701,6 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .sx-lane.vide { border-left:none !important; border-right:none !important; }
 .sx-lane.vide.debut { border-left:1px solid rgba(255,255,255,.7) !important; }
 .sx-lane.vide.fin { border-right:1px solid rgba(255,255,255,.7) !important; }
+.sx-etq.deborde { padding:0 6px; border-radius:5px; left:0; }
+.sx-lane.bleu .sx-etq.deborde { background:#2a6fdb; } .sx-lane.vert .sx-etq.deborde { background:#2e7d4f; }
+.sx-lane.revele .sx-etq.deborde, .sx-lane.vide .sx-etq.deborde { box-shadow:0 0 0 1px rgba(255,255,255,.6); }
