@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v21';
+const APP_VERSION = 'v23';
 
 const $ = (id) => document.getElementById(id);
 
@@ -838,7 +838,7 @@ function openGame(id) {
   $('natures-panel').classList.toggle('game4', id === 'gn');
   $('nat-ready-explanation').innerHTML = id === 'fonctions'
     ? 'Dans chaque phrase, un mot clignote. Trouve d\'abord sa <strong>nature</strong> parmi les boutons verts : les autres natures disparaissent, et ses <strong>fonctions</strong> possibles apparaissent sur des boutons rouges. La bonne nature rapporte 0,5 point, la bonne fonction 0,5 point. Si tu te trompes, tu as droit à un deuxième essai.'
-    : id === 'gn' ? 'Cette fois, tu <strong>tires les étiquettes</strong> sous les mots de la phrase (avec la souris ou le doigt ; tu peux aussi cliquer sur l\'étiquette, puis sur le mot). D\'abord « Nom commun », « Nom propre » ou « Pronom » sous <strong>chaque nom et chaque pronom</strong> ; puis « Déterminant » sous chaque déterminant, et tu dis quelle sorte de déterminant c\'est ; puis « Adjectif qualificatif » s\'il y en a un, et sa fonction (épithète, attribut ou apposé) ; enfin « Complément du nom » s\'il y en a un. S\'il n\'y en a pas, clique sur « Il n\'y en a pas ».'
+    : id === 'gn' ? 'Cette fois, des <strong>consignes</strong> apparaissent à droite, l\'une après l\'autre : <strong>vertes</strong> pour la nature, <strong>rouges</strong> pour la fonction. Tu réponds en appuyant sur le bon mot de la phrase, ou sur les cases de la consigne. Ta réponse se pose sous le mot : dans un <strong>carré vert</strong> si c\'est une nature (nom commun, déterminant, adjectif qualificatif…), dans un <strong>carré rouge</strong> si c\'est une fonction (épithète, complément du nom…).'
     : 'Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.';
   buildNatureButtons();
   $('nat-game-title').textContent = currentGame.titre;
@@ -1133,28 +1133,31 @@ const PHRASES_GN = [
 ];
 const PARSED_GN = PHRASES_GN.map(parsePhrase);
 const motsDe = (q) => (q && q.gn ? PARSED_GN[q.phrase] : PARSED[q.phrase]);
-/* v21 : on ne colore plus les mots. On TIRE les étiquettes (boutons) sous les mots de la phrase :
-   1. « Nom commun », « Nom propre », « Pronom » : sous chaque nom et chaque pronom de la phrase
-      (pour un pronom, on choisit ensuite sa sorte exacte dans la barre des pronoms) ;
-   2. « Déterminant » : sous chaque déterminant, puis on choisit sa sorte exacte dans la barre ;
-   3. « Adjectif qualificatif » sous l'adjectif (ou « Il n'y en a pas »), puis sa fonction ;
-   4. « Complément du nom » sous le complément du nom (ou « Il n'y en a pas »).
-   On peut tirer l'étiquette avec la souris ou le doigt, ou bien cliquer sur l'étiquette puis sur le mot. */
+/* v23 : jeu 4, d'après les consignes de Stéphane.
+   Les mots gardent leur couleur. À droite, des BOUTONS CONSIGNES apparaissent l'un après l'autre (vert pour une
+   question de nature, rouge pour une question de fonction). On répond en appuyant sur le mot dans la phrase, ou sur
+   les cases de la consigne. Chaque réponse se pose sous le mot, dans un CARRÉ VERT (nature) ou un CARRÉ ROUGE
+   (fonction) : l'adjectif garde son carré vert « adjectif qualificatif », et sa fonction (épithète…) vient dans un
+   carré rouge en dessous ; le complément du nom a son carré vert (sa nature) au-dessus du carré rouge (sa fonction).
+   C'est pour que l'enfant ne confonde plus nature et fonction.
+   1. « Appuie sur le nom commun (ou le pronom) dans ce groupe nominal. »
+   2. « Appuie maintenant sur le déterminant. » puis « Quelle est la nature précise de ce déterminant ? »
+      (pour un pronom : « Quelle est la nature précise de ce pronom ? »)
+   3. « Le nom est-il décrit par un adjectif qualificatif ? » oui / non ; si oui : on appuie sur l'adjectif, puis
+      « Quelle est la fonction de cet adjectif qualificatif ? » (et l'on redemande s'il y en a un autre)
+   4. « Y a-t-il un complément du nom ? » oui / non ; si oui : on appuie dessus, puis « Quelle est la nature du
+      complément du nom ? » */
 function analyseGN(mots) {
-  const nat = (m) => (m.tag === 'N' ? 'N' : m.tag === 'NP' ? 'NP' : /^Pr\./.test(m.tag) ? 'Pr' : null);
-  const g = { noms: [], dets: [], adj: [], cdn: null };
-  mots.forEach((m, i) => {
-    if (nat(m)) g.noms.push(i);
-    if (/^D\./.test(m.tag)) g.dets.push(i);
-    if (m.tag === 'A' && m.fn) g.adj.push(i);
-  });
+  const t = mots.findIndex((m) => (m.tag === 'N' || /^Pr\./.test(m.tag)) && m.fn !== 'cdn');
+  const g = { t, pronom: /^Pr\./.test(mots[t].tag), d: null, dType: '', adj: [], cdn: null };
+  if (!g.pronom) { let k = t - 1; while (k >= 0 && mots[k].tag === 'A') k--; if (k >= 0 && /^D\./.test(mots[k].tag)) { g.d = k; g.dType = mots[k].tag; } }
+  mots.forEach((m, i) => { if (m.tag === 'A' && m.fn) g.adj.push(i); });
   const c = mots.findIndex((m) => m.fn === 'cdn');
-  if (c >= 0) { let d = c; while (d > 0 && mots[d - 1].tag !== 'P') d--; g.cdn = { debut: d - 1, fin: c }; }
-  g.pronom = g.noms.some((i) => nat(mots[i]) === 'Pr');
-  g.nat = nat;
+  if (c >= 0) { let d = c; while (d > 0 && mots[d - 1].tag !== 'P') d--; g.cdn = { debut: d - 1, fin: c, tete: c }; }
   return g;
 }
 const ADJ_FN = { epi: 'F.epi', att: 'F.att', app: 'F.app' };
+const natBase = (tag) => (tag === 'N' ? 'N' : tag === 'NP' ? 'NP' : /^Pr\./.test(tag) ? 'Pr' : tag);
 function buildQuestionsGN() {
   const n = PARSED_GN.map((m, i) => i);
   /* environ un pronom pour trois noms, et des phrases toutes différentes */
@@ -1163,14 +1166,15 @@ function buildQuestionsGN() {
   const choix = shuffle(prons.slice(0, nbP).concat(noms.slice(0, nbQuestions() - nbP)));
   return choix.map((p) => ({ gn: true, phrase: p, g: analyseGN(PARSED_GN[p]) }));
 }
-const gnState = { etape: 'noms', essais: 0, reussies: 0, total: 0, poses: new Set(), courant: null, arme: null };
+const gnState = { etape: 'nom', essais: 0, reussies: 0, total: 0, adjFaits: new Set(), courant: null, cartes: [] };
 function wordEl(i) { return document.querySelector(`#nat-sentence .w[data-i="${i}"]`); }
-const ETIQ = { N: 'nom<br>commun', NP: 'nom<br>propre', Pr: 'pronom', D: 'déterminant', A: 'adjectif<br>qualificatif', 'F.cdn': 'complément<br>du nom' };
-function poseEtiquette(i, html, rouge) {
+/* un carré de réponse sous le mot : vert (nature) ou rouge (fonction) ; « avant » le place au-dessus des autres */
+function carre(i, texte, rouge, avant) {
   const el = wordEl(i); if (!el) return;
-  let lab = el.querySelector('.lab');
-  if (!lab) { lab = document.createElement('span'); lab.className = 'lab'; el.appendChild(lab); }
-  lab.innerHTML = html; lab.classList.toggle('rouge', !!rouge);
+  let labs = el.querySelector('.labs');
+  if (!labs) { labs = document.createElement('span'); labs.className = 'labs'; el.appendChild(labs); }
+  const c = document.createElement('span'); c.className = `lab${rouge ? ' rouge' : ''}`; c.innerHTML = texte;
+  if (avant) labs.prepend(c); else labs.appendChild(c);
 }
 function showQuestionGN() {
   const q = game.questions[game.index];
@@ -1178,76 +1182,40 @@ function showQuestionGN() {
   $('nat-character-stage').innerHTML = '';
   $('nat-correction').classList.add('hidden');
   $('nat-verdict-square').className = 'verdict-square';
-  Object.assign(gnState, { etape: 'noms', essais: 0, reussies: 0, total: 0, poses: new Set(), courant: null, arme: null });
+  $('nat-instruction').textContent = 'Analyse le groupe nominal';
+  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
+  $('nat-buttons-invariables').innerHTML = '';
+  Object.assign(gnState, { etape: 'nom', essais: 0, reussies: 0, total: 0, adjFaits: new Set(), courant: null, cartes: [] });
   updateProgress();
   gnEtape();
 }
-/* Les boutons de l'étape en cours (les autres disparaissent) et la consigne. */
-function gnEtape() {
-  const q = game.questions[game.index], mots = motsDe(q), g = q.g;
-  const tire = (code, label, rouge) => `<button type="button" class="nature-button tirable${rouge ? ' fonction-button' : ''}" data-tire="${code}">✥ ${label || NATURE_BY_CODE[code].nom}</button>`;
-  const barre = (titre, codes) => `<div class="nature-subgroup"><span class="nature-subtitle">${titre}</span><div class="nature-row nature-row-7">${codes.map((c) => `<button type="button" class="nature-button small" data-gn="${c}">${NATURE_BY_CODE[c].court}</button>`).join('')}</div></div>`;
-  const rouge = (code, label) => `<button type="button" class="nature-button fonction-button" data-gn="${code}">${label || NATURE_BY_CODE[code].court}</button>`;
-  const aucun = (label) => `<button type="button" class="nature-button gn-aucun" data-gn="aucun">${label}</button>`;
-  let vert = '', red = '', consigne = '';
-  const restAdj = g.adj.filter((k) => !gnState.poses.has(k));
-  switch (gnState.etape) {
-    case 'noms': vert = tire('N') + tire('NP') + tire('Pr'); consigne = gnState.poses.size ? 'Il reste un nom ou un pronom : tire la bonne étiquette sous ce mot.' : 'Tire l\'étiquette « Nom commun », « Nom propre » ou « Pronom » sous chaque nom et chaque pronom de la phrase.'; break;
-    case 'prnat': vert = barre('Pronom', ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int']); consigne = `Quelle sorte de pronom est « ${mots[gnState.courant].texte} » ?`; break;
-    case 'dets': vert = tire('D'); consigne = 'Tire l\'étiquette « Déterminant » sous chaque déterminant de la phrase.'; break;
-    case 'detnat': vert = barre('Déterminant', ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int']); consigne = `Quelle sorte de déterminant est « ${mots[gnState.courant].texte} » ?`; break;
-    case 'adj': vert = tire('A') + aucun(g.adj.length && !restAdj.length ? 'Il n\'y en a plus' : 'Il n\'y en a pas'); consigne = g.adj.length && !restAdj.length ? 'Y a-t-il encore un adjectif qualificatif ?' : 'Y a-t-il un adjectif qualificatif ? Tire l\'étiquette sous l\'adjectif.'; break;
-    case 'adjfn': red = rouge('F.epi') + rouge('F.att', 'Attribut') + rouge('F.app'); consigne = `Quelle est la fonction de l'adjectif « ${mots[gnState.courant].texte} » ?`; break;
-    case 'cdn': red = tire('F.cdn', 'Complément du nom', true) + aucun('Il n\'y en a pas'); consigne = 'Y a-t-il un complément du nom ? Tire l\'étiquette sous le complément du nom.'; break;
-    default: break;
-  }
-  $('nat-buttons-variables').innerHTML = vert;
-  $('nat-buttons-invariables').innerHTML = '';
-  $('nat-buttons-fonctions').innerHTML = red;
-  $('nat-fn-column').classList.toggle('hidden', !red);
-  $('nat-nature-column').classList.toggle('hidden', !vert);
-  if (consigne) $('nat-instruction').textContent = consigne;
+/* Les cartes-consignes de l'étape : chaque sujet (nom, déterminant, adjectif, complément du nom) a ses cartes,
+   qui s'empilent ; quand le sujet est fini, elles disparaissent et la consigne suivante arrive. */
+const CARTES = {
+  nom: (q, m) => ({ vert: true, texte: q.g.pronom ? 'Appuie sur le pronom dans ce groupe nominal.' : 'Appuie sur le nom commun dans ce groupe nominal.' }),
+  det: () => ({ vert: true, texte: 'Appuie maintenant sur le déterminant.' }),
+  detnat: () => ({ vert: true, texte: 'Quelle est la nature précise de ce déterminant ?', choix: ['D.def', 'D.ind', 'D.pos', 'D.dem', 'D.num', 'D.idf', 'D.int'], petits: true }),
+  prnat: () => ({ vert: true, texte: 'Quelle est la nature précise de ce pronom ?', choix: ['Pr.per', 'Pr.rel', 'Pr.pos', 'Pr.dem', 'Pr.num', 'Pr.idf', 'Pr.int'], petits: true }),
+  adjq: (q) => ({ vert: true, texte: `Dans ce groupe nominal, ${q.g.pronom ? 'le pronom' : 'le nom'} est-il décrit par ${gnState.adjFaits.size ? 'un autre' : 'un'} adjectif qualificatif ?`, choix: ['oui', 'non'] }),
+  adj: () => ({ vert: true, texte: 'Appuie sur l\'adjectif qualificatif.' }),
+  adjfn: () => ({ vert: false, texte: 'Quelle est la fonction de cet adjectif qualificatif ?', choix: ['F.att', 'F.epi', 'F.app'] }),
+  cdnq: () => ({ vert: false, texte: 'Dans ce groupe nominal, y a-t-il un complément du nom ?', choix: ['oui', 'non'] }),
+  cdn: () => ({ vert: false, texte: 'Appuie sur le complément du nom.' }),
+  cdnnat: () => ({ vert: true, texte: 'Quelle est la nature du complément du nom ?', choix: ['N', 'NP', 'Pr'] }),
+};
+const LIB = { oui: 'Oui', non: 'Non', 'F.att': 'Attribut', 'F.epi': 'Épithète', 'F.app': 'Apposé' };
+function gnEtape(nouveauSujet) {
+  const q = game.questions[game.index];
+  if (nouveauSujet) gnState.cartes = [];
+  gnState.cartes.push(gnState.etape);
+  const html = gnState.cartes.map((e, n) => {
+    const c = CARTES[e](q), actif = n === gnState.cartes.length - 1;
+    const bouton = (code) => `<button type="button" class="nature-button${c.petits ? ' small' : ''}${c.vert ? '' : ' fonction-button'}" data-gn="${code}">${LIB[code] || (c.petits ? NATURE_BY_CODE[code].court : NATURE_BY_CODE[code].nom)}</button>`;
+    const choix = c.choix && actif ? (c.petits ? `<div class="nature-row nature-row-7">${c.choix.map(bouton).join('')}</div>` : `<div class="carte-choix carte-choix-${c.choix.length}">${c.choix.map(bouton).join('')}</div>`) : '';
+    return `<div class="carte ${c.vert ? 'verte' : 'rouge'}${actif ? ' active' : ' faite'}"><p>${c.texte}</p>${choix}</div>`;
+  }).join('');
+  $('nat-buttons-variables').innerHTML = html;
   document.querySelectorAll('[data-gn]').forEach((b) => b.addEventListener('click', () => answerBoutonGN(b.dataset.gn, b)));
-  document.querySelectorAll('[data-tire]').forEach(brancheTirage);
-}
-/* ---------- tirer une étiquette (souris ou doigt) ; un simple clic la « prend », puis un clic sur le mot la pose ---------- */
-function brancheTirage(btn) {
-  btn.addEventListener('pointerdown', (e) => {
-    if (game.fini) return;
-    e.preventDefault();
-    const x0 = e.clientX, y0 = e.clientY; let fantome = null, survol = null;
-    const sous = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.closest('#nat-sentence .w'); };
-    const bouge = (ev) => {
-      if (!fantome && Math.hypot(ev.clientX - x0, ev.clientY - y0) > 6) {
-        fantome = document.createElement('div'); fantome.className = 'fantome' + (btn.classList.contains('fonction-button') ? ' rouge' : '');
-        fantome.textContent = btn.textContent.replace('✥ ', ''); document.body.appendChild(fantome);
-      }
-      if (!fantome) return;
-      fantome.style.left = `${ev.clientX}px`; fantome.style.top = `${ev.clientY}px`;
-      fantome.style.visibility = 'hidden'; const w = sous(ev.clientX, ev.clientY); fantome.style.visibility = '';
-      if (survol !== w) { survol?.classList.remove('survol'); survol = w; survol?.classList.add('survol'); }
-    };
-    const fin = (ev) => {
-      document.removeEventListener('pointermove', bouge); document.removeEventListener('pointerup', fin); document.removeEventListener('pointercancel', fin);
-      survol?.classList.remove('survol');
-      if (fantome) {
-        fantome.remove();
-        const w = sous(ev.clientX, ev.clientY);
-        if (w) deposeGN(btn.dataset.tire, Number(w.dataset.i), w);
-      } else {
-        /* simple clic : l'étiquette est prise ; on clique ensuite sur le mot */
-        document.querySelectorAll('.tirable.arme').forEach((b) => b.classList.remove('arme'));
-        gnState.arme = btn.dataset.tire; btn.classList.add('arme');
-        $('nat-instruction').textContent = 'Clique maintenant sur le mot, dans la phrase.';
-      }
-    };
-    document.addEventListener('pointermove', bouge); document.addEventListener('pointerup', fin); document.addEventListener('pointercancel', fin);
-  });
-}
-function clicMotGN(i, el) {
-  if (game.fini || !gnState.arme) return;
-  const code = gnState.arme; gnState.arme = null;
-  deposeGN(code, i, el);
 }
 function gnErreur(el, attendu, choisi) {
   const q = game.questions[game.index];
@@ -1264,92 +1232,87 @@ function gnCompte(c) {
   gnState.total += 1; if (gnState.essais === 0) gnState.reussies += 1;
   gnState.essais = 0;
 }
-function gnVers(etape) { gnState.etape = etape; if (etape === 'fini') finishQuestionGN(); else gnEtape(); }
+/* « meme » : la nouvelle carte s'ajoute sous les précédentes du même sujet ; sinon on repart d'une pile vide */
+function gnVers(etape, meme) { gnState.etape = etape; if (etape === 'fini') finishQuestionGN(); else gnEtape(!meme); }
 const natOf = (m) => NATURE_BY_CODE[m.tag] || NATURE_BY_CODE[m.tag.split('.')[0]] || { article: m.texte };
-/* après les noms : les déterminants s'il y en a, sinon les adjectifs */
-function apresNoms(q) { const g = q.g; if (g.noms.every((k) => gnState.poses.has(k))) gnVers(g.dets.length ? 'dets' : 'adj'); else gnVers('noms'); }
-function apresDets(q) { const g = q.g; if (g.dets.every((k) => gnState.poses.has(k))) gnVers('adj'); else gnVers('dets'); }
-function deposeGN(code, i, el) {
-  document.querySelectorAll('.tirable.arme').forEach((b) => b.classList.remove('arme'));
+const NOM_COURT = (code) => (NATURE_BY_CODE[code].court || NATURE_BY_CODE[code].nom).replace(/&shy;/g, '').toLowerCase();
+function clicMotGN(i, el) {
+  if (game.fini) return;
   const q = game.questions[game.index], mots = motsDe(q), g = q.g, e = gnState.etape;
   const choisi = { texte: mots[i].texte, article: natOf(mots[i]).article };
-  const attendu = { N: 'un nom commun', NP: 'un nom propre', Pr: 'un pronom', D: 'un déterminant', A: 'un adjectif qualificatif', 'F.cdn': 'un complément du nom' }[code];
-  /* le complément du nom contient un nom qui a déjà son étiquette : on peut le poser sur n'importe quel mot du complément */
-  const bonMot = (k) => (code === 'F.cdn' ? !!g.cdn && k >= g.cdn.debut && k <= g.cdn.fin : !gnState.poses.has(k) && (
-    code === 'D' ? /^D\./.test(mots[k].tag) : code === 'A' ? g.adj.includes(k) : g.nat(mots[k]) === code));
-  let k = bonMot(i) ? i : null;
-  if (k === null) {
-    if (!gnErreur(el, attendu, choisi)) { gnEtape(); return; }
-    /* deuxième erreur : l'étiquette se pose toute seule au bon endroit */
-    const liste = e === 'noms' ? g.noms.filter((x) => !gnState.poses.has(x)) : e === 'dets' ? g.dets.filter((x) => !gnState.poses.has(x))
-      : e === 'adj' ? g.adj.filter((x) => !gnState.poses.has(x)) : g.cdn ? [g.cdn.debut] : [];
-    k = liste[0] ?? null;
-    if (k === null) { gnCompte(code); gnVers(e === 'adj' ? 'cdn' : 'fini'); return; }
-    code = e === 'noms' ? g.nat(mots[k]) : code;
+  if (e === 'nom') {
+    if (i === g.t || gnErreur(el, g.pronom ? 'le pronom' : 'le nom commun', choisi)) {
+      gnCompte(g.pronom ? 'Pr' : 'N'); carre(g.t, g.pronom ? 'pronom' : 'nom<br>commun');
+      if (g.pronom) gnVers('prnat', true); else gnVers(g.d !== null ? 'det' : 'adjq');
+    }
+  } else if (e === 'det') {
+    if (i === g.d || gnErreur(el, 'le déterminant', choisi)) { gnCompte('D'); carre(g.d, 'déterminant'); gnVers('detnat', true); }
+  } else if (e === 'adj') {
+    const restants = g.adj.filter((k) => !gnState.adjFaits.has(k));
+    let pris = restants.includes(i) ? i : null;
+    if (pris === null && gnErreur(el, 'un adjectif qualificatif', choisi)) pris = restants[0];
+    if (pris === null || pris === undefined) return;
+    gnCompte('A'); gnState.adjFaits.add(pris); gnState.courant = pris; carre(pris, 'adjectif<br>qualificatif'); gnVers('adjfn', true);
+  } else if (e === 'cdn') {
+    if ((i >= g.cdn.debut && i <= g.cdn.fin) || gnErreur(el, 'le complément du nom', choisi)) {
+      gnCompte('F.cdn'); carre(g.cdn.tete, 'complément<br>du nom', true);
+      for (let k = g.cdn.debut; k <= g.cdn.fin; k++) wordEl(k)?.classList.add('gn-groupe');
+      gnVers('cdnnat', true);
+    }
+  } else {
+    /* la réponse se donne sur les cases de la consigne */
+    const a = document.querySelector('.carte.active'); if (a) { a.classList.remove('gn-flash'); void a.offsetWidth; a.classList.add('gn-flash'); }
   }
-  if (code === 'F.cdn') {
-    gnCompte('F.cdn'); gnState.poses.add(g.cdn.debut);
-    poseEtiquette(g.cdn.debut, ETIQ['F.cdn'], true);
-    for (let x = g.cdn.debut; x <= g.cdn.fin; x++) wordEl(x)?.classList.add('gn-groupe');
-    gnVers('fini'); return;
-  }
-  gnCompte(code); gnState.poses.add(k); gnState.courant = k;
-  poseEtiquette(k, ETIQ[code]);
-  if (code === 'Pr') { gnVers('prnat'); return; }
-  if (code === 'D') { gnVers('detnat'); return; }
-  if (code === 'A') { gnVers('adjfn'); return; }
-  apresNoms(q);
 }
 function answerBoutonGN(code, btn) {
   if (game.fini) return;
-  const q = game.questions[game.index], mots = motsDe(q), g = q.g, e = gnState.etape, k = gnState.courant;
-  const fauxBouton = (attendu, choisiArticle) => { btn.classList.add('wrong'); btn.disabled = true; return gnErreur(null, attendu, { texte: mots[k] ? mots[k].texte : '—', article: choisiArticle }); };
-  const montrer = (c) => document.querySelector(`[data-gn="${c}"]`)?.classList.add('correct');
-  if (e === 'detnat' || e === 'prnat' || e === 'adjfn') {
-    const bon = e === 'adjfn' ? ADJ_FN[mots[k].fn] : mots[k].tag;
-    if (code !== bon && !fauxBouton(NATURE_BY_CODE[bon].article, NATURE_BY_CODE[code].article)) return;
+  const q = game.questions[game.index], mots = motsDe(q), g = q.g, e = gnState.etape;
+  const faux = (attendu, choisiArticle, mot) => { btn.classList.add('wrong'); btn.disabled = true; return gnErreur(null, attendu, { texte: mot, article: choisiArticle }); };
+  const montrer = (c) => document.querySelector(`.carte.active [data-gn="${c}"]`)?.classList.add('correct');
+  const restants = g.adj.filter((k) => !gnState.adjFaits.has(k));
+  const suite = (f) => setTimeout(f, 600);
+  if (e === 'detnat' || e === 'prnat' || e === 'adjfn' || e === 'cdnnat') {
+    const k = e === 'detnat' ? g.d : e === 'prnat' ? g.t : e === 'adjfn' ? gnState.courant : g.cdn.tete;
+    const bon = e === 'adjfn' ? ADJ_FN[mots[k].fn] : e === 'cdnnat' ? natBase(mots[k].tag) : mots[k].tag;
+    if (code !== bon && !faux(NATURE_BY_CODE[bon].article, NATURE_BY_CODE[code].article, mots[k].texte)) return;
     if (code === bon) btn.classList.add('correct'); else montrer(bon);
     gnCompte(bon);
-    const base = e === 'detnat' ? 'déterminant' : e === 'prnat' ? 'pronom' : 'adjectif<br>qualificatif';
-    poseEtiquette(k, `${base}<br>${NATURE_BY_CODE[bon].court.replace(/&shy;/g, '').toLowerCase()}`, e === 'adjfn');
-    setTimeout(() => (e === 'detnat' ? apresDets(q) : e === 'prnat' ? apresNoms(q) : gnVers('adj')), 600);
+    if (e === 'detnat') { wordEl(k).querySelector('.lab').innerHTML = `déterminant<br>${NOM_COURT(bon)}`; suite(() => gnVers('adjq')); }
+    else if (e === 'prnat') { wordEl(k).querySelector('.lab').innerHTML = `pronom<br>${NOM_COURT(bon)}`; suite(() => gnVers('adjq')); }
+    else if (e === 'adjfn') { carre(k, NOM_COURT(bon), true); suite(() => gnVers('adjq')); }
+    else { carre(k, NATURE_BY_CODE[bon].nom.toLowerCase().replace(' ', '<br>'), false, true); suite(() => gnVers('fini')); }
     return;
   }
-  if (code === 'aucun' && e === 'adj') {
-    const restants = g.adj.filter((x) => !gnState.poses.has(x));
-    if (!restants.length) { gnCompte('A'); gnVers('cdn'); return; }
-    if (fauxBouton('il y avait un adjectif qualificatif', 'il n\'y en a pas')) {
-      gnCompte('A'); const x = restants[0]; gnState.poses.add(x); gnState.courant = x; poseEtiquette(x, ETIQ.A); gnVers('adjfn');
-    }
+  if (e === 'adjq') {
+    const juste = (code === 'oui') === (restants.length > 0);
+    if (!juste && !faux(restants.length ? 'oui, il y a un adjectif qualificatif' : 'non, il n\'y a pas d\'adjectif qualificatif', code, '—')) return;
+    gnCompte('A?');
+    if (restants.length) suite(() => gnVers('adj', true)); else suite(() => gnVers('cdnq'));
     return;
   }
-  if (code === 'aucun' && e === 'cdn') {
-    if (!g.cdn) { gnCompte('F.cdn'); gnVers('fini'); return; }
-    if (fauxBouton('il y avait un complément du nom', 'il n\'y en a pas')) {
-      gnCompte('F.cdn'); poseEtiquette(g.cdn.debut, ETIQ['F.cdn'], true);
-      for (let x = g.cdn.debut; x <= g.cdn.fin; x++) wordEl(x)?.classList.add('gn-groupe');
-      gnVers('fini');
-    }
+  if (e === 'cdnq') {
+    const juste = (code === 'oui') === !!g.cdn;
+    if (!juste && !faux(g.cdn ? 'oui, il y a un complément du nom' : 'non, il n\'y a pas de complément du nom', code, '—')) return;
+    gnCompte('F.cdn?');
+    suite(() => gnVers(g.cdn ? 'cdn' : 'fini', true));
   }
 }
 function resumeGN(q, html) {
   const mots = motsDe(q), g = q.g;
   const t = (a, b) => mots.slice(a, b + 1).map((m) => m.texte).join(' ').replace(/' /g, "'");
   const B = (x) => (html ? `<strong>${esc(x)}</strong>` : x);
-  /* dans l'ordre de la phrase */
-  const items = [];
-  g.noms.concat(g.dets).forEach((i) => items.push([i, `« ${B(mots[i].texte)} » : ${NATURE_BY_CODE[mots[i].tag].nom.toLowerCase()}`]));
-  g.adj.forEach((i) => items.push([i, `« ${B(mots[i].texte)} » : adjectif qualificatif ${NATURE_BY_CODE[ADJ_FN[mots[i].fn]].nom.toLowerCase()}`]));
+  const items = [[g.t, `« ${B(mots[g.t].texte)} » : ${NATURE_BY_CODE[mots[g.t].tag].nom.toLowerCase()}`]];
+  if (g.d !== null) items.push([g.d, `« ${B(mots[g.d].texte)} » : ${NATURE_BY_CODE[g.dType].nom.toLowerCase()}`]);
+  g.adj.forEach((i) => items.push([i, `« ${B(mots[i].texte)} » : adjectif qualificatif (nature), ${NATURE_BY_CODE[ADJ_FN[mots[i].fn]].nom.toLowerCase()} (fonction)`]));
   const parts = items.sort((x, y) => x[0] - y[0]).map((x) => x[1]);
   if (!g.adj.length) parts.push('pas d\'adjectif qualificatif');
-  parts.push(g.cdn ? `« ${B(t(g.cdn.debut, g.cdn.fin))} » : complément du nom` : 'pas de complément du nom');
+  parts.push(g.cdn ? `« ${B(t(g.cdn.debut, g.cdn.fin))} » : complément du nom (fonction) ; « ${B(mots[g.cdn.tete].texte)} » est ${NATURE_BY_CODE[mots[g.cdn.tete].tag].article} (nature)` : 'pas de complément du nom');
   return parts.join(html ? ' ;<br>' : ', ') + '.';
 }
 function finishQuestionGN() {
   const q = game.questions[game.index];
   gnState.etape = 'fini';
-  $('nat-buttons-variables').innerHTML = ''; $('nat-buttons-fonctions').innerHTML = '';
-  $('nat-fn-column').classList.add('hidden'); $('nat-nature-column').classList.remove('hidden');
+  $('nat-buttons-variables').innerHTML = '';
   const part = gnState.total ? gnState.reussies / gnState.total : 1;
   game.score = Math.round((game.score + part) * 100) / 100;
   $('nat-instruction').textContent = 'Le groupe nominal est analysé !';

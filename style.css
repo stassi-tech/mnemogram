@@ -517,6 +517,32 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .fantome.rouge { background:var(--fn-red); }
 .game4 .sentence .w.gn-err { color:inherit; }
 .game4 .sentence .pn { margin-left:-6px; margin-right:2px; }
-.game4 .sentence { font-size:.88em; }
 .game4 .sentence .w .lab { font-size:max(.3em, 11px); }
-@media (max-width:640px) { .game4 .sentence { font-size:1.35em; gap:10px 0; } .game4 .sentence .w { padding:0 5px; } }
+@media (max-width:640px) { .game4 .sentence { font-size:clamp(1.4rem,6.5vw,1.9rem); gap:10px 0; } .game4 .sentence .w { padding:0 5px; } }
+/* v22 : même grande taille de phrase que dans les autres jeux, et la phrase prend toute la largeur du tableau */
+.game4 .sentence { width:100%; font-size:clamp(1.6rem,2.9vw,2.6rem); }
+@media (max-width:640px) { .game4 .sentence { font-size:clamp(1.4rem,6.5vw,1.9rem); } }
+
+/* ============================================================
+   v23 : JEU 4 — boutons consignes (vert = nature, rouge = fonction) et carrés de réponse sous les mots
+   ============================================================ */
+.game4 .sentence { font-size:clamp(2rem,3.6vw,3.3rem); gap:22px 0; }
+@media (max-width:640px) { .game4 .sentence { font-size:clamp(1.6rem,7.5vw,2.2rem); } }
+.game4 .sentence .w .labs { display:flex; flex-direction:column; align-items:center; gap:4px; margin-top:8px; }
+.game4 .sentence .w .labs .lab { margin-top:0; font-size:max(.28em, 12px); }
+.game4 #nat-instruction { color:var(--muted); font-size:1rem; text-transform:uppercase; letter-spacing:.08em; }
+.game4 #nat-buttons-variables { display:flex; flex-direction:column; gap:12px; max-width:560px; }
+.carte { border:3px solid var(--nat-green); background:#eef7f0; border-radius:10px; padding:12px 14px; animation:fnApparait .3s ease-out; }
+.carte.rouge { border-color:var(--fn-red); background:#fbecea; }
+.carte p { margin:0; font-family:Arial,sans-serif; font-weight:700; font-size:1.1rem; color:#1d4f2c; }
+.carte.rouge p { color:#8e2a1f; }
+.carte.active { box-shadow:0 0 0 4px rgba(255,224,102,.7); }
+.carte.faite { opacity:.6; padding:8px 14px; }
+.carte.faite p { font-size:.95rem; }
+.carte .nature-row, .carte .carte-choix { margin-top:10px; }
+.carte-choix { display:grid; gap:8px; }
+.carte-choix-2 { grid-template-columns:1fr 1fr; }
+.carte-choix-3 { grid-template-columns:1fr 1fr 1fr; }
+.carte .nature-button { text-align:center; animation:none; }
+.carte.gn-flash { animation:gnFlash .5s 2; }
+@media (prefers-reduced-motion:no-preference) { .carte.active { animation:fnApparait .3s ease-out, cueBlink 1.4s ease-in-out .3s 3; } }
