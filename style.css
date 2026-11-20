@@ -771,3 +771,6 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 
 /* v69 : la proposition fausse de l'élève, en attendant son deuxième essai */
 .game7 .sentence .w.essai-faux .f { color:#ff9c8f; text-decoration:underline wavy #ff6b5e; }
+/* v70 : la forme d'origine (barrée) se place dans l'interligne, au-dessus du mot, sans pousser les lignes */
+.game7 .sentence .w.tf { position:relative; }
+.game7 .sentence .w.tf .ancien { position:absolute; bottom:88%; left:50%; transform:translateX(-50%); white-space:nowrap; margin:0; line-height:1; font-size:.5em; }

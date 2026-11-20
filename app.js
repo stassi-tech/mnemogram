@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v69';
+const APP_VERSION = 'v70';
 
 const $ = (id) => document.getElementById(id);
 
@@ -891,7 +891,7 @@ function ajusteArdoise() {
   const H = Math.max(200, (parseFloat(cs.minHeight) || card.clientHeight) - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 6);
   const ajouts = [], marques = [];
   if (currentGame.tm) s.querySelectorAll('.w.forme:not(.fige)').forEach((w) => { if (!w.querySelector('.labs')) { w.insertAdjacentHTML('beforeend', `<span class="labs fit-tmp">${'<span class="lab">passé composé</span>'.repeat(currentGame.sansMode ? 1 : 2)}</span>`); ajouts.push(w.lastElementChild); } });
-  if (currentGame.tf) s.querySelectorAll('.w.tf .ancien').forEach((x) => { if (!x.textContent) { x.textContent = '( … )'; marques.push(x); } });
+  /* v70 : dans les exercices à écrire, la forme d'origine s'affiche en petit au-dessus du mot, dans l'interligne : pas de place à réserver */
   let lo = 14, hi = 96;
   for (let k = 0; k < 10; k++) {
     const m = (lo + hi) / 2;
@@ -1091,7 +1091,7 @@ function openGame(id) {
   $('natures-panel').classList.toggle('game8', !!GAMES[id].sx);
   $('natures-panel').classList.toggle('game7v', !!GAMES[id].valeurs);
   $('nat-ready-explanation').innerHTML = adapte?.consigne ? adapte.consigne
-    : TFCFG[GAMES[id].tf] ? `${TFCFG[GAMES[id].tf].intro} Tu as deux essais : une réponse juste du premier coup vaut 1 point, au deuxième essai un demi-point. La voix lit chaque phrase avec ta réponse : écoute bien si elle sonne juste !`
+    : TFCFG[GAMES[id].tf] ? `${TFCFG[GAMES[id].tf].intro} Tu as trois essais : une réponse juste du premier coup vaut 1 point, ensuite un demi-point. Si tu te trompes, on te dit ce qui ne va pas : le temps, la terminaison (l'accord avec le sujet) ou l'orthographe du verbe. La voix lit chaque phrase avec ta réponse : écoute bien si elle sonne juste !`
     : id === 'phrase3'
     ? 'Dans un récit, on peut rapporter les paroles des personnages de deux façons. Au <strong>discours direct</strong>, on les cite telles qu\'elles ont été prononcées, <strong>entre guillemets</strong>. Au <strong>discours indirect</strong>, on les rapporte dans une <strong>proposition subordonnée</strong>, après un verbe de parole, en changeant les personnes et les temps. Quatre étapes : <strong>1.</strong> trouve les paroles au discours direct ; <strong>2.</strong> mets-les au discours indirect ; <strong>3.</strong> trouve les paroles au discours indirect ; <strong>4.</strong> mets-les au discours direct. Chaque passage trouvé vaut 1 point (une erreur coûte 0,5 point), chaque transformation réussie du premier coup vaut 1 point.'
     : id === 'phrase2'
@@ -3136,6 +3136,55 @@ const TF_T = () => TRANSFOS[currentGame.tf][game.questions[game.index].t];
 const normTF = (x) => String(x || '').toLowerCase().replace(/[’`]/g, '\'').replace(/\s+/g, ' ').replace(/^[\s«»"]+|[\s.,;:!?«»"]+$/g, '').trim();
 const sansAccTF = (x) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const attendusTF = (e) => (tf.registre === 'mod' ? e.mod : e.cls);
+/* v70 : dire à l'élève ce qui ne va pas dans sa forme verbale : le temps est-il le bon ? la terminaison (accord avec le
+   sujet) ? le radical du verbe (faute lexicale) ? l'auxiliaire, le participe passé ? Ce n'est qu'un diagnostic
+   approché, fondé sur les terminaisons : il sert à orienter l'élève, pas à le noter. */
+const AUX_PRES = { ai: 'avoir', as: 'avoir', a: 'avoir', avons: 'avoir', avez: 'avoir', ont: 'avoir', suis: 'être', es: 'être', est: 'être', sommes: 'être', êtes: 'être', sont: 'être' };
+const AUX_IMP = { avais: 'avoir', avait: 'avoir', avions: 'avoir', aviez: 'avoir', avaient: 'avoir', étais: 'être', était: 'être', étions: 'être', étiez: 'être', étaient: 'être' };
+const PRESENTS_PIEGES = ['fais', 'fait', 'vais', 'sais', 'sait', 'tais', 'tait', 'plait', 'plaît', 'rit', 'ris'];
+function analyseForme(x) {
+  let m = normTF(x).replace(/^(me|te|se|nous|vous) /, '').replace(/^[mts]'/, '').split(' ');
+  if (m.length >= 2 && (AUX_PRES[m[0]] || AUX_IMP[m[0]])) {
+    const aux = m[0], part = m[m.length - 1];
+    return { temps: AUX_PRES[aux] ? 'passé composé' : 'plus-que-parfait', aux, auxVerbe: AUX_PRES[aux] || AUX_IMP[aux], part };
+  }
+  const v = m[m.length - 1];
+  const fin = (re) => (v.match(re) || [])[0];
+  let t = 'présent', e = fin(/(e|es|ent|s|x|t|d|ons|ez)$/) || '';
+  if (fin(/(rais|rait|rions|riez|raient)$/)) { t = 'conditionnel présent'; e = fin(/(ais|ait|ions|iez|aient)$/); }
+  else if (fin(/(ais|ait|ions|iez|aient)$/) && !PRESENTS_PIEGES.includes(v)) { t = 'imparfait'; e = fin(/(ais|ait|ions|iez|aient)$/); }
+  else if (fin(/(rai|ras|ra|rons|rez|ront)$/) && v.length > 3) { t = 'futur'; e = fin(/(ai|as|a|ons|ez|ont)$/); }
+  else if (fin(/(âmes|âtes|èrent|ûmes|ûtes|îmes|îtes)$/)) { t = 'passé simple'; e = fin(/(mes|tes|rent)$/); }
+  else if (fin(/(ai|ait|aie)$/) && !PRESENTS_PIEGES.includes(v) && v.length > 4) { t = 'imparfait'; e = fin(/(ai|ait|aie)$/); }
+  return { temps: t, fin: e, radical: v.slice(0, v.length - (e || '').length), mot: v };
+}
+const LE_TEMPS = (t) => ({ 'présent': 'le présent', imparfait: 'l\'imparfait', futur: 'le futur', 'passé composé': 'le passé composé', 'plus-que-parfait': 'le plus-que-parfait', 'conditionnel présent': 'le conditionnel présent', 'passé simple': 'le passé simple' }[t] || t);
+function diagnosticTF(ecrit, bon) {
+  if (sansAccTF(normTF(ecrit)) === sansAccTF(normTF(bon))) return 'Presque : il ne manque que les accents.';
+  if (currentGame.tf === 'ce-inf') return /(er|ir|re|oir)$/.test(normTF(ecrit)) ? 'C\'est bien un infinitif, mais pas celui de ce verbe : cherche le verbe qu\'on entend dans la phrase.' : 'Ce n\'est pas un infinitif : l\'infinitif se termine par -er, -ir, -re ou -oir (dis « il faut… »).';
+  const a = analyseForme(ecrit), b = analyseForme(bon), dits = [];
+  const IMPOSE = { 'ce-pres': 'présent', 'ce-fut': 'futur', 'ce-imp': 'imparfait', 'ce-pca': 'passé composé', 'ce-pce': 'passé composé' }[currentGame.tf];
+  if (a.temps !== b.temps && IMPOSE) return `Ce n'est pas le bon temps : on te demande ${LE_TEMPS(IMPOSE)}.`;
+  if (a.temps !== b.temps) {
+    return `Ce n'est pas le bon temps : tu as écrit un verbe ${a.temps === 'présent' ? 'au présent' : a.temps === 'imparfait' ? 'à l\'imparfait' : `au ${a.temps}`}. Relis les mots qui disent quand se passe l'action.`;
+  }
+  dits.push(`Tu as trouvé le bon temps : ${LE_TEMPS(b.temps)}.`);
+  if (b.aux) {
+    if (a.auxVerbe !== b.auxVerbe) dits.push(`Mais attention à l'auxiliaire : ce verbe se conjugue avec « ${b.auxVerbe} ».`);
+    else if (a.aux !== b.aux) dits.push('Mais l\'auxiliaire ne s\'accorde pas avec le sujet : c\'est une faute d\'accord.');
+    if (a.part !== b.part) {
+      if (a.part && b.part && a.part.replace(/[es]+$/, '') === b.part.replace(/[es]+$/, '')) dits.push('Le participe passé est mal accordé : faute d\'accord.');
+      else if (/(er|ir|re)$/.test(a.part || '') && /é$/.test(b.part)) dits.push(`Mais tu as écrit l'infinitif « ${a.part} » à la place du participe passé « ${b.part} » : on entend le même son, mais ce n'est pas la même forme.`);
+      else dits.push('Le participe passé est mal écrit : regarde bien sa terminaison (é, i, u, is, it…) et son orthographe.');
+    }
+    return dits.join(' ');
+  }
+  const accord = a.fin !== b.fin, lexical = sansAccTF(a.radical) !== sansAccTF(b.radical);
+  if (accord && lexical) dits.push('Mais tu as fait une faute d\'orthographe dans le verbe lui-même (faute lexicale), et la terminaison ne va pas avec le sujet (faute d\'accord).');
+  else if (accord) dits.push('Mais la terminaison ne va pas avec le sujet : c\'est une faute d\'accord. Qui fait l\'action ?');
+  else if (lexical) dits.push('Mais tu as fait une faute d\'orthographe dans le verbe lui-même (faute lexicale) : pense à l\'infinitif.');
+  return dits.join(' ');
+}
 function decoupeTF(src) {
   const items = [], elts = []; let avant = '';
   src.replace(/\{([^>}]+)>([^}]+)\}|([^\s{]+)/g, (m, a, b, w) => {
@@ -3194,7 +3243,7 @@ function panneauTF() {
   let html = `<div class="carte verte active libre"><p>${CF ? CF.q(e) : `« <strong>${esc(e.src)}</strong> » : réécris-le ${versTF()}.`}</p>`;
   if (!r && tf.message) html += `<p class="tf-retour faux">${tf.message}</p>`;
   if (!r) html += `<form class="tf-form" autocomplete="off"><input type="text" class="tf-input" id="tf-input" autocapitalize="off" spellcheck="false" placeholder="écris ici…"><button type="submit" class="primary-button tf-ok">Valider</button></form>`;
-  else html += `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? '✔ Bravo !' : r.pts ? `✔ Juste au deuxième essai (un demi-point).` : `Non : tu as écrit « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
+  else html += `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? '✔ Bravo !' : r.pts ? `✔ Juste après une erreur (un demi-point).` : `Non : tu as écrit « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
   html += '</div>';
   $('nat-buttons-variables').innerHTML = nbspFr(html);
   const f = document.querySelector('.tf-form');
@@ -3207,7 +3256,7 @@ function clicTF(i, auto) {
   wordEl(i)?.classList.add('choisie');
   panneauTF();
   /* v69 : la voix lit la phrase, puis la consigne, et s'arrête */
-  if (!tf.rep[i]) { const CF = TFCFG[currentGame.tf], e = tf.elts[i]; dis(phraseDe(wordEl(i)), (CF ? CF.q(e) : `Réécris ${e.src} ${versTF()}.`).replace(/<[^>]+>/g, '').replace(/[()«»]/g, '')); }
+  if (!tf.rep[i]) { const CF = TFCFG[currentGame.tf], e = tf.elts[i]; dis(phraseDe(wordEl(i)), (CF ? CF.q(e) : `Réécris ${e.src} ${versTF()}.`).replace(/<[^>]+>/g, '').replace(/\(([^)]+)\)/g, (m, x) => `: ${prononceInf(x)},`).replace(/[«»]/g, '')); }
 }
 /* v69 : deux chances. La voix lit la phrase avec la proposition de l'élève. Juste du premier coup : 1 point ;
    au deuxième essai : un demi-point ; sinon, la voix donne et lit la bonne réponse. */
@@ -3227,13 +3276,16 @@ function repondTF(ecrit) {
   let pts = 0, bon = ok[0];
   const exact = ok.find((x) => normTF(x) === n), accents = ok.find((x) => sansAccTF(normTF(x)) === sansAccTF(n));
   if (exact) { pts = essai ? 0.5 : 1; bon = exact; }
-  else if (!essai) {
-    /* première erreur : on montre la proposition dans le texte, la voix la lit, et l'élève réessaie */
-    tf.essais[i] = 1;
+  else if (essai < 2) {
+    /* v70 : une erreur : on montre la proposition dans le texte, la voix la lit, et dit précisément ce qui ne va pas.
+       Trois essais en tout. */
+    tf.essais[i] = essai + 1;
     montreFormeTF(i, ecrit.trim(), 'essai-faux');
-    tf.message = accents ? `Presque : attention aux accents. Essaie encore !` : `Ce n'est pas juste : relis la phrase et essaie encore. Tu as une deuxième chance.`;
+    const diag = diagnosticTF(ecrit, accents || bon);
+    const reste = essai === 0 ? 'Essaie encore : il te reste deux essais.' : 'Essaie encore : c\'est ton dernier essai.';
+    tf.message = `${diag} ${reste}`;
     panneauTF(); tf.message = '';
-    dis(phraseDe(wordEl(i)), accents ? 'Presque ! Attention aux accents. Essaie encore.' : 'Ce n\'est pas juste. Essaie encore.');
+    dis(phraseDe(wordEl(i)), `Ce n'est pas encore juste. ${diag} ${reste}`);
     return;
   } else if (accents) bon = accents;
   tf.rep[i] = { ecrit: ecrit.trim(), pts, bon, essai };
@@ -4575,13 +4627,17 @@ $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 /* v68 : la voix lit le texte tel qu'il est sur l'ardoise, avec les réponses déjà données : l'élève entend sa phrase,
    et peut ainsi repérer à l'oral une incohérence qu'il ne voit pas à l'écrit. */
+/* v70 : la voix prononce mal l'infinitif en -er au milieu d'une phrase (« il traverser » s'entend comme « il traversait ») :
+   on lui fait dire « traversé », précédé et suivi d'une pause. */
+const prononceInf = (s) => s.replace(/er\b/g, 'é');
 function texteArdoise(racine) {
   const c = (racine || $('nat-sentence')).cloneNode(true);
   c.querySelectorAll('.tm-titre, .labs, .lab, .ancien, .sx-lanes, .fit-tmp, .suite-tm, .gloses').forEach((x) => x.remove());
   c.querySelectorAll('.dr-seg.transforme .dr-ancien').forEach((x) => x.remove());
   c.querySelectorAll('.tm-cadre.replie').forEach((x) => x.remove());
+  c.querySelectorAll('.f').forEach((f) => { const m = f.textContent.trim().match(/^\((.+)\)$/); if (m) f.textContent = `, ${prononceInf(m[1])},`; });
   c.querySelectorAll('.w, .dr-mot, .tv-mot').forEach((x) => x.append(' '));
-  return c.textContent.replace(/[()*]/g, '').replace(/\s+/g, ' ').replace(/ ([.,])/g, '$1').trim();
+  return c.textContent.replace(/[()*]/g, '').replace(/\s+/g, ' ').replace(/ ([.,])/g, '$1').replace(/,\s*([.!?])/g, '$1').replace(/,,/g, ',').trim();
 }
 /* v69 : la phrase autour d'un élément, telle qu'elle est écrite maintenant sur l'ardoise */
 function phraseDe(el) {
@@ -4593,7 +4649,7 @@ function phraseDe(el) {
   const T = items.map(txt), fin = (s) => /[.!?»]\s*$/.test(s.trim());
   let deb = k; while (deb > 0 && !fin(T[deb - 1])) deb -= 1;
   let der = k; while (der < T.length - 1 && !fin(T[der])) der += 1;
-  return T.slice(deb, der + 1).join(' ').replace(/\s+/g, ' ').replace(/ ([.,!?])/g, '$1').trim();
+  return T.slice(deb, der + 1).join(' ').replace(/\s+/g, ' ').replace(/ ([.,!?])/g, '$1').replace(/,\s*([.!?])/g, '$1').trim();
 }
 function lisPhraseDe(el) { if (el && volumeLevel) speak(phraseDe(el), 'femme', 'phrase'); }
 /* la voix dit plusieurs choses à la suite, sans se couper elle-même */
