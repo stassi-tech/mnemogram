@@ -739,3 +739,12 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .game9 .carte.dr-i { border-left:6px solid #5aa8ff; }
 .game9 .dr-rappel { opacity:.7; }
 .game9 .dr-option.faded { background:#f1f1f1; color:#777; border-color:#ddd; }
+
+/* v60 : le portail des niveaux */
+.home-classes { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; border-bottom:3px solid var(--cta-dark); }
+.classe-onglet { padding:12px 6px; border:1px solid var(--cta-dark); border-bottom:none; border-radius:8px 8px 0 0; background:rgba(255,255,255,.75); color:var(--cta-dark); font:700 1.05rem Arial,sans-serif; cursor:pointer; }
+.classe-onglet.on { background:var(--cta-dark); color:#fff; }
+@media (hover:hover) { .classe-onglet:not(.on):hover { background:#fff; } }
+.home-classes-note { margin:-8px 0 0; font-size:.9rem; font-style:italic; text-align:center; opacity:.8; }
+.home-mode-button.avenir { opacity:.45; cursor:default; filter:grayscale(.6); }
+@media (max-width:640px) { .home-classes { grid-template-columns:1fr 1fr; } }

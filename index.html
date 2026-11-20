@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=58" />
+    <link rel="stylesheet" href="style.css?v=60" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -85,6 +85,9 @@
 
           <div class="home-mode-buttons">
             <!-- v38 : trois parties ; « Les mots » ouvre une deuxième page d'accueil avec ses six exercices -->
+            <!-- v60 : les quatre niveaux, au-dessus des trois parties -->
+            <div class="home-classes" id="home-classes" role="tablist" aria-label="Niveau"></div>
+            <p class="home-classes-note" id="home-classes-note"></p>
             <div class="home-games-row home-parties" id="home-parties">
               <button type="button" class="home-mode-button home-partie" data-partie="mots"><span class="label"><strong>Les mots</strong></span></button>
               <button type="button" class="home-mode-button home-partie" data-partie="temps"><span class="label"><strong>Les temps et les modes</strong></span></button>
@@ -92,65 +95,17 @@
             </div>
             <div class="home-section hidden" id="home-mots">
               <h2 class="home-section-title">Les mots</h2>
-              <div class="home-games-row">
-                <button type="button" class="home-mode-button" id="open-natures">
-                  <span class="label"><strong>Exercice 1</strong><br>Reconnaissance des natures de mots, niveau 1</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-natures2">
-                  <span class="label"><strong>Exercice 2</strong><br>Reconnaissance des natures de mots, niveau 2</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-fonctions">
-                  <span class="label"><strong>Exercice 3</strong><br>Reconnaissance des natures et fonctions des mots dans le groupe verbal</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-gn">
-                  <span class="label"><strong>Exercice 4</strong><br>Reconnaissance des natures et fonctions des mots dans le groupe nominal</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-tableau">
-                  <span class="label"><strong>Exercice 5</strong><br>Bilan : le tableau des 20 cases avec guide</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-libre">
-                  <span class="label"><strong>Exercice 6</strong><br>Bilan : le tableau des 20 cases sans guide</span>
-                </button>
-              </div>
+              <div class="home-games-row" data-liste="mots"></div>
               <button type="button" class="link-label home-retour" data-partie="">← Revenir aux trois parties</button>
             </div>
             <div class="home-section hidden" id="home-temps">
               <h2 class="home-section-title">Les temps et les modes</h2>
-              <div class="home-games-row">
-                <button type="button" class="home-mode-button" id="open-temps1">
-                  <span class="label"><strong>Exercice 1</strong><br>Reconnaissance des temps et des modes dans un texte au système du présent</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-temps2">
-                  <span class="label"><strong>Exercice 2</strong><br>Reconnaissance des temps et des modes dans un texte au système du passé (français classique, puis contemporain)</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-temps3">
-                  <span class="label"><strong>Exercice 3</strong><br>Analyse des temps et des modes personnels dans un texte au système du présent</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-temps4">
-                  <span class="label"><strong>Exercice 4</strong><br>Analyse des temps et des modes personnels dans un texte au système du passé</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-temps5">
-                  <span class="label"><strong>Exercice 5</strong><br>Transformer un texte au système du passé en texte au système du présent</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-temps6">
-                  <span class="label"><strong>Exercice 6</strong><br>Transformer un texte au système du présent en texte au système du passé</span>
-                </button>
-              </div>
+              <div class="home-games-row" data-liste="temps"></div>
               <button type="button" class="link-label home-retour" data-partie="">← Revenir aux trois parties</button>
             </div>
             <div class="home-section hidden" id="home-phrase">
               <h2 class="home-section-title">La phrase</h2>
-              <div class="home-games-row">
-                <button type="button" class="home-mode-button" id="open-phrase1">
-                  <span class="label"><strong>Exercice 1</strong><br>Syntaxe de la phrase</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-phrase2">
-                  <span class="label"><strong>Exercice 2</strong><br>Analyse, nature et fonction des propositions</span>
-                </button>
-                <button type="button" class="home-mode-button" id="open-phrase3">
-                  <span class="label"><strong>Exercice 3</strong><br>Du discours direct au discours indirect, et inversement</span>
-                </button>
-              </div>
+              <div class="home-games-row" data-liste="phrase"></div>
               <button type="button" class="link-label home-retour" data-partie="">← Revenir aux trois parties</button>
             </div>
             <!-- Bloc compte, repris de Mnemart : libellé + e-mail + interrupteur connecté/déconnecté -->
@@ -243,6 +198,7 @@
           <button type="button" class="fiche-tab" data-fiche="fiche-fonction.html">Fiche fonction des mots</button>
           <button type="button" class="fiche-tab" data-fiche="fiche-temps.html">Fiche temps et modes</button>
           <button type="button" class="fiche-tab" data-fiche="fiche-phrase.html">Fiche phrase et propositions</button>
+          <button type="button" class="fiche-tab" data-fiche="fiche-transformations.html">Fiche transformations de phrase</button>
         </div>
         <iframe id="fiche-frame" class="fiche-frame" title="La fiche des natures"></iframe>
       </div>
@@ -375,6 +331,6 @@
       <div id="report-send" class="report-send no-print"></div>
     </div>
 
-    <script defer src="app.js?v=58"></script>
+    <script defer src="app.js?v=60"></script>
   </body>
 </html>

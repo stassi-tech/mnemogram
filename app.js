@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v58';
+const APP_VERSION = 'v59';
 
 const $ = (id) => document.getElementById(id);
 
@@ -3361,7 +3361,7 @@ function renderSendBox() {
    « Fiche fonction des mots » = fiche-fonction.html (avec la formule de chaque fonction). Le jeu lit les deux.
    Tant que les nouveaux fichiers ne sont pas sur GitHub, il se rabat sur les anciens noms. */
 const FICHE_ANCIEN_NOM = { 'fiche-nature.html': 'fiche.html', 'fiche-fonction.html': 'fiche-fonctions.html' };
-async function loadFiche() { await Promise.all(['fiche-nature.html', 'fiche-fonction.html', 'fiche-temps.html', 'fiche-phrase.html'].map(loadUneFiche)); }
+async function loadFiche() { await Promise.all(['fiche-nature.html', 'fiche-fonction.html', 'fiche-temps.html', 'fiche-phrase.html', 'fiche-transformations.html'].map(loadUneFiche)); }
 async function loadUneFiche(nom) {
   try {
     let r = await fetch(`${nom}?v=${Date.now()}`, { cache: 'no-store' });
@@ -3390,7 +3390,7 @@ function openFiche() {
   const enJeu3 = isG3() && !$('natures-panel').classList.contains('hidden');
   const enTemps = currentGame?.partie === 'temps' && $('welcome-panel').classList.contains('hidden');
   const enPhrase = currentGame?.partie === 'phrase' && $('welcome-panel').classList.contains('hidden');
-  showFiche(enPhrase ? 'fiche-phrase.html' : enTemps ? 'fiche-temps.html' : enJeu3 ? 'fiche-fonction.html' : 'fiche-nature.html');
+  showFiche(enPhrase && currentGame.dr ? 'fiche-transformations.html' : enPhrase ? 'fiche-phrase.html' : enTemps ? 'fiche-temps.html' : enJeu3 ? 'fiche-fonction.html' : 'fiche-nature.html');
   $('fiche-modal').classList.remove('hidden');
 }
 document.querySelectorAll('.fiche-tab').forEach((b) => b.addEventListener('click', () => showFiche(b.dataset.fiche)));
