@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v61';
+const APP_VERSION = 'v62';
 
 const $ = (id) => document.getElementById(id);
 
@@ -224,6 +224,9 @@ const GAMES = {
   /* v54 : la phrase, exercice 2 : nature précise et fonction des propositions (bandes bleues, vertes, rouges) */
   phrase2: { titre: 'La phrase, exercice 2 : analyse, nature et fonction des propositions', type: 'Nature et fonction des propositions, niveau 14', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 14, nb: 1, sx: true, sxFn: true, texte: 1, total: 37, partie: 'phrase' },
+  /* v62 : la phrase : types et formes de phrases (bandes bleues, vertes, et rouges au collège) */
+  formes: { titre: 'La phrase : types et formes de phrases', type: 'Types et formes de phrases, niveau 16', rows: BUTTON_ROWS,
+    reponse: (tag) => tag, niveau: 16, nb: 1, sx: true, sxTF: true, total: 20, partie: 'phrase' },
   /* v58 : la phrase, exercice 3 : transformer les paroles rapportées (discours direct ↔ discours indirect) */
   phrase3: { titre: 'La phrase, exercice 3 : du discours direct au discours indirect, et inversement', type: 'Discours direct et discours indirect, niveau 15', rows: BUTTON_ROWS,
     reponse: (tag) => tag, niveau: 15, nb: 1, dr: true, total: 12, partie: 'phrase' },
@@ -781,12 +784,13 @@ const PARCOURS = {
   ],
   temps: [
     { jeu: 'temps1', titre: 'Reconnaître le présent, l\'imparfait, le futur et le passé composé dans un texte', classes: ['ce'],
-      tmTexte: 'champ-ce', sansMode: true, tmChoix: { tps: ['TPS.pres', 'TPS.imp', 'TPS.fut', 'TPS.pc'] },
+      tmNiv: 'ce', sansMode: true, tmChoix: { tps: ['TPS.pres', 'TPS.imp', 'TPS.fut', 'TPS.pc'] },
       consigne: 'Voici une petite histoire qui se passe <strong>aujourd\'hui</strong>. Les <strong>verbes conjugués</strong> sont soulignés. Appuie sur chacun, dans l\'ordre que tu veux, et dis à quel <strong>temps</strong> il est : <strong>présent</strong>, <strong>imparfait</strong>, <strong>futur</strong> ou <strong>passé composé</strong>. Chaque verbe vaut 1 point, si tu trouves du premier coup.' },
     { jeu: 'temps1', titre: 'Reconnaissance des temps et des modes dans un texte au système du présent (indicatif, conditionnel, impératif)', classes: ['cm'],
-      tmTexte: 'champ-cm', tmChoix: { tps: ['TPS.pres', 'TPS.imp', 'TPS.ps', 'TPS.fut', 'TPS.pc', 'TPS.pqp'], mode: ['MODE.ind', 'MODE.cond', 'MODE.imp'] },
-      consigne: 'Voici un texte au <strong>système du présent</strong> : l\'action se passe au moment où on le lit. Vingt <strong>verbes conjugués</strong> sont soulignés. Appuie sur chacun, dans l\'ordre que tu veux, et donne son <strong>temps</strong> (étiquette verte) puis son <strong>mode</strong> (étiquette rouge) : <strong>indicatif</strong>, <strong>conditionnel</strong> ou <strong>impératif</strong>. Chaque verbe vaut 1 point : 0,5 pour le temps, 0,5 pour le mode, s\'ils sont justes du premier coup.' },
-    { jeu: 'temps1', titre: 'Reconnaissance des temps et des modes dans un texte au système du présent', classes: ['65', '43'] },
+      tmNiv: 'cm', tmChoix: { tps: ['TPS.pres', 'TPS.imp', 'TPS.ps', 'TPS.fut', 'TPS.pc', 'TPS.pqp'], mode: ['MODE.ind', 'MODE.cond', 'MODE.imp'] },
+      consigne: 'Voici un texte au <strong>système du présent</strong> : l\'action se passe au moment où on le lit. Les <strong>verbes conjugués</strong> sont soulignés. Appuie sur chacun, dans l\'ordre que tu veux, et donne son <strong>temps</strong> (étiquette verte) puis son <strong>mode</strong> (étiquette rouge) : <strong>indicatif</strong>, <strong>conditionnel</strong> ou <strong>impératif</strong>. Chaque verbe vaut 1 point : 0,5 pour le temps, 0,5 pour le mode, s\'ils sont justes du premier coup.' },
+    { jeu: 'temps1', titre: 'Reconnaissance des temps et des modes dans un texte au système du présent', classes: ['65', '43'], tmNiv: 'col',
+      consigne: 'Voici un texte au <strong>système du présent</strong> : l\'action se passe au moment où on le lit. Des <strong>formes verbales</strong> y sont soulignées, à tous les modes, personnels ou non. Appuie sur chacune, dans l\'ordre que tu veux, et donne son <strong>temps</strong> (étiquette verte) puis son <strong>mode</strong> (étiquette rouge). Chaque forme vaut 1 point : 0,5 pour le temps, 0,5 pour le mode, s\'ils sont justes du premier coup.' },
     { jeu: 'temps2', titre: 'Reconnaissance des temps et des modes dans un texte au système du passé (français classique, puis contemporain)', classes: ['43'] },
     { jeu: 'temps3', titre: 'Analyse des temps et des modes personnels dans un texte au système du présent', classes: ['65', '43'] },
     { jeu: 'temps4', titre: 'Analyse des temps et des modes personnels dans un texte au système du passé', classes: ['43'] },
@@ -794,7 +798,14 @@ const PARCOURS = {
     { jeu: 'temps6', titre: 'Transformer un texte au système du présent en texte au système du passé', classes: ['43'] },
   ],
   phrase: [
-    { avenir: true, titre: 'Les types et les formes de phrases', classes: TOUS },
+    { jeu: 'formes', titre: 'Les types et les formes de phrases', classes: ['ce'], tfNiv: 'ce',
+      consigne: 'Sous chaque phrase du texte, deux bandes vierges sont déjà tracées. En <strong>bleu</strong>, le <strong>type</strong> de la phrase : pourquoi parle-t-on ? Pour informer (<strong>déclarative</strong>), pour poser une question (<strong>interrogative</strong>), pour donner un ordre (<strong>impérative</strong>). En <strong>vert</strong>, sa <strong>forme</strong> : <strong>affirmative</strong> ou <strong>négative</strong> (ne… pas), et <strong>exclamative</strong> si elle exprime un sentiment (!). Touche une bande, puis choisis à droite. Chaque bande juste vaut 1 point.' },
+    { jeu: 'formes', titre: 'Les types et les formes de phrases', classes: ['cm'], tfNiv: 'cm',
+      consigne: 'Sous chaque phrase, deux bandes vierges. En <strong>bleu</strong>, le <strong>type</strong> : <strong>déclarative</strong>, <strong>interrogative</strong> ou <strong>impérative</strong>. En <strong>vert</strong>, la <strong>forme</strong> : <strong>affirmative</strong> ou <strong>négative</strong> (ne… pas, ne… plus, ne… jamais, ne… rien, personne ne…), et <strong>exclamative</strong> quand la phrase exprime un sentiment. Attention : la phrase exclamative était autrefois un type ; c\'est aujourd\'hui une forme. Et un ordre qui finit par « ! » n\'est pas forcément exclamatif. Chaque bande juste vaut 1 point.' },
+    { jeu: 'formes', titre: 'Les types et les formes de phrases', classes: ['65'], tfNiv: '65',
+      consigne: 'En <strong>bleu</strong>, sous chaque phrase, son <strong>type</strong> (déclarative, interrogative, impérative). En <strong>vert</strong>, sous chaque <strong>proposition</strong>, sa <strong>forme</strong> (affirmative ou négative, et parfois exclamative) : dans une phrase complexe, une proposition peut être affirmative et l\'autre négative. Dans les derniers textes, une bande <strong>rouge</strong> demande en plus si la proposition est à la <strong>forme active</strong> ou à la <strong>forme passive</strong> (autrefois : la voix active ou passive). Chaque bande juste vaut 1 point.' },
+    { jeu: 'formes', titre: 'Les types et les formes de phrases', classes: ['43'], tfNiv: '43',
+      consigne: 'En <strong>bleu</strong>, sous chaque phrase, son <strong>type</strong> (déclarative, interrogative, impérative). En <strong>vert</strong>, sous chaque <strong>proposition</strong>, sa <strong>forme</strong> (affirmative ou négative, et parfois exclamative). En <strong>rouge</strong>, la <strong>forme active</strong> ou la <strong>forme passive</strong> (autrefois : la voix active ou passive) : attention aux pièges, « il est arrivé » ou « il est content » ne sont pas des formes passives. Chaque bande juste vaut 1 point.' },
     { jeu: 'phrase3', titre: 'Repérer les paroles des personnages', classes: ['ce'], drMode: 'direct',
       consigne: 'Dans une histoire, les personnages parlent. Quand on écrit leurs paroles telles qu\'ils les ont dites, on les met <strong>entre guillemets</strong> « … » : c\'est le <strong>discours direct</strong>. Lis le texte et <strong>touche toutes les paroles entre guillemets</strong>. Chaque passage trouvé vaut 1 point. Attention : si tu touches le récit, tu perds un demi-point.' },
     { jeu: 'phrase1', titre: 'Syntaxe de la phrase', classes: ['cm', '65', '43'] },
@@ -902,6 +913,7 @@ function buildQuestions() {
   if (currentGame.dr) { marqueTexte(texteChoisi); return [{ dr: true, t: texteChoisi }]; }
   if (currentGame.sx) { marqueTexte(texteChoisi); return [{ sx: true, t: texteChoisi }]; }
   if (currentGame.tf) { marqueTexte(texteChoisi); return [{ tf: true, t: texteChoisi }]; }
+  if (currentGame.tm && currentGame.tmNiv) { marqueTexte(texteChoisi); return [{ tm: true, t: TEXTES_TM.indexOf(listeTextes()[texteChoisi]) }]; }
   if (currentGame.tm) return [{ tm: true, t: currentGame.tmTexte ?? currentGame.texte ?? 0 }];
   if (currentGame.tab) { marqueTexte(texteChoisi); return [{ tab: true, t: texteChoisi }]; }
   if (currentGame.gn) return buildQuestionsGN();
@@ -958,9 +970,9 @@ function buildNatureButtons() {
    le dernier joué ; les textes déjà faits portent une coche. On garde ces souvenirs dans le navigateur. */
 let texteChoisi = 0;
 const NIVEAU_TEXTE = (k, n = 20) => { const q = k / n; return q < 0.25 ? 'facile' : q < 0.5 ? 'moyen' : q < 0.75 ? 'difficile' : 'très difficile'; };
-const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : currentGame.tf ? currentGame.tf : currentGame.dr ? 'phrase3' : currentGame.sx ? (currentGame.sxFn ? 'phrase2' : 'phrase1') : 'tableau'}`;
+const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : currentGame.tf ? currentGame.tf : currentGame.dr ? 'phrase3' : currentGame.sxTF ? `formes-${currentGame.tfNiv}` : currentGame.sx ? (currentGame.sxFn ? 'phrase2' : 'phrase1') : currentGame.tmNiv ? `temps1-${currentGame.tmNiv}` : 'tableau'}`;
 /* v47 : la liste des textes au choix : les tableaux (exercices 5 et 6 des mots) ou les textes à transformer */
-const listeTextes = () => (currentGame.tab ? TABLEAUX : currentGame.tf ? TRANSFOS[currentGame.tf] : currentGame.dr ? TEXTES_DR : currentGame.sx ? TEXTES_SX[currentGame.sxFn ? 'fn' : 'syn'] : null);
+const listeTextes = () => (currentGame.tab ? TABLEAUX : currentGame.tf ? TRANSFOS[currentGame.tf] : currentGame.dr ? TEXTES_DR : currentGame.sxTF ? TEXTES_TF[currentGame.tfNiv] : currentGame.sx ? TEXTES_SX[currentGame.sxFn ? 'fn' : 'syn'] : currentGame.tmNiv ? TEXTES_TM.filter((x) => x.niv === currentGame.tmNiv) : null);
 function textesFaits() { try { return JSON.parse(localStorage.getItem(cleTextes()) || '{"faits":[],"dernier":-1}'); } catch (e) { return { faits: [], dernier: -1 }; } }
 function marqueTexte(k) {
   const m = textesFaits();
@@ -983,8 +995,9 @@ function choixTexte() {
     }).join('')}</div>`).join('');
     $('nat-progress-label').textContent = `Texte n° ${texteChoisi + 1} (${NIV(texteChoisi)})`;
     if (currentGame.tf) { currentGame.total = decoupeTF(L[texteChoisi].texte).elts.length; $('nat-score-label').textContent = scoreLabel(0); }
+    if (currentGame.tmNiv) { currentGame.total = decoupeTM(L[texteChoisi].texte).formes.length; $('nat-score-label').textContent = scoreLabel(0); }
     if (currentGame.dr) { currentGame.total = totalDR(L[texteChoisi]); $('nat-score-label').textContent = scoreLabel(0); }
-    if (currentGame.sx) { const dd = decoupeSX(L[texteChoisi].texte); currentGame.total = dd.phrases.length + dd.props.length + (currentGame.sxFn ? dd.props.filter((p) => p.fn).length : 0); $('nat-score-label').textContent = scoreLabel(0); }
+    if (currentGame.sx) { const dd = decoupeSX(L[texteChoisi].texte); currentGame.total = dd.phrases.length + dd.props.length + (currentGame.sxFn || currentGame.sxTF ? dd.props.filter((p) => p.fn).length : 0); $('nat-score-label').textContent = scoreLabel(0); }
     box.innerHTML = `<p class="texte-titre">Choisis ton texte : le <strong>texte n° ${texteChoisi + 1}</strong>${L[texteChoisi].titre ? ` « ${esc(L[texteChoisi].titre)} »` : ''} (${NIV(texteChoisi)}) t'attend. Les textes déjà faits sont cochés.</p><div class="texte-grille">${groupes}</div>`;
     box.querySelectorAll('[data-texte]').forEach((b) => b.addEventListener('click', () => { texteChoisi = Number(b.dataset.texte); dessine(); }));
   };
@@ -1000,6 +1013,8 @@ function openGame(id) {
   currentGame.tmTexte = adapte?.tmTexte ? TEXTES_TM.findIndex((x) => x.cle === adapte.tmTexte) : undefined;
   currentGame.tmChoix = adapte?.tmChoix || null;
   currentGame.sansMode = !!adapte?.sansMode;
+  currentGame.tmNiv = adapte?.tmNiv || null;
+  if (currentGame.sxTF) currentGame.tfNiv = adapte?.tfNiv || '43';
   if (currentGame.tm && currentGame.tmTexte !== undefined) currentGame.total = decoupeTM(TEXTES_TM[currentGame.tmTexte].texte).formes.length;
   else if (id === 'temps1') currentGame.total = 20;
   $('natures-panel').classList.toggle('game2', id === 'natures2');
@@ -2785,7 +2800,12 @@ function finTM() {
   const total = currentGame.total;
   const debut = `Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. `;
   const fin = ' Une étiquette marquée ✗ montre la bonne réponse, là où tu t\'es trompé.';
-  $('nat-correction-details').innerHTML = nbspFr(T.bilan
+  const tps = (c) => tm.texte.formes.filter((f) => f.tps === c).length;
+  if (!T.bilan && currentGame.sansMode) T.bilanAuto = `Ce texte raconte ce qui se passe <strong>aujourd'hui</strong> : la plupart des verbes sont au <strong>présent</strong> (${tps('TPS.pres')} sur ${tm.texte.formes.length}). Ce qui s'est passé avant est au <strong>passé composé</strong> (une action) ou à l'<strong>imparfait</strong> (une description, une habitude d'autrefois) ; ce qui se passera est au <strong>futur</strong>.`;
+  else if (!T.bilan && currentGame.tmChoix) T.bilanAuto = `Ce texte est au <strong>système du présent</strong> : la plupart des verbes sont au <strong>présent de l'indicatif</strong>. Ce qui s'est passé avant est au <strong>passé composé</strong>, à l'<strong>imparfait</strong> ou, encore plus tôt, au <strong>plus-que-parfait</strong> ; ce qui se passera est au <strong>futur</strong>. Les modes : l'<strong>indicatif</strong> pour ce qui est réel, le <strong>conditionnel</strong> pour un souhait ou une politesse, l'<strong>impératif</strong> pour un ordre ou un conseil.`;
+  else T.bilanAuto = '';
+  if (T.bilanAuto) { $('nat-correction-details').innerHTML = nbspFr(`${debut}${T.bilanAuto}${fin}`); }
+  else $('nat-correction-details').innerHTML = nbspFr(T.bilan
     ? `${debut}${T.bilan}${T.valeursBilan === false ? '' : ` On y trouve ${modes.length === 7 ? 'les 7 modes' : 'ces modes'} : ${modes.join(', ')}.`}${T.bilanSuite ? ` ${T.bilanSuite}` : ''}${fin}`
     : `${debut}« ${esc(T.titre)} » est un texte au <strong>système du ${T.systeme}</strong> : l'action se passe au moment où on la lit. C'est pourquoi presque toutes les formes sont au <strong>présent</strong> (${presTous} sur ${tm.texte.formes.length}), dont ${pres} au présent de l'indicatif. On y trouve aussi les ${modes.length} modes : ${modes.join(', ')}.${fin}`);
   $('nat-correction').classList.remove('hidden');
@@ -2806,12 +2826,46 @@ function finTM() {
 /* v61 : « Champignons » simplifié pour les plus jeunes : la même histoire, mais seulement les formes verbales
    étudiées à ce niveau. CE1 – CE2 : le temps seul (présent, imparfait, futur, passé composé ; tout est à l'indicatif).
    CM1 – CM2 : le temps et le mode, avec l'indicatif, le conditionnel présent et l'impératif présent. */
-TEXTES_TM.push({ cle: 'champ-ce', titre: 'Champignons', systeme: 'présent', valeursBilan: false,
+TEXTES_TM.push({ cle: 'champ-ce', niv: 'ce', titre: 'Champignons', systeme: 'présent', valeursBilan: false,
   texte: "Aujourd'hui il {fait|pres|ind} beau et nous nous {promenons|pres|ind} dans la forêt où nous {cherchons|pres|ind} souvent des champignons. Nous y {passons|pres|ind} des heures et nous ne nous {lassons|pres|ind} jamais. Hier nous en {avons trouvé|pc|ind} trois kilos : il {faisait|imp|ind} moins chaud et la terre {était|imp|ind} humide. Soudain ma sœur {crie|pres|ind} : « J'{ai vu|pc|ind} quelque chose ! » Alors nous {courons|pres|ind} vers elle. Nous {découvrirons|fut|ind} peut-être un splendide bolet ! Mais, hélas, ce ne {sont|pres|ind} que de petits champignons et je {crois|pres|ind} qu'ils {sont|pres|ind} vénéneux. Nous {repartons|pres|ind} vers d'autres découvertes. Demain, nous {reviendrons|fut|ind} avec papa.",
   bilan: "Ce texte raconte ce qui se passe <strong>aujourd'hui</strong> : la plupart des verbes sont au <strong>présent</strong> (<em>fait, promenons, crie, courons…</em>). Ce qui s'est passé <strong>hier</strong> est au <strong>passé composé</strong> quand c'est une action (<em>avons trouvé, ai vu</em>) et à l'<strong>imparfait</strong> quand c'est une description (<em>faisait, était</em>). Ce qui se passera <strong>demain</strong> est au <strong>futur</strong> (<em>découvrirons, reviendrons</em>)." });
-TEXTES_TM.push({ cle: 'champ-cm', titre: 'Champignons', systeme: 'présent', valeursBilan: false,
+TEXTES_TM.push({ cle: 'champ-cm', niv: 'cm', titre: 'Champignons', systeme: 'présent', valeursBilan: false,
   texte: "Aujourd'hui il {fait|pres|ind} beau et nous nous {promenons|pres|ind} dans la forêt où nous {cherchons|pres|ind} souvent des champignons. Nous {pouvons|pres|ind} y passer des heures sans jamais nous lasser. Hier il {pleuvait|imp|ind} et nous en {avons trouvé|pc|ind} trois kilos, parce que la pluie {avait mouillé|pqp|ind} la terre. Nous {voudrions|pres|cond} en trouver autant aujourd'hui. Soudain ma sœur {crie|pres|ind} : « {Venez|pres|imp} ! J'{ai vu|pc|ind} quelque chose ! » Alors nous {courons|pres|ind} vers elle : nous {découvrirons|fut|ind} peut-être un splendide bolet et le panier {sera|fut|ind} vite plein ! Mais, hélas, ce ne {sont|pres|ind} que de petits champignons et je {pense|pres|ind} qu'ils {sont|pres|ind} vénéneux. « {Regardez|pres|imp} bien avant de les toucher ! » {dit|pres|ind} maman. Nous {repartons|pres|ind} vers d'autres découvertes.",
   bilan: "Ce texte raconte ce qui se passe <strong>aujourd'hui</strong> : c'est le système du présent, et la plupart des verbes sont au <strong>présent de l'indicatif</strong>. Ce qui s'est passé avant est au <strong>passé composé</strong> (<em>avons trouvé, ai vu</em>), à l'<strong>imparfait</strong> pour la description (<em>pleuvait</em>), ou au <strong>plus-que-parfait</strong> pour ce qui s'est passé encore avant (<em>avait mouillé</em>). Ce qui se passera est au <strong>futur</strong> (<em>découvrirons, sera</em>). Trois modes : l'<strong>indicatif</strong> pour ce qui est réel, le <strong>conditionnel</strong> pour un souhait (<em>voudrions</em>), l'<strong>impératif</strong> pour un ordre (<em>Venez, Regardez</em>)." });
+
+/* v62 : dix textes par niveau pour la reconnaissance des temps (système du présent), du plus facile au plus difficile.
+   CE : indicatif seulement (présent, imparfait, futur, passé composé) ; CM : indicatif, conditionnel, impératif ;
+   collège : les sept modes, comme « Champignons ». Le premier de chaque liste est « Champignons ». */
+TEXTES_TM[0].niv = 'col';
+TEXTES_TM.push({ niv: 'ce', titre: "Le chat", systeme: 'présent', texte: "Aujourd'hui, mon chat {dort|pres|ind} sur le lit. Il {ronronne|pres|ind} doucement. Hier, il {a attrapé|pc|ind} une souris dans le jardin. Il {était|imp|ind} très fier. Ce soir, je lui {donnerai|fut|ind} du lait. Il {aime|pres|ind} beaucoup le lait. Maman {dit|pres|ind} qu'il {est|pres|ind} gourmand. Demain, nous {irons|fut|ind} chez le vétérinaire. Mon chat {déteste|pres|ind} la voiture. Il {miaulera|fut|ind} tout le long du trajet !" });
+TEXTES_TM.push({ niv: 'ce', titre: "La rentrée", systeme: 'présent', texte: "Aujourd'hui, c'{est|pres|ind} la rentrée. Je {porte|pres|ind} mon nouveau cartable. Hier, maman {a acheté|pc|ind} des cahiers et des crayons. Il {faisait|imp|ind} chaud dans le magasin. Ma maîtresse {s'appelle|pres|ind} Madame Durand. Elle {sourit|pres|ind} à tous les élèves. Nous {chantons|pres|ind} une chanson. Demain, nous {commencerons|fut|ind} les leçons. Je {serai|fut|ind} sage. Mon ami Hugo {est|pres|ind} dans ma classe. Hier, il {a joué|pc|ind} avec moi au parc." });
+TEXTES_TM.push({ niv: 'ce', titre: "Au parc", systeme: 'présent', texte: "Aujourd'hui, nous {allons|pres|ind} au parc avec papi. Le soleil {brille|pres|ind}. Les canards {nagent|pres|ind} sur l'étang. Je leur {lance|pres|ind} du pain. Hier, il {pleuvait|imp|ind} et nous {sommes restés|pc|ind} à la maison. Papi {a lu|pc|ind} une histoire de pirates. Tout à l'heure, nous {mangerons|fut|ind} une glace. Je {choisirai|fut|ind} la fraise. Papi {prend|pres|ind} toujours la vanille. Il {dit|pres|ind} que c'{est|pres|ind} la meilleure !" });
+TEXTES_TM.push({ niv: 'ce', titre: "Le marché", systeme: 'présent', texte: "Ce matin, je {vais|pres|ind} au marché avec maman. Les marchands {crient|pres|ind} très fort. Maman {achète|pres|ind} des pommes et des carottes. Hier, nous {avons fait|pc|ind} une soupe. Elle {était|imp|ind} délicieuse. Le fromager {coupe|pres|ind} un gros morceau de comté. Il nous le {fait|pres|ind} goûter. Samedi prochain, nous {reviendrons|fut|ind} acheter des fraises. Mamie {viendra|fut|ind} avec nous. Elle {aime|pres|ind} beaucoup le marché. Avant, elle y {allait|imp|ind} tous les jours." });
+TEXTES_TM.push({ niv: 'ce', titre: "Le dentiste", systeme: 'présent', texte: "Aujourd'hui, je {vais|pres|ind} chez le dentiste. J'{ai|pres|ind} un peu peur. Hier soir, j'{ai mangé|pc|ind} trop de bonbons. Ma dent me {faisait|imp|ind} mal. Le dentiste {regarde|pres|ind} dans ma bouche. Il {dit|pres|ind} : « Tu {as|pres|ind} une petite carie. » Il {soigne|pres|ind} ma dent. Je ne {sens|pres|ind} rien ! Demain, je {mangerai|fut|ind} des fruits. Je me {brosserai|fut|ind} les dents après chaque repas. Le dentiste {a été|pc|ind} très gentil." });
+TEXTES_TM.push({ niv: 'ce', titre: "La neige", systeme: 'présent', texte: "Ce matin, la neige {couvre|pres|ind} le jardin. Mon frère et moi, nous {mettons|pres|ind} nos bottes. Nous {faisons|pres|ind} un bonhomme de neige. Hier, il {neigeait|imp|ind} encore et nous {avons regardé|pc|ind} les flocons par la fenêtre. Papa {prend|pres|ind} des photos. Maman nous {appelle|pres|ind} : le chocolat chaud {est|pres|ind} prêt ! Demain, le soleil {reviendra|fut|ind} et notre bonhomme {fondra|fut|ind}. Nous {serons|fut|ind} tristes. L'an dernier, il {a fait|pc|ind} trop doux pour la neige." });
+TEXTES_TM.push({ niv: 'ce', titre: "Les vacances", systeme: 'présent', texte: "Demain, nous {partirons|fut|ind} en vacances à la mer. Aujourd'hui, je {prépare|pres|ind} ma valise. Je {mets|pres|ind} mon maillot et mon seau. Ma sœur {veut|pres|ind} emporter tous ses jouets ! Papa {dit|pres|ind} que la voiture {sera|fut|ind} trop pleine. L'été dernier, nous {sommes allés|pc|ind} à la montagne. Nous {marchions|imp|ind} beaucoup. Je {préférais|imp|ind} la piscine de l'hôtel. Cette année, nous {construirons|fut|ind} des châteaux de sable. Je {pourrai|fut|ind} aussi pêcher des crabes. Vous {viendrez|fut|ind} nous voir ?" });
+TEXTES_TM.push({ niv: 'ce', titre: "Le spectacle", systeme: 'présent', texte: "Ce soir, notre classe {présente|pres|ind} un spectacle. Les parents {arrivent|pres|ind} dans la salle. Je {suis|pres|ind} un peu inquiète. La semaine dernière, nous {avons répété|pc|ind} tous les jours. La maîtresse {était|imp|ind} contente de nous. Le rideau {s'ouvre|pres|ind}. Lucas {oublie|pres|ind} son texte ! Tout le monde {rit|pres|ind}. Mais il {reprend|pres|ind} courage et il {finit|pres|ind} sa phrase. À la fin, les parents {applaudiront|fut|ind} très fort. Nous {ferons|fut|ind} une grande fête. Jamais je n'{ai eu|pc|ind} autant de plaisir !" });
+TEXTES_TM.push({ niv: 'ce', titre: "Le déménagement", systeme: 'présent', texte: "Aujourd'hui, nous {déménageons|pres|ind}. Les déménageurs {portent|pres|ind} les meubles dans le camion. Je {range|pres|ind} mes livres dans un carton. Hier, j'{ai dit|pc|ind} au revoir à mes copains. Ils {étaient|imp|ind} tristes et moi aussi. Notre nouvelle maison {a|pres|ind} un grand jardin. Il y {aura|fut|ind} de la place pour un chien ! Papa {a promis|pc|ind} un chiot pour mon anniversaire. Je l'{appellerai|fut|ind} Caramel. Avant, nous {habitions|imp|ind} dans un petit appartement. Je {partageais|imp|ind} ma chambre avec mon frère. Désormais, chacun {aura|fut|ind} sa chambre !" });
+TEXTES_TM.push({ niv: 'ce', titre: "La sortie au château", systeme: 'présent', texte: "Aujourd'hui, notre classe {visite|pres|ind} un château fort. Nous {traversons|pres|ind} le pont-levis. Le guide nous {explique|pres|ind} que les chevaliers {vivaient|imp|ind} ici autrefois. Ils {portaient|imp|ind} de lourdes armures. Hier, nous {avons lu|pc|ind} une histoire de chevaliers en classe. Maintenant, nous {montons|pres|ind} en haut de la tour. On {voit|pres|ind} toute la vallée ! Thomas {a pris|pc|ind} son appareil : il {fera|fut|ind} des photos pour le journal de l'école. Demain, nous {écrirons|fut|ind} un article. Le directeur le {lira|fut|ind} à tous les élèves. Je {veux|pres|ind} devenir chevalier !" });
+TEXTES_TM.push({ niv: 'cm', titre: "La classe verte", systeme: 'présent', texte: "Aujourd'hui, nous {partons|pres|ind} en classe verte. Le car {attend|pres|ind} devant l'école et les parents {font|pres|ind} de grands signes. « {Soyez|pres|imp} prudents ! » {crie|pres|ind} une maman. Hier, nous {avons préparé|pc|ind} nos sacs avec la liste que la maîtresse nous {avait donnée|pqp|ind} la semaine dernière. Le car {démarre|pres|ind} enfin. Pendant le trajet, nous {chantons|pres|ind}. J'{aimerais|pres|cond} dormir dans la même chambre que Jules. Le centre {se trouve|pres|ind} au bord d'un lac. Demain, nous {ferons|fut|ind} du canoë. Mon frère {est venu|pc|ind} ici l'an passé et il {a adoré|pc|ind} ce séjour. Il m'{a conseillé|pc|ind} d'emporter une lampe. « {Regardez|pres|imp} le paysage ! » {dit|pres|ind} le chauffeur. Ce soir, nous {regarderons|fut|ind} les étoiles. Je {voudrais|pres|cond} voir une étoile filante !" });
+TEXTES_TM.push({ niv: 'cm', titre: "Le gâteau d'anniversaire", systeme: 'présent', texte: "Aujourd'hui, c'{est|pres|ind} l'anniversaire de papa. Ma sœur et moi, nous lui {préparons|pres|ind} un gâteau. « {Prends|pres|imp} la farine, je {casse|pres|ind} les œufs ! » {dit|pres|ind} ma sœur. Hier, nous {avons acheté|pc|ind} du chocolat avec l'argent que nous {avions économisé|pqp|ind}. Le four {chauffe|pres|ind} déjà. Je {voudrais|pres|cond} ajouter des noisettes. « {Mélangez|pres|imp} doucement ! » {conseille|pres|ind} maman. Le gâteau {cuira|fut|ind} pendant trente minutes. Papa {rentrera|fut|ind} à sept heures. Il {croit|pres|ind} que nous {avons oublié|pc|ind} sa fête. Il {sera|fut|ind} surpris ! Pour Noël, nous lui {avons offert|pc|ind} une cravate que nous {avions choisie|pqp|ind} ensemble. Il ne l'{a portée|pc|ind} qu'une fois ! Cette fois, nous {aimerions|pres|cond} lui faire vraiment plaisir." });
+TEXTES_TM.push({ niv: 'cm', titre: "La visite chez le vétérinaire", systeme: 'présent', texte: "Ce matin, Caramel {boite|pres|ind}. Maman {téléphone|pres|ind} au vétérinaire. Hier, mon chien {a couru|pc|ind} dans les ronces qui {avaient envahi|pqp|ind} le fond du jardin. Il {pleurait|imp|ind} doucement toute la nuit. Le vétérinaire {examine|pres|ind} sa patte. « {Tenez|pres|imp} -le bien ! » {demande|pres|ind}-t-il. Il {trouve|pres|ind} une épine. Je {préférerais|pres|cond} ne pas regarder. Caramel {a|pres|ind} un pansement maintenant. « {Gardez|pres|imp} -le au calme pendant trois jours. » Demain, il {ira|fut|ind} déjà mieux. Nous {reviendrons|fut|ind} la semaine prochaine. Je {pourrais|pres|cond} le promener ce soir ? Le vétérinaire {répond|pres|ind} que non. Je {comprends|pres|ind} : la patte {guérira|fut|ind} plus vite." });
+TEXTES_TM.push({ niv: 'cm', titre: "Le match de rugby", systeme: 'présent', texte: "Aujourd'hui, notre équipe {joue|pres|ind} contre Toulouse. Les supporters {chantent|pres|ind} dans les tribunes. L'entraîneur nous {réunit|pres|ind} : « {Jouez|pres|imp} ensemble et {restez|pres|imp} calmes ! » Le mois dernier, nous {avons perdu|pc|ind} contre cette équipe. Nous {avions mal préparé|pqp|ind} ce match. Cette fois, nous {voudrions|pres|cond} gagner. Le match {commence|pres|ind}. Bastien {attrape|pres|ind} le ballon et {court|pres|ind} vers l'en-but. Il {marque|pres|ind} un essai ! L'arbitre {siffle|pres|ind} la mi-temps. Nous {menons|pres|ind} de cinq points. Si nous {tenons|pres|ind} bon, nous {serons|fut|ind} champions. Ce soir, toute l'école {fêtera|fut|ind} notre victoire. J'{aimerais|pres|cond} que ce moment dure toujours." });
+TEXTES_TM.push({ niv: 'cm', titre: "Le jardin de mamie", systeme: 'présent', texte: "Ce matin, mamie {travaille|pres|ind} dans son jardin. Elle {plante|pres|ind} des tulipes que grand-père {a achetées|pc|ind} au marché. « {Apporte|pres|imp} -moi l'arrosoir ! » me {demande|pres|ind}-t-elle. Hier, il {a gelé|pc|ind} : les salades que nous {avions plantées|pqp|ind} la semaine précédente {ont souffert|pc|ind}. Mamie {soupire|pres|ind}. Elle {aimerait|pres|cond} un jardin plus abrité. Autrefois, elle {cultivait|imp|ind} des fraises sur cette terre. Je {creuse|pres|ind} un trou pour chaque bulbe. « {Ne marche pas|pres|imp} sur les plates-bandes ! » Au printemps, les fleurs {sortiront|fut|ind} de terre. Le jardin {sera|fut|ind} magnifique. Nous {pourrions|pres|cond} aussi planter un cerisier. Mamie {sourit|pres|ind} : elle {adore|pres|ind} cette idée." });
+TEXTES_TM.push({ niv: 'cm', titre: "L'exposé", systeme: 'présent', texte: "Aujourd'hui, je {présente|pres|ind} mon exposé sur les volcans. J'{ai|pres|ind} le trac. Hier soir, j'{ai répété|pc|ind} le texte que j'{avais écrit|pqp|ind} la semaine dernière. Papa m'{a posé|pc|ind} des questions difficiles. La maîtresse m'{appelle|pres|ind} au tableau. « {Parle|pres|imp} fort et {regarde|pres|imp} tes camarades ! » me {conseille|pres|ind}-t-elle. Je {montre|pres|ind} une maquette du Vésuve. Il {a détruit|pc|ind} la ville de Pompéi il y a deux mille ans. Mes camarades {écoutent|pres|ind} attentivement. Je {voudrais|pres|cond} visiter un volcan un jour. À la fin, la maîtresse {posera|fut|ind} une note dans mon cahier. Je {serais|pres|cond} content d'avoir un dix !" });
+TEXTES_TM.push({ niv: 'cm', titre: "La panne d'électricité", systeme: 'présent', texte: "Ce soir, une panne {prive|pres|ind} tout le quartier d'électricité. Il {fait|pres|ind} noir. Papa {cherche|pres|ind} les bougies que nous {avons rangées|pc|ind} dans le placard. « {Apportez|pres|imp} les allumettes ! » {dit|pres|ind}-il. Le réfrigérateur ne {ronronne|pres|ind} plus. Hier, un orage {a abîmé|pc|ind} une ligne que les techniciens {avaient réparée|pqp|ind} le mois précédent. Nous {dînons|pres|ind} à la lueur des bougies. Mon petit frère {aimerait|pres|cond} que cela dure toute la semaine ! Autrefois, les gens {vivaient|imp|ind} toujours ainsi. Maman nous {raconte|pres|ind} une histoire. Demain matin, les techniciens {répareront|fut|ind} la ligne. « {Ne vous inquiétez pas|pres|imp} », {dit|pres|ind} papa. Nous {jouerons|fut|ind} aux cartes en attendant." });
+TEXTES_TM.push({ niv: 'cm', titre: "La lettre de Léa", systeme: 'présent', texte: "Chère Léa, aujourd'hui je t'{écris|pres|ind} depuis la montagne. Il {neige|pres|ind} depuis ce matin. Hier, nous {avons fait|pc|ind} du ski pour la première fois. Je {tombais|imp|ind} tout le temps au début ! Le moniteur m'{avait expliqué|pqp|ind} comment freiner, mais j'{avais oublié|pqp|ind}. Maintenant, je {descends|pres|ind} les pistes vertes. Demain, nous {essaierons|fut|ind} une piste bleue. J'{aimerais|pres|cond} que tu sois là ! « {Envoie|pres|imp} une carte à ta copine », m'{a dit|pc|ind} maman. Alors {écoute|pres|imp} bien : je te {rapporterai|fut|ind} un petit chamois en peluche. Nous {rentrerons|fut|ind} samedi. {Réponds|pres|imp} -moi vite ! Je {pourrais|pres|cond} t'appeler dimanche. Je t'{embrasse|pres|ind}. Lucie." });
+TEXTES_TM.push({ niv: 'cm', titre: "Le concours de cuisine", systeme: 'présent', texte: "Aujourd'hui, la classe {participe|pres|ind} à un concours de cuisine. Chaque équipe {prépare|pres|ind} un dessert. Notre chef {s'appelle|pres|ind} Nadia. La semaine dernière, elle nous {a montré|pc|ind} la recette que sa grand-mère lui {avait apprise|pqp|ind}. « {Lavez|pres|imp} -vous les mains d'abord ! » {ordonne|pres|ind} le cuisinier. Nous {battons|pres|ind} les blancs en neige. Hugo {renverse|pres|ind} le sucre ! Nous {rions|pres|ind}. Le jury {goûtera|fut|ind} les desserts à midi. Je {voudrais|pres|cond} tant que notre tarte gagne. Autrefois, mon père {participait|imp|ind} à ce concours. Il {a gagné|pc|ind} une médaille en 1998. « {Gardez|pres|imp} confiance ! » nous {dit|pres|ind} Nadia. Le jury {annoncera|fut|ind} le résultat ce soir." });
+TEXTES_TM.push({ niv: 'cm', titre: "L'orage en montagne", systeme: 'présent', texte: "Ce matin, nous {grimpons|pres|ind} vers le refuge. Le ciel {s'assombrit|pres|ind}. Le guide {regarde|pres|ind} les nuages qui {arrivent|pres|ind} de l'ouest. Pourtant, la météo {a annoncé|pc|ind} du beau temps hier. « {Pressez|pres|imp} le pas ! » {crie|pres|ind}-il. Soudain, le tonnerre {gronde|pres|ind}. Nous {courons|pres|ind} vers une cabane que nous {avons repérée|pc|ind} plus bas. Je {voudrais|pres|cond} être déjà au refuge ! Autrefois, les bergers {s'abritaient|imp|ind} ici avec leurs bêtes. Il {pleut|pres|ind} à verse. « {Restez|pres|imp} loin des arbres ! » L'orage {passera|fut|ind} vite. Dans une heure, nous {repartirons|fut|ind}. Ce soir, nous {raconterons|fut|ind} notre aventure. Nos parents ne nous {croiraient|pres|cond} jamais !" });
+TEXTES_TM.push({ niv: 'col', titre: "Le marché de Noël", systeme: 'présent', texte: "Aujourd'hui, nous {flânons|pres|ind} au marché de Noël, {admirant|pres|part} les chalets illuminés. Les marchands {proposent|pres|ind} du vin chaud et des marrons {grillés|passe|part} . Hier, nous {avons choisi|pc|ind} un sapin et nous {voudrions|pres|cond} maintenant le décorer. Il {faut|pres|ind} que nous {trouvions|pres|subj} des guirlandes. Soudain, ma petite sœur {s'écrie|pres|ind} : « {Regardez|pres|imp} le père Noël ! » Elle {court|pres|ind} vers lui {en riant|pres|ger} . Elle {aimerait|pres|cond} lui {parler|pres|inf} de sa liste. Je {doute|pres|ind} qu'il {puisse|pres|subj} tout lui {apporter|pres|inf} . Ce soir, nous {décorerons|fut|ind} le sapin." });
+TEXTES_TM.push({ niv: 'col', titre: "La randonnée", systeme: 'présent', texte: "Ce matin, nous {partons|pres|ind} {randonner|pres|inf} dans les Pyrénées. Le guide {avance|pres|ind} lentement, {surveillant|pres|part} le ciel. Hier, il {a plu|pc|ind} et les sentiers {sont|pres|ind} glissants. « {Suivez|pres|imp} -moi de près ! » {ordonne|pres|ind}-il. Je {voudrais|pres|cond} que nous {atteignions|pres|subj} le lac avant midi. {Arrivés|passe|part} au col, nous {découvrons|pres|ind} la vallée. Mon père {sort|pres|ind} ses jumelles {en espérant|pres|ger} {apercevoir|pres|inf} un isard. Il {faudrait|pres|cond} que nous {soyons|pres|subj} silencieux. Ce soir, nous {dormirons|fut|ind} au refuge." });
+TEXTES_TM.push({ niv: 'col', titre: "Le tournage", systeme: 'présent', texte: "Aujourd'hui, une équipe de cinéma {tourne|pres|ind} un film dans notre rue. Les techniciens {installent|pres|ind} les projecteurs, {criant|pres|part} des ordres. Hier, ils {ont fermé|pc|ind} la place. Le réalisateur {souhaite|pres|ind} que tout le monde {se taise|pres|subj} . « Silence ! Moteur ! » L'actrice {traverse|pres|ind} la rue {en courant|pres|ger} . Je {voudrais|pres|cond} bien {obtenir|pres|inf} un autographe. {Fatiguée|passe|part} , l'actrice {s'assoit|pres|ind} sur un banc. « {Approchez|pres|imp} , les enfants ! » {dit|pres|ind}-elle. Il {est|pres|ind} possible qu'elle {accepte|pres|subj} de {signer|pres|inf} mon cahier. Le film {sortira|fut|ind} l'an prochain." });
+TEXTES_TM.push({ niv: 'col', titre: "Le concert", systeme: 'présent', texte: "Ce soir, mon frère {joue|pres|ind} du violon au conservatoire. Il {répète|pres|ind} depuis des mois, {travaillant|pres|part} chaque soir. Hier, il {a cassé|pc|ind} une corde ! Ma mère {craint|pres|ind} qu'il {soit|pres|subj} trop nerveux. « {Respire|pres|imp} profondément », lui {conseille|pres|ind}-t-elle. La salle {est|pres|ind} pleine. Mon frère {entre|pres|ind} sur scène {en souriant|pres|ger} . Je {voudrais|pres|cond} tant qu'il {réussisse|pres|subj} ! Les premières notes {s'élèvent|pres|ind} . {Émue|passe|part} , ma grand-mère {essuie|pres|ind} une larme. Après le concert, nous {irons|fut|ind} {dîner|pres|inf} au restaurant." });
+TEXTES_TM.push({ niv: 'col', titre: "La fouille archéologique", systeme: 'présent', texte: "Cet été, je {participe|pres|ind} à une fouille archéologique. Les archéologues {grattent|pres|ind} la terre, {cherchant|pres|part} des traces des Gaulois. Hier, ils {ont découvert|pc|ind} une pièce de bronze. Le chef du chantier {exige|pres|ind} que nous {notions|pres|subj} chaque objet. « {Utilisez|pres|imp} le pinceau, pas la truelle ! » Je {voudrais|pres|cond} {trouver|pres|inf} un trésor. Soudain, ma truelle {heurte|pres|ind} quelque chose. {En dégageant|pres|ger} la terre, je {vois|pres|ind} apparaître un vase. Il {faut|pres|ind} qu'un spécialiste l'{examine|pres|subj} . {Brisé|passe|part} en trois morceaux, il {sera|fut|ind} restauré au musée." });
+TEXTES_TM.push({ niv: 'col', titre: "La course de voile", systeme: 'présent', texte: "Aujourd'hui, notre voilier {prend|pres|ind} le départ de la régate. Le vent {souffle|pres|ind} fort, {gonflant|pres|part} les voiles. Hier, nous {avons vérifié|pc|ind} chaque cordage. Le skipper {veut|pres|ind} que nous {restions|pres|subj} attentifs. « {Bordez|pres|imp} la grand-voile ! » {crie|pres|ind}-il. Nous {dépassons|pres|ind} deux bateaux {en profitant|pres|ger} d'une rafale. Je {voudrais|pres|cond} {franchir|pres|inf} la ligne en tête. {Épuisés|passe|part} , nous {tenons|pres|ind} bon. Il {est|pres|ind} possible que nous {gagnions|pres|subj} . Ce soir, le port {fêtera|fut|ind} les vainqueurs." });
+TEXTES_TM.push({ niv: 'col', titre: "La nuit au musée", systeme: 'présent', texte: "Ce soir, le musée {ouvre|pres|ind} ses portes aux enfants pour une nuit exceptionnelle. Nous {explorons|pres|ind} les salles, {tenant|pres|part} une lampe de poche. Hier, le guide nous {a raconté|pc|ind} la légende de la momie. Il {faut|pres|ind} que nous {restions|pres|subj} groupés. « {Suivez|pres|imp} la flèche verte ! » Je {voudrais|pres|cond} {voir|pres|inf} les dinosaures. Soudain, Léo {pousse|pres|ind} un cri {en apercevant|pres|ger} une ombre. Ce n'{est|pres|ind} qu'un gardien ! {Rassurés|passe|part} , nous {rions|pres|ind} . Bien que nous {soyons|pres|subj} fatigués, personne ne {veut|pres|ind} {dormir|pres|inf} . Demain, nous {raconterons|fut|ind} tout à nos parents." });
+TEXTES_TM.push({ niv: 'col', titre: "Le stage de théâtre", systeme: 'présent', texte: "Cette semaine, je {suis|pres|ind} un stage de théâtre. Nous {improvisons|pres|ind} des scènes, {imitant|pres|part} des personnages célèbres. Hier, j'{ai joué|pc|ind} le rôle d'un roi colérique. Le metteur en scène {exige|pres|ind} que nous {apprenions|pres|subj} nos textes. « {Articulez|pres|imp} ! On ne vous {entend|pres|ind} pas ! » Je {préférerais|pres|cond} {jouer|pres|inf} un rôle comique. Mon amie {entre|pres|ind} en scène {en trébuchant|pres|ger} : tout le monde {rit|pres|ind} . {Vexée|passe|part} , elle {rougit|pres|ind} . Il {faut|pres|ind} pourtant qu'elle {continue|pres|subj} . Samedi, nous {présenterons|fut|ind} notre spectacle." });
+TEXTES_TM.push({ niv: 'col', titre: "L'éclipse", systeme: 'présent', texte: "Aujourd'hui, une éclipse de soleil {plonge|pres|ind} la ville dans la pénombre. Les gens {sortent|pres|ind} dans la rue, {portant|pres|part} des lunettes spéciales. Hier, le professeur nous {a expliqué|pc|ind} le phénomène. Il {faut|pres|ind} qu'on ne {regarde|pres|subj} jamais le soleil à l'œil nu. « {Protégez|pres|imp} vos yeux ! » {répète|pres|ind} ma mère. La lune {cache|pres|ind} peu à peu le soleil. Les oiseaux {se taisent|pres|ind} , {croyant|pres|part} la nuit venue. J'{aimerais|pres|cond} {photographier|pres|inf} ce moment {en utilisant|pres|ger} un filtre. Bien que l'éclipse {dure|pres|subj} à peine trois minutes, nous ne l'{oublierons|fut|ind} jamais." });
 
 const TRANSFOS = {
   /* exercice 5 : du passé au présent, du plus facile au plus difficile. v48 : chaque texte a, comme les modèles,
@@ -2994,7 +3048,78 @@ BANDES.fn = [
   { code: 'FP.ccm', k: 'ccm', nom: 'CC de manière', court: 'CC de manière du verbe' },
 ];
 [...BANDES.syn, ...BANDES.nat, ...BANDES.natFin, ...BANDES.fn].forEach((x) => { x.article = x.nom.toLowerCase(); x.explication = ''; NATURE_BY_CODE[x.code] = x; });
-const LISTE_SX = (lane) => (lane === 'syn' ? BANDES.syn : lane === 'fn' ? BANDES.fn : currentGame.sxFn ? BANDES.natFin : BANDES.nat);
+/* v62 : types et formes de phrases : en bleu le type (par phrase), en vert la forme (par proposition),
+   en rouge, au collège, la forme active ou passive (autrefois : la voix) */
+BANDES.type = [
+  { code: 'TY.decl', k: 'd', nom: 'Phrase déclarative' }, { code: 'TY.interr', k: 'q', nom: 'Phrase interrogative' }, { code: 'TY.imp', k: 'i', nom: 'Phrase impérative' },
+].map((x) => ({ ...x, court: x.nom }));
+BANDES.forme = [
+  { code: 'FO.aff', k: 'a', nom: 'Forme affirmative' }, { code: 'FO.neg', k: 'n', nom: 'Forme négative' },
+  { code: 'FO.affex', k: 'ae', nom: 'Forme affirmative et exclamative' }, { code: 'FO.negex', k: 'ne', nom: 'Forme négative et exclamative' },
+].map((x) => ({ ...x, court: x.nom }));
+BANDES.voix = [
+  { code: 'FO.act', k: 'act', nom: 'Forme active (autrefois : voix active)', court: 'Forme active' },
+  { code: 'FO.pass', k: 'pass', nom: 'Forme passive (autrefois : voix passive)', court: 'Forme passive' },
+];
+[...BANDES.type, ...BANDES.forme, ...BANDES.voix].forEach((x) => { x.article = x.nom.toLowerCase(); x.explication = ''; NATURE_BY_CODE[x.code] = x; });
+const LISTE_SX = (lane) => (currentGame.sxTF ? (lane === 'syn' ? BANDES.type : lane === 'fn' ? BANDES.voix : BANDES.forme)
+  : lane === 'syn' ? BANDES.syn : lane === 'fn' ? BANDES.fn : currentGame.sxFn ? BANDES.natFin : BANDES.nat);
+/* v62 : les textes des types et formes, dix par niveau, du plus facile au plus difficile.
+   [d] [q] [i] ouvrent une phrase déclarative, interrogative, impérative ; {forme|mots} est une proposition :
+   a affirmative, n négative, ae affirmative et exclamative, ne négative et exclamative ; au collège, « /act » ou
+   « /pass » : forme active ou passive. À l'école, seulement des phrases verbales simples (une proposition par phrase) :
+   les propositions ne sont étudiées qu'à partir de la 6e. Un ordre qui finit par « ! » n'est pas pour autant exclamatif. */
+const TEXTES_TF = {
+  ce: [
+    { titre: 'Le chat', texte: "[d] {a|Mon chat s'appelle Moustache.} [d] {a|Il dort toute la journée.} [q] {a|Dort-il encore ?} [d] {n|Il ne mange pas ses croquettes.} [i] {a|Viens ici, Moustache.} [d] {ae|Comme il est paresseux !}" },
+    { titre: 'La récréation', texte: "[d] {a|La cloche sonne.} [d] {a|Les enfants sortent dans la cour.} [q] {a|Joues-tu au ballon ?} [d] {n|Léo ne joue pas.} [d] {a|Il range ses billes.} [i] {a|Courez vite.} [d] {ae|Que cette récréation est belle !}" },
+    { titre: 'Au zoo', texte: "[d] {a|Nous visitons le zoo.} [q] {a|Vois-tu la girafe ?} [d] {ae|Comme elle est grande !} [d] {n|Le lion ne bouge pas.} [i] {n|Ne tape pas sur la vitre.} [i] {a|Regarde les singes.} [d] {ae|Ils sont vraiment drôles !}" },
+    { titre: 'Le gâteau', texte: "[d] {a|Maman prépare un gâteau au chocolat.} [i] {a|Casse les œufs.} [q] {a|As-tu le sucre ?} [d] {n|Je ne trouve pas la farine.} [d] {a|Elle est dans le placard.} [i] {n|Ne mange pas la pâte.} [d] {ae|Que ce gâteau sent bon !}" },
+    { titre: 'Le vélo', texte: "[d] {a|Papa m'apprend à faire du vélo.} [i] {a|Tiens bien le guidon.} [i] {n|Ne regarde pas tes pieds.} [q] {a|Est-ce que tu me tiens ?} [d] {n|Papa ne me tient plus.} [d] {ae|Je roule tout seul !} [d] {ae|Que je suis fier !}" },
+    { titre: 'La plage', texte: "[d] {a|Nous partons à la mer.} [q] {a|As-tu pris ton maillot ?} [d] {n|Je ne trouve plus ma serviette.} [i] {a|Cherche dans ton sac.} [d] {ae|Comme l'eau est froide !} [d] {n|Ma sœur n'aime pas les vagues.} [q] {a|Qui veut construire un château de sable ?}" },
+    { titre: 'La pluie', texte: "[d] {a|Il pleut depuis ce matin.} [d] {n|Nous ne sortons pas.} [q] {a|Veux-tu jouer aux cartes ?} [i] {a|Prends le jeu sur l'étagère.} [d] {ne|Je ne gagne jamais !} [d] {ae|Comme tu as de la chance !} [q] {n|Ne veux-tu pas une revanche ?}" },
+    { titre: 'Le marché', texte: "[d] {a|Grand-père va au marché.} [q] {a|Que vas-tu acheter ?} [d] {n|Je n'achète rien aujourd'hui.} [i] {a|Choisis des pommes bien rouges.} [d] {ae|Que ces fraises sont belles !} [d] {n|Personne n'attend devant l'étal.} [i] {n|N'oublie pas la monnaie.}" },
+    { titre: 'L\'anniversaire', texte: "[d] {a|C'est l'anniversaire de Lina.} [q] {a|Combien de bougies y a-t-il ?} [d] {a|Lina souffle très fort.} [d] {ne|Elle n'en laisse aucune !} [i] {a|Ouvre vite tes cadeaux.} [q] {n|N'est-ce pas une jolie poupée ?} [d] {ae|Quelle chance elle a !}" },
+    { titre: 'La forêt la nuit', texte: "[d] {a|La nuit tombe sur la forêt.} [q] {a|Entends-tu ce bruit ?} [d] {n|Je ne vois rien.} [i] {n|N'aie pas peur.} [d] {a|C'est seulement une chouette.} [d] {ae|Comme ses yeux brillent !} [q] {n|Ne rentrons-nous pas à la maison ?} [i] {a|Allume la lampe.}" },
+  ],
+  cm: [
+    { titre: 'Au musée', texte: "[d] {a|Notre classe visite le musée du Louvre.} [i] {n|Ne touchez pas les tableaux !} [q] {a|Qui a peint ce portrait ?} [d] {a|Léonard de Vinci l'a peint il y a cinq siècles.} [d] {ae|Comme elle sourit mystérieusement !} [d] {n|Personne ne connaît son secret.} [q] {n|N'est-ce pas la Joconde ?} [i] {a|Suivez la guide.}" },
+    { titre: 'Le potager', texte: "[d] {a|Mamie cultive un grand potager.} [q] {a|Est-ce que les tomates sont mûres ?} [d] {n|Elles ne sont pas encore rouges.} [i] {a|Arrose les salades ce soir !} [d] {ne|Les limaces n'ont rien laissé !} [d] {ae|Quelles énormes courgettes elle récolte !} [q] {n|Ne manges-tu jamais de radis ?} [i] {n|Ne marche pas sur les semis.}" },
+    { titre: 'La finale', texte: "[d] {a|Notre équipe joue la finale aujourd'hui.} [q] {a|Où se trouve le stade ?} [d] {ae|Que les supporters sont nombreux !} [d] {n|Le gardien n'a encaissé aucun but.} [i] {a|Passe-moi le ballon !} [d] {a|Tom marque à la dernière minute.} [d] {ae|Quel but magnifique il a marqué !} [q] {n|Ne méritions-nous pas cette victoire ?}" },
+    { titre: 'La tempête', texte: "[d] {a|Une violente tempête souffle sur la côte.} [i] {n|Ne sortez pas de chez vous !} [q] {a|Avez-vous fermé les volets ?} [d] {n|Les bateaux ne quittent plus le port.} [d] {ae|Comme le vent hurle !} [d] {n|Rien ne résiste à ses rafales.} [q] {a|Quand la tempête se calmera-t-elle ?} [i] {a|Restez à l'abri.}" },
+    { titre: 'La bibliothèque', texte: "[d] {a|Je passe le mercredi à la bibliothèque.} [q] {a|Quel livre me conseilles-tu ?} [i] {a|Lis donc ce roman d'aventures.} [d] {n|Je n'ai jamais lu d'histoire de pirates.} [d] {ae|Quelle histoire passionnante tu me proposes !} [i] {n|Ne fais pas de bruit !} [q] {n|N'as-tu pas oublié ta carte ?} [d] {a|La bibliothécaire me sourit.}" },
+    { titre: 'Le cirque', texte: "[d] {a|Le cirque s'installe sur la place du village.} [q] {a|Est-ce que tu as vu les éléphants ?} [d] {ae|Comme le clown est maladroit !} [d] {n|Le dompteur ne craint point les lions.} [i] {a|Applaudissez les acrobates !} [d] {ne|Je n'ai jamais vu un spectacle aussi beau !} [q] {n|Ne reviendront-ils pas l'année prochaine ?} [i] {n|Ne t'approche pas de la cage.}" },
+    { titre: 'Le déménagement', texte: "[d] {a|Nous déménageons à Lyon cet été.} [q] {a|Pourquoi quittons-nous notre maison ?} [d] {a|Papa a trouvé un nouveau travail.} [d] {n|Je ne connais personne là-bas.} [i] {a|Emballe tes jouets dans ce carton !} [d] {ae|Que ma chambre paraît vide maintenant !} [d] {n|Mes amis ne m'oublieront pas.} [q] {n|Ne m'écriras-tu pas chaque semaine ?}" },
+    { titre: 'Le volcan', texte: "[d] {a|Le Piton de la Fournaise se réveille.} [q] {a|Le volcan est-il dangereux ?} [d] {n|La lave ne menace aucune maison.} [d] {ae|Quel spectacle grandiose nous offre la nature !} [i] {n|Ne franchissez pas les barrières !} [i] {a|Observez les coulées depuis le belvédère.} [d] {ne|Les scientifiques n'avaient rien prévu !} [q] {n|N'est-il pas temps de redescendre ?}" },
+    { titre: 'Le château fort', texte: "[d] {a|Le chevalier défend le château fort.} [q] {a|Combien d'ennemis attaquent les remparts ?} [d] {n|Les assaillants ne franchiront jamais les douves.} [i] {a|Levez le pont-levis !} [d] {ae|Que ces tours sont hautes !} [i] {n|Ne gaspillez point les flèches.} [q] {n|Le roi n'enverra-t-il pas des renforts ?} [d] {ne|Personne ne passera !}" },
+    { titre: 'L\'expédition polaire', texte: "[d] {a|L'expédition avance lentement sur la banquise.} [q] {a|Les chiens tiendront-ils jusqu'au camp ?} [d] {n|Le blizzard ne faiblit guère.} [i] {a|Montez la tente avant la nuit !} [d] {ae|Comme le froid est mordant !} [d] {n|Nul ne parle.} [q] {n|Ne voyez-vous pas ces ours blancs ?} [i] {n|Ne bougez plus.} [d] {ne|Jamais je n'ai eu aussi peur !}" },
+  ],
+  65: [
+    { titre: 'Le nouveau', texte: "[d] {a|Un nouvel élève arrive dans la classe.} [q] {a|D'où vient-il ?} [d] {a|Il s'appelle Samir} et {n|il ne connaît personne.} [d] {ae|Comme il paraît timide !} [i] {a|Viens t'asseoir à côté de moi} {n|si tu ne trouves pas de place.} [d] {a|Je crois} {n|qu'il ne regrettera pas son choix.}" },
+    { titre: 'La panne', texte: "[d] {a|La voiture s'arrête brusquement} {a|alors que nous roulons sur l'autoroute.} [q] {a|Que se passe-t-il ?} [d] {n|Le moteur ne démarre plus.} [i] {n|Ne descendez pas de la voiture} {n|tant que la dépanneuse n'est pas arrivée.} [d] {ae|Quelle malchance nous avons !} [d] {a|Papa téléphone au garage} mais {n|personne ne répond.}" },
+    { titre: 'Le concours de dessin', texte: "[d] {a|Ma sœur participe au concours de dessin} {a|qui a lieu à la mairie.} [q] {n|Ne crois-tu pas} {a|qu'elle va gagner ?} [d] {a|Elle a dessiné un dragon} {n|qui ne crache pas de feu.} [d] {ae|Que ses couleurs sont vives !} [i] {a|Regarde bien les détails.} [d] {n|Le jury n'a pas encore choisi le gagnant.}" },
+    { titre: 'Le spectacle', texte: "[d] {a|Nous répétons la pièce depuis trois semaines.} [q] {a|Sais-tu ton texte} {a|maintenant que la première approche ?} [d] {n|Je ne m'en souviens pas toujours} {a|quand je suis sur scène.} [i] {n|N'aie pas peur} et {a|parle fort.} [d] {ae|Comme la salle est pleine !} [d] {a|Le rideau se lève} et {n|plus personne ne bavarde.}" },
+    { titre: 'La sortie en mer', texte: "[d] {a|Le bateau quitte le port} {a|dès que le jour se lève.} [q] {a|Verrons-nous des dauphins ?} [d] {n|Le capitaine ne promet rien} {n|parce qu'il n'est jamais sûr de les trouver.} [d] {ae|Comme la mer est calme !} [i] {a|Mettez vos gilets} et {n|ne vous penchez pas par-dessus bord.} [d] {a|Soudain, un dauphin saute devant la proue.}" },
+    { titre: 'Le cambriolage', texte: "[d] {a/pass|La bijouterie a été cambriolée cette nuit.} [q] {a/act|Qui a prévenu la police ?} [d] {a/act|Le gardien a entendu un bruit} mais {n/act|il n'a vu personne.} [d] {n/pass|Les voleurs n'ont pas été arrêtés.} [i] {n/act|Ne touchez à rien} {n/pass|tant que les empreintes ne sont pas relevées.} [d] {ae/act|Quel culot ils ont !}" },
+    { titre: 'Le tableau retrouvé', texte: "[d] {a/pass|Le célèbre tableau a été retrouvé dans un grenier.} [q] {a/act|Comment est-il arrivé là ?} [d] {a/act|Un antiquaire l'avait acheté} {a/act|sans qu'il connaisse sa valeur.} [d] {ae/act|Comme cet antiquaire a eu de la chance !} [d] {n/pass|Le tableau n'avait jamais été restauré.} [i] {a/act|Admirez ses couleurs} {a/pass|qui ont été si bien conservées.}" },
+    { titre: 'Le tournoi', texte: "[d] {a/pass|Le tournoi est organisé par le club de la ville.} [q] {a/act|Combien d'équipes participent ?} [d] {a/act|Notre équipe a gagné le premier match} mais {a/pass|elle a été battue en demi-finale.} [d] {n/pass|L'arbitre n'a pas été respecté par les joueurs.} [i] {n/act|Ne vous découragez pas !} [d] {ae/act|Que nous avons bien joué !}" },
+    { titre: 'L\'incendie', texte: "[d] {a/pass|Les pompiers ont été appelés à minuit.} [q] {a/act|Comment le feu a-t-il pris ?} [d] {a/act|Une bougie était restée allumée.} [d] {n/pass|Personne n'a été blessé} {a/act|parce que les habitants sont sortis à temps.} [d] {ae/act|Comme les pompiers ont été rapides !} [i] {a/act|Vérifiez toujours vos bougies avant de vous coucher.}" },
+    { titre: 'La lettre', texte: "[d] {a/pass|Cette lettre a été écrite par mon arrière-grand-père} {a/act|quand il était soldat.} [q] {n/act|Ne trouves-tu pas} {a/act|que son écriture est belle ?} [d] {a/act|Il raconte} {a/pass|que les tranchées étaient envahies par la boue.} [d] {n/pass|Ses lettres n'ont jamais été publiées.} [i] {a/act|Garde-la précieusement.} [d] {ae/act|Quel courage il fallait !}" },
+  ],
+  43: [
+    { titre: 'Le message mystérieux', texte: "[d] {a/pass|Un message a été glissé sous ma porte} {a/act|pendant que je dormais.} [q] {a/act|Qui a pu l'écrire ?} [d] {n/act|Je ne reconnais pas l'écriture} et {n/pass|la lettre n'est pas signée.} [i] {n/act|Ne parle de cela à personne} {n/act|tant que nous ne savons rien.} [d] {ae/act|Comme cette histoire est étrange !}" },
+    { titre: 'L\'orage', texte: "[d] {a/act|L'orage éclate} {a/act|au moment où nous arrivons au refuge.} [d] {a/pass|Le ciel est déchiré par les éclairs.} [q] {n/act|N'avez-vous pas entendu la foudre} {a/act|qui est tombée sur le sapin ?} [d] {n/pass|Heureusement, personne n'a été touché.} [i] {a/act|Fermez la porte} et {a/act|approchez-vous du feu.} [d] {ae/act|Comme la montagne est belle sous l'orage !}" },
+    { titre: 'Le procès', texte: "[d] {a/pass|L'accusé est défendu par un avocat célèbre.} [q] {a/act|Les jurés croiront-ils} {a/act|qu'il est innocent ?} [d] {a/act|Le témoin affirme} {n/act|qu'il n'a rien vu.} [d] {n/pass|Aucune preuve n'a été présentée par l'accusation.} [i] {n/act|Ne jugez pas trop vite.} [d] {a/pass|Le verdict sera rendu demain} {a/act|si les débats se terminent ce soir.}" },
+    { titre: 'La grotte', texte: "[d] {a/pass|Une grotte ornée a été découverte par trois spéléologues.} [q] {a/act|Savez-vous} {a/act|depuis combien de temps elle était fermée ?} [d] {a/act|Les chercheurs pensent} {n/pass|qu'elle n'avait pas été visitée depuis vingt mille ans.} [d] {ae/act|Que ces peintures sont émouvantes !} [i] {n/act|Ne touchez jamais les parois} {a/act|car elles sont fragiles.} [d] {n/pass|Elle ne sera pas ouverte au public.}" },
+    { titre: 'Le naufrage', texte: "[d] {a/act|Le navire heurta un récif} {a/act|alors que la tempête faisait rage.} [d] {a/pass|Les passagers furent réveillés par le choc.} [q] {a/act|Combien de canots restait-il ?} [d] {n/act|Le capitaine ne quitta pas son poste} {n/pass|tant que tous les passagers n'étaient pas sauvés.} [i] {a/act|Embarquez d'abord les enfants !} [d] {ne/act|Jamais on n'avait vu un tel courage !}" },
+    { titre: 'L\'élection', texte: "[d] {a/pass|Le délégué de classe sera élu vendredi.} [q] {a/act|Pour qui vas-tu voter ?} [d] {n/act|Je n'ai pas encore décidé} {a/act|parce que les deux candidats me plaisent.} [d] {a/act|Inès promet} {a/pass|que la cour sera embellie par des plantes.} [d] {ae/act|Que cette campagne est animée !} [d] {a/pass|Les bulletins seront comptés par le professeur} {a/act|dès que tout le monde aura voté.}" },
+    { titre: 'Le robot', texte: "[d] {a/pass|Ce robot a été conçu par des élèves de troisième.} [q] {a/act|Que sait-il faire ?} [d] {a/act|Il trie les déchets} {a/pass|qui sont déposés dans la cantine.} [d] {n/act|Il ne se trompe presque jamais.} [i] {a/act|Observez} {a/act|comme il saisit délicatement les bouteilles.} [d] {n/pass|Son programme n'a pas encore été terminé.} [d] {ae/act|Quelle invention géniale ils ont faite !}" },
+    { titre: 'Le marathon', texte: "[d] {a/act|Des milliers de coureurs s'élancent} {a/pass|dès que le départ est donné.} [d] {a/pass|Ils sont encouragés par la foule.} [q] {n/act|Ne vois-tu pas ce coureur} {a/act|qui boite ?} [d] {n/act|Il n'abandonnera pas} {a/act|même s'il souffre.} [i] {a/act|Tiens bon} et {n/act|ne t'arrête pas !} [d] {ae/act|Comme l'arrivée est encore loin !} [d] {a/pass|Le vainqueur sera récompensé par le maire.}" },
+    { titre: 'Le manuscrit', texte: "[d] {a/pass|Ce manuscrit fut copié par un moine du douzième siècle.} [q] {a/act|Comment a-t-il traversé les siècles} {a/act|alors que tant de livres ont disparu ?} [d] {a/pass|Il était conservé dans une abbaye} {a/act|que les révolutionnaires épargnèrent.} [d] {n/pass|Ses enluminures n'ont jamais été retouchées.} [i] {n/act|Ne l'exposez pas à la lumière} {a/act|car l'encre pâlirait.} [d] {ae/act|Que ces couleurs sont fraîches !}" },
+    { titre: 'Le vote de la loi', texte: "[d] {a/pass|La loi a été votée par l'Assemblée après un débat} {a/act|qui a duré trois jours.} [q] {n/act|Les opposants n'avaient-ils pas promis} {n/pass|qu'elle ne serait jamais adoptée ?} [d] {a/act|Le ministre remercie les députés} {a/act|qui l'ont soutenu.} [d] {n/pass|Les amendements n'ont pas tous été retenus.} [i] {a/act|Lisez le texte avant de le critiquer.} [d] {ae/act|Comme cette séance fut longue !}" },
+  ],
+};
+const avecFnSX = () => !!(currentGame.sxFn || (currentGame.sxTF && sx.props.some((p) => p.fn)));
 /* v56 : dix textes et plus par exercice, du plus facile au plus difficile. Exercice 1 (« syn ») : syntaxe et nature
    simple (indépendante, principale, subordonnée) ; exercice 2 (« fn ») : nature précise et fonction des subordonnées.
    Codes de fonction : ant (complément de l'antécédent), cod, suj, cct, ccc, cco, ccq, ccb, cch, ccm ; puis le mot complété. */
@@ -3027,16 +3152,16 @@ const TEXTES_SX = {
   ],
 };
 /* les subordonnées du texte (relative, circonstancielle…) comptent toutes comme « subordonnée » */
-const natSX = (k) => (currentGame.sxFn || k === 'I' || k === 'P' ? k : 'SUB');
+const natSX = (k) => (currentGame.sxFn || currentGame.sxTF || k === 'I' || k === 'P' ? k : 'SUB');
 const sx = { mots: [], phrases: [], props: [], sel: null, cibles: {} };
-const SX_T = () => TEXTES_SX[currentGame.sxFn ? 'fn' : 'syn'][game.questions[game.index].t];
+const SX_T = () => (currentGame.sxTF ? TEXTES_TF[currentGame.tfNiv] : TEXTES_SX[currentGame.sxFn ? 'fn' : 'syn'])[game.questions[game.index].t];
 function decoupeSX(src) {
   const mots = [], phrases = [], props = [];
   const ajoute = (txt, p) => txt.split(/\s+/).filter(Boolean).forEach((w) => {
     if (/^[.,;:!?»]$/.test(w) && mots.length) { mots[mots.length - 1].t += (/^[;:!?»]$/.test(w) ? ' ' : '') + w; return; }
     mots.push({ t: w, s: phrases.length - 1, p });
   });
-  src.replace(/\[([NSC])\]|\{([^|}]+)\|([^}]*)\}|([^\s[{]+)/g, (m, ph, code, txt, w) => {
+  src.replace(/\[([NSCdqi])\]|\{([^|}]+)\|([^}]*)\}|([^\s[{]+)/g, (m, ph, code, txt, w) => {
     if (ph) { phrases.push({ k: ph, a: mots.length, b: mots.length }); return m; }
     if (code !== undefined) {
       const a = mots.length;
@@ -3066,14 +3191,14 @@ const ciblesSX = () => {
   sx.phrases.forEach((ph, s) => {
     l.push({ cle: `syn${s}`, lane: 'syn', a: ph.a, b: ph.b, k: ph.k });
     sx.props.forEach((pr, k) => { if (pr.s === s) l.push({ cle: `nat${k}`, lane: 'nat', a: pr.a, b: pr.b, k: natSX(pr.k) }); });
-    if (currentGame.sxFn) sx.props.forEach((pr, k) => { if (pr.s === s && pr.fn) l.push({ cle: `fn${k}`, lane: 'fn', a: pr.a, b: pr.b, k: pr.fn, ref: pr.ref }); });
+    if (avecFnSX()) sx.props.forEach((pr, k) => { if (pr.s === s && pr.fn) l.push({ cle: `fn${k}`, lane: 'fn', a: pr.a, b: pr.b, k: pr.fn, ref: pr.ref }); });
   });
   return l;
 };
 function showQuestionSX() {
   const d = decoupeSX(SX_T().texte);
   Object.assign(sx, d, { sel: null, cibles: {} });
-  $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">« ${esc(SX_T().titre)} »</h3><div class="tm-texte sx-texte">${d.mots.map((m, i) => `<span class="w sx-mot" data-i="${i}"><span class="tx">${esc(m.t)}</span><span class="sx-lanes"><span class="sx-lane syn"></span><span class="sx-lane nat"></span>${currentGame.sxFn ? '<span class="sx-lane fn"></span>' : ''}</span></span>`).join('')}</div></div>`;
+  $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">« ${esc(SX_T().titre)} »</h3><div class="tm-texte sx-texte">${d.mots.map((m, i) => `<span class="w sx-mot" data-i="${i}"><span class="tx">${esc(m.t)}</span><span class="sx-lanes"><span class="sx-lane syn"></span><span class="sx-lane nat"></span>${avecFnSX() ? '<span class="sx-lane fn"></span>' : ''}</span></span>`).join('')}</div></div>`;
   ciblesSX().forEach((c) => { sx.cibles[c.cle] = { ...c, fait: false }; peintSX(c.lane, c.a, c.b, `vide ${COUL_SX[c.lane]}`, ''); marqueCibleSX(c); });
   currentGame.total = Object.keys(sx.cibles).length;
   $('nat-character-stage').innerHTML = '';
@@ -3139,6 +3264,7 @@ function majScoreSX() {
   $('nat-progress-bar').style.width = `${(sxFaits() / currentGame.total) * 100}%`;
 }
 function panneauSX(message) {
+  if (currentGame.sxTF) { panneauTFX(message); return; }
   $('nat-instruction').textContent = currentGame.sxFn ? 'Syntaxe, nature et fonction des propositions' : 'La syntaxe des phrases et la nature des propositions';
   const c = sx.sel ? sx.cibles[sx.sel] : null;
   const bouton = (lane, x) => `<button type="button" class="sx-bande-btn ${lane}" data-bande="${x.code}"${!c || c.lane !== lane ? ' disabled' : ''}>${x.nom}</button>`;
@@ -3156,15 +3282,16 @@ function repondSX(code) {
   const c = sx.sel ? sx.cibles[sx.sel] : null; if (!c || c.fait || game.fini) return;
   const item = NATURE_BY_CODE[code], bonne = LISTE_SX(c.lane).find((x) => x.k === c.k);
   const juste = item.k === c.k, coul = COUL_SX[c.lane];
-  const etq = (x) => (c.lane === 'fn' ? etqFnSX(x, c) : x.court);
+  const etq = (x) => (c.lane === 'fn' && !currentGame.sxTF ? etqFnSX(x, c) : x.court);
   c.fait = true;
   let msg;
   if (juste) {
     game.score = Math.round((game.score + 1) * 10) / 10;
     peintSX(c.lane, c.a, c.b, `ok ${coul}`, etq(item));
-    msg = `✔ Juste : ${c.lane === 'fn' ? etq(item) : item.nom.toLowerCase()}.`;
+    msg = `✔ Juste : ${c.lane === 'fn' && !currentGame.sxTF ? etq(item) : item.nom.toLowerCase()}.`;
   } else {
-    game.erreurs.push({ mot: sx.mots.slice(c.a, c.b + 1).map((m) => m.t).join(' '), bonne: (c.lane === 'fn' ? etqFnSX(bonne, c) : bonne.nom).toLowerCase(), choisie: (c.lane === 'fn' ? etqFnSX(item, c) : item.nom).toLowerCase(), phrase: `texte « ${SX_T().titre} »` });
+    const fnx = c.lane === 'fn' && !currentGame.sxTF;
+    game.erreurs.push({ mot: sx.mots.slice(c.a, c.b + 1).map((m) => m.t).join(' '), bonne: (fnx ? etqFnSX(bonne, c) : bonne.nom).toLowerCase(), choisie: (fnx ? etqFnSX(item, c) : item.nom).toLowerCase(), phrase: `texte « ${SX_T().titre} »` });
     peintSX(c.lane, c.a, c.b, `revele ${coul}`, `✗ ${etq(bonne)}`);
     const pourquoi = {
       N: 'Elle n\'a pas de verbe.', S: 'Elle n\'a qu\'un verbe conjugué.', SUB: 'Elle porte en tête un mot subordonnant (qui, que, où, quand, si…).',
@@ -3175,8 +3302,8 @@ function repondSX(code) {
       INF: 'Son verbe est à l\'infinitif, avec son propre sujet.', PART: 'Son verbe est au participe, avec son propre sujet.',
       ant: `Elle complète le nom « ${c.ref} », son antécédent.`, cod: `Elle complète le verbe « ${c.ref} » : ${c.ref} quoi ?`, suj: `Elle est le sujet du verbe « ${c.ref} ».`,
     };
-    const exp = c.lane === 'syn' && c.k === 'C' ? 'Elle a plusieurs verbes conjugués.' : c.lane === 'nat' && c.k === 'C' ? 'Elle est introduite par une conjonction de subordination (quand, parce que, bien que, si…) et précise une circonstance.' : c.lane === 'fn' && /^cc/.test(c.k) ? `Elle précise une circonstance du verbe « ${c.ref} ».` : (pourquoi[c.k] || '');
-    msg = `Non : c'est ${c.lane === 'fn' ? `« ${etq(bonne)} »` : `une ${bonne.nom.toLowerCase()}`}. ${exp}`;
+    const exp = currentGame.sxTF ? pourquoiTF(c) : c.lane === 'syn' && c.k === 'C' ? 'Elle a plusieurs verbes conjugués.' : c.lane === 'nat' && c.k === 'C' ? 'Elle est introduite par une conjonction de subordination (quand, parce que, bien que, si…) et précise une circonstance.' : c.lane === 'fn' && /^cc/.test(c.k) ? `Elle précise une circonstance du verbe « ${c.ref} ».` : (pourquoi[c.k] || '');
+    msg = `Non : c'est ${fnx ? `« ${etq(bonne)} »` : `une ${bonne.nom.toLowerCase()}`}. ${exp}`;
   }
   sx.sel = null;
   majScoreSX(); panneauSX(msg);
@@ -3187,6 +3314,7 @@ function repondSX(code) {
 }
 function finSX() {
   sx.sel = null;
+  if (currentGame.sxTF) { finTFX(); return; }
   $('nat-buttons-variables').innerHTML = '';
   $('nat-instruction').textContent = 'Toutes les bandes sont posées !';
   const total = currentGame.total;
@@ -3197,6 +3325,36 @@ function finSX() {
   showCharacter(game.score >= total / 2 ? 'good' : 'bad', null);
 }
 const isSX = () => !!(currentGame && currentGame.sx);
+function panneauTFX(message) {
+  $('nat-instruction').textContent = 'Le type et la forme des phrases';
+  const c = sx.sel ? sx.cibles[sx.sel] : null, fn = avecFnSX(), complexe = sx.props.length > sx.phrases.length;
+  const bouton = (lane, x) => `<button type="button" class="sx-bande-btn ${lane}" data-bande="${x.code}"${!c || c.lane !== lane ? ' disabled' : ''}>${x.nom}</button>`;
+  const morceau = c ? sx.mots.slice(c.a, c.b + 1).map((m) => m.t).join(' ') : '';
+  const unite = complexe ? 'cette proposition' : 'cette phrase';
+  const q = !c ? '' : c.lane === 'syn' ? 'Quel est le <strong>type</strong> de cette phrase ?' : c.lane === 'nat' ? `Quelle est la <strong>forme</strong> de ${unite} ?` : `${unite.charAt(0).toUpperCase() + unite.slice(1)} est-elle à la <strong>forme active ou passive</strong> ?`;
+  $('nat-buttons-variables').innerHTML = nbspFr(`${c ? `<p class="sx-question">${q}<br><em>« ${esc(morceau)} »</em></p>` : ''}
+    <div class="carte sx-carte bleue libre${c && c.lane === 'syn' ? ' active' : ' eteinte'}"><p><strong>Le type</strong> : pourquoi parle-t-on ?</p><div class="sx-palette">${BANDES.type.map((x) => bouton('syn', x)).join('')}</div></div>
+    <div class="carte sx-carte verte libre${c && c.lane === 'nat' ? ' active' : ' eteinte'}"><p><strong>La forme</strong> : affirmative ou négative ? exclamative ?</p><div class="sx-palette">${BANDES.forme.map((x) => bouton('nat', x)).join('')}</div></div>
+    ${fn ? `<div class="carte sx-carte rouge libre${c && c.lane === 'fn' ? ' active' : ' eteinte'}"><p><strong>La forme active ou passive</strong> (autrefois : la voix)</p><div class="sx-palette">${BANDES.voix.map((x) => bouton('fn', x)).join('')}</div></div>` : ''}
+    <p class="sous sx-aide">${message || `Touche une bande vierge sous le texte (en bleu : le type de la phrase ; en vert : sa forme${complexe ? ', proposition par proposition' : ''}${fn ? ' ; en rouge : forme active ou passive' : ''}), puis choisis ce qu'elle est.`}</p>
+    <p class="sous">${sxFaits()} bande${sxFaits() > 1 ? 's' : ''} sur ${currentGame.total} remplie${sxFaits() > 1 ? 's' : ''}.</p>`);
+  document.querySelectorAll('[data-bande]').forEach((b) => b.addEventListener('click', () => repondSX(b.dataset.bande)));
+}
+function pourquoiTF(c) {
+  if (c.lane === 'syn') return { d: 'Elle donne une information. Elle se termine par un point, ou par un point d\'exclamation quand elle exprime un sentiment.', q: 'Elle pose une question : elle se termine par un point d\'interrogation.', i: 'Elle donne un ordre ou un conseil : son verbe est à l\'impératif, sans sujet.' }[c.k];
+  if (c.lane === 'fn') return c.k === 'pass' ? 'Le sujet subit l\'action : le verbe est construit avec l\'auxiliaire être et le participe passé ; on peut ajouter (ou on trouve) un complément d\'agent introduit par « par ».' : 'Le sujet fait l\'action, ou bien le verbe décrit un état. Attention : « être » suivi d\'un adjectif, ou un passé composé avec être (il est arrivé), ce n\'est pas la forme passive.';
+  return { a: 'Elle n\'a pas de négation.', n: 'Elle contient une négation en deux mots : ne… pas, ne… plus, ne… jamais, ne… rien, ne… personne…', ae: 'Elle n\'a pas de négation, et elle exprime un sentiment, avec un point d\'exclamation (souvent après comme, que, quel).', ne: 'Elle contient une négation, et elle exprime un sentiment, avec un point d\'exclamation.' }[c.k] + (c.k === 'a' || c.k === 'n' ? ' Attention : un ordre peut finir par un point d\'exclamation sans être exclamatif : il ne dit pas un sentiment.' : '');
+}
+function finTFX() {
+  $('nat-buttons-variables').innerHTML = '';
+  $('nat-instruction').textContent = 'Toutes les bandes sont posées !';
+  const total = currentGame.total, fn = avecFnSX();
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. Le <strong>type</strong> d'une phrase dit pourquoi on parle : pour informer (<strong>déclarative</strong>), pour questionner (<strong>interrogative</strong>), pour ordonner (<strong>impérative</strong>). Chaque phrase a aussi une <strong>forme</strong> : <strong>affirmative</strong> ou <strong>négative</strong> (ne… pas, ne… jamais…), et parfois <strong>exclamative</strong> quand elle exprime un sentiment (autrefois, on parlait de « type exclamatif »).${fn ? ' Elle est enfin à la <strong>forme active</strong> ou à la <strong>forme passive</strong> (autrefois : la voix active ou passive) : à la forme passive, le sujet subit l\'action, avec l\'auxiliaire être et le participe passé.' : ''}${sx.props.length > sx.phrases.length ? ' Dans une phrase complexe, chaque proposition a sa forme : l\'une peut être affirmative, l\'autre négative.' : ''} Les bandes hachurées marquées ✗ montrent la bonne réponse, là où tu t'es trompé.`);
+  $('nat-correction').classList.remove('hidden');
+  $('nat-verdict-square').className = `verdict-square ${game.score >= total - 0.05 ? 'correct' : game.score < total / 2 ? 'wrong' : 'half'}`;
+  $('nat-next-button').textContent = 'Voir mon résultat →';
+  showCharacter(game.score >= total / 2 ? 'good' : 'bad', null);
+}
 /* ------------------------------------------------------------
    v58 : LA PHRASE — EXERCICE 3 : TRANSFORMER LES PAROLES RAPPORTÉES
    Quatre étapes : 1. trouver les paroles au discours direct ; 2. les mettre au discours indirect ;
@@ -3424,7 +3582,8 @@ function scoreMessage(r) {
   const E = playerProfile?.enfant?.prenom || '';
   const lignes = [
     `J'ai fait l'exercice « ${r.jeu} » sur MNEMOGRAM.`,
-    niveauOf(r) === 15 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par passage trouvé, 1 point par transformation réussie : discours direct et discours indirect).`
+    niveauOf(r) === 16 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par bande juste : le type et la forme de chaque phrase).`
+      : niveauOf(r) === 15 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par passage trouvé, 1 point par transformation réussie : discours direct et discours indirect).`
       : niveauOf(r) === 14 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par bande juste : syntaxe des phrases, nature et fonction des propositions).`
       : niveauOf(r) === 13 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par bande juste : la syntaxe de chaque phrase, la nature de chaque proposition).`
       : niveauOf(r) >= 11 ? `Mon score : ${fmtPts(r.score)} point${r.score >= 2 ? 's' : ''} sur ${r.total} (1 point par changement réussi : formes verbales et indicateurs de temps).`
@@ -3805,7 +3964,7 @@ async function renderScoreHistory() {
 /* ------------------------------------------------------------
    v11 : BILAN DE PROGRESSION (le « diplôme », comme dans Mnemart) et envoi des scores depuis « Mon compte »
    ------------------------------------------------------------ */
-const niveauOf = (r) => r.niveau || (/niveau 15/.test(r.jeu || '') ? 15 : /niveau 14/.test(r.jeu || '') ? 14 : /niveau 13/.test(r.jeu || '') ? 13 : /niveau 12/.test(r.jeu || '') ? 12 : /niveau 11/.test(r.jeu || '') ? 11 : /niveau 10/.test(r.jeu || '') ? 10 : /niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
+const niveauOf = (r) => r.niveau || (/niveau 16/.test(r.jeu || '') ? 16 : /niveau 15/.test(r.jeu || '') ? 15 : /niveau 14/.test(r.jeu || '') ? 14 : /niveau 13/.test(r.jeu || '') ? 13 : /niveau 12/.test(r.jeu || '') ? 12 : /niveau 11/.test(r.jeu || '') ? 11 : /niveau 10/.test(r.jeu || '') ? 10 : /niveau 9/.test(r.jeu || '') ? 9 : /niveau 8/.test(r.jeu || '') ? 8 : /niveau 7/.test(r.jeu || '') ? 7 : /niveau 6/.test(r.jeu || '') ? 6 : /niveau 5/.test(r.jeu || '') ? 5 : /niveau 4/.test(r.jeu || '') ? 4 : /niveau 3/.test(r.jeu || '') ? 3 : /niveau 2|natures 2/.test(r.jeu || '') ? 2 : 1);
 const pctOf = (r) => (r.total ? (r.score / r.total) * 100 : 0);
 const avg = (l) => (l.length ? l.reduce((t, r) => t + pctOf(r), 0) / l.length : 0);
 const fmtDate = (d) => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -3842,7 +4001,7 @@ function bilanSeal() {
 function analyseScores(scores) {
   const list = scores.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const dates = list.map((r) => new Date(r.date)).filter((d) => !isNaN(d));
-  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((n) => {
+  const niveaux = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((n) => {
     const l = list.filter((r) => niveauOf(r) === n);
     if (!l.length) return null;
     const res = { n, count: l.length, avg: Math.round(avg(l)) };
@@ -3863,7 +4022,7 @@ function analyseScores(scores) {
     bonnes: list.reduce((t, r) => t + (r.score || 0), 0),
   };
 }
-const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : un texte au système du passé', 9: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels (système du présent)', 10: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels (système du passé)', 11: 'Temps et modes, exercice 5 : du passé au présent', 12: 'Temps et modes, exercice 6 : du présent au passé', 13: 'La phrase, exercice 1 : syntaxe de la phrase', 14: 'La phrase, exercice 2 : nature et fonction des propositions', 15: 'La phrase, exercice 3 : discours direct et discours indirect' };
+const NIVEAU_TITRE = { 1: 'Exercice 1 : reconnaissance des natures de mots, niveau 1', 2: 'Exercice 2 : reconnaissance des natures de mots, niveau 2', 3: 'Exercice 3 : reconnaissance des natures et fonctions des mots dans le groupe verbal', 4: 'Exercice 4 : reconnaissance des natures et fonctions des mots dans le groupe nominal', 5: 'Exercice 5 : bilan, le tableau des 20 cases avec guide', 6: 'Exercice 6 : bilan, le tableau des 20 cases sans guide', 7: 'Temps et modes, exercice 1 : un texte au système du présent', 8: 'Temps et modes, exercice 2 : un texte au système du passé', 9: 'Temps et modes, exercice 3 : analyse des temps et des modes personnels (système du présent)', 10: 'Temps et modes, exercice 4 : analyse des temps et des modes personnels (système du passé)', 11: 'Temps et modes, exercice 5 : du passé au présent', 12: 'Temps et modes, exercice 6 : du présent au passé', 13: 'La phrase, exercice 1 : syntaxe de la phrase', 14: 'La phrase, exercice 2 : nature et fonction des propositions', 15: 'La phrase, exercice 3 : discours direct et discours indirect', 16: 'La phrase : types et formes de phrases' };
 /* « au lieu d'un adverbe », « au lieu du sujet », « au lieu de la fonction… » */
 const auLieuDe = (t) => (/^le /.test(t) ? 'du ' + t.slice(3) : /^les /.test(t) ? 'des ' + t.slice(4) : /^[aeiouéèêh]/i.test(t) ? "d'" + t : 'de ' + t);
 function buildBilan(scores) {
@@ -4149,7 +4308,7 @@ $('nat-listen-button').addEventListener('click', () => {
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
   if (q.dr) { speak(TEXTES_DR[q.t].texte.replace(/\[\[\d+\||\]\]|\(\(|\)\)/g, ''), 'femme', 'phrase'); volumeLevel = prev; return; }
-  if (q.sx) { speak(SX_T().texte.replace(/\[[NSC]\]/g, '').replace(/\{[^|}]+\|([^}]*)\}/g, '$1').replace(/\s+/g, ' '), 'femme', 'phrase'); volumeLevel = prev; return; }
+  if (q.sx) { speak(SX_T().texte.replace(/\[[NSCdqi]\]/g, '').replace(/\{[^|}]+\|([^}]*)\}/g, '$1').replace(/\s+/g, ' '), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (q.tf) { speak(TRANSFOS[currentGame.tf][q.t].texte.replace(/\{([^>}]+)>[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (q.tm) { speak(TEXTES_TM[q.t].texte.replace(/\{([^}|]+)\|[^}]*\}/g, '$1').replace(/ ([.,])/g, '$1'), 'femme', 'phrase'); volumeLevel = prev; return; }
   speak(phraseTexte(q.gv ? motsGV(q) : motsDe(q)).replace(/(\S)\.(\S)/g, '$1. $2').replace(/\(…\)/g, '').trim(), 'femme', 'phrase');
