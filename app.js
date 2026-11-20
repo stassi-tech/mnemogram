@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v59';
+const APP_VERSION = 'v60';
 
 const $ = (id) => document.getElementById(id);
 
@@ -757,6 +757,77 @@ if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};
 /* ------------------------------------------------------------
    ÉCRANS
    ------------------------------------------------------------ */
+/* v60 : LE PORTAIL DES NIVEAUX. Quatre onglets (CE1 – CE2, CM1 – CM2, 6e – 5e, 4e – 3e) au-dessus des trois parties.
+   Selon l'onglet, on montre ou non chaque exercice, on le renumérote, et on adapte certains (titre, consigne, étapes).
+   Tous les onglets restent ouverts : un élève de CE1 peut aller jouer en CM ou au collège.
+   « avenir » : un exercice prévu, pas encore construit (bouton grisé). */
+const CLASSES = [
+  { id: 'ce', nom: 'CE1 – CE2', cycle: 'cycle 2' },
+  { id: 'cm', nom: 'CM1 – CM2', cycle: 'cycle 3' },
+  { id: '65', nom: '6e – 5e', cycle: 'fin du cycle 3, début du cycle 4' },
+  { id: '43', nom: '4e – 3e', cycle: 'cycle 4' },
+];
+const TOUS = ['ce', 'cm', '65', '43'];
+const PARTIES_NOM = { mots: 'Les mots', temps: 'Les temps et les modes', phrase: 'La phrase' };
+const PARCOURS = {
+  mots: [
+    { jeu: 'natures', titre: 'Reconnaissance des natures de mots, niveau 1', classes: TOUS },
+    { avenir: true, titre: 'Trouver le verbe et son sujet', classes: ['ce'] },
+    { jeu: 'natures2', titre: 'Reconnaissance des natures de mots, niveau 2', classes: ['cm', '65', '43'] },
+    { jeu: 'fonctions', titre: 'Reconnaissance des natures et fonctions des mots dans le groupe verbal', classes: ['cm', '65', '43'] },
+    { jeu: 'gn', titre: 'Reconnaissance des natures et fonctions des mots dans le groupe nominal', classes: ['cm', '65', '43'] },
+    { jeu: 'tableau', titre: 'Bilan : le tableau des 20 cases avec guide', classes: ['65', '43'] },
+    { jeu: 'libre', titre: 'Bilan : le tableau des 20 cases sans guide', classes: ['65', '43'] },
+  ],
+  temps: [
+    { avenir: true, titre: 'Reconnaître le présent, l\'imparfait, le futur et le passé composé', classes: ['ce'] },
+    { avenir: true, titre: 'Reconnaître les temps de l\'indicatif, l\'impératif et le conditionnel', classes: ['cm'] },
+    { jeu: 'temps1', titre: 'Reconnaissance des temps et des modes dans un texte au système du présent', classes: ['65', '43'] },
+    { jeu: 'temps2', titre: 'Reconnaissance des temps et des modes dans un texte au système du passé (français classique, puis contemporain)', classes: ['43'] },
+    { jeu: 'temps3', titre: 'Analyse des temps et des modes personnels dans un texte au système du présent', classes: ['65', '43'] },
+    { jeu: 'temps4', titre: 'Analyse des temps et des modes personnels dans un texte au système du passé', classes: ['43'] },
+    { jeu: 'temps5', titre: 'Transformer un texte au système du passé en texte au système du présent', classes: ['65', '43'] },
+    { jeu: 'temps6', titre: 'Transformer un texte au système du présent en texte au système du passé', classes: ['43'] },
+  ],
+  phrase: [
+    { avenir: true, titre: 'Les types et les formes de phrases', classes: TOUS },
+    { jeu: 'phrase3', titre: 'Repérer les paroles des personnages', classes: ['ce'], drMode: 'direct',
+      consigne: 'Dans une histoire, les personnages parlent. Quand on écrit leurs paroles telles qu\'ils les ont dites, on les met <strong>entre guillemets</strong> « … » : c\'est le <strong>discours direct</strong>. Lis le texte et <strong>touche toutes les paroles entre guillemets</strong>. Chaque passage trouvé vaut 1 point. Attention : si tu touches le récit, tu perds un demi-point.' },
+    { jeu: 'phrase1', titre: 'Syntaxe de la phrase', classes: ['cm', '65', '43'] },
+    { jeu: 'phrase3', titre: 'Repérer le discours direct et le discours indirect', classes: ['cm', '65'], drMode: 'reperage',
+      consigne: 'Dans un récit, on peut rapporter les paroles des personnages de deux façons. Au <strong>discours direct</strong>, on les cite telles qu\'elles ont été prononcées, <strong>entre guillemets</strong>. Au <strong>discours indirect</strong>, on les rapporte dans une <strong>proposition subordonnée</strong>, après un verbe de parole (<em>il dit que…</em>, <em>il demanda si…</em>), sans guillemets. Deux étapes : <strong>1.</strong> trouve les paroles au discours direct ; <strong>2.</strong> trouve les paroles au discours indirect. Chaque passage trouvé vaut 1 point ; une erreur coûte 0,5 point.' },
+    { jeu: 'phrase2', titre: 'Analyse, nature et fonction des propositions', classes: ['43'] },
+    { jeu: 'phrase3', titre: 'Du discours direct au discours indirect, et inversement', classes: ['43'] },
+    { avenir: true, titre: 'La forme active et la forme passive (autrefois : la voix active et la voix passive)', classes: ['65', '43'] },
+    { avenir: true, titre: 'L\'expression des rapports logiques', classes: ['43'] },
+  ],
+};
+let classeAccueil = (() => { try { return localStorage.getItem('mnemogram-classe') || 'ce'; } catch (e) { return 'ce'; } })();
+if (!CLASSES.some((c) => c.id === classeAccueil)) classeAccueil = 'ce';
+let exerciceChoisi = null;   /* l'entrée du parcours qu'on vient d'ouvrir : titre et adaptations */
+function dessinePortail() {
+  const C = CLASSES.find((c) => c.id === classeAccueil);
+  $('home-classes').innerHTML = CLASSES.map((c) => `<button type="button" class="classe-onglet${c.id === classeAccueil ? ' on' : ''}" data-classe="${c.id}" role="tab" aria-selected="${c.id === classeAccueil}">${c.nom}</button>`).join('');
+  $('home-classes-note').textContent = `Exercices pour le ${C.cycle}. Les autres onglets restent ouverts : tu peux aller voir plus facile ou plus difficile.`;
+  Object.keys(PARCOURS).forEach((partie) => {
+    let n = 0;
+    const L = PARCOURS[partie].map((e, k) => ({ e, k })).filter(({ e }) => e.classes.includes(classeAccueil));
+    document.querySelector(`[data-liste="${partie}"]`).innerHTML = L.map(({ e, k }) => (e.avenir
+      ? `<button type="button" class="home-mode-button avenir" disabled><span class="label"><strong>Exercice ${++n}</strong><br>${e.titre}</span><span class="desc">bientôt</span></button>`
+      : `<button type="button" class="home-mode-button" data-partie-ex="${partie}" data-k="${k}" data-n="${++n}"><span class="label"><strong>Exercice ${n}</strong><br>${e.titre}</span></button>`)).join('') || '<p class="sous">Pas encore d\'exercice à ce niveau.</p>';
+  });
+  document.querySelectorAll('[data-classe]').forEach((b) => b.addEventListener('click', () => {
+    classeAccueil = b.dataset.classe;
+    try { localStorage.setItem('mnemogram-classe', classeAccueil); } catch (e) {}
+    dessinePortail();
+  }));
+  document.querySelectorAll('[data-partie-ex]').forEach((b) => b.addEventListener('click', () => {
+    const p = b.dataset.partieEx, e = PARCOURS[p][Number(b.dataset.k)];
+    exerciceChoisi = { ...e, partie: p, n: Number(b.dataset.n), titreComplet: `${PARTIES_NOM[p]}, exercice ${b.dataset.n} : ${e.titre}` };
+    openGame(e.jeu);
+  }));
+}
+
 /* v38 : l'accueil a trois parties (les mots, les temps et les modes, la phrase) ; chacune a sa page d'exercices */
 let partieAccueil = '';
 function montrePartie(p) {
@@ -766,6 +837,7 @@ function montrePartie(p) {
   window.scrollTo(0, partieAccueil ? $('home-mots').parentElement.offsetTop - 80 : 0);
 }
 document.querySelectorAll('[data-partie]').forEach((b) => b.addEventListener('click', () => montrePartie(b.dataset.partie)));
+dessinePortail();
 function showPanel(name) {
   $('welcome-panel').classList.toggle('hidden', name !== 'welcome');
   $('natures-panel').classList.toggle('hidden', name !== 'natures');
@@ -907,7 +979,7 @@ function choixTexte() {
     }).join('')}</div>`).join('');
     $('nat-progress-label').textContent = `Texte n° ${texteChoisi + 1} (${NIV(texteChoisi)})`;
     if (currentGame.tf) { currentGame.total = decoupeTF(L[texteChoisi].texte).elts.length; $('nat-score-label').textContent = scoreLabel(0); }
-    if (currentGame.dr) { currentGame.total = L[texteChoisi].passages.length * 2; $('nat-score-label').textContent = scoreLabel(0); }
+    if (currentGame.dr) { currentGame.total = totalDR(L[texteChoisi]); $('nat-score-label').textContent = scoreLabel(0); }
     if (currentGame.sx) { const dd = decoupeSX(L[texteChoisi].texte); currentGame.total = dd.phrases.length + dd.props.length + (currentGame.sxFn ? dd.props.filter((p) => p.fn).length : 0); $('nat-score-label').textContent = scoreLabel(0); }
     box.innerHTML = `<p class="texte-titre">Choisis ton texte : le <strong>texte n° ${texteChoisi + 1}</strong>${L[texteChoisi].titre ? ` « ${esc(L[texteChoisi].titre)} »` : ''} (${NIV(texteChoisi)}) t'attend. Les textes déjà faits sont cochés.</p><div class="texte-grille">${groupes}</div>`;
     box.querySelectorAll('[data-texte]').forEach((b) => b.addEventListener('click', () => { texteChoisi = Number(b.dataset.texte); dessine(); }));
@@ -917,6 +989,9 @@ function choixTexte() {
 }
 function openGame(id) {
   currentGame = GAMES[id];
+  /* v60 : l'exercice ouvert depuis le portail : son numéro dans l'onglet, et ses adaptations au niveau */
+  const adapte = exerciceChoisi && exerciceChoisi.jeu === id ? exerciceChoisi : null;
+  currentGame.drMode = adapte?.drMode || 'complet';
   $('natures-panel').classList.toggle('game2', id === 'natures2');
   $('natures-panel').classList.toggle('game3', id === 'fonctions' || id === 'gn' || id === 'tableau' || id === 'libre');
   /* v27 : le jeu 3 marche maintenant comme le jeu 4 (consignes, carrés verts et rouges sous les mots) */
@@ -927,7 +1002,8 @@ function openGame(id) {
   $('natures-panel').classList.toggle('game9', !!GAMES[id].dr);
   $('natures-panel').classList.toggle('game8', !!GAMES[id].sx);
   $('natures-panel').classList.toggle('game7v', !!GAMES[id].valeurs);
-  $('nat-ready-explanation').innerHTML = id === 'phrase3'
+  $('nat-ready-explanation').innerHTML = adapte?.consigne ? adapte.consigne
+    : id === 'phrase3'
     ? 'Dans un récit, on peut rapporter les paroles des personnages de deux façons. Au <strong>discours direct</strong>, on les cite telles qu\'elles ont été prononcées, <strong>entre guillemets</strong>. Au <strong>discours indirect</strong>, on les rapporte dans une <strong>proposition subordonnée</strong>, après un verbe de parole, en changeant les personnes et les temps. Quatre étapes : <strong>1.</strong> trouve les paroles au discours direct ; <strong>2.</strong> mets-les au discours indirect ; <strong>3.</strong> trouve les paroles au discours indirect ; <strong>4.</strong> mets-les au discours direct. Chaque passage trouvé vaut 1 point (une erreur coûte 0,5 point), chaque transformation réussie du premier coup vaut 1 point.'
     : id === 'phrase2'
     ? 'On va plus loin dans l\'analyse des propositions. Sous le texte, trois rangées de bandes vierges : en <strong>bleu</strong>, la <strong>syntaxe</strong> de chaque phrase ; en <strong>vert</strong>, la <strong>nature précise</strong> de chaque proposition (indépendante, principale, subordonnée relative, conjonctive complétive, conjonctive circonstancielle…) ; en <strong>rouge</strong>, la <strong>fonction</strong> de chaque subordonnée (complément de l\'antécédent, COD du verbe, complément circonstanciel…). Touche une bande, puis choisis à droite. Chaque bande juste du premier coup vaut 1 point.'
@@ -955,7 +1031,7 @@ function openGame(id) {
     : 'Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.';
   buildNatureButtons();
   choixTexte();
-  $('nat-game-title').textContent = currentGame.titre;
+  $('nat-game-title').textContent = adapte ? adapte.titreComplet : currentGame.titre;
   showPanel('natures');
   $('nat-ready-screen').classList.remove('hidden');
   $('nat-quiz-grid').classList.add('hidden');
@@ -3134,6 +3210,9 @@ const ETAPES_DR = [
   { type: 'I', quoi: 'trouver', titre: 'Trouve les paroles au discours indirect' },
   { type: 'I', quoi: 'transformer', titre: 'Mets-les au discours direct' },
 ];
+/* v60 : selon le niveau, on ne garde que certaines étapes */
+const ETAPES_ACTIVES = () => (currentGame.drMode === 'direct' ? [0] : currentGame.drMode === 'reperage' ? [0, 2] : [0, 1, 2, 3]);
+const totalDR = (T) => T.passages.filter((p) => currentGame.drMode !== 'direct' || p.type === 'D').length * (currentGame.drMode === 'complet' ? 2 : 1);
 const DR_T = () => TEXTES_DR[game.questions[game.index].t];
 const isDR = () => !!(currentGame && currentGame.dr);
 function decoupeDR(src) {
@@ -3150,7 +3229,7 @@ function showQuestionDR() {
   const T = DR_T();
   Object.assign(dr, { etape: 0, sel: null, trouves: {}, faits: {}, ordre: {} });
   T.passages.forEach((p, k) => { dr.ordre[k] = shuffle([p.bon, ...p.faux]); });
-  currentGame.total = T.passages.length * 2;
+  currentGame.total = totalDR(T);
   const mots = (txt) => txt.split(/(\s+)/).map((w) => (/^\s+$/.test(w) || !w ? w : `<span class="dr-mot">${esc(w)}</span>`)).join('');
   $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">« ${esc(T.titre)} »</h3><div class="dr-texte">${decoupeDR(T.texte).map((m) => (m.libre !== undefined
     ? mots(m.libre)
@@ -3174,7 +3253,8 @@ function majScoreDR() {
 const segDR = (k) => document.querySelector(`#nat-sentence .dr-seg[data-k="${k}"]`);
 function panneauDR(message) {
   const E = ETAPES_DR[dr.etape], L = passagesDR(E.type);
-  $('nat-instruction').textContent = `Étape ${dr.etape + 1} sur 4 : ${E.titre.toLowerCase()}`;
+  const EA = ETAPES_ACTIVES();
+  $('nat-instruction').textContent = EA.length > 1 ? `Étape ${EA.indexOf(dr.etape) + 1} sur ${EA.length} : ${E.titre.toLowerCase()}` : E.titre;
   const nom = E.type === 'D' ? 'discours direct' : 'discours indirect';
   const vers = E.type === 'D' ? 'discours indirect' : 'discours direct';
   let html = '';
@@ -3212,7 +3292,7 @@ function clicDR(seg, mot) {
     game.erreurs.push({ mot: (seg || mot).textContent.trim().slice(0, 60), bonne: E.type === 'D' ? 'pas de discours direct ici' : 'pas de discours indirect ici', choisie: E.type === 'D' ? 'discours direct' : 'discours indirect', phrase: `texte « ${DR_T().titre} »` });
     (seg || mot).classList.add('dr-faux'); setTimeout(() => (seg || mot).classList.remove('dr-faux'), 900);
     majScoreDR();
-    panneauDR(p ? (p.type === 'D' ? 'Non : ces paroles sont entre guillemets, c\'est du discours direct (– 0,5 point).' : 'Non : ces paroles sont dans une subordonnée, sans guillemets : c\'est du discours indirect (– 0,5 point).') : 'Non : ce n\'est pas une parole rapportée, c\'est le récit (– 0,5 point).');
+    panneauDR(p && currentGame.drMode === 'direct' ? 'Non : ici, il n\'y a pas de guillemets. Ce sont bien des paroles, mais racontées par le narrateur (– 0,5 point).' : p ? (p.type === 'D' ? 'Non : ces paroles sont entre guillemets, c\'est du discours direct (– 0,5 point).' : 'Non : ces paroles sont dans une subordonnée, sans guillemets : c\'est du discours indirect (– 0,5 point).') : 'Non : ce n\'est pas une parole rapportée, c\'est le récit (– 0,5 point).');
     return;
   }
   /* transformer : on touche un passage du bon type, pas encore transformé */
@@ -3242,7 +3322,7 @@ function transformeDR(o) {
 function etapeSuivanteDR() {
   dr.sel = null; document.querySelectorAll('.dr-seg.choisi').forEach((s) => s.classList.remove('choisi'));
   /* une étape sans passage (aucun discours indirect, par exemple) est sautée */
-  do { dr.etape += 1; } while (dr.etape < 4 && !passagesDR(ETAPES_DR[dr.etape].type).length);
+  do { dr.etape += 1; } while (dr.etape < 4 && (!ETAPES_ACTIVES().includes(dr.etape) || !passagesDR(ETAPES_DR[dr.etape].type).length));
   if (dr.etape >= 4) { finDR(); return; }
   const E = ETAPES_DR[dr.etape];
   panneauDR(E.quoi === 'transformer' ? 'À toi de les transformer !' : '');
@@ -3250,10 +3330,14 @@ function etapeSuivanteDR() {
 }
 function finDR() {
   $('nat-buttons-variables').innerHTML = '';
-  $('nat-instruction').textContent = 'Toutes les paroles sont transformées !';
+  $('nat-instruction').textContent = currentGame.drMode === 'complet' ? 'Toutes les paroles sont transformées !' : 'Tu as trouvé toutes les paroles !';
   game.score = Math.max(0, game.score);
   const total = currentGame.total;
-  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. Pour passer du <strong>discours direct</strong> au <strong>discours indirect</strong>, les paroles deviennent une <strong>subordonnée</strong> : complétive introduite par <em>que</em> pour une déclaration, interrogative indirecte introduite par <em>si</em> (ou <em>qui, quand, pourquoi…</em>) pour une question. On enlève les guillemets ; les personnes changent (<em>je, vous → il</em>) ; dans un récit au passé, les temps changent (<em>présent → imparfait, passé composé → plus-que-parfait, futur → conditionnel</em>) ; et les indicateurs de temps aussi (<em>aujourd'hui → ce jour-là, hier → la veille, demain → le lendemain</em>). Pour revenir au discours direct, on fait l'inverse. Dans le texte, l'ancien passage est barré et la transformation écrite à sa place : en vert quand tu as trouvé, en rouge quand c'est la correction.`);
+  if (currentGame.drMode !== 'complet') {
+    $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. ${currentGame.drMode === 'direct'
+      ? 'Les paroles des personnages, citées telles qu\'ils les ont dites, sont <strong>entre guillemets</strong> « … » : c\'est le <strong>discours direct</strong>. On les trouve souvent après un verbe de parole (<em>dit, demanda, répondit…</em>) et deux-points.'
+      : 'Au <strong>discours direct</strong>, les paroles sont <strong>entre guillemets</strong>, telles qu\'elles ont été prononcées. Au <strong>discours indirect</strong>, elles sont rapportées dans une <strong>subordonnée</strong> introduite par <em>que</em> ou <em>si</em>, après un verbe de parole, et les personnes et les temps changent. Plus tard, tu apprendras à passer de l\'un à l\'autre.'}`);
+  } else $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. Pour passer du <strong>discours direct</strong> au <strong>discours indirect</strong>, les paroles deviennent une <strong>subordonnée</strong> : complétive introduite par <em>que</em> pour une déclaration, interrogative indirecte introduite par <em>si</em> (ou <em>qui, quand, pourquoi…</em>) pour une question. On enlève les guillemets ; les personnes changent (<em>je, vous → il</em>) ; dans un récit au passé, les temps changent (<em>présent → imparfait, passé composé → plus-que-parfait, futur → conditionnel</em>) ; et les indicateurs de temps aussi (<em>aujourd'hui → ce jour-là, hier → la veille, demain → le lendemain</em>). Pour revenir au discours direct, on fait l'inverse. Dans le texte, l'ancien passage est barré et la transformation écrite à sa place : en vert quand tu as trouvé, en rouge quand c'est la correction.`);
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${game.score >= total - 0.05 ? 'correct' : game.score < total / 2 ? 'wrong' : 'half'}`;
   $('nat-next-button').textContent = 'Voir mon résultat →';
@@ -4038,21 +4122,6 @@ initMosaic();
 buildNatureButtons();
 loadFiche();
 
-$('open-natures').addEventListener('click', () => openGame('natures'));
-$('open-natures2').addEventListener('click', () => openGame('natures2'));
-$('open-fonctions').addEventListener('click', () => openGame('fonctions'));
-$('open-gn').addEventListener('click', () => openGame('gn'));
-$('open-tableau').addEventListener('click', () => openGame('tableau'));
-$('open-libre').addEventListener('click', () => openGame('libre'));
-$('open-temps1').addEventListener('click', () => openGame('temps1'));
-$('open-temps2').addEventListener('click', () => openGame('temps2'));
-$('open-temps3').addEventListener('click', () => openGame('temps3'));
-$('open-temps4').addEventListener('click', () => openGame('temps4'));
-$('open-temps5').addEventListener('click', () => openGame('temps5'));
-$('open-temps6').addEventListener('click', () => openGame('temps6'));
-$('open-phrase1').addEventListener('click', () => openGame('phrase1'));
-$('open-phrase2').addEventListener('click', () => openGame('phrase2'));
-$('open-phrase3').addEventListener('click', () => openGame('phrase3'));
 $('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && !currentGame.sx && !currentGame.dr && w.dataset.i !== undefined) (currentGame.tf ? clicTF : clicFormeTM)(Number(w.dataset.i)); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);

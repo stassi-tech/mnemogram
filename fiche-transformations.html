@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MNEMOGRAM — Fiche transformations de phrase</title>
+<!--
+  UNE FICHE DE MNEMOGRAM, fabriquée par l'atelier de textes à partir d'un fichier Word.
+  Pour la modifier : modifier le Word, puis le redonner à l'atelier (outils\atelier-textes-mnemogram.html).
+  Le jeu lit, pour chaque nature ou fonction (data-code), la ligne « explication » : c'est ce qui s'affiche
+  sous les boutons et ce que dit la voix.
+-->
+<style>
+  body { margin:0; padding:24px 28px 40px; font-family:Arial,sans-serif; color:#000; background:#fff; line-height:1.45; }
+  h1 { font-family:Georgia,serif; font-size:1.5rem; margin:0 0 6px; }
+  .intro p { font-size:.95rem; margin:0 0 6px; }
+  .intro { margin:0 0 18px; }
+  h2 { font-size:1.05rem; margin:24px 0 8px; }
+  .nature { display:grid; grid-template-columns:220px 1fr; gap:4px 16px; padding:10px 0; border-top:1px solid #ccc; }
+  .nature .nom { grid-row:span 3; margin:0; font-size:1rem; }
+  .nature p { margin:0; font-size:.95rem; }
+  .nature .exemples { font-style:italic; }
+  .nature .exemples.formule { font-style:normal; font-weight:700; }
+  @media (max-width:600px) { body { padding:16px; } .nature { grid-template-columns:1fr; } .nature .nom { grid-row:auto; } }
+</style>
+</head>
+<body>
+  <h1>Fiche transformations de phrase</h1>
+  <div class="intro"><p><strong>Transformer une phrase</strong>, c'est en changer la construction sans en changer le sens, ou presque&nbsp;: on change son type ou sa forme (affirmative, négative, exclamative, active, passive…), la façon de rapporter des paroles, ou le moyen d'exprimer un rapport logique.</p></div>
+
+  <h2>1. Les types de phrases</h2>
+    <section class="nature" data-code="TR.types">
+      <h3 class="nom">Qu'est-ce qu'un type de phrase&nbsp;?</h3>
+      <p class="exemples"></p>
+      <p class="explication">Les programmes distinguent aujourd'hui <strong>trois types de phrases</strong>, selon l'intention de celui qui parle&nbsp;: informer, questionner, ordonner.</p>
+    </section>
+    <section class="nature" data-code="TR.decl">
+      <h3 class="nom">Le type déclaratif</h3>
+      <p class="exemples">Il pleut.<br>Il <strong>ne</strong> pleut <strong>pas</strong>.</p>
+      <p class="explication">La phrase sert à <strong>donner une information</strong>. Elle se termine par un point.</p>
+    </section>
+    <section class="nature" data-code="TR.interr">
+      <h3 class="nom">Le type interrogatif</h3>
+      <p class="exemples"><strong>Va-t-il</strong> faire beau&nbsp;?<br>Il va faire beau <strong>?</strong><br><strong>Est-ce qu'</strong>il va faire beau&nbsp;?</p>
+      <p class="explication">La phrase sert à <strong>poser une question</strong>. Elle se termine par un point d'interrogation. On peut la construire de trois façons&nbsp;: en inversant le sujet (va-t-il), par la seule intonation, ou avec «&nbsp;est-ce que&nbsp;».</p>
+      <p class="remarque">À la forme négative (Ne va-t-il point faire beau&nbsp;?), la phrase interrogative incite à répondre oui.</p>
+    </section>
+    <section class="nature" data-code="TR.imp">
+      <h3 class="nom">Le type impératif (ou injonctif)</h3>
+      <p class="exemples"><strong>Viens.</strong><br><strong>Ne</strong> viens <strong>pas</strong>.</p>
+      <p class="explication">La phrase sert à <strong>donner un ordre</strong> ou un conseil. Son verbe est en général au mode impératif, sans sujet exprimé.</p>
+    </section>
+
+  <h2>2. Les formes de phrases</h2>
+    <section class="nature" data-code="TR.formes">
+      <h3 class="nom">Qu'est-ce qu'une forme de phrase&nbsp;?</h3>
+      <p class="exemples"></p>
+      <p class="explication">Chaque type de phrase peut prendre plusieurs <strong>formes</strong>&nbsp;: affirmative ou négative, exclamative, active ou passive, personnelle ou impersonnelle. <strong>Attention, la terminologie a changé</strong>&nbsp;: on parlait autrefois du «&nbsp;type exclamatif&nbsp;» et de la «&nbsp;voix&nbsp;» active ou passive. Ce sont les mêmes notions, sous un nom nouveau.</p>
+    </section>
+    <section class="nature" data-code="TR.neg">
+      <h3 class="nom">La forme affirmative et la forme négative</h3>
+      <p class="exemples">Il pleut. → Il <strong>ne</strong> pleut <strong>pas</strong>.<br>Viens. → <strong>Ne</strong> viens <strong>pas</strong>.</p>
+      <p class="explication">La négation se marque par deux mots qui encadrent le verbe&nbsp;: <strong>ne… pas</strong>, ne… plus, ne… jamais, ne… rien, ne… personne, ne… point.</p>
+    </section>
+    <section class="nature" data-code="TR.excl">
+      <h3 class="nom">La forme exclamative (autrefois&nbsp;: le type exclamatif)</h3>
+      <p class="exemples">La vie est belle <strong>!</strong><br><strong>Comme</strong> il pleut <strong>!</strong><br>Quel beau temps <strong>!</strong></p>
+      <p class="explication">La phrase <strong>exprime un sentiment</strong> (joie, colère, surprise…). Elle se termine par un point d'exclamation, et commence souvent par «&nbsp;comme&nbsp;», «&nbsp;que&nbsp;» ou «&nbsp;quel&nbsp;».</p>
+      <p class="remarque">On la range aujourd'hui parmi les formes, parce qu'elle peut s'ajouter à un type&nbsp;: Il pleut&nbsp;! (déclarative exclamative)&nbsp;; Viens donc&nbsp;! (impérative exclamative).</p>
+    </section>
+    <section class="nature" data-code="TR.act">
+      <h3 class="nom">La forme active (autrefois&nbsp;: la voix active)</h3>
+      <p class="exemples"><strong>Le chat mord la souris.</strong></p>
+      <p class="explication">Le <strong>sujet fait l'action</strong>, qui porte sur le COD du même verbe. Le sujet est actif. La phrase met en valeur <strong>celui qui fait l'action</strong>.</p>
+      <p class="remarque">Le verbe est conjugué à un temps donné&nbsp;: le chat <strong>mord</strong>.</p>
+    </section>
+    <section class="nature" data-code="TR.pass">
+      <h3 class="nom">La forme passive (autrefois&nbsp;: la voix passive)</h3>
+      <p class="exemples"><strong>La souris est mordue par le chat.</strong></p>
+      <p class="explication">Le <strong>sujet subit l'action</strong>, qui est faite par le <strong>complément d'agent</strong> (introduit par «&nbsp;par&nbsp;», parfois par «&nbsp;de&nbsp;»). Le sujet est passif. La phrase met en valeur <strong>celui qui subit l'action</strong>.</p>
+      <p class="remarque">Pour passer de la forme active à la forme passive, le COD devient sujet, le sujet devient complément d'agent, et le verbe se construit avec <strong>l'auxiliaire être, au temps du verbe actif, + le participe passé</strong>&nbsp;: mord → <strong>est mordue</strong>&nbsp;; mordait → <strong>était mordue</strong>&nbsp;; a mordu → <strong>a été mordue</strong>. Seul un verbe qui a un COD peut passer à la forme passive.</p>
+    </section>
+    <section class="nature" data-code="TR.pron">
+      <h3 class="nom">La forme pronominale (autrefois&nbsp;: la voix pronominale)</h3>
+      <p class="exemples"><strong>Le chat se mord la queue.</strong></p>
+      <p class="explication">Le sujet <strong>fait et subit l'action</strong> en même temps. Le verbe est accompagné d'un pronom réfléchi (me, te, se, nous, vous) de la même personne que le sujet.</p>
+    </section>
+    <section class="nature" data-code="TR.impers">
+      <h3 class="nom">La forme impersonnelle (ou tournure impersonnelle)</h3>
+      <p class="exemples">Deux hommes viennent. → <strong>Il</strong> vient <strong>deux hommes</strong>.</p>
+      <p class="explication">À la forme personnelle, la phrase est construite <strong>sujet + verbe</strong>. À la forme impersonnelle, elle est construite <strong>sujet apparent (il) + verbe + sujet réel</strong>&nbsp;: «&nbsp;il&nbsp;» ne représente personne, c'est «&nbsp;deux hommes&nbsp;» qui viennent.</p>
+      <p class="remarque">La forme impersonnelle n'est possible qu'avec certains verbes&nbsp;: rester, manquer, arriver, venir, apparaître…</p>
+    </section>
+
+  <h2>3. Les paroles rapportées</h2>
+    <section class="nature" data-code="TR.dd">
+      <h3 class="nom">Le discours direct</h3>
+      <p class="exemples">Le professeur entra et demanda aux élèves&nbsp;: <strong>«&nbsp;Qui est absent&nbsp;?&nbsp;»</strong></p>
+      <p class="explication">Les paroles sont rapportées <strong>directement, entre guillemets</strong>, telles qu'elles ont été prononcées à l'oral. Elles suivent souvent un verbe de parole et deux-points.</p>
+    </section>
+    <section class="nature" data-code="TR.di">
+      <h3 class="nom">Le discours indirect</h3>
+      <p class="exemples">Le professeur entra et demanda aux élèves <strong>qui était absent</strong>.</p>
+      <p class="explication">Les paroles sont introduites dans une <strong>proposition subordonnée</strong>, après un verbe de parole, sans guillemets. Elles subissent des modifications par rapport à l'oral&nbsp;: la <strong>personne</strong> et le <strong>temps</strong> changent.</p>
+      <p class="remarque">Une <strong>question</strong> devient une <strong>subordonnée interrogative indirecte</strong>&nbsp;: Paul demande à Jean&nbsp;: «&nbsp;Tu viens&nbsp;?&nbsp;» → Paul demande à Jean <strong>s'il vient</strong>.<br>Une <strong>déclaration</strong>, un sentiment ou un ordre deviennent une <strong>subordonnée complétive</strong> introduite par «&nbsp;que&nbsp;»&nbsp;: Paul dit à Jean&nbsp;: «&nbsp;Viens&nbsp;!&nbsp;» → Paul dit à Jean <strong>qu'il vienne</strong>.</p>
+    </section>
+    <section class="nature" data-code="TR.chgt">
+      <h3 class="nom">Les changements de temps et d'indicateurs de temps</h3>
+      <p class="exemples">Il disait&nbsp;: «&nbsp;Je viens aujourd'hui.&nbsp;» → Il disait qu'il <strong>venait ce jour-là</strong>.<br>Il disait&nbsp;: «&nbsp;Je suis venu hier.&nbsp;» → Il disait qu'il <strong>était venu la veille</strong>.<br>Il disait&nbsp;: «&nbsp;Je viendrai demain.&nbsp;» → Il disait qu'il <strong>viendrait le lendemain</strong>.</p>
+      <p class="explication">Quand le verbe de parole est au passé, les temps des paroles changent&nbsp;: <strong>présent → imparfait</strong>&nbsp;; <strong>passé composé → plus-que-parfait</strong>&nbsp;; <strong>futur → conditionnel présent</strong>. Les indicateurs de temps changent aussi&nbsp;: <strong>aujourd'hui → ce jour-là</strong>&nbsp;; <strong>hier → la veille</strong>&nbsp;; <strong>demain → le lendemain</strong>.</p>
+      <p class="remarque">Pour passer du discours indirect au discours direct, on fait l'inverse&nbsp;: on rend les guillemets, la personne qui parle (je, vous) et le temps de l'oral.</p>
+    </section>
+
+  <h2>4. L'expression des rapports logiques</h2>
+    <section class="nature" data-code="TR.rl.moyens">
+      <h3 class="nom">Les cinq moyens d'exprimer un rapport logique</h3>
+      <p class="exemples"></p>
+      <p class="explication">Un même rapport logique (temps, cause, conséquence…) peut s'exprimer par <strong>cinq moyens</strong>&nbsp;: une <strong>conjonction de subordination</strong> suivie d'une subordonnée conjonctive&nbsp;; une <strong>conjonction de coordination</strong> suivie d'une indépendante&nbsp;; un <strong>adverbe</strong> en tête d'une indépendante&nbsp;; une <strong>préposition</strong> suivie d'un groupe nominal&nbsp;; une <strong>forme en -ant</strong> (participe présent ou gérondif&nbsp;: en + participe présent).</p>
+    </section>
+    <section class="nature" data-code="TR.rl.temps">
+      <h3 class="nom">Le temps</h3>
+      <p class="exemples"><strong>Quand</strong> il fait beau, je suis content.<br>Il fait beau <strong>et</strong> je suis content.<br>Il fait beau&nbsp;; <strong>désormais</strong>, je suis content.<br><strong>Avec</strong> le beau temps, je suis content.</p>
+      <p class="explication">Conjonctions de subordination&nbsp;: <strong>quand</strong>, pendant que, alors que, dès que, avant que, après que… Conjonction de coordination&nbsp;: <strong>et</strong> (au sens de «&nbsp;et puis&nbsp;»). Adverbes&nbsp;: là, maintenant, puis, ensuite, désormais… Prépositions&nbsp;: <strong>pendant</strong>, durant, en période de…</p>
+    </section>
+    <section class="nature" data-code="TR.rl.cause">
+      <h3 class="nom">La cause</h3>
+      <p class="exemples">Il ne vient pas <strong>parce qu'</strong>il est malade.<br>Il ne vient pas <strong>car</strong> il est malade.<br>Il ne vient pas. <strong>En effet</strong>, il est malade.<br>Il ne vient pas <strong>à cause de</strong> sa maladie.<br><strong>Étant</strong> malade, il ne vient pas.</p>
+      <p class="explication">Conjonctions de subordination&nbsp;: <strong>parce que</strong>, puisque, étant donné que, vu que… Conjonction de coordination&nbsp;: <strong>car</strong>. Adverbe&nbsp;: <strong>en effet</strong>. Prépositions&nbsp;: <strong>à cause de</strong>, en raison de, vu… Forme en -ant&nbsp;: le participe présent.</p>
+    </section>
+    <section class="nature" data-code="TR.rl.csq">
+      <h3 class="nom">La conséquence</h3>
+      <p class="exemples">La chaussée est glissante <strong>si bien qu'</strong>il est tombé.<br>La chaussée est glissante, <strong>donc</strong> il est tombé.<br>La chaussée est glissante&nbsp;; <strong>alors</strong> il est tombé.<br>La chaussée est glissante, <strong>d'où</strong> sa chute.</p>
+      <p class="explication">Conjonctions de subordination&nbsp;: <strong>si bien que</strong>, si… que, tellement… que… Conjonction de coordination&nbsp;: <strong>donc</strong>. Adverbes&nbsp;: <strong>alors</strong>, c'est pourquoi, par conséquent… Préposition&nbsp;: <strong>d'où</strong>.</p>
+    </section>
+    <section class="nature" data-code="TR.rl.cond">
+      <h3 class="nom">La condition</h3>
+      <p class="exemples"><strong>Si</strong> j'étais riche, je ne travaillerais pas.<br><strong>À condition d'</strong>être riche, je ne travaillerais pas.</p>
+      <p class="explication">Conjonctions de subordination&nbsp;: <strong>si</strong>, à condition que… Prépositions&nbsp;: <strong>à condition de</strong>, en cas de…</p>
+    </section>
+    <section class="nature" data-code="TR.rl.but">
+      <h3 class="nom">Le but</h3>
+      <p class="exemples">Je parle lentement <strong>pour que</strong> tu comprennes.<br>Je parle lentement <strong>pour</strong> obtenir de toi une meilleure compréhension.</p>
+      <p class="explication">Conjonctions de subordination&nbsp;: <strong>pour que</strong>, afin que (suivies du subjonctif). Prépositions&nbsp;: <strong>pour</strong>, afin de.</p>
+    </section>
+    <section class="nature" data-code="TR.rl.man">
+      <h3 class="nom">La manière</h3>
+      <p class="exemples">Tu te comportes <strong>comme si</strong> tu étais un idiot.<br>Tu te comportes <strong>stupidement</strong>.<br>Tu te comportes <strong>comme</strong> un idiot.<br>Tu te comportes <strong>en faisant</strong> l'idiot.</p>
+      <p class="explication">Conjonction de subordination&nbsp;: <strong>comme si</strong>. Adverbe&nbsp;: un adverbe en <strong>-ment</strong>. Préposition&nbsp;: <strong>comme</strong>. Forme en -ant&nbsp;: le <strong>gérondif</strong>.</p>
+    </section>
+    <section class="nature" data-code="TR.rl.opp">
+      <h3 class="nom">L'opposition</h3>
+      <p class="exemples"><strong>Bien qu'</strong>il pleuve, je sors.<br>Il pleut <strong>mais</strong> je sors.<br>Il pleut&nbsp;; <strong>pourtant</strong>, je sors.<br><strong>Malgré</strong> la pluie, je sors.</p>
+      <p class="explication">Conjonctions de subordination&nbsp;: <strong>bien que</strong>, quoique (suivies du subjonctif). Conjonction de coordination&nbsp;: <strong>mais</strong>. Adverbes&nbsp;: <strong>pourtant</strong>, néanmoins, cependant, par contre. Prépositions&nbsp;: <strong>malgré</strong>, en dépit de.</p>
+    </section>
+    <section class="nature" data-code="TR.rl.add">
+      <h3 class="nom">L'addition</h3>
+      <p class="exemples"><strong>D'une part</strong>, il est bête&nbsp;; <strong>d'autre part</strong>, il est méchant.<br><strong>En plus d'</strong>être bête, il est méchant.</p>
+      <p class="explication">Adverbes&nbsp;: <strong>d'une part… d'autre part</strong>, de plus, en outre… Prépositions&nbsp;: <strong>en plus de</strong>, outre.</p>
+    </section>
+
+</body>
+</html>
