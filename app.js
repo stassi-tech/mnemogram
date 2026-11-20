@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v67';
+const APP_VERSION = 'v69';
 
 const $ = (id) => document.getElementById(id);
 
@@ -856,11 +856,15 @@ function dessinePortail() {
     let n = 0, nb = 0;
     const L0 = PARCOURS[partie].map((e, k) => ({ e, k })).filter(({ e }) => e.classes.includes(classeAccueil));
     const L = [...L0.filter(({ e }) => !e.bilan), ...L0.filter(({ e }) => e.bilan)];
-    document.querySelector(`[data-liste="${partie}"]`).innerHTML = L.map(({ e, k }) => {
+    const premierBilan = L.findIndex(({ e }) => e.bilan);
+    const titreEx = n0 => `<p class="home-etape"><strong>Apprendre pas à pas</strong> : ${n0 >= 10 ? 'dix exercices' : 'des exercices'}, une notion à la fois, avec quatre textes de plus en plus longs.</p>`;
+    const titreBilan = '<p class="home-etape"><strong>Faire le bilan</strong> : le bilan 1 vérifie qu\'on <strong>reconnaît</strong> tout ce qu\'on a étudié ; le bilan 2, qu\'on sait l\'<strong>utiliser</strong> à bon escient. Douze textes chacun, du plus court au plus long.</p>';
+    const nEx = L.filter(({ e }) => !e.bilan).length;
+    document.querySelector(`[data-liste="${partie}"]`).innerHTML = (premierBilan > 0 ? titreEx(nEx) : '') + L.map(({ e, k }, idx) => {
       const nom = e.bilan ? `Bilan ${++nb}` : `Exercice ${++n}`;
-      return e.avenir
+      return (idx === premierBilan && premierBilan > 0 ? titreBilan : '') + (e.avenir
         ? `<button type="button" class="home-mode-button avenir" disabled><span class="label"><strong>${nom}</strong><br>${e.titre}</span><span class="desc">bientôt</span></button>`
-        : `<button type="button" class="home-mode-button${e.bilan ? ' bilan' : ''}" data-partie-ex="${partie}" data-k="${k}" data-nom="${nom}"><span class="label"><strong>${nom}</strong><br>${e.titre}</span></button>`;
+        : `<button type="button" class="home-mode-button${e.bilan ? ' bilan' : ''}" data-partie-ex="${partie}" data-k="${k}" data-nom="${nom}"><span class="label"><strong>${nom}</strong><br>${e.titre}</span></button>`);
     }).join('') || '<p class="sous">Pas encore d\'exercice à ce niveau.</p>';
   });
   document.querySelectorAll('[data-classe]').forEach((b) => b.addEventListener('click', () => {
@@ -884,11 +888,11 @@ function ajusteArdoise() {
   if (!s || !card) return;
   if (!currentGame || !isT1() || $('natures-panel').classList.contains('hidden')) { s.style.fontSize = ''; return; }
   const cs = getComputedStyle(card);
-  const H = Math.max(200, (parseFloat(cs.minHeight) || card.clientHeight) - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 24);
+  const H = Math.max(200, (parseFloat(cs.minHeight) || card.clientHeight) - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 6);
   const ajouts = [], marques = [];
   if (currentGame.tm) s.querySelectorAll('.w.forme:not(.fige)').forEach((w) => { if (!w.querySelector('.labs')) { w.insertAdjacentHTML('beforeend', `<span class="labs fit-tmp">${'<span class="lab">passé composé</span>'.repeat(currentGame.sansMode ? 1 : 2)}</span>`); ajouts.push(w.lastElementChild); } });
   if (currentGame.tf) s.querySelectorAll('.w.tf .ancien').forEach((x) => { if (!x.textContent) { x.textContent = '( … )'; marques.push(x); } });
-  let lo = 14, hi = 84;
+  let lo = 14, hi = 96;
   for (let k = 0; k < 10; k++) {
     const m = (lo + hi) / 2;
     s.style.fontSize = `${m}px`;
@@ -1087,7 +1091,7 @@ function openGame(id) {
   $('natures-panel').classList.toggle('game8', !!GAMES[id].sx);
   $('natures-panel').classList.toggle('game7v', !!GAMES[id].valeurs);
   $('nat-ready-explanation').innerHTML = adapte?.consigne ? adapte.consigne
-    : TFCFG[GAMES[id].tf] ? `${TFCFG[GAMES[id].tf].intro} Chaque réponse juste vaut 1 point (un demi-point si seuls les accents sont faux).`
+    : TFCFG[GAMES[id].tf] ? `${TFCFG[GAMES[id].tf].intro} Tu as deux essais : une réponse juste du premier coup vaut 1 point, au deuxième essai un demi-point. La voix lit chaque phrase avec ta réponse : écoute bien si elle sonne juste !`
     : id === 'phrase3'
     ? 'Dans un récit, on peut rapporter les paroles des personnages de deux façons. Au <strong>discours direct</strong>, on les cite telles qu\'elles ont été prononcées, <strong>entre guillemets</strong>. Au <strong>discours indirect</strong>, on les rapporte dans une <strong>proposition subordonnée</strong>, après un verbe de parole, en changeant les personnes et les temps. Quatre étapes : <strong>1.</strong> trouve les paroles au discours direct ; <strong>2.</strong> mets-les au discours indirect ; <strong>3.</strong> trouve les paroles au discours indirect ; <strong>4.</strong> mets-les au discours direct. Chaque passage trouvé vaut 1 point (une erreur coûte 0,5 point), chaque transformation réussie du premier coup vaut 1 point.'
     : id === 'phrase2'
@@ -1152,6 +1156,7 @@ function updateProgress() {
 
 function showQuestion() {
   $('nat-sentence').style.fontSize = '';
+  if (isT1()) boutonVoix(false); else { $('nat-listen-button').textContent = '🔊 Écouter la phrase'; game.texteFini = false; }
   /* v7 : on coupe la voix (bulle + explication) dès qu'on passe au mot suivant, pour qu'elle ne déborde pas. */
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   if (isG4()) { showQuestionGN(); return; }
@@ -2796,6 +2801,7 @@ function clicFormeTM(i) {
   if (avant !== null) wordEl(avant)?.classList.remove('choisie');
   wordEl(i)?.classList.add('choisie');
   panneauTM();
+  if (!estFaite(i)) dis(phraseDe(wordEl(i)));
 }
 function repondTM(code, champ) {
   const i = tm.sel; if (i === null || game.fini) return;
@@ -2854,6 +2860,7 @@ function debutSuiteTM() {
   requestAnimationFrame(ajusteArdoise);
 }
 function finTM() {
+  boutonVoix(true);
   const T = TM_T();
   wordEl(tm.sel)?.classList.remove('choisie'); tm.sel = null;
   $('nat-buttons-variables').innerHTML = '';
@@ -3023,6 +3030,7 @@ function clicTV(w) {
   panneauTV(`Non : « ${esc(w.textContent)} » n'est pas un verbe conjugué${infinitif ? ' (si c\'est un verbe, il est à l\'infinitif)' : ''} (– 0,5 point).`);
 }
 function finTV() {
+  boutonVoix(true);
   game.score = Math.max(0, game.score);
   $('nat-buttons-variables').innerHTML = '';
   $('nat-instruction').textContent = 'Tous les verbes sont trouvés !';
@@ -3147,7 +3155,7 @@ function decoupeTF(src) {
 }
 function showQuestionTF() {
   const T = TF_T(), d = decoupeTF(T.texte);
-  Object.assign(tf, { elts: d.elts, rep: {}, sel: null, registre: currentGame.tf === 'pres2passe' ? null : 'cls' });
+  Object.assign(tf, { essais: {}, message: '', elts: d.elts, rep: {}, sel: null, registre: currentGame.tf === 'pres2passe' ? null : 'cls' });
   currentGame.total = d.elts.length;
   $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">Texte n° ${game.questions[game.index].t + 1} : « ${esc(T.titre)} »</h3><div class="tm-texte">${d.items.map((m) => (m.k !== undefined
     ? `<span class="w forme tf" data-i="${m.k}"><span class="ancien"></span><span class="tx">${m.pre}<span class="f">${esc(m.t)}</span>${m.suf}</span></span>`
@@ -3184,46 +3192,73 @@ function panneauTF() {
   }
   const e = tf.elts[tf.sel], r = tf.rep[tf.sel];
   let html = `<div class="carte verte active libre"><p>${CF ? CF.q(e) : `« <strong>${esc(e.src)}</strong> » : réécris-le ${versTF()}.`}</p>`;
+  if (!r && tf.message) html += `<p class="tf-retour faux">${tf.message}</p>`;
   if (!r) html += `<form class="tf-form" autocomplete="off"><input type="text" class="tf-input" id="tf-input" autocapitalize="off" spellcheck="false" placeholder="écris ici…"><button type="submit" class="primary-button tf-ok">Valider</button></form>`;
-  else html += `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? '✔ Bravo !' : r.pts ? `Presque : attention aux accents. On écrit « ${esc(r.bon)} ».` : `Non : tu as écrit « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
+  else html += `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? '✔ Bravo !' : r.pts ? `✔ Juste au deuxième essai (un demi-point).` : `Non : tu as écrit « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
   html += '</div>';
   $('nat-buttons-variables').innerHTML = nbspFr(html);
   const f = document.querySelector('.tf-form');
   if (f) { f.addEventListener('submit', (ev) => { ev.preventDefault(); repondTF($('tf-input').value); }); setTimeout(() => $('tf-input')?.focus(), 50); }
 }
-function clicTF(i) {
+function clicTF(i, auto) {
   if (game.fini || !tf.registre || i === tf.sel) return;
   const avant = tf.sel; tf.sel = i;
   if (avant !== null) wordEl(avant)?.classList.remove('choisie');
   wordEl(i)?.classList.add('choisie');
   panneauTF();
+  /* v69 : la voix lit la phrase, puis la consigne, et s'arrête */
+  if (!tf.rep[i]) { const CF = TFCFG[currentGame.tf], e = tf.elts[i]; dis(phraseDe(wordEl(i)), (CF ? CF.q(e) : `Réécris ${e.src} ${versTF()}.`).replace(/<[^>]+>/g, '').replace(/[()«»]/g, '')); }
+}
+/* v69 : deux chances. La voix lit la phrase avec la proposition de l'élève. Juste du premier coup : 1 point ;
+   au deuxième essai : un demi-point ; sinon, la voix donne et lit la bonne réponse. */
+function montreFormeTF(i, forme, classe) {
+  const e = tf.elts[i], el = wordEl(i);
+  el.querySelector('.ancien').textContent = e.src;
+  let f = forme;
+  if (/^[A-ZÀ-Ý]/.test(e.src)) f = f.charAt(0).toUpperCase() + f.slice(1);
+  el.querySelector('.f').textContent = f;
+  el.classList.remove('essai-faux'); if (classe) el.classList.add(classe);
+  el.classList.add('trou');
 }
 function repondTF(ecrit) {
   const i = tf.sel; if (i === null || game.fini || tf.rep[i] || !normTF(ecrit)) return;
   const e = tf.elts[i], ok = attendusTF(e), n = normTF(ecrit);
+  const essai = (tf.essais || (tf.essais = {}))[i] || 0;
   let pts = 0, bon = ok[0];
   const exact = ok.find((x) => normTF(x) === n), accents = ok.find((x) => sansAccTF(normTF(x)) === sansAccTF(n));
-  if (exact) { pts = 1; bon = exact; } else if (accents) { pts = 0.5; bon = accents; }
-  tf.rep[i] = { ecrit: ecrit.trim(), pts, bon };
+  if (exact) { pts = essai ? 0.5 : 1; bon = exact; }
+  else if (!essai) {
+    /* première erreur : on montre la proposition dans le texte, la voix la lit, et l'élève réessaie */
+    tf.essais[i] = 1;
+    montreFormeTF(i, ecrit.trim(), 'essai-faux');
+    tf.message = accents ? `Presque : attention aux accents. Essaie encore !` : `Ce n'est pas juste : relis la phrase et essaie encore. Tu as une deuxième chance.`;
+    panneauTF(); tf.message = '';
+    dis(phraseDe(wordEl(i)), accents ? 'Presque ! Attention aux accents. Essaie encore.' : 'Ce n\'est pas juste. Essaie encore.');
+    return;
+  } else if (accents) bon = accents;
+  tf.rep[i] = { ecrit: ecrit.trim(), pts, bon, essai };
   game.score = Math.round((game.score + pts) * 10) / 10;
   if (pts < 1) game.erreurs.push({ mot: e.src, bonne: `« ${bon} »`, choisie: `« ${ecrit.trim()} »`, phrase: `texte « ${TF_T().titre} »` });
   /* dans le texte : l'ancienne forme barrée en petit au-dessus, la nouvelle à sa place */
   const el = wordEl(i);
-  el.querySelector('.ancien').textContent = e.src;
-  let nouveau = pts === 1 ? ecrit.trim() : bon;
-  if (/^[A-ZÀ-Ý]/.test(e.src)) nouveau = nouveau.charAt(0).toUpperCase() + nouveau.slice(1);
-  el.querySelector('.f').textContent = nouveau;
-  el.classList.add('remplie', 'trou');
-  if (pts < 1) el.classList.add('forme-corrigee');
+  if (pts) { montreFormeTF(i, ecrit.trim()); dis(phraseDe(el), pts === 1 ? 'Bravo !' : 'Oui, c\'est juste cette fois.'); }
+  else {
+    montreFormeTF(i, ecrit.trim(), 'essai-faux');
+    const faux = phraseDe(el);
+    montreFormeTF(i, bon); el.classList.add('forme-corrigee');
+    dis(faux, `Ce n'est pas encore juste. La bonne réponse est : ${bon}.`, phraseDe(el));
+  }
+  el.classList.add('remplie');
   majScoreTF(); panneauTF();
-  if (tfFaits() === tf.elts.length) { setTimeout(finTF, pts === 1 ? 1200 : 2600); return; }
-  setTimeout(() => {
-    if (tf.sel !== i) return;
+  if (tfFaits() === tf.elts.length) { quandVoixFinie(finTF); return; }
+  quandVoixFinie(() => {
+    if (tf.sel !== i || game.fini) return;
     const N = tf.elts.length;
-    for (let d = 1; d <= N; d++) { const k = (i + d) % N; if (!tf.rep[k]) { clicTF(k); return; } }
-  }, pts === 1 ? 1100 : 2600);
+    for (let d = 1; d <= N; d++) { const k = (i + d) % N; if (!tf.rep[k]) { clicTF(k, true); return; } }
+  });
 }
 function finTF() {
+  boutonVoix(true);
   wordEl(tf.sel)?.classList.remove('choisie'); tf.sel = null;
   $('nat-buttons-variables').innerHTML = '';
   $('nat-instruction').textContent = TFCFG[currentGame.tf] ? 'C\'est fini !' : 'Le texte est réécrit !';
@@ -3542,6 +3577,7 @@ function repondSX(code) {
   for (let d = 1; d <= l.length; d++) { const n = l[(p + d) % l.length]; if (!sx.cibles[n.cle].fait) { setTimeout(() => { if (!sx.sel) { choisitCibleSX(n.cle); panneauSX(msg); } }, juste ? 700 : 1800); break; } }
 }
 function finSX() {
+  boutonVoix(true);
   sx.sel = null;
   if (currentGame.sxTF) { finTFX(); return; }
   $('nat-buttons-variables').innerHTML = '';
@@ -3720,6 +3756,7 @@ function transformeDR(o) {
   const s = segDR(k);
   s.classList.remove('choisi', 'trouve-d', 'trouve-i'); s.classList.add('transforme', juste ? 'juste' : 'corrige');
   s.querySelector('.dr-nouveau').textContent = p.bon;
+  setTimeout(() => lisPhraseDe(s), 50);
   majScoreDR(); panneauDR();
   const reste = passagesDR(ETAPES_DR[dr.etape].type).filter((x) => !dr.faits[x.k]);
   setTimeout(() => {
@@ -3737,6 +3774,7 @@ function etapeSuivanteDR() {
   if (E.quoi === 'transformer') { const l = passagesDR(E.type); clicDR(segDR(l[0].k), null); }
 }
 function finDR() {
+  boutonVoix(true);
   $('nat-buttons-variables').innerHTML = '';
   $('nat-instruction').textContent = currentGame.drMode === 'complet' ? 'Toutes les paroles sont transformées !' : 'Tu as trouvé toutes les paroles !';
   game.score = Math.max(0, game.score);
@@ -4535,7 +4573,52 @@ loadFiche();
 $('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && !currentGame.sx && !currentGame.dr && !currentGame.tv && w.dataset.i !== undefined) (currentGame.tf ? clicTF : clicFormeTM)(Number(w.dataset.i)); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
+/* v68 : la voix lit le texte tel qu'il est sur l'ardoise, avec les réponses déjà données : l'élève entend sa phrase,
+   et peut ainsi repérer à l'oral une incohérence qu'il ne voit pas à l'écrit. */
+function texteArdoise(racine) {
+  const c = (racine || $('nat-sentence')).cloneNode(true);
+  c.querySelectorAll('.tm-titre, .labs, .lab, .ancien, .sx-lanes, .fit-tmp, .suite-tm, .gloses').forEach((x) => x.remove());
+  c.querySelectorAll('.dr-seg.transforme .dr-ancien').forEach((x) => x.remove());
+  c.querySelectorAll('.tm-cadre.replie').forEach((x) => x.remove());
+  c.querySelectorAll('.w, .dr-mot, .tv-mot').forEach((x) => x.append(' '));
+  return c.textContent.replace(/[()*]/g, '').replace(/\s+/g, ' ').replace(/ ([.,])/g, '$1').trim();
+}
+/* v69 : la phrase autour d'un élément, telle qu'elle est écrite maintenant sur l'ardoise */
+function phraseDe(el) {
+  if (!el) return '';
+  const box = el.closest('.tm-texte, .dr-texte'); if (!box) return '';
+  const items = [...box.childNodes];
+  const k = items.findIndex((n) => n === el || (n.contains && n.contains(el))); if (k < 0) return '';
+  const txt = (n) => { if (n.nodeType === 3) return n.textContent; const d = document.createElement('div'); d.appendChild(n.cloneNode(true)); return texteArdoise(d); };
+  const T = items.map(txt), fin = (s) => /[.!?»]\s*$/.test(s.trim());
+  let deb = k; while (deb > 0 && !fin(T[deb - 1])) deb -= 1;
+  let der = k; while (der < T.length - 1 && !fin(T[der])) der += 1;
+  return T.slice(deb, der + 1).join(' ').replace(/\s+/g, ' ').replace(/ ([.,!?])/g, '$1').trim();
+}
+function lisPhraseDe(el) { if (el && volumeLevel) speak(phraseDe(el), 'femme', 'phrase'); }
+/* la voix dit plusieurs choses à la suite, sans se couper elle-même */
+function dis(...morceaux) { morceaux.filter(Boolean).forEach((m, k) => speak(m, 'femme', 'phrase', k > 0)); }
+/* attendre que la voix ait fini avant de passer à la suite (au plus 20 secondes) */
+function quandVoixFinie(cb) {
+  const debut = Date.now();
+  const t = () => { if (!('speechSynthesis' in window) || !volumeLevel || (!speechSynthesis.speaking && !speechSynthesis.pending) || Date.now() - debut > 20000) setTimeout(cb, 500); else setTimeout(t, 250); };
+  setTimeout(t, 400);
+}
+/* le bouton de la voix : pendant l'exercice, « Relire la phrase » ; à la fin, « Relire tout le texte » */
+function boutonVoix(fini) { $('nat-listen-button').textContent = fini ? '🔊 Relire tout le texte' : '🔊 Relire la phrase'; game.texteFini = !!fini; }
+function elementCourant() {
+  if (!currentGame) return null;
+  if (currentGame.tf) return tf.sel !== null ? wordEl(tf.sel) : null;
+  if (currentGame.tm) return tm.sel !== null ? wordEl(tm.sel) : null;
+  if (currentGame.dr) return document.querySelector('#nat-sentence .dr-seg.choisi') || null;
+  return null;
+}
 $('nat-listen-button').addEventListener('click', () => {
+  if (currentGame && (currentGame.tf || currentGame.tm || currentGame.dr || currentGame.tv || currentGame.sx)) {
+    const prev = volumeLevel; if (!volumeLevel) volumeLevel = 3;
+    const el = game.texteFini ? null : elementCourant();
+    speak(el ? phraseDe(el) : texteArdoise(), 'femme', 'phrase'); volumeLevel = prev; return;
+  }
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
   if (q.dr) { speak(TEXTES_DR[q.t].texte.replace(/\[\[\d+\||\]\]|\(\(|\)\)/g, ''), 'femme', 'phrase'); volumeLevel = prev; return; }
