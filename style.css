@@ -748,3 +748,6 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .home-classes-note { margin:-8px 0 0; font-size:.9rem; font-style:italic; text-align:center; opacity:.8; }
 .home-mode-button.avenir { opacity:.45; cursor:default; filter:grayscale(.6); }
 @media (max-width:640px) { .home-classes { grid-template-columns:1fr 1fr; } }
+
+/* v65 : « trouver le verbe conjugué » : les verbes trouvés restent marqués en vert */
+.game9 .tv-mot.trouve-v { background:rgba(80,200,120,.35); box-shadow:0 0 0 2px #5fd38a; border-radius:4px; }
