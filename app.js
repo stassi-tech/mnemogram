@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v70';
+const APP_VERSION = 'v71';
 
 const $ = (id) => document.getElementById(id);
 
@@ -3217,6 +3217,7 @@ function showQuestionTF() {
   $('nat-progress-label').textContent = `Texte n° ${game.questions[game.index].t + 1} (${NIVEAU_TEXTE(game.questions[game.index].t, TRANSFOS[currentGame.tf].length)})`;
   game.score = 0;
   majScoreTF(); panneauTF();
+  if (tf.registre) setTimeout(() => { if (tf.sel === null && !game.fini) clicTF(0); }, 350);
   requestAnimationFrame(ajusteArdoise);
 }
 const tfFaits = () => Object.keys(tf.rep).length;
@@ -3231,7 +3232,7 @@ function panneauTF() {
   $('nat-instruction').textContent = CF ? CF.instr : currentGame.tf === 'passe2pres' ? 'Réécris le texte au système du présent' : 'Réécris le texte au système du passé';
   if (!tf.registre) {
     $('nat-buttons-variables').innerHTML = `<div class="carte verte active libre"><p>Ce texte est au <strong>système du présent</strong>. Tu vas le réécrire <strong>au passé</strong>, comme un souvenir. Choisis d'abord ta langue :</p><div class="carte-choix carte-choix-2"><button type="button" class="nature-button" data-reg="cls">En français classique<br><small>(passé simple, subjonctif imparfait…)</small></button><button type="button" class="nature-button" data-reg="mod">En français contemporain<br><small>(passé composé, « aller » + infinitif…)</small></button></div></div>`;
-    document.querySelectorAll('[data-reg]').forEach((b) => b.addEventListener('click', () => { tf.registre = b.dataset.reg; panneauTF(); }));
+    document.querySelectorAll('[data-reg]').forEach((b) => b.addEventListener('click', () => { tf.registre = b.dataset.reg; panneauTF(); clicTF(0); }));
     return;
   }
   if (tf.sel === null && CF) { $('nat-buttons-variables').innerHTML = nbspFr(`<div class="carte verte active libre"><p>${CF.intro}</p><p class="sous">${tfFaits()} sur ${N} déjà fait${tfFaits() > 1 ? 's' : ''}.</p></div>`); return; }
@@ -4672,7 +4673,10 @@ function elementCourant() {
 $('nat-listen-button').addEventListener('click', () => {
   if (currentGame && (currentGame.tf || currentGame.tm || currentGame.dr || currentGame.tv || currentGame.sx)) {
     const prev = volumeLevel; if (!volumeLevel) volumeLevel = 3;
-    const el = game.texteFini ? null : elementCourant();
+    let el = game.texteFini ? null : elementCourant();
+    /* v71 : rien n'est choisi : la voix ne lit pas tout le texte, elle va à la première phrase qui reste à faire */
+    if (!el && !game.texteFini && currentGame.tf && tf.registre) { const k = tf.elts.findIndex((x, j) => !tf.rep[j]); if (k >= 0) { clicTF(k); volumeLevel = prev; return; } }
+    if (!el && !game.texteFini && currentGame.tm) { const k = indicesPhase().find((j) => !estFaite(j)); if (k !== undefined) { clicFormeTM(k); volumeLevel = prev; return; } }
     speak(el ? phraseDe(el) : texteArdoise(), 'femme', 'phrase'); volumeLevel = prev; return;
   }
   const q = game.questions[game.index]; if (!q) return;
