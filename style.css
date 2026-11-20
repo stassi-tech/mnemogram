@@ -751,3 +751,12 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 
 /* v65 : « trouver le verbe conjugué » : les verbes trouvés restent marqués en vert */
 .game9 .tv-mot.trouve-v { background:rgba(80,200,120,.35); box-shadow:0 0 0 2px #5fd38a; border-radius:4px; }
+
+/* v66 : les textes s'adaptent à l'ardoise ; la taille est calculée par le programme (ajusteArdoise) */
+.game7 .sentence { max-width:none; width:100%; }
+.game7 .sentence .w .labs .lab { font-size:max(.42em, 10px); }
+.home-mode-button.bilan { outline:3px solid #e8c874; outline-offset:-6px; }
+/* v66 : étiquettes plus compactes sous les formes verbales, pour laisser le texte en grand */
+.game7 .sentence .w .labs { margin-top:3px; gap:2px; }
+.game7 .sentence .w .labs .lab { padding:2px 6px; line-height:1.1; }
+.game7 .sentence { line-height:1.35; }
