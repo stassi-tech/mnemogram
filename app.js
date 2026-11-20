@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v71';
+const APP_VERSION = 'v72';
 
 const $ = (id) => document.getElementById(id);
 
@@ -3159,9 +3159,189 @@ function analyseForme(x) {
   return { temps: t, fin: e, radical: v.slice(0, v.length - (e || '').length), mot: v };
 }
 const LE_TEMPS = (t) => ({ 'présent': 'le présent', imparfait: 'l\'imparfait', futur: 'le futur', 'passé composé': 'le passé composé', 'plus-que-parfait': 'le plus-que-parfait', 'conditionnel présent': 'le conditionnel présent', 'passé simple': 'le passé simple' }[t] || t);
+/* v72 : UN PETIT CONJUGUEUR, pour comprendre la réponse de l'élève : à quel temps, à quelle personne a-t-il conjugué le
+   verbe ? On engendre toutes les formes du verbe (présent, imparfait, futur, conditionnel, passé simple, subjonctif
+   présent, passé composé, plus-que-parfait) et on cherche la sienne, ou la plus proche. */
+const PERS = ['je', 'tu', 'il', 'nous', 'vous', 'ils'];
+const T_IMP = ['ais', 'ais', 'ait', 'ions', 'iez', 'aient'], T_FUT = ['ai', 'as', 'a', 'ons', 'ez', 'ont'], T_COND = T_IMP, T_SUBJ = ['e', 'es', 'e', 'ions', 'iez', 'ent'];
+const CJ_IRR = {
+  'être': { p: 'suis es est sommes êtes sont', ps: 'fus fus fut fûmes fûtes furent', f: 'ser', pp: 'été', imp: 'ét', s: 'sois sois soit soyons soyez soient' },
+  avoir: { p: 'ai as a avons avez ont', ps: 'eus eus eut eûmes eûtes eurent', f: 'aur', pp: 'eu', s: 'aie aies ait ayons ayez aient' },
+  aller: { p: 'vais vas va allons allez vont', f: 'ir', pp: 'allé', aux: 'être', s: 'aille ailles aille allions alliez aillent' },
+  faire: { p: 'fais fais fait faisons faites font', ps: 'fis fis fit fîmes fîtes firent', f: 'fer', pp: 'fait', s: 'fasse fasses fasse fassions fassiez fassent' },
+  dire: { p: 'dis dis dit disons dites disent', ps: 'dis dis dit dîmes dîtes dirent', pp: 'dit' },
+  venir: { p: 'viens viens vient venons venez viennent', ps: 'vins vins vint vînmes vîntes vinrent', f: 'viendr', pp: 'venu', aux: 'être', s: 'vienne viennes vienne venions veniez viennent' },
+  tenir: { p: 'tiens tiens tient tenons tenez tiennent', ps: 'tins tins tint tînmes tîntes tinrent', f: 'tiendr', pp: 'tenu', s: 'tienne tiennes tienne tenions teniez tiennent' },
+  pouvoir: { p: 'peux peux peut pouvons pouvez peuvent', ps: 'pus pus put pûmes pûtes purent', f: 'pourr', pp: 'pu', s: 'puisse puisses puisse puissions puissiez puissent' },
+  vouloir: { p: 'veux veux veut voulons voulez veulent', ps: 'voulus voulus voulut voulûmes voulûtes voulurent', f: 'voudr', pp: 'voulu', s: 'veuille veuilles veuille voulions vouliez veuillent' },
+  voir: { p: 'vois vois voit voyons voyez voient', ps: 'vis vis vit vîmes vîtes virent', f: 'verr', pp: 'vu', s: 'voie voies voie voyions voyiez voient' },
+  prendre: { p: 'prends prends prend prenons prenez prennent', ps: 'pris pris prit prîmes prîtes prirent', pp: 'pris', s: 'prenne prennes prenne prenions preniez prennent' },
+  pleuvoir: { p: '- - pleut - - -', ps: '- - plut - - -', f: 'pleuvr', pp: 'plu', imp: 'pleuv', s: '- - pleuve - - -' },
+  falloir: { p: '- - faut - - -', ps: '- - fallut - - -', f: 'faudr', pp: 'fallu', imp: 'fall', s: '- - faille - - -' },
+  devoir: { p: 'dois dois doit devons devez doivent', ps: 'dus dus dut dûmes dûtes durent', f: 'devr', pp: 'dû' },
+  savoir: { p: 'sais sais sait savons savez savent', ps: 'sus sus sut sûmes sûtes surent', f: 'saur', pp: 'su', s: 'sache saches sache sachions sachiez sachent' },
+  mettre: { p: 'mets mets met mettons mettez mettent', ps: 'mis mis mit mîmes mîtes mirent', pp: 'mis' },
+  lire: { p: 'lis lis lit lisons lisez lisent', ps: 'lus lus lut lûmes lûtes lurent', pp: 'lu' },
+  'écrire': { p: 'écris écris écrit écrivons écrivez écrivent', ps: 'écrivis écrivis écrivit écrivîmes écrivîtes écrivirent', pp: 'écrit' },
+  boire: { p: 'bois bois boit buvons buvez boivent', ps: 'bus bus but bûmes bûtes burent', pp: 'bu', s: 'boive boives boive buvions buviez boivent' },
+  courir: { p: 'cours cours court courons courez courent', ps: 'courus courus courut courûmes courûtes coururent', f: 'courr', pp: 'couru' },
+  mourir: { p: 'meurs meurs meurt mourons mourez meurent', ps: 'mourus mourus mourut mourûmes mourûtes moururent', f: 'mourr', pp: 'mort', aux: 'être' },
+  dormir: { p: 'dors dors dort dormons dormez dorment', ps: 'dormis dormis dormit dormîmes dormîtes dormirent', pp: 'dormi' },
+  partir: { p: 'pars pars part partons partez partent', ps: 'partis partis partit partîmes partîtes partirent', pp: 'parti', aux: 'être' },
+  sortir: { p: 'sors sors sort sortons sortez sortent', ps: 'sortis sortis sortit sortîmes sortîtes sortirent', pp: 'sorti', aux: 'être' },
+  sentir: { p: 'sens sens sent sentons sentez sentent', ps: 'sentis sentis sentit sentîmes sentîtes sentirent', pp: 'senti' },
+  servir: { p: 'sers sers sert servons servez servent', ps: 'servis servis servit servîmes servîtes servirent', pp: 'servi' },
+  rire: { p: 'ris ris rit rions riez rient', ps: 'ris ris rit rîmes rîtes rirent', pp: 'ri' },
+  offrir: { p: 'offre offres offre offrons offrez offrent', ps: 'offris offris offrit offrîmes offrîtes offrirent', pp: 'offert' },
+  ouvrir: { p: 'ouvre ouvres ouvre ouvrons ouvrez ouvrent', ps: 'ouvris ouvris ouvrit ouvrîmes ouvrîtes ouvrirent', pp: 'ouvert' },
+  cueillir: { p: 'cueille cueilles cueille cueillons cueillez cueillent', ps: 'cueillis cueillis cueillit cueillîmes cueillîtes cueillirent', f: 'cueiller', pp: 'cueilli' },
+  'connaître': { p: 'connais connais connaît connaissons connaissez connaissent', ps: 'connus connus connut connûmes connûtes connurent', pp: 'connu' },
+  'naître': { p: 'nais nais naît naissons naissez naissent', ps: 'naquis naquis naquit naquîmes naquîtes naquirent', pp: 'né', aux: 'être' },
+  peindre: { p: 'peins peins peint peignons peignez peignent', ps: 'peignis peignis peignit peignîmes peignîtes peignirent', pp: 'peint' },
+  'éteindre': { p: 'éteins éteins éteint éteignons éteignez éteignent', ps: 'éteignis éteignis éteignit éteignîmes éteignîtes éteignirent', pp: 'éteint' },
+  vivre: { p: 'vis vis vit vivons vivez vivent', ps: 'vécus vécus vécut vécûmes vécûtes vécurent', pp: 'vécu' },
+  construire: { p: 'construis construis construit construisons construisez construisent', ps: 'construisis construisis construisit construisîmes construisîtes construisirent', pp: 'construit' },
+  conduire: { p: 'conduis conduis conduit conduisons conduisez conduisent', ps: 'conduisis conduisis conduisit conduisîmes conduisîtes conduisirent', pp: 'conduit' },
+  croire: { p: 'crois crois croit croyons croyez croient', ps: 'crus crus crut crûmes crûtes crurent', pp: 'cru', s: 'croie croies croie croyions croyiez croient' },
+  suivre: { p: 'suis suis suit suivons suivez suivent', ps: 'suivis suivis suivit suivîmes suivîtes suivirent', pp: 'suivi' },
+  battre: { p: 'bats bats bat battons battez battent', ps: 'battis battis battit battîmes battîtes battirent', pp: 'battu' },
+  plaire: { p: 'plais plais plaît plaisons plaisez plaisent', ps: 'plus plus plut plûmes plûtes plurent', pp: 'plu' },
+  craindre: { p: 'crains crains craint craignons craignez craignent', ps: 'craignis craignis craignit craignîmes craignîtes craignirent', pp: 'craint' },
+  'recevoir': { p: 'reçois reçois reçoit recevons recevez reçoivent', ps: 'reçus reçus reçut reçûmes reçûtes reçurent', f: 'recevr', pp: 'reçu' },
+  'asseoir': { p: 'assieds assieds assied asseyons asseyez asseyent', ps: 'assis assis assit assîmes assîtes assirent', f: 'assiér', pp: 'assis' },
+  'paraître': { p: 'parais parais paraît paraissons paraissez paraissent', ps: 'parus parus parut parûmes parûtes parurent', pp: 'paru' },
+  'résoudre': { p: 'résous résous résout résolvons résolvez résolvent', ps: 'résolus résolus résolut résolûmes résolûtes résolurent', pp: 'résolu' },
+};
+/* les composés : revenir, devenir, apprendre, comprendre, sourire, repartir… */
+const CJ_PREF = [['re', 'venir'], ['de', 'venir'], ['par', 'venir'], ['sou', 'venir'], ['ap', 'prendre'], ['com', 'prendre'], ['sur', 'prendre'], ['sou', 'rire'], ['re', 'partir'], ['res', 'sortir'], ['re', 'mettre'], ['per', 'mettre'], ['pro', 'mettre'], ['ad', 'mettre'], ['dé', 'crire'], ['re', 'voir'], ['pré', 'voir'], ['dé', 'couvrir'], ['re', 'tenir'], ['ob', 'tenir'], ['con', 'tenir'], ['com', 'battre'], ['dé', 'plaire'], ['re', 'connaître'], ['ac', 'cueillir'], ['dis', 'paraître'], ['ap', 'paraître'], ['re', 'faire'], ['dé', 'faire']];
+const CJ_3E_IR = ['partir', 'sortir', 'dormir', 'courir', 'venir', 'tenir', 'ouvrir', 'offrir', 'cueillir', 'mourir', 'servir', 'sentir', 'mentir', 'fuir', 'couvrir', 'souffrir', 'acquérir', 'bouillir', 'vêtir'];
+function cjIrr(inf) {
+  if (CJ_IRR[inf]) return CJ_IRR[inf];
+  for (const [pre, base] of CJ_PREF) if (inf === pre + base && CJ_IRR[base]) {
+    const B = CJ_IRR[base], add = (s) => s && s.split(' ').map((x) => (x === '-' ? x : pre + x)).join(' ');
+    return { p: add(B.p), ps: add(B.ps), f: B.f && pre + B.f, pp: pre + B.pp, aux: base === 'venir' && pre !== 'sou' ? 'être' : B.aux, imp: B.imp && pre + B.imp, s: add(B.s) };
+  }
+  return null;
+}
+function cjListe(s) { return s ? s.split(' ') : null; }
+/* toutes les formes simples d'un verbe : { forme: [[temps, personne]] } */
+const CJ_ETRE = ['arriver', 'rester', 'tomber', 'entrer', 'rentrer', 'retourner', 'naître', 'mourir', 'aller', 'venir', 'devenir', 'revenir', 'partir', 'repartir', 'décéder', 'parvenir', 'survenir'];
+const CJ_DEUX_AUX = ['monter', 'descendre', 'sortir', 'passer', 'rentrer', 'retourner', 'remonter', 'redescendre'];
+function conjugue(inf) {
+  const pron = /^(se |s')/.test(inf);
+  inf = inf.replace(/^(se |s')/, '');
+  const F = {}, met = (t, l) => l && l.forEach((f, k) => { if (f && f !== '-') (F[f] || (F[f] = [])).push([t, k]); });
+  const I = cjIrr(inf);
+  let pres, ps, futStem, pp, aux = 'avoir', impStem, subj;
+  if (I) {
+    pres = cjListe(I.p); ps = cjListe(I.ps); futStem = I.f || inf.replace(/e$/, ''); pp = I.pp; aux = I.aux || 'avoir';
+    impStem = I.imp || (pres[3] !== '-' ? pres[3].replace(/ons$/, '') : null); subj = cjListe(I.s);
+    if (!ps) { const r = inf.replace(/(er|ir|re|oir)$/, ''); ps = /er$/.test(inf) ? ['ai', 'as', 'a', 'âmes', 'âtes', 'èrent'].map((t) => r + t) : ['is', 'is', 'it', 'îmes', 'îtes', 'irent'].map((t) => r + t); }
+    if (!subj && pres[5] !== '-') { const r = pres[5].replace(/ent$/, ''); subj = T_SUBJ.map((t, k) => (k === 3 || k === 4 ? impStem + t : r + t)); }
+  } else if (/er$/.test(inf)) {
+    const r = inf.slice(0, -2);
+    /* les petites modifications du radical : manger → mangeons, lancer → lançons, appeler → appelle, lever → lève, préférer → préfère, payer → paie */
+    const doux = (t) => (/^[aâo]/.test(t) ? (/g$/.test(r) ? `${r}e` : /c$/.test(r) ? `${r.slice(0, -1)}ç` : r) : r);
+    let fort = r;
+    if (/(appel|jet|renouvel|épel)$/.test(r)) fort = r + r.slice(-1);
+    else if (/[^é]e[lmnrstv]$/.test(r) || /e(c|vr|ç)$/.test(r)) fort = r.replace(/e([^e]+)$/, 'è$1');
+    else if (/é[^aeiouyé]+$/.test(r)) fort = r.replace(/é([^aeiouyé]+)$/, 'è$1');
+    if (/[ou]y$/.test(r)) fort = `${r.slice(0, -1)}i`;
+    if (/ay$/.test(r)) fort = r; /* payer : paye ou paie, on garde la forme régulière */
+    pres = ['e', 'es', 'e', 'ons', 'ez', 'ent'].map((t, k) => (k === 3 || k === 4 ? doux(t) + t : fort + t));
+    ps = ['ai', 'as', 'a', 'âmes', 'âtes', 'èrent'].map((t) => doux(t) + t);
+    futStem = (/é[^aeiouyé]+$/.test(r) ? r : fort) + 'er';
+    pp = `${r}é`; impStem = null; met('imparfait', T_IMP.map((t) => doux(t) + t)); subj = T_SUBJ.map((t, k) => (k === 3 || k === 4 ? r : fort) + t);
+  } else if (/ir$/.test(inf) && !CJ_3E_IR.includes(inf)) {
+    const r = inf.slice(0, -2);
+    pres = ['is', 'is', 'it', 'issons', 'issez', 'issent'].map((t) => r + t);
+    ps = ['is', 'is', 'it', 'îmes', 'îtes', 'irent'].map((t) => r + t);
+    futStem = inf; pp = `${r}i`; impStem = `${r}iss`; subj = T_SUBJ.map((t) => `${r}iss${t}`);
+  } else if (/dre$/.test(inf)) {
+    const r = inf.slice(0, -2);
+    pres = ['s', 's', '', 'ons', 'ez', 'ent'].map((t) => r + t);
+    ps = ['is', 'is', 'it', 'îmes', 'îtes', 'irent'].map((t) => r + t);
+    futStem = inf.slice(0, -1); pp = `${r}u`; impStem = r; subj = T_SUBJ.map((t) => r + t);
+  } else return null;
+  met('présent', pres); met('passé simple', ps); met('subjonctif présent', subj);
+  if (impStem) met('imparfait', T_IMP.map((t) => impStem + t));
+  if (futStem) { met('futur', T_FUT.map((t) => futStem + t)); met('conditionnel présent', T_COND.map((t) => futStem + t)); }
+  /* les temps composés, avec l'accord du participe (e, s, es) */
+  const AUXP = { avoir: cjListe(CJ_IRR.avoir.p), 'être': cjListe(CJ_IRR['être'].p) }, AUXI = { avoir: T_IMP.map((t) => `av${t}`), 'être': T_IMP.map((t) => `ét${t}`) };
+  if (pron || CJ_ETRE.includes(inf)) aux = 'être';
+  const auxs = CJ_DEUX_AUX.includes(inf) && !pron ? ['être', 'avoir'] : [aux];
+  const pps = [pp, `${pp}e`, `${pp}s`, `${pp}es`].filter((x, k, l) => l.indexOf(x) === k);
+  auxs.forEach((ax) => pps.forEach((p, a) => {
+    met(`passé composé${a ? '#' + a : ''}`, AUXP[ax].map((x) => `${x} ${p}`));
+    met(`plus-que-parfait${a ? '#' + a : ''}`, AUXI[ax].map((x) => `${x} ${p}`));
+  }));
+  return { formes: F, pp, aux, inf };
+}
+/* le diagnostic : la réponse de l'élève est-elle au bon temps ? à la bonne personne ? bien écrite ? */
+function levenshtein(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (x, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+const UN_TEMPS = (t) => ({ 'présent': 'au présent', imparfait: 'à l\'imparfait', futur: 'au futur', 'conditionnel présent': 'au conditionnel présent', 'passé simple': 'au passé simple', 'subjonctif présent': 'au subjonctif présent', 'passé composé': 'au passé composé', 'plus-que-parfait': 'au plus-que-parfait' }[t] || t);
+const baseT = (t) => t.split('#')[0];
+function diagConjugueur(ecrit, bon, inf) {
+  const C = conjugue(inf); if (!C) return null;
+  const pron = /^(se |s')/.test(inf);
+  const net = (x) => { let y = normTF(x); if (pron) y = y.replace(/^(me |te |se |nous |vous |m'|t'|s')/, ''); return y; };
+  const s = net(ecrit), b = net(bon), I = C.inf;
+  const E = C.formes[b]; if (!E) return null;
+  const tE = baseT(E[0][0]), kE = E.map((x) => x[1]);
+  const IMPOSE = { 'ce-pres': 'présent', 'ce-fut': 'futur', 'ce-imp': 'imparfait', 'ce-pca': 'passé composé', 'ce-pce': 'passé composé' }[currentGame.tf];
+  const pasLogique = (t) => (IMPOSE ? `On te demande ${LE_TEMPS(IMPOSE)}.` : t === 'passé simple' ? 'Le passé simple est le temps du récit dans les livres : ici, il n\'est pas logique. Relis les mots qui disent quand se passe l\'action.' : 'Ici, ce temps n\'est pas logique : relis les mots qui disent quand se passe l\'action.');
+  if (s === I) return 'Tu as recopié l\'infinitif : il faut conjuguer le verbe.';
+  let S = C.formes[s];
+  /* l'auxiliaire : être ou avoir ? l'infinitif à la place du participe ? */
+  const mots = s.split(' ');
+  if (!S && mots.length === 2 && /passé composé|plus-que-parfait/.test(tE)) {
+    const AUXF = { ai: 'avoir', as: 'avoir', a: 'avoir', avons: 'avoir', avez: 'avoir', ont: 'avoir', suis: 'être', es: 'être', est: 'être', sommes: 'être', êtes: 'être', sont: 'être', avais: 'avoir', avait: 'avoir', avions: 'avoir', aviez: 'avoir', avaient: 'avoir', étais: 'être', était: 'être', étions: 'être', étiez: 'être', étaient: 'être' };
+    const v = AUXF[mots[0]];
+    if (v && v !== C.aux && [C.pp, `${C.pp}e`, `${C.pp}s`, `${C.pp}es`].includes(mots[1])) return `Tu as trouvé le bon temps : ${LE_TEMPS(tE)}. Mais attention à l'auxiliaire : ce verbe se conjugue avec « ${C.aux} ».`;
+    if (v && (mots[1] === I || mots[1] === I.replace(/er$/, 'ez'))) return `Tu as trouvé le bon temps : ${LE_TEMPS(tE)}. Mais tu as écrit « ${mots[1]} » à la place du participe passé « ${C.pp} » : on entend le même son, mais ce n'est pas la même forme.`;
+  }
+  if (!S && mots.length === 1 && /passé composé|plus-que-parfait/.test(tE)) return `Il manque l'auxiliaire : ${UN_TEMPS(tE)}, le verbe s'écrit en deux mots (${C.aux === 'être' ? 'être' : 'avoir'} + participe passé).`;
+  if (S) {
+    const meme = S.filter((x) => baseT(x[0]) === tE);
+    if (meme.length) {
+      if (meme.some((x) => kE.includes(x[1]))) return `Tu as trouvé le bon temps : ${LE_TEMPS(tE)}. Mais le participe passé est mal accordé : c'est une faute d'accord. Avec l'auxiliaire être, il s'accorde avec le sujet.`;
+      return `Tu as trouvé le bon temps : ${LE_TEMPS(tE)}. Mais ${/passé composé|plus-que-parfait/.test(tE) ? 'l\'auxiliaire' : 'la terminaison'} ne va pas avec le sujet : c'est une faute d'accord. Qui fait l'action ?`;
+    }
+    const t = baseT(S[0][0]);
+    return `« ${ecrit.trim()} » est ${t === 'présent' ? 'au présent' : UN_TEMPS(t)}. ${pasLogique(t)}`;
+  }
+  /* la forme n'existe pas : on cherche ce que l'élève a sans doute voulu écrire */
+  let best = null, bd = 99, bestT = null, bdT = 99;
+  Object.keys(C.formes).forEach((f) => {
+    const d = levenshtein(s, f); if (d < bd) { bd = d; best = f; }
+    if (C.formes[f].some((x) => baseT(x[0]) === tE) && d < bdT) { bdT = d; bestT = f; }
+  });
+  /* on préfère la forme du temps attendu, si elle est presque aussi proche, ou si la terminaison est celle de ce temps */
+  const finPareille = /futur|conditionnel|imparfait/.test(tE) && s.slice(-3) === b.slice(-3);
+  if (bestT && (bdT <= bd + 1 || finPareille)) { best = bestT; bd = bdT; }
+  if (!best || (bd > Math.max(3, Math.ceil(b.length / 2) + 1) && !finPareille)) return null;
+  const B = C.formes[best], memeT = B.filter((x) => baseT(x[0]) === tE);
+  if (memeT.length) {
+    const memeP = memeT.some((x) => kE.includes(x[1]));
+    const finJuste = s.slice(-2) === b.slice(-2);
+    const irr = /futur|conditionnel/.test(tE) && cjIrr(I) && cjIrr(I).f ? ` Attention, ce verbe est irrégulier : ${LE_TEMPS(tE)} se forme sur « ${cjIrr(I).f}- ».` : '';
+    if (memeP) return `Tu as trouvé le bon temps : ${LE_TEMPS(tE)}. Mais ${finJuste ? `tu as fait une faute d'orthographe dans le verbe lui-même (faute lexicale)${irr ? '.' + irr : ` : pense à l'infinitif, ${I}.`}` : 'la terminaison est mal écrite.'}${finJuste ? '' : irr}`;
+    return `Tu as trouvé le bon temps : ${LE_TEMPS(tE)}. Mais tu as fait une faute d'orthographe dans le verbe lui-même (faute lexicale), et la terminaison ne va pas avec le sujet (faute d'accord).`;
+  }
+  const t = baseT(B[0][0]);
+  return `Tu sembles avoir voulu écrire « ${best} », ${t === 'présent' ? 'au présent' : UN_TEMPS(t)}. ${pasLogique(t)}`;
+}
 function diagnosticTF(ecrit, bon) {
   if (sansAccTF(normTF(ecrit)) === sansAccTF(normTF(bon))) return 'Presque : il ne manque que les accents.';
   if (currentGame.tf === 'ce-inf') return /(er|ir|re|oir)$/.test(normTF(ecrit)) ? 'C\'est bien un infinitif, mais pas celui de ce verbe : cherche le verbe qu\'on entend dans la phrase.' : 'Ce n\'est pas un infinitif : l\'infinitif se termine par -er, -ir, -re ou -oir (dis « il faut… »).';
+  /* v72 : si l'on connaît l'infinitif, le conjugueur reconnaît la forme écrite par l'élève (temps, personne) */
+  const mInf = ((tf.elts[tf.sel] || {}).src || '').match(/^\((.+)\)$/);
+  if (mInf) { const r = diagConjugueur(ecrit, bon, mInf[1]); if (r) return r; }
   const a = analyseForme(ecrit), b = analyseForme(bon), dits = [];
   const IMPOSE = { 'ce-pres': 'présent', 'ce-fut': 'futur', 'ce-imp': 'imparfait', 'ce-pca': 'passé composé', 'ce-pce': 'passé composé' }[currentGame.tf];
   if (a.temps !== b.temps && IMPOSE) return `Ce n'est pas le bon temps : on te demande ${LE_TEMPS(IMPOSE)}.`;
@@ -3244,7 +3424,7 @@ function panneauTF() {
   let html = `<div class="carte verte active libre"><p>${CF ? CF.q(e) : `« <strong>${esc(e.src)}</strong> » : réécris-le ${versTF()}.`}</p>`;
   if (!r && tf.message) html += `<p class="tf-retour faux">${tf.message}</p>`;
   if (!r) html += `<form class="tf-form" autocomplete="off"><input type="text" class="tf-input" id="tf-input" autocapitalize="off" spellcheck="false" placeholder="écris ici…"><button type="submit" class="primary-button tf-ok">Valider</button></form>`;
-  else html += `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? '✔ Bravo !' : r.pts ? `✔ Juste après une erreur (un demi-point).` : `Non : tu as écrit « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
+  else html += `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? '✔ Bravo !' : r.pts ? `✔ Juste ${r.essai === 1 ? 'au deuxième essai, après une erreur' : 'au troisième essai, après deux erreurs'} : un demi-point.` : `Non : tu as écrit « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
   html += '</div>';
   $('nat-buttons-variables').innerHTML = nbspFr(html);
   const f = document.querySelector('.tf-form');
@@ -3294,7 +3474,7 @@ function repondTF(ecrit) {
   if (pts < 1) game.erreurs.push({ mot: e.src, bonne: `« ${bon} »`, choisie: `« ${ecrit.trim()} »`, phrase: `texte « ${TF_T().titre} »` });
   /* dans le texte : l'ancienne forme barrée en petit au-dessus, la nouvelle à sa place */
   const el = wordEl(i);
-  if (pts) { montreFormeTF(i, ecrit.trim()); dis(phraseDe(el), pts === 1 ? 'Bravo !' : 'Oui, c\'est juste cette fois.'); }
+  if (pts) { montreFormeTF(i, ecrit.trim()); dis(phraseDe(el), pts === 1 ? 'Bravo !' : `Oui, c'est juste cette fois, après ${essai === 1 ? 'une erreur' : 'deux erreurs'} : un demi-point.`); }
   else {
     montreFormeTF(i, ecrit.trim(), 'essai-faux');
     const faux = phraseDe(el);
