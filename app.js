@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v62';
+const APP_VERSION = 'v63';
 
 const $ = (id) => document.getElementById(id);
 
@@ -772,50 +772,205 @@ const CLASSES = [
 ];
 const TOUS = ['ce', 'cm', '65', '43'];
 const PARTIES_NOM = { mots: 'Les mots', temps: 'Les temps et les modes', phrase: 'La phrase' };
-const PARCOURS = {
-  mots: [
-    { jeu: 'natures', titre: 'Reconnaissance des natures de mots, niveau 1', classes: TOUS },
-    { avenir: true, titre: 'Trouver le verbe et son sujet', classes: ['ce'] },
-    { jeu: 'natures2', titre: 'Reconnaissance des natures de mots, niveau 2', classes: ['cm', '65', '43'] },
-    { jeu: 'fonctions', titre: 'Reconnaissance des natures et fonctions des mots dans le groupe verbal', classes: ['cm', '65', '43'] },
-    { jeu: 'gn', titre: 'Reconnaissance des natures et fonctions des mots dans le groupe nominal', classes: ['cm', '65', '43'] },
-    { jeu: 'tableau', titre: 'Bilan : le tableau des 20 cases avec guide', classes: ['65', '43'] },
-    { jeu: 'libre', titre: 'Bilan : le tableau des 20 cases sans guide', classes: ['65', '43'] },
-  ],
-  temps: [
-    { jeu: 'temps1', titre: 'Reconnaître le présent, l\'imparfait, le futur et le passé composé dans un texte', classes: ['ce'],
+const AV = (titre) => ({ avenir: true, titre });
+/* v63 : douze exercices par partie et par niveau ; « bientôt » = prévu, pas encore construit */
+const EXA = {
+  tempsCE: { jeu: 'temps1', titre: 'Reconnaître le présent, l\'imparfait, le futur et le passé composé dans un texte',
       tmNiv: 'ce', sansMode: true, tmChoix: { tps: ['TPS.pres', 'TPS.imp', 'TPS.fut', 'TPS.pc'] },
       consigne: 'Voici une petite histoire qui se passe <strong>aujourd\'hui</strong>. Les <strong>verbes conjugués</strong> sont soulignés. Appuie sur chacun, dans l\'ordre que tu veux, et dis à quel <strong>temps</strong> il est : <strong>présent</strong>, <strong>imparfait</strong>, <strong>futur</strong> ou <strong>passé composé</strong>. Chaque verbe vaut 1 point, si tu trouves du premier coup.' },
-    { jeu: 'temps1', titre: 'Reconnaissance des temps et des modes dans un texte au système du présent (indicatif, conditionnel, impératif)', classes: ['cm'],
+  tempsCM: { jeu: 'temps1', titre: 'Reconnaissance des temps et des modes dans un texte au système du présent (indicatif, conditionnel, impératif)',
       tmNiv: 'cm', tmChoix: { tps: ['TPS.pres', 'TPS.imp', 'TPS.ps', 'TPS.fut', 'TPS.pc', 'TPS.pqp'], mode: ['MODE.ind', 'MODE.cond', 'MODE.imp'] },
       consigne: 'Voici un texte au <strong>système du présent</strong> : l\'action se passe au moment où on le lit. Les <strong>verbes conjugués</strong> sont soulignés. Appuie sur chacun, dans l\'ordre que tu veux, et donne son <strong>temps</strong> (étiquette verte) puis son <strong>mode</strong> (étiquette rouge) : <strong>indicatif</strong>, <strong>conditionnel</strong> ou <strong>impératif</strong>. Chaque verbe vaut 1 point : 0,5 pour le temps, 0,5 pour le mode, s\'ils sont justes du premier coup.' },
-    { jeu: 'temps1', titre: 'Reconnaissance des temps et des modes dans un texte au système du présent', classes: ['65', '43'], tmNiv: 'col',
+  tempsCol: { jeu: 'temps1', titre: 'Reconnaissance des temps et des modes dans un texte au système du présent', tmNiv: 'col',
       consigne: 'Voici un texte au <strong>système du présent</strong> : l\'action se passe au moment où on le lit. Des <strong>formes verbales</strong> y sont soulignées, à tous les modes, personnels ou non. Appuie sur chacune, dans l\'ordre que tu veux, et donne son <strong>temps</strong> (étiquette verte) puis son <strong>mode</strong> (étiquette rouge). Chaque forme vaut 1 point : 0,5 pour le temps, 0,5 pour le mode, s\'ils sont justes du premier coup.' },
-    { jeu: 'temps2', titre: 'Reconnaissance des temps et des modes dans un texte au système du passé (français classique, puis contemporain)', classes: ['43'] },
-    { jeu: 'temps3', titre: 'Analyse des temps et des modes personnels dans un texte au système du présent', classes: ['65', '43'] },
-    { jeu: 'temps4', titre: 'Analyse des temps et des modes personnels dans un texte au système du passé', classes: ['43'] },
-    { jeu: 'temps5', titre: 'Transformer un texte au système du passé en texte au système du présent', classes: ['65', '43'] },
-    { jeu: 'temps6', titre: 'Transformer un texte au système du présent en texte au système du passé', classes: ['43'] },
-  ],
-  phrase: [
-    { jeu: 'formes', titre: 'Les types et les formes de phrases', classes: ['ce'], tfNiv: 'ce',
+  formesce: { jeu: 'formes', titre: 'Les types et les formes de phrases', tfNiv: 'ce',
       consigne: 'Sous chaque phrase du texte, deux bandes vierges sont déjà tracées. En <strong>bleu</strong>, le <strong>type</strong> de la phrase : pourquoi parle-t-on ? Pour informer (<strong>déclarative</strong>), pour poser une question (<strong>interrogative</strong>), pour donner un ordre (<strong>impérative</strong>). En <strong>vert</strong>, sa <strong>forme</strong> : <strong>affirmative</strong> ou <strong>négative</strong> (ne… pas), et <strong>exclamative</strong> si elle exprime un sentiment (!). Touche une bande, puis choisis à droite. Chaque bande juste vaut 1 point.' },
-    { jeu: 'formes', titre: 'Les types et les formes de phrases', classes: ['cm'], tfNiv: 'cm',
+  formescm: { jeu: 'formes', titre: 'Les types et les formes de phrases', tfNiv: 'cm',
       consigne: 'Sous chaque phrase, deux bandes vierges. En <strong>bleu</strong>, le <strong>type</strong> : <strong>déclarative</strong>, <strong>interrogative</strong> ou <strong>impérative</strong>. En <strong>vert</strong>, la <strong>forme</strong> : <strong>affirmative</strong> ou <strong>négative</strong> (ne… pas, ne… plus, ne… jamais, ne… rien, personne ne…), et <strong>exclamative</strong> quand la phrase exprime un sentiment. Attention : la phrase exclamative était autrefois un type ; c\'est aujourd\'hui une forme. Et un ordre qui finit par « ! » n\'est pas forcément exclamatif. Chaque bande juste vaut 1 point.' },
-    { jeu: 'formes', titre: 'Les types et les formes de phrases', classes: ['65'], tfNiv: '65',
+  formes65: { jeu: 'formes', titre: 'Les types et les formes de phrases', tfNiv: '65',
       consigne: 'En <strong>bleu</strong>, sous chaque phrase, son <strong>type</strong> (déclarative, interrogative, impérative). En <strong>vert</strong>, sous chaque <strong>proposition</strong>, sa <strong>forme</strong> (affirmative ou négative, et parfois exclamative) : dans une phrase complexe, une proposition peut être affirmative et l\'autre négative. Dans les derniers textes, une bande <strong>rouge</strong> demande en plus si la proposition est à la <strong>forme active</strong> ou à la <strong>forme passive</strong> (autrefois : la voix active ou passive). Chaque bande juste vaut 1 point.' },
-    { jeu: 'formes', titre: 'Les types et les formes de phrases', classes: ['43'], tfNiv: '43',
+  formes43: { jeu: 'formes', titre: 'Les types et les formes de phrases', tfNiv: '43',
       consigne: 'En <strong>bleu</strong>, sous chaque phrase, son <strong>type</strong> (déclarative, interrogative, impérative). En <strong>vert</strong>, sous chaque <strong>proposition</strong>, sa <strong>forme</strong> (affirmative ou négative, et parfois exclamative). En <strong>rouge</strong>, la <strong>forme active</strong> ou la <strong>forme passive</strong> (autrefois : la voix active ou passive) : attention aux pièges, « il est arrivé » ou « il est content » ne sont pas des formes passives. Chaque bande juste vaut 1 point.' },
-    { jeu: 'phrase3', titre: 'Repérer les paroles des personnages', classes: ['ce'], drMode: 'direct',
+  drCE: { jeu: 'phrase3', titre: 'Repérer les paroles des personnages', drMode: 'direct',
       consigne: 'Dans une histoire, les personnages parlent. Quand on écrit leurs paroles telles qu\'ils les ont dites, on les met <strong>entre guillemets</strong> « … » : c\'est le <strong>discours direct</strong>. Lis le texte et <strong>touche toutes les paroles entre guillemets</strong>. Chaque passage trouvé vaut 1 point. Attention : si tu touches le récit, tu perds un demi-point.' },
-    { jeu: 'phrase1', titre: 'Syntaxe de la phrase', classes: ['cm', '65', '43'] },
-    { jeu: 'phrase3', titre: 'Repérer le discours direct et le discours indirect', classes: ['cm', '65'], drMode: 'reperage',
+  drRep: { jeu: 'phrase3', titre: 'Repérer le discours direct et le discours indirect', drMode: 'reperage',
       consigne: 'Dans un récit, on peut rapporter les paroles des personnages de deux façons. Au <strong>discours direct</strong>, on les cite telles qu\'elles ont été prononcées, <strong>entre guillemets</strong>. Au <strong>discours indirect</strong>, on les rapporte dans une <strong>proposition subordonnée</strong>, après un verbe de parole (<em>il dit que…</em>, <em>il demanda si…</em>), sans guillemets. Deux étapes : <strong>1.</strong> trouve les paroles au discours direct ; <strong>2.</strong> trouve les paroles au discours indirect. Chaque passage trouvé vaut 1 point ; une erreur coûte 0,5 point.' },
-    { jeu: 'phrase2', titre: 'Analyse, nature et fonction des propositions', classes: ['43'] },
-    { jeu: 'phrase3', titre: 'Du discours direct au discours indirect, et inversement', classes: ['43'] },
-    { avenir: true, titre: 'La forme active et la forme passive (autrefois : la voix active et la voix passive)', classes: ['65', '43'] },
-    { avenir: true, titre: 'L\'expression des rapports logiques', classes: ['43'] },
-  ],
+};
+const PARCOURS = {
+  mots: {
+    'ce': [
+      AV('Le nom commun et le nom propre'),
+      AV('Le déterminant : les articles'),
+      AV('Le nom et son déterminant'),
+      AV('L\'adjectif qualificatif'),
+      AV('Le verbe : le trouver dans la phrase'),
+      AV('Le pronom personnel sujet'),
+      AV('Les cinq natures principales : nom, déterminant, adjectif, verbe, pronom'),
+      AV('Le genre et le nombre du nom'),
+      AV('Les accords dans le groupe nominal'),
+      AV('Trouver le verbe et son sujet'),
+      AV('Les déterminants possessifs et démonstratifs'),
+      { jeu: 'natures', titre: 'Bilan : reconnaissance des natures de mots' },
+    ],
+    'cm': [
+      AV('Les mots invariables : l\'adverbe et la préposition'),
+      AV('Les conjonctions de coordination'),
+      { jeu: 'natures', titre: 'Reconnaissance des natures de mots, niveau 1' },
+      AV('Les sortes de déterminants'),
+      AV('Les pronoms personnels compléments'),
+      { jeu: 'natures2', titre: 'Les sortes de déterminants et de pronoms' },
+      AV('Le sujet, même inversé ou éloigné'),
+      AV('Le COD et le COI'),
+      AV('Les compléments circonstanciels'),
+      AV('L\'attribut du sujet'),
+      { jeu: 'fonctions', titre: 'Natures et fonctions des mots dans le groupe verbal' },
+      { jeu: 'gn', titre: 'Natures et fonctions des mots dans le groupe nominal' },
+    ],
+    '65': [
+      { jeu: 'natures', titre: 'Révision : reconnaissance des natures de mots' },
+      { jeu: 'natures2', titre: 'Reconnaissance des natures de mots, niveau 2' },
+      AV('Les pronoms relatifs : qui, que, quoi, dont, où'),
+      AV('Conjonctions de coordination et conjonctions de subordination'),
+      AV('Les pronoms en et y'),
+      AV('L\'adverbe : ce qu\'il modifie'),
+      { jeu: 'fonctions', titre: 'Natures et fonctions des mots dans le groupe verbal' },
+      { jeu: 'gn', titre: 'Natures et fonctions des mots dans le groupe nominal' },
+      AV('Le complément d\'agent'),
+      AV('Les expansions du nom : épithète, complément du nom, apposition'),
+      { jeu: 'tableau', titre: 'Bilan : le tableau des 20 cases avec guide' },
+      { jeu: 'libre', titre: 'Bilan : le tableau des 20 cases sans guide' },
+    ],
+    '43': [
+      { jeu: 'natures2', titre: 'Révision : natures des mots, déterminants et pronoms' },
+      AV('Les connecteurs logiques et temporels'),
+      AV('Interjections et onomatopées'),
+      AV('Les modalisateurs : les mots qui expriment un jugement'),
+      AV('Les reprises : pronoms et chaînes de mots'),
+      AV('La formation des mots : dérivation et composition'),
+      { jeu: 'fonctions', titre: 'Natures et fonctions des mots dans le groupe verbal' },
+      { jeu: 'gn', titre: 'Natures et fonctions des mots dans le groupe nominal' },
+      AV('Les fonctions du pronom'),
+      { jeu: 'tableau', titre: 'Analyse grammaticale : le tableau des 20 cases avec guide' },
+      { jeu: 'libre', titre: 'Analyse grammaticale : le tableau des 20 cases sans guide' },
+      AV('Brevet : l\'analyse grammaticale d\'un texte'),
+    ],
+  },
+  temps: {
+    'ce': [
+      AV('Trouver le verbe conjugué'),
+      AV('Trouver l\'infinitif du verbe'),
+      AV('Passé, présent ou futur : quand se passe l\'action ?'),
+      AV('Le présent'),
+      AV('Le futur'),
+      AV('L\'imparfait'),
+      AV('Le passé composé avec avoir'),
+      AV('Le passé composé avec être'),
+      AV('Les verbes être et avoir'),
+      AV('Les trois groupes de verbes'),
+      EXA.tempsCE,
+      AV('Récrire un petit texte au futur'),
+    ],
+    'cm': [
+      AV('Temps simples et temps composés'),
+      AV('Le radical et la terminaison'),
+      AV('Le passé simple'),
+      AV('Le plus-que-parfait'),
+      AV('Le futur antérieur et le passé antérieur'),
+      AV('L\'impératif présent'),
+      AV('Le conditionnel présent'),
+      AV('Imparfait et passé simple : le décor et l\'action'),
+      AV('L\'accord du participe passé avec être'),
+      EXA.tempsCM,
+      AV('Reconnaître les temps dans un récit au passé'),
+      AV('Transformer un petit texte du présent au passé'),
+    ],
+    '65': [
+      AV('Les huit temps de l\'indicatif'),
+      AV('Le subjonctif présent'),
+      AV('Le conditionnel présent et passé'),
+      AV('Modes personnels et modes non personnels'),
+      AV('Participe présent, participe passé, gérondif'),
+      EXA.tempsCol,
+      AV('Reconnaissance des temps et des modes dans un récit au système du passé'),
+      AV('Les valeurs du présent'),
+      AV('Les valeurs de l\'imparfait et du passé simple'),
+      { jeu: 'temps3', titre: 'Analyse des temps et des modes personnels au système du présent' },
+      { jeu: 'temps5', titre: 'Transformer un texte du passé au présent' },
+      AV('L\'accord du participe passé avec avoir'),
+    ],
+    '43': [
+      AV('Le subjonctif passé et le conditionnel passé'),
+      AV('La concordance des temps'),
+      AV('La forme passive à tous les temps'),
+      AV('Les verbes pronominaux'),
+      EXA.tempsCol,
+      { jeu: 'temps2', titre: 'Reconnaissance des temps et des modes au système du passé (français classique, puis contemporain)' },
+      { jeu: 'temps3', titre: 'Analyse des temps et des modes personnels au système du présent' },
+      { jeu: 'temps4', titre: 'Analyse des temps et des modes personnels au système du passé' },
+      { jeu: 'temps5', titre: 'Transformer un texte du passé au présent' },
+      { jeu: 'temps6', titre: 'Transformer un texte du présent au passé' },
+      AV('Énonciation ancrée et énonciation coupée'),
+      AV('Brevet : les effets des temps et des modes dans un texte'),
+    ],
+  },
+  phrase: {
+    'ce': [
+      AV('Qu\'est-ce qu\'une phrase ?'),
+      AV('Les points : . ? !'),
+      EXA.formesce,
+      AV('Transformer : de la forme affirmative à la forme négative'),
+      AV('Transformer : de la phrase déclarative à la phrase interrogative'),
+      EXA.drCE,
+      AV('Les signes du dialogue'),
+      AV('Le sujet et le groupe verbal'),
+      AV('Les compléments qu\'on peut déplacer ou supprimer'),
+      AV('Remettre les mots dans l\'ordre'),
+      AV('Phrase avec verbe, phrase sans verbe'),
+      AV('Bilan : la phrase'),
+    ],
+    'cm': [
+      EXA.formescm,
+      AV('Phrase simple et phrase complexe'),
+      AV('Juxtaposition et coordination'),
+      { jeu: 'phrase1', titre: 'Syntaxe de la phrase' },
+      AV('Approche de la proposition relative (qui, que)'),
+      EXA.drRep,
+      AV('Transformer : forme affirmative et forme négative'),
+      AV('Transformer : phrase déclarative et phrase interrogative'),
+      AV('Les compléments circonstanciels : déplacer, supprimer'),
+      AV('Les manipulations : déplacer, supprimer, remplacer'),
+      AV('La ponctuation dans la phrase'),
+      AV('Bilan : la phrase'),
+    ],
+    '65': [
+      EXA.formes65,
+      { jeu: 'phrase1', titre: 'Syntaxe de la phrase' },
+      AV('Proposition principale et proposition subordonnée'),
+      AV('La subordonnée relative'),
+      AV('Relative déterminative et relative explicative'),
+      AV('La subordonnée complétive'),
+      EXA.drRep,
+      AV('Forme active et forme passive (autrefois : voix active et voix passive)'),
+      AV('Le complément d\'agent'),
+      AV('La forme impersonnelle'),
+      AV('Nature et fonction des relatives et des complétives'),
+      AV('Bilan : la phrase complexe'),
+    ],
+    '43': [
+      EXA.formes43,
+      { jeu: 'phrase1', titre: 'Syntaxe de la phrase' },
+      { jeu: 'phrase2', titre: 'Analyse, nature et fonction des propositions' },
+      AV('Les subordonnées circonstancielles'),
+      AV('Les subordonnées infinitives et participiales'),
+      AV('La subordonnée interrogative indirecte'),
+      { jeu: 'phrase3', titre: 'Du discours direct au discours indirect, et inversement' },
+      AV('La mise en relief : c\'est… qui, c\'est… que'),
+      AV('Forme active et forme passive : transformer'),
+      AV('L\'expression des rapports logiques'),
+      AV('Rapports logiques implicites et explicites'),
+      AV('Brevet : l\'analyse logique complète'),
+    ],
+  },
 };
 let classeAccueil = (() => { try { return localStorage.getItem('mnemogram-classe') || 'ce'; } catch (e) { return 'ce'; } })();
 if (!CLASSES.some((c) => c.id === classeAccueil)) classeAccueil = 'ce';
@@ -826,7 +981,7 @@ function dessinePortail() {
   $('home-classes-note').textContent = `Exercices pour le ${C.cycle}. Les autres onglets restent ouverts : tu peux aller voir plus facile ou plus difficile.`;
   Object.keys(PARCOURS).forEach((partie) => {
     let n = 0;
-    const L = PARCOURS[partie].map((e, k) => ({ e, k })).filter(({ e }) => e.classes.includes(classeAccueil));
+    const L = PARCOURS[partie][classeAccueil].map((e, k) => ({ e, k }));
     document.querySelector(`[data-liste="${partie}"]`).innerHTML = L.map(({ e, k }) => (e.avenir
       ? `<button type="button" class="home-mode-button avenir" disabled><span class="label"><strong>Exercice ${++n}</strong><br>${e.titre}</span><span class="desc">bientôt</span></button>`
       : `<button type="button" class="home-mode-button" data-partie-ex="${partie}" data-k="${k}" data-n="${++n}"><span class="label"><strong>Exercice ${n}</strong><br>${e.titre}</span></button>`)).join('') || '<p class="sous">Pas encore d\'exercice à ce niveau.</p>';
@@ -837,7 +992,7 @@ function dessinePortail() {
     dessinePortail();
   }));
   document.querySelectorAll('[data-partie-ex]').forEach((b) => b.addEventListener('click', () => {
-    const p = b.dataset.partieEx, e = PARCOURS[p][Number(b.dataset.k)];
+    const p = b.dataset.partieEx, e = PARCOURS[p][classeAccueil][Number(b.dataset.k)];
     exerciceChoisi = { ...e, partie: p, n: Number(b.dataset.n), titreComplet: `${PARTIES_NOM[p]}, exercice ${b.dataset.n} : ${e.titre}` };
     openGame(e.jeu);
   }));
