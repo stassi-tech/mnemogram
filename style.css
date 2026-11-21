@@ -776,3 +776,14 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .game7 .sentence .w.tf .ancien { position:absolute; bottom:88%; left:50%; transform:translateX(-50%); white-space:nowrap; margin:0; line-height:1; font-size:.5em; }
 .tf-nuance { margin-top:8px; padding:8px 10px; background:#fff7e0; border-left:4px solid #e8c874; border-radius:4px; font-style:normal; }
 .game7 .sentence .w.elide { padding-right:0; margin-right:-.25em; }
+/* v75 : la phrase au CE : ce qu'il faut faire de chaque phrase (bilan « transformer les phrases ») */
+.w.tf .tf-op { display:inline-block; font-size:.5em; font-style:italic; line-height:1.2; color:#f3d27a; border:1px solid rgba(243,210,122,.6); border-radius:6px; padding:0 .35em; margin-right:.35em; vertical-align:middle; }
+.w.tf.tf-phrase { margin-right:.35em; }
+.w.tf.trou .tf-op { visibility:hidden; }
+.ponct-ajout { color:#ffd76a; font-weight:bold; }
+/* v75 : accorder phrase par phrase : un encart par mot */
+.tf-encart { margin-bottom:10px; opacity:.75; }
+.tf-encart.active { opacity:1; box-shadow:0 0 0 3px rgba(242,201,76,.55); }
+.tf-encart.faite { opacity:.9; }
+.tf-encart .tf-form { margin-top:6px; }
+.tf-phrase-n { margin:0 0 8px; font-weight:bold; }

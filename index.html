@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=74" />
+    <link rel="stylesheet" href="style.css?v=76" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -331,6 +331,10 @@
       <div id="report-send" class="report-send no-print"></div>
     </div>
 
-    <script defer src="app.js?v=74"></script>
+    <!-- v76 : les textes des exercices, fabriqués par l'atelier à partir des fichiers Word (s'ils manquent, l'application garde ses textes) -->
+    <script defer src="textes-ce-mots.js?v=76"></script>
+    <script defer src="textes-ce-temps.js?v=76"></script>
+    <script defer src="textes-ce-phrase.js?v=76"></script>
+    <script defer src="app.js?v=76"></script>
   </body>
 </html>
