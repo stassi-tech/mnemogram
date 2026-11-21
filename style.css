@@ -787,3 +787,12 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .tf-encart.faite { opacity:.9; }
 .tf-encart .tf-form { margin-top:6px; }
 .tf-phrase-n { margin:0 0 8px; font-weight:bold; }
+/* v78 : dans un onglet de niveau, les trois parties restent visibles : la partie choisie en premier et en grand,
+   les deux autres en plus petit, juste en dessous, pour changer de partie sans revenir au menu général */
+#home-parties.choisie { grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+#home-parties.choisie .home-partie { min-height:0; padding:10px 8px; opacity:.85; }
+#home-parties.choisie .home-partie .label { font-size:.95rem; }
+#home-parties.choisie .home-partie.on { grid-column:1 / -1; order:-1; padding:22px 12px; opacity:1; box-shadow:0 0 0 3px rgba(255,215,106,.85); cursor:default; }
+#home-parties.choisie .home-partie.on .label { font-size:1.6rem; }
+.home-section .home-section-title, .home-section .home-retour { display:none; }
+@media (max-width:640px) { #home-parties.choisie { grid-template-columns:1fr 1fr; } }

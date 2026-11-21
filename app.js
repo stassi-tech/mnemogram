@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v76';
+const APP_VERSION = 'v78';
 
 const $ = (id) => document.getElementById(id);
 
@@ -980,9 +980,11 @@ window.addEventListener('resize', () => { if (currentGame && isT1()) ajusteArdoi
 let partieAccueil = '';
 function montrePartie(p) {
   partieAccueil = p || '';
-  $('home-parties').classList.toggle('hidden', !!partieAccueil);
+  /* v78 : les trois parties restent toujours visibles ; celle qu'on a choisie passe en premier, en grand */
+  $('home-parties').classList.toggle('choisie', !!partieAccueil);
+  document.querySelectorAll('#home-parties .home-partie').forEach((b) => { const on = b.dataset.partie === partieAccueil; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'true' : 'false'); });
   ['mots', 'temps', 'phrase'].forEach((k) => $(`home-${k}`).classList.toggle('hidden', partieAccueil !== k));
-  window.scrollTo(0, partieAccueil ? $('home-mots').parentElement.offsetTop - 80 : 0);
+  window.scrollTo(0, partieAccueil ? $('home-classes').getBoundingClientRect().top + window.scrollY - 70 : 0);
 }
 document.querySelectorAll('[data-partie]').forEach((b) => b.addEventListener('click', () => montrePartie(b.dataset.partie)));
 dessinePortail();
@@ -2746,7 +2748,7 @@ TEXTES_TM[1].cadres = ['En français classique', 'Le même texte en français co
 TEXTES_TM[1].bilanSuite = "En <strong>français contemporain</strong>, le texte reste au système du passé, mais le <strong>passé simple</strong> devient un <strong>passé composé</strong> (<em>a crié, avons couru, sommes repartis</em>), l'<strong>imparfait du subjonctif</strong> devient un <strong>subjonctif présent</strong> (<em>soit, soient</em>), et le futur dans le passé se dit avec <strong>aller à l'imparfait + infinitif</strong> (<em>allions découvrir</em>). Le passé simple et l'imparfait du subjonctif restent la langue des livres.";
 /* le texte découpé : des mots, et des formes verbales { t, tps, mode } */
 function decoupeTM(src) {
-  const mots = [], formes = [];
+  const mots = [], formes = []; let ph = 0;   /* v77 : le numéro de la phrase de chaque forme */
   src.replace(/\{([^}|]+)\|([^}|]+)\|([^}|]+)(?:\|([^}|]+)\|([^}|]+))?\}|([^\s{]+)/g, (m, f, tps, mode, vt, vm, w) => {
     if (f) {
       mots.push({ t: f, k: formes.length });
@@ -2756,8 +2758,9 @@ function decoupeTM(src) {
         /* v46 : « perte » : un conditionnel employé comme temps (futur dans le passé) a perdu sa valeur de mode ; on attend « réalité » */
         if (vm === 'perte') { x.vm = ['VM.reel']; x.vmTexte = 'qui a perdu ici sa valeur de mode : réalité'; } else x.vm = vm.split('/').map((v) => `VM.${v}`);
       }
-      formes.push(x);
-    } else mots.push({ t: w });
+      x.ph = ph; formes.push(x);
+      if (/[.!?]$/.test(f)) ph += 1;
+    } else { mots.push({ t: w }); if (/[.!?]$/.test(w) || /^[.!?]/.test(w)) ph += 1; }
     return m;
   });
   return { mots, formes };
@@ -2853,6 +2856,7 @@ function panneauTM() {
       : `<div class="carte verte active libre"><p>Bravo, le premier texte est fini ! Voici <strong>le même texte en français contemporain</strong>. Les formes qui n'ont pas changé gardent leurs étiquettes. ${N} formes ont changé : la forme du français classique est barrée en petit au-dessus. Appuie sur chacune et donne son <strong>temps</strong> et son <strong>mode</strong>${currentGame.valeurs ? ', puis leurs <strong>valeurs</strong>' : ''}.</p><p class="sous">${faites} forme${faites > 1 ? 's' : ''} sur ${N} déjà faite${faites > 1 ? 's' : ''}.</p></div>`;
     return;
   }
+  if (parPhraseTM()) { panneauPhraseTM(); return; }
   const f = formeTM(i), r = tm.rep[i] || (tm.rep[i] = {});
   const b = (code, rouge, champ) => {
     const rep = r[champ], fait = !!rep, cls = !fait ? '' : accepte(f, champ, code) && (code === rep || !accepte(f, champ, rep)) ? ' correct' : code === rep ? ' wrong' : ' faded';
@@ -2869,13 +2873,33 @@ function panneauTM() {
   $('nat-buttons-variables').innerHTML = nbspFr(html);
   document.querySelectorAll('[data-tm]').forEach((btn) => btn.addEventListener('click', () => repondTM(btn.dataset.tm, btn.dataset.champ)));
 }
+/* v77 : au CE, on travaille phrase par phrase : toutes les étiquettes d'une même phrase dans le même panneau */
+const parPhraseTM = () => tm.phase === 1 && !!currentGame.sansMode && !TML().seul && (currentGame.tmNiv === 'ce' || /^ce-/.test(currentGame.tmNiv || ''));
+function panneauPhraseTM() {
+  const ph = formeTM(tm.sel).ph, tous = indicesPhase(), G = tous.filter((j) => formeTM(j).ph === ph);
+  const phs = [...new Set(tous.map((j) => formeTM(j).ph))], O = TML().obj || (TML().mots ? ['mot', 'mots'] : ['verbe', 'verbes']);
+  const liste = (currentGame.tmListe ? TM_LISTES[currentGame.tmListe] : LISTE_TM.tps).filter((x) => !currentGame.tmChoix?.tps || currentGame.tmChoix.tps.includes(x.code));
+  const cols = currentGame.tmListe ? (TML().cols || 3) : 2;
+  let html = `<p class="sous tf-phrase-n">Phrase ${phs.indexOf(ph) + 1} sur ${phs.length} : ${G.length} ${G.length > 1 ? O[1] : O[0]} à étiqueter, un par encart.</p>`;
+  G.forEach((j) => {
+    const f = formeTM(j), r = tm.rep[j] || {}, rep = r.tps, actif = j === tm.sel && !rep;
+    const b = (code) => { const cls = !rep ? '' : accepte(f, 'tps', code) && (code === rep || !accepte(f, 'tps', rep)) ? ' correct' : code === rep ? ' wrong' : ' faded'; return `<button type="button" class="nature-button${cls}" data-tm="${code}" data-champ="tps" data-j="${j}"${rep ? ' disabled' : ''}>${NOM_TM(code)}</button>`; };
+    html += `<div class="carte verte libre tf-encart${actif ? ' active' : ''}${rep ? ' faite' : ''}"><p>« ${esc(f.t)} » : ${currentGame.tmQuestion || 'quel est son <strong>temps</strong> ?'}</p><div class="carte-choix carte-choix-${cols}">${liste.map((x) => b(x.code)).join('')}</div></div>`;
+  });
+  $('nat-buttons-variables').innerHTML = nbspFr(html);
+  document.querySelectorAll('[data-tm][data-j]').forEach((btn) => btn.addEventListener('click', () => {
+    const j = Number(btn.dataset.j);
+    if (tm.sel !== j) { wordEl(tm.sel)?.classList.remove('choisie'); tm.sel = j; wordEl(j)?.classList.add('choisie'); }
+    repondTM(btn.dataset.tm, 'tps');
+  }));
+}
 function clicFormeTM(i) {
   if (game.fini || i === tm.sel || !indicesPhase().includes(i)) return;
   const avant = tm.sel; tm.sel = i;
   if (avant !== null) wordEl(avant)?.classList.remove('choisie');
   wordEl(i)?.classList.add('choisie');
   panneauTM();
-  if (!estFaite(i)) dis(TML().seul ? formeTM(i).t : phraseDe(wordEl(i)));
+  if (!estFaite(i) && !(parPhraseTM() && avant !== null && formeTM(avant)?.ph === formeTM(i).ph)) dis(TML().seul ? formeTM(i).t : phraseDe(wordEl(i)));
 }
 function repondTM(code, champ) {
   const i = tm.sel; if (i === null || game.fini) return;
