@@ -1,12 +1,12 @@
-/* textes-cm-temps.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v23
-   à partir du Word « textes CM1-CM2 les temps et les modes.docx », le 21/11/2026 08:38:16. Ne pas modifier à la main : corriger le Word. */
+/* textes-cm-temps.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v30
+   à partir du Word « textes CM1-CM2 les temps et les modes.docx », le 21/11/2026 14:52:36. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "cm-pres": {
   "moteur": "tf",
   "textes": [
    {
     "titre": "À la piscine",
-    "texte": "Ce matin, je {(aller)>vais} à la piscine. Mes amis {(venir)>viennent} avec moi. Nous {(prendre)>prenons} le bus. Tu {(vouloir)>veux} venir ? Le maître-nageur nous {(dire)>dit} bonjour. Je {(faire)>fais} des longueurs. Vous {(pouvoir)>pouvez} plonger. Mon frère {(voir)>voit} un copain. Ils {(partir)>partent} à midi. Je {(être)>suis} fatigué."
+    "texte": "Ce matin, je {(aller)>vais} à la piscine. Mes amis {(venir)>viennent} avec moi. Nous {(prendre)>prenons} l'autobus. Tu {(vouloir)>veux} venir ? Le maître-nageur nous {(dire)>dit} bonjour. Je {(faire)>fais} des longueurs. Vous {(pouvoir)>pouvez} plonger. Mon frère {(voir)>voit} un copain. Ils {(partir)>partent} à midi. Je {(être)>suis} fatigué."
    },
    {
     "titre": "Le marché",
@@ -273,7 +273,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "La pluie",
-    "texte": "Ce jour-là, il {(pleuvoir)>pleuvait} depuis le matin. Les enfants {(s'ennuyer)>s'ennuyaient}. Leur mère {(avoir)>eut} une idée. Elle {(sortir)>sortit} une vieille boîte. Leur grand-père l'{(fabriquer)>avait fabriquée} autrefois. Elle {(contenir)>contenait} des soldats de bois. Les enfants {(installer)>installèrent} une bataille. Ils {(jouer)>jouèrent} tout l'après-midi. Le soir, le soleil {(revenir)>revint}. Les enfants {(être)>étaient} ravis. Ils {(oublier)>avaient oublié} la pluie."
+    "texte": "Ce jour-là, il {(pleuvoir)>pleuvait} depuis le matin. Les enfants {(s'ennuyer)>s'ennuyaient}. Leur mère {(avoir)>eut} une idée. Elle {(sortir)>sortit} une vieille boîte. Leur grand-père l'{(fabriquer)>avait fabriquée} autrefois. Elle {(contenir)>contenait} des soldats de bois. Les enfants {(installer)>installèrent} une bataille. Ils {(jouer)>jouèrent} tout l'après-midi. Le soir, le soleil {(revenir)>revint}. Les enfants {(être)>étaient;furent} ravis. Ils {(oublier)>avaient oublié} la pluie."
    },
    {
     "titre": "Le concours",
@@ -293,7 +293,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "Le chat perdu",
-    "texte": "Depuis trois jours, Minou {(disparaître)>avait disparu}. Léa {(pleurer)>pleurait} chaque soir. Elle {(coller)>avait collé} des affiches dans tout le quartier. Personne ne {(appeler)>appelait}. Le quatrième jour, une voisine {(sonner)>sonna} à la porte. Elle {(entendre)>avait entendu} des miaulements dans son garage. Léa {(courir)>courut} chez elle. Le garage {(être)>était} sombre. Un petit bruit {(venir)>venait} d'une caisse. Léa {(soulever)>souleva} le couvercle. Minou {(dormir)>dormait} au milieu de quatre chatons ! Il {(s'agir)>s'agissait} donc d'une chatte. Léa {(éclater)>éclata} de rire. Elle {(rapporter)>rapporta} toute la famille à la maison. Ses parents {(accepter)>acceptèrent} de garder un chaton."
+    "texte": "Depuis trois jours, Minou {(disparaître)>avait disparu}. Léa {(pleurer)>pleurait} chaque soir. Elle {(coller)>avait collé} des affiches dans tout le quartier. Personne ne {(appeler)>appelait;appela}. Le quatrième jour, une voisine {(sonner)>sonna} à la porte. Elle {(entendre)>avait entendu} des miaulements dans son garage. Léa {(courir)>courut} chez elle. Le garage {(être)>était} sombre. Un petit bruit {(venir)>venait} d'une caisse. Léa {(soulever)>souleva} le couvercle. Minou {(dormir)>dormait} au milieu de quatre chatons ! Il {(s'agir)>s'agissait} donc d'une chatte. Léa {(éclater)>éclata} de rire. Elle {(rapporter)>rapporta} toute la famille à la maison. Ses parents {(accepter)>acceptèrent} de garder un chaton."
    },
    {
     "titre": "Le sauvetage",
@@ -301,7 +301,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "La fête au village",
-    "texte": "Cette année-là, le village {(préparer)>préparait} sa grande fête depuis des semaines. Les habitants {(décorer)>avaient décoré} les rues de guirlandes. Le jour venu, il {(faire)>faisait} un temps splendide. Les musiciens {(arriver)>arrivèrent} à midi. Ils {(jouer)>jouèrent} sur la place. Les enfants {(danser)>dansaient} autour de la fontaine. Les anciens {(se souvenir)>se souvenaient} des fêtes d'autrefois. Le maire {(prononcer)>prononça} un discours. Personne ne l'{(écouter)>écoutait} vraiment. Le soir, on {(allumer)>alluma} des lampions. Un feu d'artifice {(illuminer)>illumina} le ciel. Les gens {(lever)>levaient} la tête, émerveillés. Les artificiers {(travailler)>avaient travaillé} toute la journée. Leur spectacle {(durer)>dura} une demi-heure. Tout le monde {(applaudir)>applaudit}. La fête {(se terminer)>se termina} très tard. Les enfants {(s'endormir)>s'endormirent} dans les bras de leurs parents."
+    "texte": "Cette année-là, le village {(préparer)>préparait} sa grande fête depuis des semaines. Les habitants {(décorer)>avaient décoré} les rues de guirlandes. Le jour venu, il {(faire)>faisait} un temps splendide. Les musiciens {(arriver)>arrivèrent} à midi. Ils {(jouer)>jouèrent} sur la place. Les enfants {(danser)>dansaient;dansèrent} autour de la fontaine. Les anciens {(se souvenir)>se souvenaient} des fêtes d'autrefois. Le maire {(prononcer)>prononça} un discours. Personne ne l'{(écouter)>écoutait;écouta} vraiment. Le soir, on {(allumer)>alluma} des lampions. Un feu d'artifice {(illuminer)>illumina} le ciel. Les gens {(lever)>levaient;levèrent} la tête, émerveillés. Les artificiers {(travailler)>avaient travaillé} toute la journée. Leur spectacle {(durer)>dura} une demi-heure. Tout le monde {(applaudir)>applaudit}. La fête {(se terminer)>se termina} très tard. Les enfants {(s'endormir)>s'endormirent} dans les bras de leurs parents."
    },
    {
     "titre": "Le dragon de la montagne",
@@ -309,7 +309,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "Le voyage en ballon",
-    "texte": "Le 21 novembre 1783, une foule immense {(se presser)>se pressait} dans le jardin du château de la Muette. Les frères Montgolfier {(inventer)>avaient inventé} le ballon à air chaud. Ce jour-là, deux hommes {(aller)>allaient} voler pour la première fois. Le ballon {(être)>était} magnifique. Il {(porter)>portait} des décorations bleues et dorées. Les aéronautes {(monter)>montèrent} dans la nacelle. On {(allumer)>alluma} le feu. L'air chaud {(gonfler)>gonfla} le ballon. Il {(s'élever)>s'éleva} lentement. La foule {(pousser)>poussa} un cri. Le ballon {(survoler)>survola} Paris. Les Parisiens {(regarder)>regardaient} le ciel avec stupeur. Personne n'{(voir)>avait vu} un tel spectacle. Le vol {(durer)>dura} vingt-cinq minutes. Le ballon {(se poser)>se posa} dans un champ. Les deux hommes {(être)>étaient} sains et saufs. Ils {(réussir)>avaient réussi} leur pari. Le roi {(féliciter)>félicita} les inventeurs. La nouvelle {(faire)>fit} le tour de l'Europe."
+    "texte": "Le 21 novembre 1783, une foule immense {(se presser)>se pressait} dans le jardin du château de la Muette. Les frères Montgolfier {(inventer)>avaient inventé} le ballon à air chaud. Ce jour-là, deux hommes {(aller)>allaient} voler pour la première fois. Le ballon {(être)>était} magnifique. Il {(porter)>portait} des décorations bleues et dorées. Les aéronautes {(monter)>montèrent} dans la nacelle. On {(allumer)>alluma} le feu. L'air chaud {(gonfler)>gonfla} le ballon. Il {(s'élever)>s'éleva} lentement. La foule {(pousser)>poussa} un cri. Le ballon {(survoler)>survola} Paris. Les Parisiens {(regarder)>regardaient;regardèrent} le ciel avec stupeur. Personne n'{(voir)>avait vu} un tel spectacle. Le vol {(durer)>dura} vingt-cinq minutes. Le ballon {(se poser)>se posa} dans un champ. Les deux hommes {(être)>étaient} sains et saufs. Ils {(réussir)>avaient réussi} leur pari. Le roi {(féliciter)>félicita} les inventeurs. La nouvelle {(faire)>fit} le tour de l'Europe."
    },
    {
     "titre": "L'éruption",

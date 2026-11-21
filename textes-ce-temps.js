@@ -1,5 +1,5 @@
-/* textes-ce-temps.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v21
-   à partir du Word « textes CE1-CE2 les temps et les modes.docx », le 21/11/2026 07:50:02. Ne pas modifier à la main : corriger le Word. */
+/* textes-ce-temps.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v30
+   à partir du Word « textes CE1-CE2 les temps et les modes.docx », le 21/11/2026 14:52:35. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "ce-verbe": {
   "moteur": "tv",
@@ -119,7 +119,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "L'hiver dernier",
-    "texte": "L'hiver dernier, il {(neiger)>neigeait} souvent. Nous {(faire)>faisions} des bonshommes de neige. Les enfants {(glisser)>glissaient} sur la glace. Tu {(finir)>finissais} toujours mouillé ! Maman {(préparer)>préparait} du chocolat chaud. Papa {(allumer)>allumait} un grand feu. Le chat {(dormir)>dormait} près de la cheminée. Les oiseaux {(venir)>venaient} manger sur le balcon. Je leur {(donner)>donnais} des graines. Nous {(lancer)>lancions} des boules de neige. Vous {(rire)>riiez} très fort. Les routes {(être)>étaient} glissantes. Le bus ne {(passer)>passait} plus. Nous {(rester)>restions} à la maison. Je {(lire)>lisais} des bandes dessinées. Mon frère {(construire)>construisait} un igloo."
+    "texte": "L'hiver dernier, il {(neiger)>neigeait} souvent. Nous {(faire)>faisions} des bonshommes de neige. Les enfants {(glisser)>glissaient} sur la glace. Tu {(finir)>finissais} toujours mouillé ! Maman {(préparer)>préparait} du chocolat chaud. Papa {(allumer)>allumait} un grand feu. Le chat {(dormir)>dormait} près de la cheminée. Les oiseaux {(venir)>venaient} manger sur le balcon. Je leur {(donner)>donnais} des graines. Nous {(lancer)>lancions} des boules de neige. Vous {(rire)>riiez} très fort. Les routes {(être)>étaient} glissantes. L'autobus ne {(passer)>passait} plus. Nous {(rester)>restions} à la maison. Je {(lire)>lisais} des bandes dessinées. Mon frère {(construire)>construisait} un igloo."
    },
    {
     "titre": "Au Moyen Âge",

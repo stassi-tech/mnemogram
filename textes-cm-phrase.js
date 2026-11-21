@@ -1,5 +1,5 @@
-/* textes-cm-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v26
-   à partir du Word « textes CM1-CM2 la phrase.docx », le 21/11/2026 10:25:35. Ne pas modifier à la main : corriger le Word. */
+/* textes-cm-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v30
+   à partir du Word « textes CM1-CM2 la phrase.docx », le 21/11/2026 14:52:35. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "cm-phnv": {
   "moteur": "tm",
@@ -269,7 +269,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le réveil",
-    "texte": "{neg::Je me lève toujours tôt.>Je ne me lève jamais tôt.} {int::Tu viens déjeuner.>Est-ce que tu viens déjeuner ?;Viens-tu déjeuner ?;Tu viens déjeuner ?} {imp::Tu ranges ta chambre.>Range ta chambre.} {aff::Il ne fait pas beau.>Il fait beau.} {neg::Quelqu'un frappe à la porte.>Personne ne frappe à la porte.} {int::Le facteur passe ce matin.>Est-ce que le facteur passe ce matin ?;Le facteur passe-t-il ce matin ?;Le facteur passe ce matin ?} {imp::Vous mettez vos manteaux.>Mettez vos manteaux.} {aff::Je n'ai plus faim.>J'ai encore faim.} {neg::Le bus arrive.>Le bus n'arrive pas.} {int::Vous avez vos cartables.>Est-ce que vous avez vos cartables ?;Avez-vous vos cartables ?;Vous avez vos cartables ?}"
+    "texte": "{neg::Je me lève toujours tôt.>Je ne me lève jamais tôt.} {int::Tu viens déjeuner.>Est-ce que tu viens déjeuner ?;Viens-tu déjeuner ?;Tu viens déjeuner ?} {imp::Tu ranges ta chambre.>Range ta chambre.} {aff::Il ne fait pas beau.>Il fait beau.} {neg::Quelqu'un frappe à la porte.>Personne ne frappe à la porte.} {int::Le facteur passe ce matin.>Est-ce que le facteur passe ce matin ?;Le facteur passe-t-il ce matin ?;Le facteur passe ce matin ?} {imp::Vous mettez vos manteaux.>Mettez vos manteaux.} {aff::Je n'ai plus faim.>J'ai encore faim.} {neg::L'autobus arrive.>L'autobus n'arrive pas.} {int::Vous avez vos cartables.>Est-ce que vous avez vos cartables ?;Avez-vous vos cartables ?;Vous avez vos cartables ?}"
    },
    {
     "titre": "Le jardin",

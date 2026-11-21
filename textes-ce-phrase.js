@@ -1,5 +1,5 @@
-/* textes-ce-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v21
-   à partir du Word « textes CE1-CE2 la phrase.docx », le 21/11/2026 07:50:01. Ne pas modifier à la main : corriger le Word. */
+/* textes-ce-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v30
+   à partir du Word « textes CE1-CE2 la phrase.docx », le 21/11/2026 14:52:34. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "ce-phr": {
   "moteur": "tm",
@@ -269,7 +269,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le matin",
-    "texte": "{neg::Je dors.>Je ne dors pas.} {int::Tu viens avec moi.>Est-ce que tu viens avec moi ?;Viens-tu avec moi ?;Tu viens avec moi ?} {imp::Tu fermes la fenêtre.>Ferme la fenêtre.} {aff::Il ne fait pas beau.>Il fait beau.} {neg::Le café est chaud.>Le café n'est pas chaud.} {int::Papa part tôt.>Est-ce que papa part tôt ?;Papa part-il tôt ?;Papa part tôt ?} {imp::Vous mangez vite.>Mangez vite.} {aff::Je ne trouve pas mes chaussures.>Je trouve mes chaussures.} {neg::Le bus arrive.>Le bus n'arrive pas.} {int::Tu as ton sac.>Est-ce que tu as ton sac ?;As-tu ton sac ?;Tu as ton sac ?}"
+    "texte": "{neg::Je dors.>Je ne dors pas.} {int::Tu viens avec moi.>Est-ce que tu viens avec moi ?;Viens-tu avec moi ?;Tu viens avec moi ?} {imp::Tu fermes la fenêtre.>Ferme la fenêtre.} {aff::Il ne fait pas beau.>Il fait beau.} {neg::Le café est chaud.>Le café n'est pas chaud.} {int::Papa part tôt.>Est-ce que papa part tôt ?;Papa part-il tôt ?;Papa part tôt ?} {imp::Vous mangez vite.>Mangez vite.} {aff::Je ne trouve pas mes chaussures.>Je trouve mes chaussures.} {neg::L'autobus arrive.>L'autobus n'arrive pas.} {int::Tu as ton sac.>Est-ce que tu as ton sac ?;As-tu ton sac ?;Tu as ton sac ?}"
    },
    {
     "titre": "Le jardin",
