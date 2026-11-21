@@ -1,5 +1,5 @@
-/* textes-ce-mots.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v21
-   à partir du Word « textes CE1-CE2 les mots.docx », le 21/11/2026 07:50:02. Ne pas modifier à la main : corriger le Word. */
+/* textes-ce-mots.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v34
+   à partir du Word « textes CE1-CE2 les mots.docx », le 21/11/2026 19:36:27. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "ce-noms": {
   "moteur": "tv",
@@ -31,7 +31,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "Les vacances des Martin",
-    "texte": "En {été|nc|ind}, la {famille|nc|ind} {Martin|np|ind} part en {Bretagne|np|ind}. Ils prennent le {train|nc|ind} à {Lyon|np|ind}. Leur {chien|nc|ind} {Rex|np|ind} voyage avec eux. À {Brest|np|ind}, ils visitent un {port|nc|ind}. {Julie|np|ind} achète une {carte|nc|ind} postale pour sa {mamie|nc|ind}."
+    "texte": "En {été|nc|ind}, la {famille|nc|ind} {Martin|np|ind} part en {Bretagne|np|ind}. Ils prennent le {train|nc|ind} à {Lyon|np|ind}. Leur {chien|nc|ind} {Rex|np|ind} voyage avec eux. À {Brest|np|ind}, ils visitent le {port|nc|ind}. {Julie|np|ind} achète une {carte|nc|ind} postale pour sa {mamie|nc|ind}."
    },
    {
     "titre": "Christophe Colomb",
@@ -69,11 +69,11 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Mon voisin",
-    "texte": "{Le|art|ind} chien de {mon|poss|ind} voisin aboie. {Cette|dem|ind} fleur est jolie. {Ma|poss|ind} sœur a {un|art|ind} lapin. {Ces|dem|ind} enfants jouent avec {des|art|ind} ballons. {Ton|poss|ind} vélo est dans {la|art|ind} cour. {Ce|dem|ind} gâteau est délicieux."
+    "texte": "{Lea|art|ind} chienne de {mon|poss|ind} voisin aboie. {Cette|dem|ind} chienne est jolie. {Ma|poss|ind} sœur, elle, a {un|art|ind} lapin. {Les|dem|ind} enfants aiment jouer avec {des|art|ind} animaux. {Mon|poss|ind} chat est dans {la|art|ind} cour. {Ce|dem|ind} chat est trop gentil!."
    },
    {
     "titre": "Dans la rue",
-    "texte": "{Mon|poss|ind} frère a {un|art|ind} vélo rouge. {Ma|poss|ind} sœur préfère {sa|poss|ind} trottinette. {Les|art|ind} voisins promènent {leur|poss|ind} chien. {Ce|dem|ind} chien porte {un|art|ind} collier bleu. {Mes|poss|ind} amis jouent dans {la|art|ind} rue. {Cette|dem|ind} rue est calme. {Nos|poss|ind} parents nous regardent par {la|art|ind} fenêtre."
+    "texte": "{Mon|poss|ind} frère a {un|art|ind} vélo rouge. {Ma|poss|ind} sœur préfère {sa|poss|ind} trottinette. {Les|art|ind} voisins promènent {leur|poss|ind} chien en voiture. {Ce|dem|ind} chien porte {un|art|ind} collier bleu. {Mes|poss|ind} amis jouent dans {la|art|ind} rue. {Cette|dem|ind} rue est calme. {Nos|poss|ind} parents nous regardent par {la|art|ind} fenêtre."
    },
    {
     "titre": "Les graines",
@@ -81,7 +81,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "Les histoires de grand-père",
-    "texte": "{Le|art|ind} soir, {mon|poss|ind} grand-père raconte {des|art|ind} histoires. {Ses|poss|ind} histoires parlent de {son|poss|ind} enfance. {Sa|poss|ind} maison était dans {un|art|ind} village. {Les|art|ind} enfants marchaient dans {la|art|ind} neige. {Leurs|poss|ind} chaussures étaient mouillées. {Cette|dem|ind} époque était dure. {Ces|dem|ind} enfants avaient {des|art|ind} sabots. {Leur|poss|ind} maîtresse chauffait {la|art|ind} classe avec {un|art|ind} poêle. {Ma|poss|ind} sœur et moi écoutons {ces|dem|ind} récits. {Notre|poss|ind} chat dort sur {mes|poss|ind} genoux."
+    "texte": "{Le|art|ind} soir, {mon|poss|ind} grand-père raconte {des|art|ind} histoires. {Ses|poss|ind} histoires parlent de {son|poss|ind} enfance. {Sa|poss|ind} maison était dans {un|art|ind} village. {Les|art|ind} enfants marchaient dans {la|art|ind} neige. {Leurs|poss|ind} chaussures étaient mouillées. {Cette|dem|ind} époque était dure. {Ces|dem|ind} enfants avaient même parfois {des|art|ind} sabots. {Leur|poss|ind} maîtresse chauffait {la|art|ind} classe avec {un|art|ind} poêle. {Ma|poss|ind} sœur et moi écoutons {ces|dem|ind} récits. {Notre|poss|ind} chat dort sur {mes|poss|ind} genoux."
    }
   ]
  },
