@@ -1,5 +1,5 @@
-/* textes-cm-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v24
-   à partir du Word « textes CM1-CM2 la phrase.docx », le 21/11/2026 08:50:07. Ne pas modifier à la main : corriger le Word. */
+/* textes-cm-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v26
+   à partir du Word « textes CM1-CM2 la phrase.docx », le 21/11/2026 10:25:35. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "cm-phnv": {
   "moteur": "tm",
@@ -48,19 +48,19 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le chat",
-    "texte": "{Mon chat dort toute la journée.|fa|ind} {Il ne chasse jamais les souris.|fn|ind} {Comme il est paresseux !|fae|ind} {Il aime les caresses.|fa|ind} {Il ne sort pas sous la pluie.|fn|ind} {Qu'il est doux !|fae|ind} {Il ne veut jamais jouer !|fne|ind} {Il mange beaucoup.|fa|ind} {Il n'a pas d'amis.|fn|ind} {Quel drôle de chat !|fae|ind}"
+    "texte": "{Mon chat dort toute la journée.|faf|ind} {Il ne chasse jamais les souris.|fn|ind} {Comme il est paresseux !|fae|ind} {Il aime les caresses.|faf|ind} {Il ne sort pas sous la pluie.|fn|ind} {Qu'il est doux !|fae|ind} {Il ne veut jamais jouer !|fne|ind} {Il mange beaucoup.|faf|ind} {Il n'a pas d'amis.|fn|ind} {Quel drôle de chat !|fae|ind}"
    },
    {
     "titre": "L'anniversaire",
-    "texte": "{C'est l'anniversaire de Lina.|fa|ind} {Ses amis arrivent.|fa|ind} {Quelle belle fête !|fae|ind} {Lina n'a pas encore ouvert ses cadeaux.|fn|ind} {Comme elle est impatiente !|fae|ind} {Elle déchire le papier.|fa|ind} {Ce n'est pas un livre !|fne|ind} {C'est un vélo !|fae|ind} {Lina n'en croit pas ses yeux.|fn|ind} {Elle remercie ses parents.|fa|ind} {Personne n'a oublié le gâteau.|fn|ind} {Que les bougies brillent !|fae|ind} {Elle ne les éteint pas du premier coup !|fne|ind}"
+    "texte": "{C'est l'anniversaire de Lina.|faf|ind} {Ses amis arrivent.|faf|ind} {Quelle belle fête !|fae|ind} {Lina n'a pas encore ouvert ses cadeaux.|fn|ind} {Comme elle est impatiente !|fae|ind} {Elle déchire le papier.|faf|ind} {Ce n'est pas un livre !|fne|ind} {C'est un vélo !|fae|ind} {Lina n'en croit pas ses yeux.|fn|ind} {Elle remercie ses parents.|faf|ind} {Personne n'a oublié le gâteau.|fn|ind} {Que les bougies brillent !|fae|ind} {Elle ne les éteint pas du premier coup !|fne|ind}"
    },
    {
     "titre": "La randonnée",
-    "texte": "{Nous partons en randonnée.|fa|ind} {Le chemin n'est pas facile.|fn|ind} {Que la montée est raide !|fae|ind} {Mon frère ne se plaint jamais.|fn|ind} {Il marche devant.|fa|ind} {Moi, je n'avance plus !|fne|ind} {Papa m'encourage.|fa|ind} {Le sommet n'est plus très loin.|fn|ind} {Quelle vue magnifique !|fae|ind} {On voit trois villages.|fa|ind} {Personne ne parle.|fn|ind} {Comme le silence est beau !|fae|ind} {Nous pique-niquons au soleil.|fa|ind} {Je n'ai jamais mangé un si bon sandwich !|fne|ind} {La descente est rapide.|fa|ind} {Nous ne sommes pas fatigués.|fn|ind}"
+    "texte": "{Nous partons en randonnée.|faf|ind} {Le chemin n'est pas facile.|fn|ind} {Que la montée est raide !|fae|ind} {Mon frère ne se plaint jamais.|fn|ind} {Il marche devant.|faf|ind} {Moi, je n'avance plus !|fne|ind} {Papa m'encourage.|faf|ind} {Le sommet n'est plus très loin.|fn|ind} {Quelle vue magnifique !|fae|ind} {On voit trois villages.|faf|ind} {Personne ne parle.|fn|ind} {Comme le silence est beau !|fae|ind} {Nous pique-niquons au soleil.|faf|ind} {Je n'ai jamais mangé un si bon sandwich !|fne|ind} {La descente est rapide.|faf|ind} {Nous ne sommes pas fatigués.|fn|ind}"
    },
    {
     "titre": "Le spectacle de magie",
-    "texte": "{Ce soir, nous allons voir un magicien.|fa|ind} {La salle est pleine.|fa|ind} {Le rideau ne s'ouvre pas encore.|fn|ind} {Que l'attente est longue !|fae|ind} {Enfin, le magicien apparaît.|fa|ind} {Il ne dit rien.|fn|ind} {Il sort un lapin de son chapeau.|fa|ind} {Quelle surprise !|fae|ind} {Personne ne comprend le tour.|fn|ind} {Comme il est habile !|fae|ind} {Il fait disparaître une carte.|fa|ind} {Mon frère ne la voit plus !|fne|ind} {Elle est dans ma poche !|fae|ind} {Je n'ai rien senti.|fn|ind} {Le magicien salue.|fa|ind} {Les enfants applaudissent.|fa|ind} {Je ne veux pas partir !|fne|ind} {Que ce spectacle était court !|fae|ind} {Je n'oublierai jamais cette soirée.|fn|ind} {Je deviendrai magicien.|fa|ind}"
+    "texte": "{Ce soir, nous allons voir un magicien.|faf|ind} {La salle est pleine.|faf|ind} {Le rideau ne s'ouvre pas encore.|fn|ind} {Que l'attente est longue !|fae|ind} {Enfin, le magicien apparaît.|faf|ind} {Il ne dit rien.|fn|ind} {Il sort un lapin de son chapeau.|faf|ind} {Quelle surprise !|fae|ind} {Personne ne comprend le tour.|fn|ind} {Comme il est habile !|fae|ind} {Il fait disparaître une carte.|faf|ind} {Mon frère ne la voit plus !|fne|ind} {Elle est dans ma poche !|fae|ind} {Je n'ai rien senti.|fn|ind} {Le magicien salue.|faf|ind} {Les enfants applaudissent.|faf|ind} {Je ne veux pas partir !|fne|ind} {Que ce spectacle était court !|fae|ind} {Je n'oublierai jamais cette soirée.|fn|ind} {Je deviendrai magicien.|faf|ind}"
    }
   ]
  },
