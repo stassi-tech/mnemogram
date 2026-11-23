@@ -1,5 +1,5 @@
-/* textes-cm-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v30
-   à partir du Word « textes CM1-CM2 la phrase.docx », le 21/11/2026 14:52:35. Ne pas modifier à la main : corriger le Word. */
+/* textes-cm-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v35
+   à partir du Word « textes CM1-CM2 la phrase.docx », le 23/11/2026 23:14:38. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "cm-phnv": {
   "moteur": "tm",
@@ -195,19 +195,19 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le matin",
-    "texte": "{Ce matin|ct|ind}, je me lève {tôt|ct|ind}. Je déjeune {dans la cuisine|cl|ind}. Je mange {rapidement|cmn|ind}. {À huit heures|ct|ind}, je pars {à l'école|cl|ind}. Je marche {d'un bon pas|cmn|ind}. {Devant le portail|cl|ind}, je retrouve Léa. Nous entrons {en riant|cmn|ind}. Nous jouons {dans la cour|cl|ind}."
+    "texte": "{Ce matin|ct|ngn}, je me lève {tôt|ct|nadv}. Je déjeune {dans la cuisine|cl|ngp}. Je mange {rapidement|cmn|nadv}. {À huit heures|ct|ngp}, je pars {à l'école|cl|ngp}. Je marche {d'un bon pas|cmn|ngp}. {Devant le portail|cl|ngp}, je retrouve Léa. Nous entrons {en riant|cmn|nger}. Nous jouons {dans la cour|cl|ngp}."
    },
    {
     "titre": "La plage",
-    "texte": "{Pendant les vacances|ct|ind}, nous allons {à la mer|cl|ind}. {Sur la plage|cl|ind}, les enfants jouent {joyeusement|cmn|ind}. Papa nage {loin du bord|cl|ind}. Maman lit {tranquillement|cmn|ind} {sous le parasol|cl|ind}. {L'après-midi|ct|ind}, nous construisons un château {avec soin|cmn|ind}. La mer monte {lentement|cmn|ind}. {Le soir|ct|ind}, nous rentrons {à l'hôtel|cl|ind}. Je m'endors {aussitôt|ct|ind}."
+    "texte": "{Pendant les vacances|ct|ngp}, nous allons {à la mer|cl|ngp}. {Sur la plage|cl|ngp}, les enfants jouent {joyeusement|cmn|nadv}. Papa nage {loin du bord|cl|ngp}. Maman lit {tranquillement|cmn|nadv} {sous le parasol|cl|ngp}. {L'après-midi|ct|ngn}, nous construisons un château {avec soin|cmn|ngp}. La mer monte {lentement|cmn|nadv}. {Le soir|ct|ngn}, nous rentrons {à l'hôtel|cl|ngp}. Je m'endors {aussitôt|ct|nadv}."
    },
    {
     "titre": "Le marché",
-    "texte": "{Chaque samedi|ct|ind}, mamie va {au marché|cl|ind}. Elle marche {sans se presser|cmn|ind}. {Sur la place|cl|ind}, les marchands crient {à pleine voix|cmn|ind}. Mamie choisit {soigneusement|cmn|ind} ses légumes. {Près de la fontaine|cl|ind}, un musicien joue {joyeusement|cmn|ind}. Les enfants dansent {autour de lui|cl|ind}. Mamie achète des fleurs {en souriant|cmn|ind}. {Vers midi|ct|ind}, elle rentre {chez elle|cl|ind}. Elle prépare le repas {avec plaisir|cmn|ind}. {L'après-midi|ct|ind}, elle se repose {dans son fauteuil|cl|ind}. Elle s'endort {très vite|cmn|ind}."
+    "texte": "{Chaque samedi|ct|ngn}, mamie va {au marché|cl|ngp}. Elle marche {sans se presser|cmn|ngp}. {Sur la place|cl|ngp}, les marchands crient {à pleine voix|cmn|ngp}. Mamie choisit {soigneusement|cmn|nadv} ses légumes. {Près de la fontaine|cl|ngp}, un musicien joue {joyeusement|cmn|nadv}. Les enfants dansent {autour de lui|cl|ngp}. Mamie achète des fleurs {en souriant|cmn|nger}. {Vers midi|ct|ngp}, elle rentre {chez elle|cl|ngp}. Elle prépare le repas {avec plaisir|cmn|ngp}. {L'après-midi|ct|ngn}, elle se repose {dans son fauteuil|cl|ngp}. Elle s'endort {très vite|cmn|ngadv}."
    },
    {
     "titre": "Le tour de France",
-    "texte": "{Chaque été|ct|ind}, le Tour de France traverse le pays. {Dans les villages|cl|ind}, les habitants attendent {avec impatience|cmn|ind}. {Depuis le matin|ct|ind}, ils sont installés {au bord de la route|cl|ind}. {Vers midi|ct|ind}, la caravane publicitaire passe {bruyamment|cmn|ind}. Les enfants ramassent {vite|cmn|ind} les cadeaux. {Une heure plus tard|ct|ind}, les coureurs arrivent {à toute vitesse|cmn|ind}. Ils passent {en un éclair|cmn|ind}. {Dans la montée|cl|ind}, les spectateurs les encouragent {en criant|cmn|ind}. Le maillot jaune grimpe {sans effort|cmn|ind}. {En haut du col|cl|ind}, il attaque {brusquement|cmn|ind}. {Le soir|ct|ind}, tout le monde regarde l'arrivée {devant la télévision|cl|ind}. {Le lendemain|ct|ind}, le Tour repart {vers les Alpes|cl|ind}."
+    "texte": "{Chaque été|ct|ngn}, le Tour de France traverse le pays. {Dans les villages|cl|ngp}, les habitants attendent {avec impatience|cmn|ngp}. {Depuis le matin|ct|ngp}, ils sont installés {au bord de la route|cl|ngp}. {Vers midi|ct|ngp}, la caravane publicitaire passe {bruyamment|cmn|nadv}. Les enfants ramassent {vite|cmn|nadv} les cadeaux. {Une heure plus tard|ct|ngn}, les coureurs arrivent {à toute vitesse|cmn|ngp}. Ils passent {en un éclair|cmn|ngp}. {Dans la montée|cl|ngp}, les spectateurs les encouragent {en criant|cmn|nger}. Le maillot jaune grimpe {sans effort|cmn|ngp}. {En haut du col|cl|ngp}, il attaque {brusquement|cmn|nadv}. {Le soir|ct|ngn}, tout le monde regarde l'arrivée {devant la télévision|cl|ngp}. {Le lendemain|ct|ngn}, le Tour repart {vers les Alpes|cl|ngp}."
    }
   ]
  },

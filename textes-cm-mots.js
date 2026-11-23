@@ -1,5 +1,5 @@
-/* textes-cm-mots.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v22
-   à partir du Word « textes CM1-CM2 les mots.docx », le 21/11/2026 08:19:41. Ne pas modifier à la main : corriger le Word. */
+/* textes-cm-mots.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v35
+   à partir du Word « textes CM1-CM2 les mots.docx », le 23/11/2026 23:14:40. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "cm-nat": {
   "moteur": "tm",
@@ -90,19 +90,19 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le jardinier",
-    "texte": "Le jardinier arrose {les fleurs|cv|ind} {chaque matin|cp|ind}. Il taille {les rosiers|cv|ind} {avec soin|cp|ind}. {Dans la serre|cp|ind}, il sème {des tomates|cv|ind}. Il parle {à ses plantes|cv|ind} {doucement|cp|ind}. {Le soir|cp|ind}, il range {ses outils|cv|ind}."
+    "texte": "Le jardinier arrose {les fleurs|cv|ngn} {chaque matin|cp|ngn}. Il taille {les rosiers|cv|ngn} {avec soin|cp|ngp}. {Dans la serre|cp|ngp}, il sème {des tomates|cv|ngn}. Il parle {à ses plantes|cv|ngp} {doucement|cp|nadv}. {Le soir|cp|ngn}, il range {ses outils|cv|ngn}."
    },
    {
     "titre": "La bibliothèque",
-    "texte": "{Le mercredi|cp|ind}, Inès emprunte {des romans|cv|ind} {à la bibliothèque|cp|ind}. Elle choisit {un livre d'aventures|cv|ind}. {Dans la salle de lecture|cp|ind}, elle lit {les premières pages|cv|ind}. Elle écrit {à son amie|cv|ind} {le soir même|cp|ind}. Elle lui raconte {l'histoire|cv|ind} {en détail|cp|ind}. {Avec enthousiasme|cp|ind}, elle recommande {ce livre|cv|ind}. {Le lendemain|cp|ind}, son amie l'emprunte."
+    "texte": "{Le mercredi|cp|ngn}, Inès emprunte {des romans|cv|ngn} {à la bibliothèque|cp|ngp}. Elle choisit {un livre d'aventures|cv|ngn}. {Dans la salle de lecture|cp|ngp}, elle lit {les premières pages|cv|ngn}. Elle écrit {à son amie|cv|ngp} {le soir même|cp|ngn}. Elle lui raconte {l'histoire|cv|ngn} {en détail|cp|ngp}. {Avec enthousiasme|cp|ngp}, elle recommande {ce livre|cv|ngn}. {Le lendemain|cp|ngn}, son amie l'emprunte."
    },
    {
     "titre": "Le cuisinier",
-    "texte": "{Depuis vingt ans|cp|ind}, Paolo prépare {des pizzas|cv|ind} {dans son petit restaurant|cp|ind}. {Chaque matin|cp|ind}, il pétrit {la pâte|cv|ind} {à la main|cp|ind}. Il achète {ses tomates|cv|ind} {au marché|cp|ind}. Il parle {à ses clients|cv|ind} {avec gentillesse|cp|ind}. Il cuit {les pizzas|cv|ind} {dans un four à bois|cp|ind}. {Le dimanche|cp|ind}, il ferme {son restaurant|cv|ind}. Il pense {à ses recettes|cv|ind} {la nuit|cp|ind}."
+    "texte": "{Depuis vingt ans|cp|ngp}, Paolo prépare {des pizzas|cv|ngn} {dans son petit restaurant|cp|ngp}. {Chaque matin|cp|ngn}, il pétrit {la pâte|cv|ngn} {à la main|cp|ngp}. Il achète {ses tomates|cv|ngn} {au marché|cp|ngp}. Il parle {à ses clients|cv|ngp} {avec gentillesse|cp|ngp}. Il cuit {les pizzas|cv|ngn} {dans un four à bois|cp|ngp}. {Le dimanche|cp|ngn}, il ferme {son restaurant|cv|ngn}. Il pense {à ses recettes|cv|ngp} {la nuit|cp|ngn}."
    },
    {
     "titre": "Le voyage de Clara",
-    "texte": "{L'été dernier|cp|ind}, Clara a visité {l'Italie|cv|ind} {avec ses parents|cp|ind}. {À Rome|cp|ind}, elle a admiré {le Colisée|cv|ind}. Elle a goûté {des glaces|cv|ind} {sur une petite place|cp|ind}. {À Florence|cp|ind}, elle a dessiné {des statues|cv|ind} {avec application|cp|ind}. {À Venise|cp|ind}, elle a pris {une gondole|cv|ind}. Elle a écrit {à ses grands-parents|cv|ind} {chaque soir|cp|ind}. Elle leur a envoyé {des cartes postales|cv|ind}. Elle a acheté {un masque|cv|ind} {pour son frère|cp|ind}. {Au retour|cp|ind}, elle a montré {ses photos|cv|ind} {à toute la classe|cp|ind}."
+    "texte": "{L'été dernier|cp|ngn}, Clara a visité {l'Italie|cv|ngn} {avec ses parents|cp|ngp}. {À Rome|cp|ngp}, elle a admiré {le Colisée|cv|ngn}. Elle a goûté {des glaces|cv|ngn} {sur une petite place|cp|ngp}. {À Florence|cp|ngp}, elle a dessiné {des statues|cv|ngn} {avec application|cp|ngp}. {À Venise|cp|ngp}, elle a pris {une gondole|cv|ngn}. Elle a écrit {à ses grands-parents|cv|ngp} {chaque soir|cp|ngn}. Elle leur a envoyé {des cartes postales|cv|ngn}. Elle a acheté {un masque|cv|ngn} {pour son frère|cp|ngp}. {Au retour|cp|ngp}, elle a montré {ses photos|cv|ngn} {à toute la classe|cp|ngp}."
    }
   ]
  },
@@ -111,19 +111,19 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le chaton",
-    "texte": "Le chaton est {minuscule|att|ind}. Il boit {du lait|cv|ind}. Il semble {fatigué|att|ind}. Il cherche {sa mère|cv|ind}. Elle reste {introuvable|att|ind}. Léa prend {le chaton|cv|ind}. Il devient {calme|att|ind}. Il lèche {sa main|cv|ind}. Il paraît {heureux|att|ind}. Léa garde {le chaton|cv|ind}."
+    "texte": "Le chaton est {minuscule|att|nadj}. Il boit {du lait|cv|ngn}. Il semble {fatigué|att|nadj}. Il cherche {sa mère|cv|ngn}. Elle reste {introuvable|att|nadj}. Léa prend {le chaton|cv|ngn}. Il devient {calme|att|nadj}. Il lèche {sa main|cv|ngn}. Il paraît {heureux|att|nadj}. Léa garde {le chaton|cv|ngn}."
    },
    {
     "titre": "Le château",
-    "texte": "Ce château est {immense|att|ind}. Ses murs sont {épais|att|ind}. Les visiteurs admirent {les tours|cv|ind}. Le guide ouvre {une porte secrète|cv|ind}. L'escalier paraît {interminable|att|ind}. Les enfants comptent {les marches|cv|ind}. En haut, la vue est {magnifique|att|ind}. On aperçoit {la rivière|cv|ind}. Le château devient {sombre|att|ind} le soir. Le gardien ferme {les grilles|cv|ind}. Les enfants restent {émerveillés|att|ind}. Ils dessinent {le donjon|cv|ind}. Le retour semble {court|att|ind}."
+    "texte": "Ce château est {immense|att|nadj}. Ses murs sont {épais|att|nadj}. Les visiteurs admirent {les tours|cv|ngn}. Le guide ouvre {une porte secrète|cv|ngn}. L'escalier paraît {interminable|att|nadj}. Les enfants comptent {les marches|cv|ngn}. En haut, la vue est {magnifique|att|nadj}. On aperçoit {la rivière|cv|ngn}. Le château devient {sombre|att|nadj} le soir. Le gardien ferme {les grilles|cv|ngn}. Les enfants restent {émerveillés|att|nadj}. Ils dessinent {le donjon|cv|ngn}. Le retour semble {court|att|nadj}."
    },
    {
     "titre": "Le match",
-    "texte": "Le stade est {plein|att|ind}. Les joueurs saluent {le public|cv|ind}. L'arbitre siffle {le début|cv|ind}. Notre équipe semble {nerveuse|att|ind}. Elle perd {le ballon|cv|ind}. Les adversaires marquent {un but|cv|ind}. Le capitaine reste {calme|att|ind}. Il encourage {ses coéquipiers|cv|ind}. Peu à peu, l'équipe devient {plus forte|att|ind}. Tom tire {un penalty|cv|ind}. Le gardien paraît {surpris|att|ind}. Le score est {égal|att|ind}. À la fin, nous marquons {le but de la victoire|cv|ind}. Les supporters sont {fous de joie|att|ind}. Ils agitent {leurs drapeaux|cv|ind}. Les joueurs sont {épuisés|att|ind}."
+    "texte": "Le stade est {plein|att|nadj}. Les joueurs saluent {le public|cv|ngn}. L'arbitre siffle {le début|cv|ngn}. Notre équipe semble {nerveuse|att|nadj}. Elle perd {le ballon|cv|ngn}. Les adversaires marquent {un but|cv|ngn}. Le capitaine reste {calme|att|nadj}. Il encourage {ses coéquipiers|cv|ngn}. Peu à peu, l'équipe devient {plus forte|att|ngadj}. Tom tire {un penalty|cv|ngn}. Le gardien paraît {surpris|att|nadj}. Le score est {égal|att|nadj}. À la fin, nous marquons {le but de la victoire|cv|ngn}. Les supporters sont {fous de joie|att|ngadj}. Ils agitent {leurs drapeaux|cv|ngn}. Les joueurs sont {épuisés|att|nadj}."
    },
    {
     "titre": "L'orage d'été",
-    "texte": "L'après-midi était {chaud|att|ind}. Le ciel devint {noir|att|ind}. Le vent agita {les arbres|cv|ind}. Grand-mère ferma {les volets|cv|ind}. Elle semblait {inquiète|att|ind}. Le premier éclair illumina {la vallée|cv|ind}. Le tonnerre fut {terrible|att|ind}. Le chien resta {immobile|att|ind} sous la table. La pluie frappait {les vitres|cv|ind}. Grand-père alluma {une bougie|cv|ind}. La maison paraissait {fragile|att|ind}. Nous racontions {des histoires|cv|ind}. Peu à peu, l'orage devint {moins violent|att|ind}. Le ciel redevint {clair|att|ind}. Nous ouvrîmes {les fenêtres|cv|ind}. L'air était {frais|att|ind}. Les fleurs du jardin paraissaient {abîmées|att|ind}. Grand-mère ramassa {les branches|cv|ind}. Le soleil réchauffa {le jardin|cv|ind}. Tout le monde était {soulagé|att|ind}."
+    "texte": "L'après-midi était {chaud|att|nadj}. Le ciel devint {noir|att|nadj}. Le vent agita {les arbres|cv|ngn}. Grand-mère ferma {les volets|cv|ngn}. Elle semblait {inquiète|att|nadj}. Le premier éclair illumina {la vallée|cv|ngn}. Le tonnerre fut {terrible|att|nadj}. Le chien resta {immobile|att|nadj} sous la table. La pluie frappait {les vitres|cv|ngn}. Grand-père alluma {une bougie|cv|ngn}. La maison paraissait {fragile|att|nadj}. Nous racontions {des histoires|cv|ngn}. Peu à peu, l'orage devint {moins violent|att|ngadj}. Le ciel redevint {clair|att|nadj}. Nous ouvrîmes {les fenêtres|cv|ngn}. L'air était {frais|att|nadj}. Les fleurs du jardin paraissaient {abîmées|att|nadj}. Grand-mère ramassa {les branches|cv|ngn}. Le soleil réchauffa {le jardin|cv|ngn}. Tout le monde était {soulagé|att|nadj}."
    }
   ]
  },
@@ -132,19 +132,19 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "La maison de Paul",
-    "texte": "Paul habite une {petite|epi|ind} maison {de pierre|cdn|ind}. Elle a des volets {bleus|epi|ind} et un toit {d'ardoise|cdn|ind}. Dans le jardin {de sa grand-mère|cdn|ind}, il y a un {vieux|epi|ind} puits {profond|epi|ind}. Paul aime cette maison {tranquille|epi|ind}. Ses fenêtres {étroites|epi|ind} donnent sur un champ {de blé|cdn|ind}."
+    "texte": "Paul habite une {petite|epi|nadj} maison {de pierre|cdn|ngp}. Elle a des volets {bleus|epi|nadj} et un toit {d'ardoise|cdn|ngp}. Dans le jardin {de sa grand-mère|cdn|ngp}, il y a un {vieux|epi|nadj} puits {profond|epi|nadj}. Paul aime cette maison {tranquille|epi|nadj}. Ses fenêtres {étroites|epi|nadj} donnent sur un champ {de blé|cdn|ngp}."
    },
    {
     "titre": "La boulangerie",
-    "texte": "La boulangerie {du village|cdn|ind} ouvre à six heures. Le pain {chaud|epi|ind} attire les clients {matinaux|epi|ind}. On y vend des croissants {au beurre|cdn|ind}, des tartes {aux pommes|cdn|ind} et de {délicieux|epi|ind} gâteaux {au chocolat|cdn|ind}. Elle porte un tablier {blanc|epi|ind}. La boulangère {souriante|epi|ind} sert une {longue|epi|ind} file {d'attente|cdn|ind}. L'odeur {du pain|cdn|ind} remplit la rue {étroite|epi|ind}."
+    "texte": "La boulangerie {du village|cdn|ngp} ouvre à six heures. Le pain {chaud|epi|nadj} attire les clients {matinaux|epi|nadj}. On y vend des croissants {au beurre|cdn|ngp}, des tartes {aux pommes|cdn|ngp} et de {délicieux|epi|nadj} gâteaux {au chocolat|cdn|ngp}. Elle porte un tablier {blanc|epi|nadj}. La boulangère {souriante|epi|nadj} sert une {longue|epi|nadj} file {d'attente|cdn|ngp}. L'odeur {du pain|cdn|ngp} remplit la rue {étroite|epi|nadj}."
    },
    {
     "titre": "Le musée",
-    "texte": "Le musée {des beaux-arts|cdn|ind} présente une exposition {nouvelle|epi|ind}. Dans la {grande|epi|ind} salle, on admire des tableaux {anciens|epi|ind} et des statues {de marbre|cdn|ind}. Un portrait {de reine|cdn|ind} attire les visiteurs {curieux|epi|ind}. Ses yeux {verts|epi|ind} semblent suivre le public. Le guide {passionné|epi|ind} raconte l'histoire {du peintre|cdn|ind}. Une vitrine {de verre|cdn|ind} protège des bijoux {précieux|epi|ind}. Les élèves {de la classe|cdn|ind} prennent des notes {rapides|epi|ind}. La visite {guidée|epi|ind} dure une heure {entière|epi|ind}."
+    "texte": "Le musée {des beaux-arts|cdn|ngp} présente une exposition {nouvelle|epi|nadj}. Dans la {grande|epi|nadj} salle, on admire des tableaux {anciens|epi|nadj} et des statues {de marbre|cdn|ngp}. Un portrait {de reine|cdn|ngp} attire les visiteurs {curieux|epi|nadj}. Ses yeux {verts|epi|nadj} semblent suivre le public. Le guide {passionné|epi|nadj} raconte l'histoire {du peintre|cdn|ngp}. Une vitrine {de verre|cdn|ngp} protège des bijoux {précieux|epi|nadj}. Les élèves {de la classe|cdn|ngp} prennent des notes {rapides|epi|nadj}. La visite {guidée|epi|nadj} dure une heure {entière|epi|nadj}."
    },
    {
     "titre": "Le port de pêche",
-    "texte": "Le port {de Concarneau|cdn|ind} s'éveille à l'aube. Les {petits|epi|ind} bateaux {de pêche|cdn|ind} rentrent au port {fatigués|epi|ind}. Les marins {bretons|epi|ind} déchargent des caisses {de poissons|cdn|ind}. Les mouettes {affamées|epi|ind} tournent au-dessus des filets {mouillés|epi|ind}. Sur le quai {de granit|cdn|ind}, les acheteurs {du marché|cdn|ind} examinent les sardines {argentées|epi|ind} et les crabes {énormes|epi|ind}. Un {vieux|epi|ind} pêcheur {à la barbe blanche|cdn|ind} raconte une histoire {de tempête|cdn|ind}. Les enfants {du village|cdn|ind} écoutent ce récit {extraordinaire|epi|ind}. Le soleil {d'hiver|cdn|ind} éclaire les maisons {colorées|epi|ind} {du quai|cdn|ind}."
+    "texte": "Le port {de Concarneau|cdn|ngp} s'éveille à l'aube. Les {petits|epi|nadj} bateaux {de pêche|cdn|ngp} rentrent au port {fatigués|epi|nadj}. Les marins {bretons|epi|nadj} déchargent des caisses {de poissons|cdn|ngp}. Les mouettes {affamées|epi|nadj} tournent au-dessus des filets {mouillés|epi|nadj}. Sur le quai {de granit|cdn|ngp}, les acheteurs {du marché|cdn|ngp} examinent les sardines {argentées|epi|nadj} et les crabes {énormes|epi|nadj}. Un {vieux|epi|nadj} pêcheur {à la barbe blanche|cdn|ngp} raconte une histoire {de tempête|cdn|ngp}. Les enfants {du village|cdn|ngp} écoutent ce récit {extraordinaire|epi|nadj}. Le soleil {d'hiver|cdn|ngp} éclaire les maisons {colorées|epi|nadj} {du quai|cdn|ngp}."
    }
   ]
  },

@@ -1,5 +1,5 @@
-/* textes-ce-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v30
-   à partir du Word « textes CE1-CE2 la phrase.docx », le 21/11/2026 14:52:34. Ne pas modifier à la main : corriger le Word. */
+/* textes-ce-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v35
+   à partir du Word « textes CE1-CE2 la phrase.docx », le 23/11/2026 23:14:35. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "ce-phr": {
   "moteur": "tm",
@@ -174,19 +174,19 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le chat",
-    "texte": "{Le chat|suj|ind} {attrape|vb|ind} {une souris|cpl|ind}. {Ma sœur|suj|ind} {chante|vb|ind}. {Papa|suj|ind} {lave|vb|ind} {la voiture|cpl|ind}. {Bébé|suj|ind} {dort|vb|ind}."
+    "texte": "{Le chat|suj|ngn} {attrape|vb|nvb} {une souris|cpl|ngn}. {Ma sœur|suj|ngn} {chante|vb|nvb}. {Papa|suj|nnp} {lave|vb|nvb} {la voiture|cpl|ngn}. {Bébé|suj|nnp} {dort|vb|nvb}."
    },
    {
     "titre": "En classe",
-    "texte": "{La maîtresse|suj|ind} {lit|vb|ind} {une histoire|cpl|ind}. {Les élèves|suj|ind} {écoutent|vb|ind}. {Tom|suj|ind} {dessine|vb|ind} {un dragon|cpl|ind}. {Nous|suj|ind} {copions|vb|ind} {la poésie|cpl|ind}. {La cloche|suj|ind} {sonne|vb|ind}."
+    "texte": "{La maîtresse|suj|ngn} {lit|vb|nvb} {une histoire|cpl|ngn}. {Les élèves|suj|ngn} {écoutent|vb|nvb}. {Tom|suj|nnp} {dessine|vb|nvb} {un dragon|cpl|ngn}. {Nous|suj|nppers} {copions|vb|nvb} {la poésie|cpl|ngn}. {La cloche|suj|ngn} {sonne|vb|nvb}."
    },
    {
     "titre": "Au jardin",
-    "texte": "{Mon grand-père|suj|ind} {plante|vb|ind} {des tomates|cpl|ind}. {Le chien|suj|ind} {creuse|vb|ind} {un trou|cpl|ind}. {Les oiseaux|suj|ind} {mangent|vb|ind} {les cerises|cpl|ind}. {Ma grand-mère|suj|ind} {cueille|vb|ind} {des fleurs|cpl|ind}. {Le soleil|suj|ind} {brille|vb|ind}. {Je|suj|ind} {chante|vb|ind}."
+    "texte": "{Mon grand-père|suj|ngn} {plante|vb|nvb} {des tomates|cpl|ngn}. {Le chien|suj|ngn} {creuse|vb|nvb} {un trou|cpl|ngn}. {Les oiseaux|suj|ngn} {mangent|vb|nvb} {les cerises|cpl|ngn}. {Ma grand-mère|suj|ngn} {cueille|vb|nvb} {des fleurs|cpl|ngn}. {Le soleil|suj|ngn} {brille|vb|nvb}. {Je|suj|nppers} {chante|vb|nvb}."
    },
    {
     "titre": "Le cirque",
-    "texte": "{Le clown|suj|ind} {fait|vb|ind} {des grimaces|cpl|ind}. {Les enfants|suj|ind} {rient|vb|ind}. {Un éléphant|suj|ind} {porte|vb|ind} {une danseuse|cpl|ind}. {Le jongleur|suj|ind} {lance|vb|ind} {cinq balles|cpl|ind}. {Nous|suj|ind} {applaudissons|vb|ind}. {Le lion|suj|ind} {rugit|vb|ind}. {Mon petit frère|suj|ind} {rit|vb|ind}. {Le dompteur|suj|ind} {salue|vb|ind} {le public|cpl|ind}."
+    "texte": "{Le clown|suj|ngn} {fait|vb|nvb} {des grimaces|cpl|ngn}. {Les enfants|suj|ngn} {rient|vb|nvb}. {Un éléphant|suj|ngn} {porte|vb|nvb} {une danseuse|cpl|ngn}. {Le jongleur|suj|ngn} {lance|vb|nvb} {cinq balles|cpl|ngn}. {Nous|suj|nppers} {applaudissons|vb|nvb}. {Le lion|suj|ngn} {rugit|vb|nvb}. {Mon petit frère|suj|ngn} {rit|vb|nvb}. {Le dompteur|suj|ngn} {salue|vb|nvb} {le public|cpl|ngn}."
    }
   ]
  },

@@ -803,3 +803,28 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .tf-bande.type { background:#2f5fb3; color:#fff; }
 .tf-bande.forme { background:#2e8b57; color:#fff; }
 .tm-q2 { margin:10px 0 6px; }
+
+/* v92 : le bleu pour ce qui n'est ni une nature ni une fonction (la modalisation) */
+:root { --mod-blue:#2c6aa0; --mod-blue-dark:#1d4c75; }
+.nature-button.bleu-button { background:var(--mod-blue); border-color:var(--mod-blue-dark); color:#fff; }
+@media (hover:hover) { .nature-button.bleu-button:hover:not(:disabled) { background:var(--mod-blue-dark); } }
+.nature-button.bleu-button.correct { background:var(--mod-blue); border-color:var(--mod-blue-dark); box-shadow:0 0 0 3px #ffe066; }
+.carte.bleue { border-color:var(--mod-blue); background:#e8f0f8; }
+.carte.bleue p { color:#1d4c75; }
+.game4 .sentence .w .lab.bleu, .lab.bleu { background:var(--mod-blue); }
+
+/* v94 : type, forme et voix des phrases : trois nuances de bleu (bleu nuit : type ; bleu franc : forme ; bleu ciel : voix) */
+#natures-panel.sx-bleus { --sx-b1:#1a3a7a; --sx-b2:#2a6fdb; --sx-b3:#4fa3e0; }
+#natures-panel.sx-bleus .sx-lane.bleu, #natures-panel.sx-bleus .sx-lane.bleu .sx-etq.deborde, #natures-panel.sx-bleus .sx-bande-btn.syn { background:var(--sx-b1); }
+#natures-panel.sx-bleus .sx-lane.vert, #natures-panel.sx-bleus .sx-lane.vert .sx-etq.deborde, #natures-panel.sx-bleus .sx-bande-btn.nat { background:var(--sx-b2); }
+#natures-panel.sx-bleus .sx-lane.rouge, #natures-panel.sx-bleus .sx-lane.rouge .sx-etq.deborde, #natures-panel.sx-bleus .sx-bande-btn.fn { background:var(--sx-b3); }
+#natures-panel.sx-bleus .sx-lane.vide.bleu { background:rgba(26,58,122,.45); border-color:rgba(170,190,240,.8); }
+#natures-panel.sx-bleus .sx-lane.vide.vert { background:rgba(42,111,219,.38); border-color:rgba(170,200,255,.8); }
+#natures-panel.sx-bleus .sx-lane.vide.rouge { background:rgba(79,163,224,.38); border-color:rgba(190,225,255,.85); }
+#natures-panel.sx-bleus .sx-lane.faux { background:#b3261e !important; }
+#natures-panel.sx-bleus .carte.sx-carte.bleue { border-color:var(--sx-b1); background:#e9eef8; }
+#natures-panel.sx-bleus .carte.sx-carte.bleue p { color:#1a3a7a; }
+#natures-panel.sx-bleus .carte.sx-carte.verte { border-color:var(--sx-b2); background:#eef4ff; }
+#natures-panel.sx-bleus .carte.sx-carte.verte p { color:#173d7a; }
+#natures-panel.sx-bleus .carte.sx-carte.rouge { border-color:var(--sx-b3); background:#eef7fd; }
+#natures-panel.sx-bleus .carte.sx-carte.rouge p { color:#1d5a85; }

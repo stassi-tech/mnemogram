@@ -1,5 +1,5 @@
-/* textes-65-temps.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v30
-   à partir du Word « textes 6e-5e les temps et les modes.docx », le 21/11/2026 14:52:33. Ne pas modifier à la main : corriger le Word. */
+/* textes-65-temps.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v35
+   à partir du Word « textes 6e-5e les temps et les modes.docx », le 23/11/2026 23:14:32. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "c65-ps": {
   "moteur": "tf",
