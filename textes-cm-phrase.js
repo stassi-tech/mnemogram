@@ -1,5 +1,5 @@
-/* textes-cm-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v35
-   à partir du Word « textes CM1-CM2 la phrase.docx », le 23/11/2026 23:14:38. Ne pas modifier à la main : corriger le Word. */
+/* textes-cm-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v36
+   à partir du Word « textes CM1-CM2 la phrase.docx », le 24/11/2026 00:15:38. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "cm-phnv": {
   "moteur": "tm",
@@ -195,19 +195,19 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le matin",
-    "texte": "{Ce matin|ct|ngn}, je me lève {tôt|ct|nadv}. Je déjeune {dans la cuisine|cl|ngp}. Je mange {rapidement|cmn|nadv}. {À huit heures|ct|ngp}, je pars {à l'école|cl|ngp}. Je marche {d'un bon pas|cmn|ngp}. {Devant le portail|cl|ngp}, je retrouve Léa. Nous entrons {en riant|cmn|nger}. Nous jouons {dans la cour|cl|ngp}."
+    "texte": "Ce {matin|ct|nnc|du verbe se lever}, je me lève {tôt|ct|nadv|du verbe se lever}. Je déjeune dans la {cuisine|cl|nnc|du verbe déjeuner}. Je mange {rapidement|cmn|nadv|du verbe manger}. À huit {heures|ct|nnc|du verbe partir}, je pars à l'{école|cl|nnc|du verbe partir}. Je marche d'un bon {pas|cmn|nnc|du verbe marcher}. Devant le {portail|cl|nnc|du verbe retrouver}, je retrouve Léa. Nous entrons {en riant|cmn|nger|du verbe entrer}. Nous jouons dans la {cour|cl|nnc|du verbe jouer}."
    },
    {
     "titre": "La plage",
-    "texte": "{Pendant les vacances|ct|ngp}, nous allons {à la mer|cl|ngp}. {Sur la plage|cl|ngp}, les enfants jouent {joyeusement|cmn|nadv}. Papa nage {loin du bord|cl|ngp}. Maman lit {tranquillement|cmn|nadv} {sous le parasol|cl|ngp}. {L'après-midi|ct|ngn}, nous construisons un château {avec soin|cmn|ngp}. La mer monte {lentement|cmn|nadv}. {Le soir|ct|ngn}, nous rentrons {à l'hôtel|cl|ngp}. Je m'endors {aussitôt|ct|nadv}."
+    "texte": "Pendant les {vacances|ct|nnc|du verbe aller}, nous allons à la {mer|cl|nnc|du verbe aller}. Sur la {plage|cl|nnc|du verbe jouer}, les enfants jouent {joyeusement|cmn|nadv|du verbe jouer}. Papa nage loin du {bord|cl|nnc|du verbe nager}. Maman lit {tranquillement|cmn|nadv|du verbe lire} sous le {parasol|cl|nnc|du verbe lire}. L'{après-midi|ct|nnc|du verbe construire}, nous construisons un château avec {soin|cmn|nnc|du verbe construire}. La mer monte {lentement|cmn|nadv|du verbe monter}. Le {soir|ct|nnc|du verbe rentrer}, nous rentrons à l'{hôtel|cl|nnc|du verbe rentrer}. Je m'endors {aussitôt|ct|nadv|du verbe s'endormir}."
    },
    {
     "titre": "Le marché",
-    "texte": "{Chaque samedi|ct|ngn}, mamie va {au marché|cl|ngp}. Elle marche {sans se presser|cmn|ngp}. {Sur la place|cl|ngp}, les marchands crient {à pleine voix|cmn|ngp}. Mamie choisit {soigneusement|cmn|nadv} ses légumes. {Près de la fontaine|cl|ngp}, un musicien joue {joyeusement|cmn|nadv}. Les enfants dansent {autour de lui|cl|ngp}. Mamie achète des fleurs {en souriant|cmn|nger}. {Vers midi|ct|ngp}, elle rentre {chez elle|cl|ngp}. Elle prépare le repas {avec plaisir|cmn|ngp}. {L'après-midi|ct|ngn}, elle se repose {dans son fauteuil|cl|ngp}. Elle s'endort {très vite|cmn|ngadv}."
+    "texte": "Chaque {samedi|ct|nnc|du verbe aller}, mamie va au {marché|cl|nnc|du verbe aller}. Elle marche sans se {presser|cmn|ninf|du verbe marcher}. Sur la {place|cl|nnc|du verbe crier}, les marchands crient à pleine {voix|cmn|nnc|du verbe crier}. Mamie choisit {soigneusement|cmn|nadv|du verbe choisir} ses légumes. Près de la {fontaine|cl|nnc|du verbe jouer}, un musicien joue {joyeusement|cmn|nadv|du verbe jouer}. Les enfants dansent autour de {lui|cl|nppers|du verbe danser}. Mamie achète des fleurs {en souriant|cmn|nger|du verbe acheter}. Vers {midi|ct|nnc|du verbe rentrer}, elle rentre chez {elle|cl|nppers|du verbe rentrer}. Elle prépare le repas avec {plaisir|cmn|nnc|du verbe préparer}. L'{après-midi|ct|nnc|du verbe se reposer}, elle se repose dans son {fauteuil|cl|nnc|du verbe se reposer}. Elle s'endort très {vite|cmn|nadv|du verbe s'endormir}."
    },
    {
     "titre": "Le tour de France",
-    "texte": "{Chaque été|ct|ngn}, le Tour de France traverse le pays. {Dans les villages|cl|ngp}, les habitants attendent {avec impatience|cmn|ngp}. {Depuis le matin|ct|ngp}, ils sont installés {au bord de la route|cl|ngp}. {Vers midi|ct|ngp}, la caravane publicitaire passe {bruyamment|cmn|nadv}. Les enfants ramassent {vite|cmn|nadv} les cadeaux. {Une heure plus tard|ct|ngn}, les coureurs arrivent {à toute vitesse|cmn|ngp}. Ils passent {en un éclair|cmn|ngp}. {Dans la montée|cl|ngp}, les spectateurs les encouragent {en criant|cmn|nger}. Le maillot jaune grimpe {sans effort|cmn|ngp}. {En haut du col|cl|ngp}, il attaque {brusquement|cmn|nadv}. {Le soir|ct|ngn}, tout le monde regarde l'arrivée {devant la télévision|cl|ngp}. {Le lendemain|ct|ngn}, le Tour repart {vers les Alpes|cl|ngp}."
+    "texte": "Chaque {été|ct|nnc|du verbe traverser}, le Tour de France traverse le pays. Dans les {villages|cl|nnc|du verbe attendre}, les habitants attendent avec {impatience|cmn|nnc|du verbe attendre}. Depuis le {matin|ct|nnc|du verbe installer}, ils sont installés au {bord|cl|nnc|du verbe installer} de la route. Vers {midi|ct|nnc|du verbe passer}, la caravane publicitaire passe {bruyamment|cmn|nadv|du verbe passer}. Les enfants ramassent {vite|cmn|nadv|du verbe ramasser} les cadeaux. Une {heure|ct|nnc|du verbe arriver} plus tard, les coureurs arrivent à toute {vitesse|cmn|nnc|du verbe arriver}. Ils passent en un {éclair|cmn|nnc|du verbe passer}. Dans la {montée|cl|nnc|du verbe encourager}, les spectateurs les encouragent {en criant|cmn|nger|du verbe encourager}. Le maillot jaune grimpe sans {effort|cmn|nnc|du verbe grimper}. En {haut|cl|nnc|du verbe attaquer} du col, il attaque {brusquement|cmn|nadv|du verbe attaquer}. Le {soir|ct|nnc|du verbe regarder}, tout le monde regarde l'arrivée devant la {télévision|cl|nnc|du verbe regarder}. Le {lendemain|ct|nnc|du verbe repartir}, le Tour repart vers les {Alpes|cl|nnp|du verbe repartir}."
    }
   ]
  },
