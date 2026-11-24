@@ -1,5 +1,5 @@
-/* textes-cm-temps.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v30
-   à partir du Word « textes CM1-CM2 les temps et les modes.docx », le 21/11/2026 14:52:36. Ne pas modifier à la main : corriger le Word. */
+/* textes-cm-temps.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v37
+   à partir du Word « textes CM1-CM2 les temps et les modes.docx », le 24/11/2026 09:30:18. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "cm-pres": {
   "moteur": "tf",
@@ -52,7 +52,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "Le grand-père",
-    "texte": "Quand mon grand-père {(être)>était} petit, il {(vivre)>vivait} à la campagne. Il {(se lever)>se levait} à l'aube. Il {(nourrir)>nourrissait} les poules. Ses frères {(conduire)>conduisaient} les vaches au pré. « Nous {(nager)>nagions} dans la rivière », racontait-il. Ils {(jouer)>jouaient} aux billes. Le soir, la famille {(dîner)>dînait} ensemble. Vous {(lancer)>lanciez} des cailloux dans l'eau ? Ma grand-mère {(coudre)>cousait} des robes. Ils ne {(voir)>voyaient} jamais la mer. Nous {(crier)>criions} de joie à Noël. Ils {(être)>étaient} heureux."
+    "texte": "Quand mon grand-père {(être)>était} petit, il {(vivre)>vivait} à la campagne. Il {(se lever)>se levait} à l'aube. Il {(nourrir)>nourrissait} les poules. Ses frères {(conduire)>conduisaient} les vaches au pré. « Nous {(nager)>nagions} dans la rivière », racontait mon grand-père. Ils {(jouer)>jouaient} aux billes. Le soir, la famille {(dîner)>dînait} ensemble. Vous {(lancer)>lanciez} des cailloux dans l'eau ? Ma grand-mère {(coudre)>cousait} des robes. Ils ne {(voir)>voyaient} jamais la mer. Nous {(crier)>criions} de joie à Noël. Ils {(être)>étaient} heureux."
    },
    {
     "titre": "Le château fort",
@@ -60,7 +60,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "La ferme de mon arrière-grand-mère",
-    "texte": "Quand mon arrière-grand-mère {(avoir)>avait} dix ans, elle {(vivre)>vivait} dans une ferme. Chaque matin, elle {(se lever)>se levait} à cinq heures. Elle {(traire)>trayait} les vaches. Ses frères {(fendre)>fendaient} le bois. Sa mère {(préparer)>préparait} la soupe. Le dimanche, toute la famille {(aller)>allait} à la messe. Les enfants {(courir)>couraient} dans les prés. Ils {(connaître)>connaissaient} tous les animaux. L'été, ils {(faire)>faisaient} les foins. « Nous {(boire)>buvions} de l'eau du puits », racontait-elle. « Vous {(étudier)>étudiiez} à la lumière d'une lampe à pétrole ? » lui demandais-je. « Oui, et nous {(écrire)>écrivions} sur des ardoises. » Ses sœurs {(tricoter)>tricotaient} des chaussettes. Le chien {(dormir)>dormait} près du feu. Les hivers {(être)>étaient} rudes. On {(manger)>mangeait} des châtaignes. Le soir, son père {(lire)>lisait} le journal. Elle {(s'endormir)>s'endormait} vite. Elle ne {(se plaindre)>se plaignait} jamais."
+    "texte": "Quand mon arrière-grand-mère {(avoir)>avait} dix ans, elle {(vivre)>vivait} dans une ferme. Chaque matin, elle {(se lever)>se levait} à cinq heures. Elle {(traire)>trayait} les vaches. Ses frères {(fendre)>fendaient} le bois. Sa mère {(préparer)>préparait} la soupe. Le dimanche, toute la famille {(aller)>allait} à la messe. Les enfants {(courir)>couraient} dans les prés. Ils {(connaître)>connaissaient} tous les animaux. L'été, ils {(faire)>faisaient} les foins. « Nous {(boire)>buvions} de l'eau du puits », racontait mon arrière-grand-mère. « Vous {(étudier)>étudiiez} à la lumière d'une lampe à pétrole ? » lui demandais-je. « Oui, et nous {(écrire)>écrivions} sur des ardoises. » Ses sœurs {(tricoter)>tricotaient} des chaussettes. Le chien {(dormir)>dormait} près du feu. Les hivers {(être)>étaient} rudes. On {(manger)>mangeait} des châtaignes. Le soir, son père {(lire)>lisait} le journal. Elle {(s'endormir)>s'endormait} vite. Elle ne {(se plaindre)>se plaignait} jamais."
    }
   ]
  },
@@ -220,11 +220,11 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "L'exposé",
-    "texte": "Aujourd'hui, je {présente|pres|ind} mon exposé sur les volcans. J'{ai|pres|ind} le trac. Hier soir, j'{ai répété|pc|ind} le texte que j'{avais écrit|pqp|ind} la semaine dernière. Papa m'{a posé|pc|ind} des questions difficiles. La maîtresse m'appelle au tableau. « {Parle|pres|imp} fort et {regarde|pres|imp} tes camarades ! » me conseille-t-elle. Je montre une maquette du Vésuve. Il {a détruit|pc|ind} la ville de Pompéi il y a deux mille ans. Mes camarades écoutent attentivement. Je {voudrais|pres|cond} visiter un volcan un jour. À la fin, la maîtresse {posera|fut|ind} une note dans mon cahier. Je {serais|pres|cond} content d'avoir un dix !"
+    "texte": "Aujourd'hui, je {présente|pres|ind} mon exposé sur les volcans. J'{ai|pres|ind} le trac. Hier soir, j'{ai répété|pc|ind} le texte que j'{avais écrit|pqp|ind} la semaine dernière. Papa m'{a posé|pc|ind} des questions difficiles. La maîtresse m'appelle au tableau. « {Parle|pres|imp} fort et {regarde|pres|imp} tes camarades ! » me conseille la maîtresse. Je montre une maquette du Vésuve. Il {a détruit|pc|ind} la ville de Pompéi il y a deux mille ans. Mes camarades écoutent attentivement. Je {voudrais|pres|cond} visiter un volcan un jour. À la fin, la maîtresse {posera|fut|ind} une note dans mon cahier. Je {serais|pres|cond} content d'avoir un dix !"
    },
    {
     "titre": "La panne d'électricité",
-    "texte": "Ce soir, une panne {prive|pres|ind} tout le quartier d'électricité. Il {fait|pres|ind} noir. Papa {cherche|pres|ind} les bougies que nous {avons rangées|pc|ind} dans le placard. « {Apportez|pres|imp} les allumettes ! » dit-il. Le réfrigérateur ne ronronne plus. Hier, un orage {a abîmé|pc|ind} une ligne que les techniciens {avaient réparée|pqp|ind} le mois précédent. Nous dînons à la lueur des bougies. Mon petit frère {aimerait|pres|cond} que cela dure toute la semaine ! Autrefois, les gens {vivaient|imp|ind} toujours ainsi. Maman nous raconte une histoire. Demain matin, les techniciens {répareront|fut|ind} la ligne. « {Ne vous inquiétez pas|pres|imp} », dit papa. Nous {jouerons|fut|ind} aux cartes en attendant."
+    "texte": "Ce soir, une panne {prive|pres|ind} tout le quartier d'électricité. Il {fait|pres|ind} noir. Papa {cherche|pres|ind} les bougies que nous {avons rangées|pc|ind} dans le placard. « {Apportez|pres|imp} les allumettes ! » dit papa. Le réfrigérateur ne ronronne plus. Hier, un orage {a abîmé|pc|ind} une ligne que les techniciens {avaient réparée|pqp|ind} le mois précédent. Nous dînons à la lueur des bougies. Mon petit frère {aimerait|pres|cond} que cela dure toute la semaine ! Autrefois, les gens {vivaient|imp|ind} toujours ainsi. Maman nous raconte une histoire. Demain matin, les techniciens {répareront|fut|ind} la ligne. « {Ne vous inquiétez pas|pres|imp} », dit papa. Nous {jouerons|fut|ind} aux cartes en attendant."
    },
    {
     "titre": "La lettre de Léa",
@@ -236,7 +236,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "La visite chez le vétérinaire",
-    "texte": "Ce matin, Caramel {boite|pres|ind}. Maman {téléphone|pres|ind} au vétérinaire. Hier, mon chien {a couru|pc|ind} dans les ronces qui {avaient envahi|pqp|ind} le fond du jardin. Il {pleurait|imp|ind} doucement toute la nuit. Le vétérinaire {examine|pres|ind} sa patte. « {Tenez|pres|imp} -le bien ! » {demande|pres|ind}-t-il. Il {trouve|pres|ind} une épine. Je {préférerais|pres|cond} ne pas regarder. Caramel a un pansement maintenant. « {Gardez|pres|imp} -le au calme pendant trois jours. » Demain, il {ira|fut|ind} déjà mieux. Nous {reviendrons|fut|ind} la semaine prochaine. Je {pourrais|pres|cond} le promener ce soir ? Le vétérinaire répond que non. Je comprends : la patte {guérira|fut|ind} plus vite."
+    "texte": "Ce matin, Caramel {boite|pres|ind}. Maman {téléphone|pres|ind} au vétérinaire. Hier, mon chien {a couru|pc|ind} dans les ronces qui {avaient envahi|pqp|ind} le fond du jardin. Il {pleurait|imp|ind} doucement toute la nuit. Le vétérinaire {examine|pres|ind} sa patte. « {Tenez|pres|imp} -le bien ! » {demande|pres|ind} le vétérinaire. Il {trouve|pres|ind} une épine. Je {préférerais|pres|cond} ne pas regarder. Caramel a un pansement maintenant. « {Gardez|pres|imp} -le au calme pendant trois jours. » Demain, il {ira|fut|ind} déjà mieux. Nous {reviendrons|fut|ind} la semaine prochaine. Je {pourrais|pres|cond} le promener ce soir ? Le vétérinaire répond que non. Je comprends : la patte {guérira|fut|ind} plus vite."
    },
    {
     "titre": "Le match de rugby",
@@ -244,11 +244,11 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "Le jardin de mamie",
-    "texte": "Ce matin, mamie {travaille|pres|ind} dans son jardin. Elle {plante|pres|ind} des tulipes que grand-père {a achetées|pc|ind} au marché. « {Apporte|pres|imp} -moi l'arrosoir ! » me {demande|pres|ind}-t-elle. Hier, il {a gelé|pc|ind} : les salades que nous {avions plantées|pqp|ind} la semaine précédente {ont souffert|pc|ind}. Mamie {soupire|pres|ind}. Elle {aimerait|pres|cond} un jardin plus abrité. Autrefois, elle {cultivait|imp|ind} des fraises sur cette terre. Je {creuse|pres|ind} un trou pour chaque bulbe. « {Ne marche pas|pres|imp} sur les plates-bandes ! » Au printemps, les fleurs {sortiront|fut|ind} de terre. Le jardin {sera|fut|ind} magnifique. Nous {pourrions|pres|cond} aussi planter un cerisier. Mamie sourit : elle adore cette idée."
+    "texte": "Ce matin, mamie {travaille|pres|ind} dans son jardin. Elle {plante|pres|ind} des tulipes que grand-père {a achetées|pc|ind} au marché. « {Apporte|pres|imp} -moi l'arrosoir ! » me {demande|pres|ind} mamie. Hier, il {a gelé|pc|ind} : les salades que nous {avions plantées|pqp|ind} la semaine précédente {ont souffert|pc|ind}. Mamie {soupire|pres|ind}. Elle {aimerait|pres|cond} un jardin plus abrité. Autrefois, elle {cultivait|imp|ind} des fraises sur cette terre. Je {creuse|pres|ind} un trou pour chaque bulbe. « {Ne marche pas|pres|imp} sur les plates-bandes ! » Au printemps, les fleurs {sortiront|fut|ind} de terre. Le jardin {sera|fut|ind} magnifique. Nous {pourrions|pres|cond} aussi planter un cerisier. Mamie sourit : elle adore cette idée."
    },
    {
     "titre": "L'orage en montagne",
-    "texte": "Ce matin, nous {grimpons|pres|ind} vers le refuge. Le ciel {s'assombrit|pres|ind}. Le guide {regarde|pres|ind} les nuages qui {arrivent|pres|ind} de l'ouest. Pourtant, la météo {a annoncé|pc|ind} du beau temps hier. « {Pressez|pres|imp} le pas ! » {crie|pres|ind}-il. Soudain, le tonnerre {gronde|pres|ind}. Nous {courons|pres|ind} vers une cabane que nous {avons repérée|pc|ind} plus bas. Je {voudrais|pres|cond} être déjà au refuge ! Autrefois, les bergers {s'abritaient|imp|ind} ici avec leurs bêtes. Il pleut à verse. « {Restez|pres|imp} loin des arbres ! » L'orage {passera|fut|ind} vite. Dans une heure, nous {repartirons|fut|ind}. Ce soir, nous {raconterons|fut|ind} notre aventure. Nos parents ne nous {croiraient|pres|cond} jamais !"
+    "texte": "Ce matin, nous {grimpons|pres|ind} vers le refuge. Le ciel {s'assombrit|pres|ind}. Le guide {regarde|pres|ind} les nuages qui {arrivent|pres|ind} de l'ouest. Pourtant, la météo {a annoncé|pc|ind} du beau temps hier. « {Pressez|pres|imp} le pas ! » {crie|pres|ind} le guide. Soudain, le tonnerre {gronde|pres|ind}. Nous {courons|pres|ind} vers une cabane que nous {avons repérée|pc|ind} plus bas. Je {voudrais|pres|cond} être déjà au refuge ! Autrefois, les bergers {s'abritaient|imp|ind} ici avec leurs bêtes. Il pleut à verse. « {Restez|pres|imp} loin des arbres ! » L'orage {passera|fut|ind} vite. Dans une heure, nous {repartirons|fut|ind}. Ce soir, nous {raconterons|fut|ind} notre aventure. Nos parents ne nous {croiraient|pres|cond} jamais !"
    },
    {
     "titre": "La classe verte",

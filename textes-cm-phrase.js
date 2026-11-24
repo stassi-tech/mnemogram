@@ -1,5 +1,5 @@
-/* textes-cm-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v36
-   à partir du Word « textes CM1-CM2 la phrase.docx », le 24/11/2026 00:15:38. Ne pas modifier à la main : corriger le Word. */
+/* textes-cm-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v37
+   à partir du Word « textes CM1-CM2 la phrase.docx », le 24/11/2026 09:30:13. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "cm-phnv": {
   "moteur": "tm",
@@ -174,7 +174,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le goûter",
-    "texte": "{« J'ai faim ! »|dd|ind} dit Tom. Sa mère répond {qu'il doit attendre quatre heures|di|ind}. {« Je peux avoir une pomme ? »|dd|ind} demande-t-il. Elle lui dit {qu'il peut en prendre une|di|ind}. Tom demande {s'il reste des biscuits|di|ind}. {« Ils sont dans le placard »|dd|ind}, dit sa mère. {« Merci, maman ! »|dd|ind} Sa sœur crie {qu'elle en veut aussi|di|ind}. {« Partagez ! »|dd|ind} dit leur mère. Tom promet {qu'il partagera|di|ind}."
+    "texte": "{« J'ai faim ! »|dd|ind} dit Tom. Sa mère répond {qu'il doit attendre quatre heures|di|ind}. {« Je peux avoir une pomme ? »|dd|ind} demande Tom. Elle lui dit {qu'il peut en prendre une|di|ind}. Tom demande {s'il reste des biscuits|di|ind}. {« Ils sont dans le placard »|dd|ind}, dit sa mère. {« Merci, maman ! »|dd|ind} Sa sœur crie {qu'elle en veut aussi|di|ind}. {« Partagez ! »|dd|ind} dit leur mère. Tom promet {qu'il partagera|di|ind}."
    },
    {
     "titre": "La sortie",
@@ -182,11 +182,11 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "Le vieux pêcheur",
-    "texte": "Le vieux pêcheur nous raconte {qu'il a pêché un poisson énorme|di|ind}. {« C'était il y a trente ans »|dd|ind}, dit-il. Mon frère demande {combien il pesait|di|ind}. {« Vingt kilos ! »|dd|ind} répond le pêcheur. Je lui demande {s'il a une photo|di|ind}. Il avoue {qu'il n'en a pas|di|ind}. {« Personne ne me croit »|dd|ind}, soupire-t-il. Ma sœur lui dit {qu'elle le croit|di|ind}. {« Merci, petite »|dd|ind}, murmure-t-il. Il explique {qu'il a relâché le poisson|di|ind}. {« Pourquoi ? »|dd|ind} demandons-nous. Il répond {qu'il le trouvait trop beau|di|ind}. {« Il nage peut-être encore »|dd|ind}, ajoute-t-il en souriant. Mon frère déclare {qu'il deviendra pêcheur|di|ind}. {« Alors, bonne chance ! »|dd|ind} lance le vieil homme. Nous lui promettons {que nous reviendrons|di|ind}."
+    "texte": "Le vieux pêcheur nous raconte {qu'il a pêché un poisson énorme|di|ind}. {« C'était il y a trente ans »|dd|ind}, dit le pêcheur. Mon frère demande {combien il pesait|di|ind}. {« Vingt kilos ! »|dd|ind} répond le pêcheur. Je lui demande {s'il a une photo|di|ind}. Il avoue {qu'il n'en a pas|di|ind}. {« Personne ne me croit »|dd|ind}, soupire le vieil homme. Ma sœur lui dit {qu'elle le croit|di|ind}. {« Merci, petite »|dd|ind}, murmure le pêcheur. Il explique {qu'il a relâché le poisson|di|ind}. {« Pourquoi ? »|dd|ind} demandons-nous. Il répond {qu'il le trouvait trop beau|di|ind}. {« Il nage peut-être encore »|dd|ind}, ajoute le pêcheur en souriant. Mon frère déclare {qu'il deviendra pêcheur|di|ind}. {« Alors, bonne chance ! »|dd|ind} lance le vieil homme. Nous lui promettons {que nous reviendrons|di|ind}."
    },
    {
     "titre": "Le procès du renard",
-    "texte": "Les animaux se réunissent. Le lion annonce {que le renard est accusé de vol|di|ind}. {« Qu'as-tu à dire ? »|dd|ind} demande-t-il. Le renard affirme {qu'il est innocent|di|ind}. {« Je dormais cette nuit-là »|dd|ind}, explique-t-il. La poule déclare {qu'elle l'a vu près du poulailler|di|ind}. {« Elle ment ! »|dd|ind} s'écrie le renard. Le hibou dit {qu'il a entendu des bruits vers minuit|di|ind}. {« Quels bruits ? »|dd|ind} demande le lion. Le hibou précise {que c'étaient des pas légers|di|ind}. Le loup ajoute {qu'il a trouvé des plumes devant le terrier du renard|di|ind}. {« Ce sont mes plumes ! »|dd|ind} gémit la poule. Le renard prétend {que le vent les a apportées|di|ind}. {« Le vent ? Cette nuit-là ? »|dd|ind} se moque le hibou. Il rappelle {qu'il n'y avait pas un souffle d'air|di|ind}. Le renard baisse la tête. {« J'avoue »|dd|ind}, murmure-t-il. Le lion décide {qu'il rendra les œufs volés|di|ind}. {« Et je serai privé de dessert ? »|dd|ind} demande le renard. {« Non, mais tu feras la vaisselle »|dd|ind}, répond le lion. Tous les animaux éclatent de rire. La poule annonce {qu'elle pardonne au renard|di|ind}. {« Merci »|dd|ind}, dit le renard, tout penaud."
+    "texte": "Les animaux se réunissent. Le lion annonce {que le renard est accusé de vol|di|ind}. {« Qu'as-tu à dire ? »|dd|ind} demande le lion. Le renard affirme {qu'il est innocent|di|ind}. {« Je dormais cette nuit-là »|dd|ind}, explique le renard. La poule déclare {qu'elle l'a vu près du poulailler|di|ind}. {« Elle ment ! »|dd|ind} s'écrie le renard. Le hibou dit {qu'il a entendu des bruits vers minuit|di|ind}. {« Quels bruits ? »|dd|ind} demande le lion. Le hibou précise {que c'étaient des pas légers|di|ind}. Le loup ajoute {qu'il a trouvé des plumes devant le terrier du renard|di|ind}. {« Ce sont mes plumes ! »|dd|ind} gémit la poule. Le renard prétend {que le vent les a apportées|di|ind}. {« Le vent ? Cette nuit-là ? »|dd|ind} se moque le hibou. Il rappelle {qu'il n'y avait pas un souffle d'air|di|ind}. Le renard baisse la tête. {« J'avoue »|dd|ind}, murmure le renard. Le lion décide {qu'il rendra les œufs volés|di|ind}. {« Et je serai privé de dessert ? »|dd|ind} demande le renard. {« Non, mais tu feras la vaisselle »|dd|ind}, répond le lion. Tous les animaux éclatent de rire. La poule annonce {qu'elle pardonne au renard|di|ind}. {« Merci »|dd|ind}, dit le renard, tout penaud."
    }
   ]
  },

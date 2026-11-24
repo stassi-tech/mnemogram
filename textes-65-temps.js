@@ -1,5 +1,5 @@
-/* textes-65-temps.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v35
-   à partir du Word « textes 6e-5e les temps et les modes.docx », le 23/11/2026 23:14:32. Ne pas modifier à la main : corriger le Word. */
+/* textes-65-temps.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v37
+   à partir du Word « textes 6e-5e les temps et les modes.docx », le 24/11/2026 09:30:09. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "c65-ps": {
   "moteur": "tf",
@@ -232,11 +232,11 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "La randonnée",
-    "texte": "Ce matin, nous {partons|pres|ind} {randonner|pres|inf} dans les Pyrénées. Le guide {avance|pres|ind} lentement, {surveillant|pres|part} le ciel. Hier, il {a plu|pc|ind} et les sentiers sont glissants. « {Suivez|pres|imp} -moi de près ! » ordonne-il. Je {voudrais|pres|cond} que nous {atteignions|pres|subj} le lac avant midi. {Arrivés|passe|part} au col, nous découvrons la vallée. Mon père sort ses jumelles {en espérant|pres|ger} {apercevoir|pres|inf} un isard. Il {faudrait|pres|cond} que nous {soyons|pres|subj} silencieux. Ce soir, nous {dormirons|fut|ind} au refuge."
+    "texte": "Ce matin, nous {partons|pres|ind} {randonner|pres|inf} dans les Pyrénées. Le guide {avance|pres|ind} lentement, {surveillant|pres|part} le ciel. Hier, il {a plu|pc|ind} et les sentiers sont glissants. « {Suivez|pres|imp} -moi de près ! » ordonne le guide. Je {voudrais|pres|cond} que nous {atteignions|pres|subj} le lac avant midi. {Arrivés|passe|part} au col, nous découvrons la vallée. Mon père sort ses jumelles {en espérant|pres|ger} {apercevoir|pres|inf} un isard. Il {faudrait|pres|cond} que nous {soyons|pres|subj} silencieux. Ce soir, nous {dormirons|fut|ind} au refuge."
    },
    {
     "titre": "Le tournage",
-    "texte": "Aujourd'hui, une équipe de cinéma {tourne|pres|ind} un film dans notre rue. Les techniciens {installent|pres|ind} les projecteurs, {criant|pres|part} des ordres. Hier, ils {ont fermé|pc|ind} la place. Le réalisateur {souhaite|pres|ind} que tout le monde {se taise|pres|subj}. « Silence ! Moteur ! » L'actrice {traverse|pres|ind} la rue {en courant|pres|ger}. Je {voudrais|pres|cond} bien {obtenir|pres|inf} un autographe. {Fatiguée|passe|part}, l'actrice s'assoit sur un banc. « {Approchez|pres|imp}, les enfants ! » dit-elle. Il est possible qu'elle {accepte|pres|subj} de {signer|pres|inf} mon cahier. Le film {sortira|fut|ind} l'an prochain."
+    "texte": "Aujourd'hui, une équipe de cinéma {tourne|pres|ind} un film dans notre rue. Les techniciens {installent|pres|ind} les projecteurs, {criant|pres|part} des ordres. Hier, ils {ont fermé|pc|ind} la place. Le réalisateur {souhaite|pres|ind} que tout le monde {se taise|pres|subj}. « Silence ! Moteur ! » L'actrice {traverse|pres|ind} la rue {en courant|pres|ger}. Je {voudrais|pres|cond} bien {obtenir|pres|inf} un autographe. {Fatiguée|passe|part}, l'actrice s'assoit sur un banc. « {Approchez|pres|imp}, les enfants ! » dit l'actrice. Il est possible qu'elle {accepte|pres|subj} de {signer|pres|inf} mon cahier. Le film {sortira|fut|ind} l'an prochain."
    },
    {
     "titre": "La fouille archéologique",
@@ -248,11 +248,11 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "Le concert",
-    "texte": "Ce soir, mon frère {joue|pres|ind} du violon au conservatoire. Il {répète|pres|ind} depuis des mois, {travaillant|pres|part} chaque soir. Hier, il {a cassé|pc|ind} une corde ! Ma mère {craint|pres|ind} qu'il {soit|pres|subj} trop nerveux. « {Respire|pres|imp} profondément », lui {conseille|pres|ind}-t-elle. La salle {est|pres|ind} pleine. Mon frère {entre|pres|ind} sur scène {en souriant|pres|ger}. Je {voudrais|pres|cond} tant qu'il {réussisse|pres|subj} ! Les premières notes s'élèvent . {Émue|passe|part}, ma grand-mère essuie une larme. Après le concert, nous {irons|fut|ind} {dîner|pres|inf} au restaurant."
+    "texte": "Ce soir, mon frère {joue|pres|ind} du violon au conservatoire. Il {répète|pres|ind} depuis des mois, {travaillant|pres|part} chaque soir. Hier, il {a cassé|pc|ind} une corde ! Ma mère {craint|pres|ind} qu'il {soit|pres|subj} trop nerveux. « {Respire|pres|imp} profondément », lui {conseille|pres|ind} ma mère. La salle {est|pres|ind} pleine. Mon frère {entre|pres|ind} sur scène {en souriant|pres|ger}. Je {voudrais|pres|cond} tant qu'il {réussisse|pres|subj} ! Les premières notes s'élèvent . {Émue|passe|part}, ma grand-mère essuie une larme. Après le concert, nous {irons|fut|ind} {dîner|pres|inf} au restaurant."
    },
    {
     "titre": "La course de voile",
-    "texte": "Aujourd'hui, notre voilier {prend|pres|ind} le départ de la régate. Le vent {souffle|pres|ind} fort, {gonflant|pres|part} les voiles. Hier, nous {avons vérifié|pc|ind} chaque cordage. Le skipper {veut|pres|ind} que nous {restions|pres|subj} attentifs. « {Bordez|pres|imp} la grand-voile ! » {crie|pres|ind}-il. Nous {dépassons|pres|ind} deux bateaux {en profitant|pres|ger} d'une rafale. Je {voudrais|pres|cond} {franchir|pres|inf} la ligne en tête. {Épuisés|passe|part}, nous {tenons|pres|ind} bon. Il {est|pres|ind} possible que nous {gagnions|pres|subj}. Ce soir, le port {fêtera|fut|ind} les vainqueurs."
+    "texte": "Aujourd'hui, notre voilier {prend|pres|ind} le départ de la régate. Le vent {souffle|pres|ind} fort, {gonflant|pres|part} les voiles. Hier, nous {avons vérifié|pc|ind} chaque cordage. Le skipper {veut|pres|ind} que nous {restions|pres|subj} attentifs. « {Bordez|pres|imp} la grand-voile ! » {crie|pres|ind} le skipper. Nous {dépassons|pres|ind} deux bateaux {en profitant|pres|ger} d'une rafale. Je {voudrais|pres|cond} {franchir|pres|inf} la ligne en tête. {Épuisés|passe|part}, nous {tenons|pres|ind} bon. Il {est|pres|ind} possible que nous {gagnions|pres|subj}. Ce soir, le port {fêtera|fut|ind} les vainqueurs."
    },
    {
     "titre": "La nuit au musée",

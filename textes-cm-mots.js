@@ -1,5 +1,5 @@
-/* textes-cm-mots.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v36
-   à partir du Word « textes CM1-CM2 les mots.docx », le 24/11/2026 00:15:40. Ne pas modifier à la main : corriger le Word. */
+/* textes-cm-mots.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v37
+   à partir du Word « textes CM1-CM2 les mots.docx », le 24/11/2026 09:30:15. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "cm-nat": {
   "moteur": "tm",
@@ -60,7 +60,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "Le grenier de mamie",
-    "texte": "Dans le grenier, mamie garde {ses|poss|ind} trésors. {Cette|dem|ind} malle contient {ses|poss|ind} robes de bal ; {celle-ci|pdem|ind} renferme {ses|poss|ind} lettres. « {Ces|dem|ind} photos sont {les miennes|ppos|ind} », dit-elle. {Elle|pper|ind} {nous|pper|ind} {les|pper|ind} montre. Sur {celle-là|pdem|ind}, on voit {son|poss|ind} frère. « {Ton|poss|ind} grand-père avait {ce|dem|ind} chapeau. {Le sien|ppos|ind} était plus grand que {le mien|ppos|ind}. » {Nous|pper|ind} rions. {Ce|dem|ind} grenier est un musée ! {Je|pper|ind} garderai {cette|dem|ind} lettre."
+    "texte": "Dans le grenier, mamie garde {ses|poss|ind} trésors. {Cette|dem|ind} malle contient {ses|poss|ind} robes de bal ; {celle-ci|pdem|ind} renferme {ses|poss|ind} lettres. « {Ces|dem|ind} photos sont {les miennes|ppos|ind} », dit ma grand-mère. {Elle|pper|ind} {nous|pper|ind} {les|pper|ind} montre. Sur {celle-là|pdem|ind}, on voit {son|poss|ind} frère. « {Ton|poss|ind} grand-père avait {ce|dem|ind} chapeau. {Le sien|ppos|ind} était plus grand que {le mien|ppos|ind}. » {Nous|pper|ind} rions. {Ce|dem|ind} grenier est un musée ! {Je|pper|ind} garderai {cette|dem|ind} lettre."
    }
   ]
  },
