@@ -828,3 +828,14 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 #natures-panel.sx-bleus .carte.sx-carte.verte p { color:#173d7a; }
 #natures-panel.sx-bleus .carte.sx-carte.rouge { border-color:var(--sx-b3); background:#eef7fd; }
 #natures-panel.sx-bleus .carte.sx-carte.rouge p { color:#1d5a85; }
+
+/* v98 : étiquette double : le temps ou le mode dans un cadre vert, la valeur dans un cadre bleu, sur la même ligne */
+.game7 .sentence .w .labs .lab.duo, .sentence .w .labs .lab.duo { background:none; box-shadow:none; padding:0; display:flex; gap:3px; align-items:stretch; white-space:nowrap; }
+.sentence .w .labs .lab.duo .p-vert, .sentence .w .labs .lab.duo .p-bleu { background:var(--nat-green); color:#fff; padding:2px 6px; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,.3); display:flex; align-items:center; }
+.sentence .w .labs .lab.duo .p-bleu { background:var(--mod-blue); }
+/* v98 : exercice 10 : le texte réécrit reste blanc, comme le reste du texte */
+.game7 .sentence .w.blanc.remplie:not(.forme-corrigee) .f, .game7 .sentence .w.blanc.remplie .tx { color:#fff; }
+/* v98 : homophones : la forme, et sa nature en petit dessous */
+.homo-choix { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.homo-choix strong { font-size:1.15em; }
+.homo-choix small { font-weight:400; font-size:.78em; line-height:1.15; opacity:.95; }
