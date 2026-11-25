@@ -839,3 +839,25 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .homo-choix { display:flex; flex-direction:column; align-items:center; gap:3px; }
 .homo-choix strong { font-size:1.15em; }
 .homo-choix small { font-weight:400; font-size:.78em; line-height:1.15; opacity:.95; }
+/* v102 : à la correction, plus de forme barrée au-dessus : la forme juste prend place dans le texte, en blanc ;
+   seule une erreur corrigée garde sa couleur, pour que l'élève s'y arrête */
+.game7 .sentence .w.tf.remplie .ancien { display:none; }
+.game7 .sentence .w.tf.remplie:not(.forme-corrigee) .f, .game7 .sentence .w.tf.remplie:not(.forme-corrigee) .tx { color:#fff; text-decoration-color:transparent; }
+/* v102 : le participe cité par la voix dans le bilan final clignote */
+.game7 .sentence .w.tf-cite .f { animation: blink 0.9s ease-in-out infinite; border-radius:4px; outline:2px solid #ffe066; }
+.bilan-pp ul { margin:.4em 0 0 1.1em; padding:0; }
+.bilan-pp li { margin:.35em 0; }
+/* v103 : écoute continue des textes (pour le maître) */
+#ecoute { position:fixed; inset:0; z-index:9999; background:rgba(20,30,25,.85); display:flex; align-items:flex-start; justify-content:center; overflow:auto; padding:24px 12px; }
+#ecoute .ec-boite { background:#fffdf7; color:#222; border-radius:12px; max-width:900px; width:100%; padding:20px 24px; box-shadow:0 10px 40px rgba(0,0,0,.4); }
+#ecoute h2 { margin:0 0 12px; font-size:1.3em; } #ecoute h2 small { font-weight:400; color:#777; font-size:.7em; }
+#ecoute .ec-reglages { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; margin-bottom:10px; font-size:.95em; }
+#ecoute select { font-size:1em; padding:3px 6px; max-width:360px; }
+#ecoute .ec-ou { font-weight:600; color:#5a4022; margin:8px 0; }
+#ecoute .ec-texte { background:#223a2f; color:#f4f1e6; border-radius:8px; padding:16px 18px; font-family:Georgia, serif; font-size:1.25em; line-height:1.7; max-height:46vh; overflow:auto; }
+#ecoute .ec-ph { cursor:pointer; border-radius:4px; padding:1px 2px; }
+#ecoute .ec-ph:hover { background:rgba(255,255,255,.08); }
+#ecoute .ec-cur { background:#ffe066; color:#222; }
+#ecoute .ec-boutons { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 6px; }
+#ecoute .ec-aide { font-size:.88em; color:#666; margin:4px 0 8px; }
+#ecoute textarea { width:100%; box-sizing:border-box; font-size:.95em; padding:8px; border-radius:6px; border:1px solid #bbb; }

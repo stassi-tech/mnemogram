@@ -6,19 +6,19 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le vieux phare",
-    "texte": "Sur la {falaise|nc|ind}, un {vieux|adj|ind} {phare|nc|ind} {veille|verbe|ind} sur la mer. {Il|pron|ind} {guide|verbe|ind} les {bateaux|nc|ind} de {Brest|np|ind} pendant la {nuit|nc|ind} {sombre|adj|ind}."
+    "texte": "Sur la {falaise|nc|ind}, un {vieux|adj|ind} {phare|nc|ind} {veille|verbe|ind} sur la mer. {Il|pron.nppers|ind} {guide|verbe|ind} les {bateaux|nc|ind} de {Brest|np|ind} pendant la {nuit|nc|ind} {sombre|adj|ind}."
    },
    {
     "titre": "La rentrée de Margot",
-    "texte": "{Margot|np|ind} {entre|verbe|ind} au {collège|nc|ind} en {septembre|nc|ind}. {Elle|pron|ind} {porte|verbe|ind} un {cartable|nc|ind} neuf. Sa {mère|nc|ind} l'{accompagne|verbe|ind} jusqu'au {portail|nc|ind}. {Elle|pron|ind} {est|verbe|ind} un peu {inquiète|adj|ind}."
+    "texte": "{Margot|np|ind} {entre|verbe|ind} au {collège|nc|ind} en {septembre|nc|ind}. {Elle|pron.nppers|ind} {porte|verbe|ind} un {cartable|nc|ind} neuf. Sa {mère|nc|ind} l'{accompagne|verbe|ind} jusqu'au {portail|nc|ind}. {Elle|pron.nppers|ind} {est|verbe|ind} un peu {inquiète|adj|ind}."
    },
    {
     "titre": "Le marché de Provence",
-    "texte": "Chaque {samedi|nc|ind}, le {marché|nc|ind} de {Carpentras|np|ind} {envahit|verbe|ind} les {rues|nc|ind} étroites. Les {marchands|nc|ind} {installent|verbe|ind} des {étals|nc|ind} {colorés|adj|ind}. {Ils|pron|ind} {vantent|verbe|ind} leurs {melons|nc|ind} {sucrés|adj|ind} et leurs {olives|nc|ind} noires. Les {touristes|nc|ind} {goûtent|verbe|ind} tout."
+    "texte": "Chaque {samedi|nc|ind}, le {marché|nc|ind} de {Carpentras|np|ind} {envahit|verbe|ind} les {rues|nc|ind} étroites. Les {marchands|nc|ind} {installent|verbe|ind} des {étals|nc|ind} {colorés|adj|ind}. {Ils|pron.nppers|ind} {vantent|verbe|ind} leurs {melons|nc|ind} {sucrés|adj|ind} et leurs {olives|nc|ind} noires. Les {touristes|nc|ind} {goûtent|verbe|ind} tout."
    },
    {
     "titre": "L'expédition polaire",
-    "texte": "En 1909, l'{explorateur|nc|ind} {Jean-Baptiste Charcot|np|ind} {quitte|verbe|ind} {Le Havre|np|ind} sur le {Pourquoi-Pas|np|ind}. {Il|pron|ind} {part|verbe|ind} vers l'{Antarctique|np|ind}. Le {voyage|nc|ind} {est|verbe|ind} {long|adj|ind} et {dangereux|adj|ind}. Les {marins|nc|ind} {affrontent|verbe|ind} des {tempêtes|nc|ind} {violentes|adj|ind}. {Ils|pron|ind} {découvrent|verbe|ind} des {terres|nc|ind} {inconnues|adj|ind}."
+    "texte": "En 1909, l'{explorateur|nc|ind} {Jean-Baptiste Charcot|np|ind} {quitte|verbe|ind} {Le Havre|np|ind} sur le {Pourquoi-Pas|np|ind}. {Il|pron.nppers|ind} {part|verbe|ind} vers l'{Antarctique|np|ind}. Le {voyage|nc|ind} {est|verbe|ind} {long|adj|ind} et {dangereux|adj|ind}. Les {marins|nc|ind} {affrontent|verbe|ind} des {tempêtes|nc|ind} {violentes|adj|ind}. {Ils|pron.nppers|ind} {découvrent|verbe|ind} des {terres|nc|ind} {inconnues|adj|ind}."
    }
   ]
  },
@@ -216,7 +216,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le chien",
-    "texte": "Le {chien|nc|suj} de {Lucas|np|cdn} est {fidèle|adj|att}. {Il|pron|suj} garde la {maison|nc|cv}. La {nuit|nc|cp}, il dort dans sa {niche|nc|cp}. Ses {oreilles|nc|suj} sont {pointues|adj|att}. {Lucas|np|suj} l'adore."
+    "texte": "Le {chien|nc|suj} de {Lucas|np|cdn} est {fidèle|adj|att}. {Il|pron.nppers|suj} garde la {maison|nc|cv}. La {nuit|nc|cp}, il dort dans sa {niche|nc|cp}. Ses {oreilles|nc|suj} sont {pointues|adj|att}. {Lucas|np|suj} l'adore."
    },
    {
     "titre": "Le potager",
@@ -224,11 +224,11 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "La neige",
-    "texte": "La {neige|nc|suj} {fraîche|adj|epi} couvre les {toits|nc|cv} du {village|nc|cdn}. Les {enfants|nc|suj} glissent sur la {pente|nc|cp}. {Ils|pron|suj} sont {heureux|adj|att}. Leurs {joues|nc|suj} deviennent {rouges|adj|att}. {Lina|np|suj} tombe. Le {soir|nc|cp}, ils rentrent ."
+    "texte": "La {neige|nc|suj} {fraîche|adj|epi} couvre les {toits|nc|cv} du {village|nc|cdn}. Les {enfants|nc|suj} glissent sur la {pente|nc|cp}. {Ils|pron.nppers|suj} sont {heureux|adj|att}. Leurs {joues|nc|suj} deviennent {rouges|adj|att}. {Lina|np|suj} tombe. Le {soir|nc|cp}, ils rentrent ."
    },
    {
     "titre": "Le pêcheur",
-    "texte": "Le {vieux|adj|epi} {pêcheur|nc|suj} répare ses {filets|nc|cv} sur le {quai|nc|cp}. Son {bateau|nc|suj} de {bois|nc|cdn} paraît {fragile|adj|att}. Le {matin|nc|cp}, {il|pron|suj} part vers le {large|nc|cp}. La {mer|nc|suj} est {calme|adj|att}. Les {mouettes|nc|suj} crient."
+    "texte": "Le {vieux|adj|epi} {pêcheur|nc|suj} répare ses {filets|nc|cv} sur le {quai|nc|cp}. Son {bateau|nc|suj} de {bois|nc|cdn} paraît {fragile|adj|att}. Le {matin|nc|cp}, {il|pron.nppers|suj} part vers le {large|nc|cp}. La {mer|nc|suj} est {calme|adj|att}. Les {mouettes|nc|suj} crient."
    },
    {
     "titre": "Le concert",
@@ -236,31 +236,31 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "Le marché",
-    "texte": "Le {samedi|nc|cp}, ma {mère|nc|suj} achète des {légumes|nc|cv} au {marché|nc|cp}. Les {fraises|nc|suj} de {Plougastel|np|cdn} sont {sucrées|adj|att}. Le {marchand|nc|suj} {bavard|adj|epi} offre une {pomme|nc|cv} à mon {frère|nc|cv}. {Il|pron|suj} est {content|adj|att}. Le {soleil|nc|suj} {printanier|adj|epi} brille."
+    "texte": "Le {samedi|nc|cp}, ma {mère|nc|suj} achète des {légumes|nc|cv} au {marché|nc|cp}. Les {fraises|nc|suj} de {Plougastel|np|cdn} sont {sucrées|adj|att}. Le {marchand|nc|suj} {bavard|adj|epi} offre une {pomme|nc|cv} à mon {frère|nc|cv}. {Il|pron.nppers|suj} est {content|adj|att}. Le {soleil|nc|suj} {printanier|adj|epi} brille."
    },
    {
     "titre": "Le volcan",
-    "texte": "Le {volcan|nc|suj} se réveille après des {siècles|nc|cp} de {sommeil|nc|cdn}. Une {fumée|nc|suj} {épaisse|adj|epi} s'échappe du {cratère|nc|cp}. Les {habitants|nc|suj} de la {région|nc|cdn} semblent {inquiets|adj|att}. Les {scientifiques|nc|suj} surveillent la {montagne|nc|cv}. {Ils|pron|suj} restent {prudents|adj|att}. Les {routes|nc|suj} sont {fermées|adj|att}."
+    "texte": "Le {volcan|nc|suj} se réveille après des {siècles|nc|cp} de {sommeil|nc|cdn}. Une {fumée|nc|suj} {épaisse|adj|epi} s'échappe du {cratère|nc|cp}. Les {habitants|nc|suj} de la {région|nc|cdn} semblent {inquiets|adj|att}. Les {scientifiques|nc|suj} surveillent la {montagne|nc|cv}. {Ils|pron.nppers|suj} restent {prudents|adj|att}. Les {routes|nc|suj} sont {fermées|adj|att}."
    },
    {
     "titre": "La classe de neige",
-    "texte": "En {janvier|nc|cp}, notre {classe|nc|suj} part dans les {Alpes|np|cp}. Le {chalet|nc|suj} de {bois|nc|cdn} est {confortable|adj|att}. Chaque {matin|nc|cp}, les {moniteurs|nc|suj} {patients|adj|epi} nous apprennent le {ski|nc|cv}. {Nous|pron|suj} descendons les {pistes|nc|cv} {bleues|adj|epi}. Le {soir|nc|cp}, nous sommes {épuisés|adj|att}. Les {chambres|nc|suj} sont petites."
+    "texte": "En {janvier|nc|cp}, notre {classe|nc|suj} part dans les {Alpes|np|cp}. Le {chalet|nc|suj} de {bois|nc|cdn} est {confortable|adj|att}. Chaque {matin|nc|cp}, les {moniteurs|nc|suj} {patients|adj|epi} nous apprennent le {ski|nc|cv}. {Nous|pron.nppers|suj} descendons les {pistes|nc|cv} {bleues|adj|epi}. Le {soir|nc|cp}, nous sommes {épuisés|adj|att}. Les {chambres|nc|suj} sont petites."
    },
    {
     "titre": "Le musée",
-    "texte": "Le {musée|nc|suj} du {Louvre|np|cdn} accueille des {visiteurs|nc|cv} du {monde|nc|cdn} entier . La {Joconde|np|suj} attire une {foule|nc|cv} {immense|adj|epi}. Son {sourire|nc|suj} paraît {mystérieux|adj|att}. Les {gardiens|nc|suj} surveillent les {salles|nc|cv}. {Ils|pron|suj} demeurent {attentifs|adj|att}. Les {tableaux|nc|suj} {anciens|adj|epi} sont {fragiles|adj|att}. Les {touristes|nc|suj} photographient tout."
+    "texte": "Le {musée|nc|suj} du {Louvre|np|cdn} accueille des {visiteurs|nc|cv} du {monde|nc|cdn} entier . La {Joconde|np|suj} attire une {foule|nc|cv} {immense|adj|epi}. Son {sourire|nc|suj} paraît {mystérieux|adj|att}. Les {gardiens|nc|suj} surveillent les {salles|nc|cv}. {Ils|pron.nppers|suj} demeurent {attentifs|adj|att}. Les {tableaux|nc|suj} {anciens|adj|epi} sont {fragiles|adj|att}. Les {touristes|nc|suj} photographient tout."
    },
    {
     "titre": "La tempête",
-    "texte": "Cette {nuit|nc|cp}, une {tempête|nc|suj} {violente|adj|epi} a frappé la {côte|nc|cv} {bretonne|adj|epi}. Les {vagues|nc|suj} {énormes|adj|epi} ont détruit la {digue|nc|cv} du {port|nc|cdn}. Les {pêcheurs|nc|suj} sont {inquiets|adj|att}. {Ils|pron|suj} réparent leurs {bateaux|nc|cv}. Le {maire|nc|suj} de {Douarnenez|np|cdn} reste {calme|adj|att}. Ce matin, le {ciel|nc|suj} est {gris|adj|att}."
+    "texte": "Cette {nuit|nc|cp}, une {tempête|nc|suj} {violente|adj|epi} a frappé la {côte|nc|cv} {bretonne|adj|epi}. Les {vagues|nc|suj} {énormes|adj|epi} ont détruit la {digue|nc|cv} du {port|nc|cdn}. Les {pêcheurs|nc|suj} sont {inquiets|adj|att}. {Ils|pron.nppers|suj} réparent leurs {bateaux|nc|cv}. Le {maire|nc|suj} de {Douarnenez|np|cdn} reste {calme|adj|att}. Ce matin, le {ciel|nc|suj} est {gris|adj|att}."
    },
    {
     "titre": "Le cirque",
-    "texte": "Le {cirque|nc|suj} Pinder s'installe sur la {place|nc|cp} du {village|nc|cdn}. Les {artistes|nc|suj} montent le {chapiteau|nc|cv} {rouge|adj|epi}. Le {dompteur|nc|suj} nourrit ses {fauves|nc|cv}. Les {lions|nc|suj} paraissent {calmes|adj|att}. Le {soir|nc|cp}, les {spectateurs|nc|suj} {émerveillés|adj|epi} applaudissent les {acrobates|nc|cv}. {Ils|pron|suj} sont {agiles|adj|att}. Les {clowns|nc|suj} {maladroits|adj|epi} amusent les {enfants|nc|cv}."
+    "texte": "Le {cirque|nc|suj} Pinder s'installe sur la {place|nc|cp} du {village|nc|cdn}. Les {artistes|nc|suj} montent le {chapiteau|nc|cv} {rouge|adj|epi}. Le {dompteur|nc|suj} nourrit ses {fauves|nc|cv}. Les {lions|nc|suj} paraissent {calmes|adj|att}. Le {soir|nc|cp}, les {spectateurs|nc|suj} {émerveillés|adj|epi} applaudissent les {acrobates|nc|cv}. {Ils|pron.nppers|suj} sont {agiles|adj|att}. Les {clowns|nc|suj} {maladroits|adj|epi} amusent les {enfants|nc|cv}."
    },
    {
     "titre": "L'expédition",
-    "texte": "Au {printemps|nc|cp}, une {équipe|nc|suj} de {chercheurs|nc|cdn} a exploré la {forêt|nc|cv} {amazonienne|adj|epi}. Les {arbres|nc|suj} {géants|adj|epi} cachaient la {lumière|nc|cv} du soleil. Les {insectes|nc|suj} étaient {innombrables|adj|att}. Un {guide|nc|suj} {indien|adj|epi} accompagnait les {savants|nc|cv}. {Il|pron|suj} connaissait les {plantes|nc|cv} {médicinales|adj|epi}. Le {voyage|nc|suj} fut {long|adj|att}. Les {scientifiques|nc|suj} étaient {enchantés|adj|att}."
+    "texte": "Au {printemps|nc|cp}, une {équipe|nc|suj} de {chercheurs|nc|cdn} a exploré la {forêt|nc|cv} {amazonienne|adj|epi}. Les {arbres|nc|suj} {géants|adj|epi} cachaient la {lumière|nc|cv} du soleil. Les {insectes|nc|suj} étaient {innombrables|adj|att}. Un {guide|nc|suj} {indien|adj|epi} accompagnait les {savants|nc|cv}. {Il|pron.nppers|suj} connaissait les {plantes|nc|cv} {médicinales|adj|epi}. Le {voyage|nc|suj} fut {long|adj|att}. Les {scientifiques|nc|suj} étaient {enchantés|adj|att}."
    }
   ]
  },

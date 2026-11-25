@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v101';
+const APP_VERSION = 'v103';
 
 const $ = (id) => document.getElementById(id);
 
@@ -141,6 +141,35 @@ const FONCTIONS = [
     exemples: 'verbe + pourquoi ? = CC de cause',
     explication: "Le complément circonstanciel de cause dit pourquoi l'action se passe : *Le bébé pleure pourquoi ?* → *de faim*.",
     q: (v) => `${v} + pourquoi ?` },
+  /* v102 : en 4e-3e, la liste complète des compléments circonstanciels */
+  { code: 'F.ccb', court: 'CC de but', nom: 'Complément circonstanciel de but', article: 'un complément circonstanciel de but', groupe: 'fnom',
+    exemples: 'verbe + dans quel but ? = CC de but',
+    explication: "Le complément circonstanciel de but dit dans quel but se fait l'action : *Il s'entraîne dans quel but ?* → *pour gagner*, *afin de réussir*.",
+    q: (v) => `Dans quel but ${v} ?` },
+  { code: 'F.ccsq', court: 'CC de conséquence', nom: 'Complément circonstanciel de conséquence', article: 'un complément circonstanciel de conséquence', groupe: 'fnom',
+    exemples: 'verbe + avec quelle conséquence ? = CC de conséquence',
+    explication: "Le complément circonstanciel de conséquence dit ce qui résulte de l'action : *Il a tant couru qu'il est épuisé* ; *Il pleut au point d'inonder la rue*.",
+    q: (v) => `Avec quelle conséquence ${v} ?` },
+  { code: 'F.ccmoy', court: 'CC de moyen', nom: 'Complément circonstanciel de moyen', article: 'un complément circonstanciel de moyen', groupe: 'fnom',
+    exemples: 'verbe + par quel moyen ? = CC de moyen',
+    explication: "Le complément circonstanciel de moyen dit avec quoi ou par quel moyen se fait l'action : *Il voyage par quel moyen ?* → *en train*, *à l'aide d'une carte*.",
+    q: (v) => `Par quel moyen ${v} ?` },
+  { code: 'F.cccomp', court: 'CC de comparaison', nom: 'Complément circonstanciel de comparaison', article: 'un complément circonstanciel de comparaison', groupe: 'fnom',
+    exemples: 'verbe + comme qui, comme quoi ? = CC de comparaison',
+    explication: "Le complément circonstanciel de comparaison compare l'action à une autre : *Il nage comme un poisson*, *pareil à son frère*.",
+    q: (v) => `Comme qui, comme quoi ${v} ?` },
+  { code: 'F.cccond', court: 'CC de condition (hypothèse)', nom: 'Complément circonstanciel de condition (hypothèse)', article: 'un complément circonstanciel de condition (hypothèse)', groupe: 'fnom',
+    exemples: 'verbe + à quelle condition ? = CC de condition (hypothèse)',
+    explication: "Le complément circonstanciel de condition (hypothèse) dit à quelle condition l'action se fait : *En cas de pluie, le match est annulé* ; *Avec un peu de chance, nous gagnerons*.",
+    q: (v) => `À quelle condition ${v} ?` },
+  { code: 'F.ccopp', court: 'CC de opposition (concession)', nom: 'Complément circonstanciel de opposition (concession)', article: 'un complément circonstanciel de opposition (concession)', groupe: 'fnom',
+    exemples: 'verbe + malgré quoi ? = CC de opposition (concession)',
+    explication: "Le complément circonstanciel de opposition (concession) dit malgré quoi l'action se fait : *Il joue malgré la fatigue*, *en dépit du froid*.",
+    q: (v) => `Malgré quoi ${v} ?` },
+  { code: 'F.ccacc', court: 'CC de accompagnement', nom: 'Complément circonstanciel de accompagnement', article: 'un complément circonstanciel de accompagnement', groupe: 'fnom',
+    exemples: 'verbe + avec qui, sans qui ? = CC de accompagnement',
+    explication: "Le complément circonstanciel de accompagnement dit avec qui ou sans qui se fait l'action : *Il part avec ses amis*, *sans son sac*.",
+    q: (v) => `Avec qui, sans qui ${v} ?` },
   { code: 'F.cdn', court: 'Complément du nom', nom: 'Complément du nom', article: 'un complément du nom', groupe: 'fgn',
     exemples: 'nom + de (d\', du) + nom = complément du nom',
     explication: "Le complément du nom complète un nom ; il est relié à lui par un petit mot (*de*, *d'*, *du*) : *le chat de mon voisin*, *un jus d'orange*. Il fait partie du groupe nominal.",
@@ -162,7 +191,7 @@ const FONCTIONS = [
 /* Les fonctions proposées selon la nature : le nom commun, le nom propre et le pronom ont toutes les fonctions
    du nom ; l'adverbe modifie le sens ou est complément circonstanciel ; les autres natures n'ont pas de fonction ici. */
 const FONCTIONS_PAR_NATURE = {
-  N: ['F.suj', 'F.cod', 'F.coi', 'F.cos', 'F.att', 'F.ccl', 'F.cct', 'F.ccm', 'F.ccc'],
+  N: ['F.suj', 'F.cod', 'F.coi', 'F.cos', 'F.att', 'F.ccl', 'F.cct', 'F.ccm', 'F.ccc', 'F.ccb', 'F.ccsq', 'F.ccmoy', 'F.cccomp', 'F.cccond', 'F.ccopp', 'F.ccacc'],
   Av: ['F.mod', 'F.ccl', 'F.cct', 'F.ccm'],
 };
 FONCTIONS_PAR_NATURE.NP = FONCTIONS_PAR_NATURE.N; FONCTIONS_PAR_NATURE.Pr = FONCTIONS_PAR_NATURE.N;
@@ -872,6 +901,9 @@ function fixPronunciation(text, voice) {
     const pluriel = /\s/.test(k) ? '' : '(?:s|x)?';
     out = out.replace(new RegExp(`${NB}${reEsc(k)}${pluriel}${NA}`, 'giu'), right);
   });
+  /* v102 : les sigles se lisent lettre par lettre (COD et non « code », COI et non « quoi ») */
+  const SIGLES = { COD: 'cé-o-dé', COI: 'cé-o-i', COS: 'cé-o-èss', CC: 'cé-cé', CCL: 'cé-cé-èl', GN: 'gé-ène', GNS: 'gé-ène-èss', GV: 'gé-vé', CDN: 'cé-dé-ène' };
+  out = out.replace(/(?<![\p{L}])(COD|COI|COS|CCL|CC|GNS|GN|GV|CDN)(?![\p{L}])/gu, (m) => SIGLES[m]);
   /* v92 : sujet inversé après un verbe en -t ou -d : on écrit la liaison pour la voix (répondit-elle → répondi-t-elle) */
   out = out.replace(/(\p{L}{2,}?)[td]-(il|elle|on|ils|elles)(?![\p{L}])/giu, '$1-t-$2');
   return out;
@@ -946,7 +978,7 @@ const PARCOURS = {
     { jeu: 'ce-bilanacc', titre: 'Accorder le groupe nominal et le verbe', classes: ['ce'], bilan: true },
     { jeu: 'cm-nat', titre: 'Les natures des mots variables', classes: ['cm'], tmNiv: 'cm-nat', sansMode: true, tmListe: 'nat5',
       tmQuestion: 'quelle est sa <strong>nature</strong> ?', tmBilan: 'Les mots <strong>variables</strong> changent de forme selon le genre, le nombre ou la personne : le <strong>nom commun</strong> et le <strong>nom propre</strong> (qui commence par une majuscule), le <strong>déterminant</strong>, l\'<strong>adjectif</strong>, le <strong>pronom</strong> et le <strong>verbe</strong>.',
-      consigne: 'Des mots sont soulignés. Pour chacun, dis quelle est sa <strong>nature</strong> : nom commun, nom propre, déterminant, adjectif, pronom ou verbe. On travaille phrase par phrase : lis toute la phrase avant de choisir. Chaque bonne réponse du premier coup vaut 1 point.' },
+      consigne: 'Des mots sont soulignés. Pour chacun, dis quelle est sa <strong>nature</strong> : nom commun, nom propre, déterminant, adjectif qualificatif, pronom ou verbe. On travaille phrase par phrase : lis toute la phrase avant de choisir. Chaque bonne réponse du premier coup vaut 1 point.' },
     { jeu: 'cm-inv', titre: 'Les mots invariables', classes: ['cm'], tmNiv: 'cm-inv', sansMode: true, tmListe: 'inv',
       tmQuestion: 'quelle est sa <strong>nature</strong> ?', tmBilan: 'Les mots <strong>invariables</strong> ne changent jamais de forme. L\'<strong>adverbe</strong> précise un verbe, un adjectif ou un autre adverbe (<em>lentement, très, hier, soudain</em>). La <strong>préposition</strong> introduit un complément (<em>à, de, dans, sur, pour, avec, pendant</em>). La <strong>conjonction de coordination</strong> relie deux mots ou deux groupes de même fonction : <em>mais, ou, et, donc, or, ni, car</em>.',
       consigne: 'Des mots <strong>invariables</strong> sont soulignés. Pour chacun, dis si c\'est un <strong>adverbe</strong>, une <strong>préposition</strong> ou une <strong>conjonction de coordination</strong> (<em>mais, ou, et, donc, or, ni, car</em>). Chaque bonne réponse du premier coup vaut 1 point.' },
@@ -972,8 +1004,8 @@ const PARCOURS = {
       consigne: '<strong>Bilan</strong> : tout ce que tu as appris sur les mots. Des mots sont soulignés. Pour chacun, donne sa <strong>nature</strong> (étiquette verte : ce qu\'il est) puis sa <strong>fonction</strong> (étiquette rouge : le rôle qu\'il joue dans la phrase). 0,5 point pour la nature, 0,5 pour la fonction, si elles sont justes du premier coup.' },
     { jeu: 'cm-bilanacc', titre: 'Tous les accords', classes: ['cm'], bilan: true },
     { jeu: 'c65-nat', titre: "Toutes les natures de mots", classes: ['65'], tmNiv: 'c65-nat', sansMode: true, tmListe: 'nat10',
-      tmQuestion: "quelle est sa <strong>nature</strong> ?", tmBilan: "Les mots <strong>variables</strong> : nom commun, nom propre, déterminant, adjectif, pronom, verbe. Les mots <strong>invariables</strong> : adverbe, préposition, conjonction de coordination (<em>mais, ou, et, donc, or, ni, car</em>) et <strong>conjonction de subordination</strong> (<em>quand, lorsque, parce que, puisque, si, comme, que…</em>), qui introduit une proposition subordonnée.",
-      consigne: "Des mots sont soulignés. Pour chacun, dis sa <strong>nature</strong> : nom commun, nom propre, déterminant, adjectif, pronom, verbe, adverbe, préposition, conjonction de coordination ou de subordination. Lis toute la phrase avant de choisir. Chaque bonne réponse du premier coup vaut 1 point." },
+      tmQuestion: "quelle est sa <strong>nature</strong> ?", tmBilan: "Les mots <strong>variables</strong> : nom commun, nom propre, déterminant, adjectif qualificatif, pronom, verbe. Les mots <strong>invariables</strong> : adverbe, préposition, conjonction de coordination (<em>mais, ou, et, donc, or, ni, car</em>) et <strong>conjonction de subordination</strong> (<em>quand, lorsque, parce que, puisque, si, comme, que…</em>), qui introduit une proposition subordonnée.",
+      consigne: "Des mots sont soulignés. Pour chacun, dis sa <strong>nature</strong> : nom commun, nom propre, déterminant, adjectif qualificatif, pronom, verbe, adverbe, préposition, conjonction de coordination ou de subordination. Lis toute la phrase avant de choisir. Chaque bonne réponse du premier coup vaut 1 point." },
     { jeu: 'c65-pron', titre: "Les sortes de pronoms", classes: ['65'], tmNiv: 'c65-pron', sansMode: true, tmListe: 'pron6',
       tmQuestion: "quelle sorte de <strong>pronom</strong> ?", tmBilan: "Le pronom <strong>personnel</strong> désigne les personnes (<em>je, tu, il, le, lui, nous, en, y</em>). Le <strong>possessif</strong> remplace un nom en indiquant à qui il est (<em>le mien, la tienne</em>). Le <strong>démonstratif</strong> montre (<em>celui, celle-ci, cela</em>). Le <strong>relatif</strong> reprend un antécédent et introduit une proposition (<em>qui, que, dont, où, lequel</em>). L'<strong>indéfini</strong> désigne de façon vague (<em>quelqu'un, personne, rien, chacun, plusieurs</em>). L'<strong>interrogatif</strong> pose une question (<em>qui ? que ? lequel ?</em>).",
       consigne: "Des pronoms sont soulignés. Pour chacun, dis de quelle sorte il est : personnel, possessif, démonstratif, relatif, indéfini ou interrogatif. Attention : <em>qui</em> est relatif quand il reprend un nom, interrogatif quand il pose une question. Chaque bonne réponse du premier coup vaut 1 point." },
@@ -998,7 +1030,7 @@ const PARCOURS = {
       tmQuestion: "quelle est sa <strong>nature</strong> ?", tmBilan: "La <strong>nature</strong> d'un mot (étiquette verte) est ce qu'il est ; sa <strong>fonction</strong> (étiquette rouge) est le rôle qu'il joue dans la phrase. Un même nom peut être sujet, COD, COI, complément circonstanciel, complément du nom ou apposition.",
       consigne: "<strong>Bilan</strong> : tout ce que tu as appris sur les mots. Pour chaque mot souligné, donne sa <strong>nature</strong> (étiquette verte) puis sa <strong>fonction</strong> (étiquette rouge). 0,5 point pour la nature, 0,5 pour la fonction, si elles sont justes du premier coup." },
     { jeu: 'c65-bilanacc', titre: 'Tous les accords', classes: ['65'], bilan: true },
-    { jeu: 'c43-double', titre: "Les mots qui changent de nature", classes: ['43'], tmNiv: 'c43-double', sansMode: true, tmListe: 'nat10', tmPrec: { 'TPS.det': ['detp', 'Quelle sorte de <strong>déterminant</strong> ?'], 'TPS.pron': ['pronp', 'Quelle sorte de <strong>pronom</strong> ?'] },
+    { jeu: 'c43-double', titre: "Les mots qui changent de nature", classes: ['43'], tmNiv: 'c43-double', sansMode: true, tmListe: 'nat10',
       tmQuestion: "quelle est sa <strong>nature</strong> ici ?", tmBilan: "Certains mots changent de nature selon leur emploi. <em>Le, la, les, leur</em> sont des <strong>déterminants</strong> devant un nom (<em>leur maison</em>), des <strong>pronoms</strong> devant un verbe (<em>je leur parle</em>). <em>Que</em> est un <strong>pronom relatif</strong> quand il reprend un nom (<em>le livre que tu lis</em>), une <strong>conjonction de subordination</strong> après un verbe (<em>il croit que tu viendras</em>). <em>Tout</em> est déterminant devant un nom, pronom seul, adverbe devant un adjectif (<em>tout étonné</em>). <em>Devant, avant</em> sont prépositions avec un complément, adverbes sans complément. <em>Si</em> est conjonction (condition) ou adverbe (intensité). <em>En</em> est préposition devant un nom, pronom devant un verbe.",
       consigne: "Des mots sont soulignés : ce sont des mots qui peuvent avoir plusieurs natures. Pour chacun, regarde ce qui le suit : un nom, un verbe, un adjectif, rien ? C'est l'emploi qui décide de la nature. Si c'est un <strong>déterminant</strong> ou un <strong>pronom</strong>, une seconde grille te demande sa nature exacte : article défini, déterminant possessif, pronom personnel, pronom relatif… Chaque mot bien étiqueté vaut 1 point." },
     { jeu: 'c43-relfn', tmNat: 'natvue', titre: "La fonction du pronom relatif", classes: ['43'], tmNiv: 'c43-relfn', sansMode: true, tmListe: 'relfn',
@@ -1453,7 +1485,7 @@ function openGame(id) {
   currentGame.tmChoix = adapte?.tmChoix || null;
   currentGame.sansMode = !!adapte?.sansMode;
   currentGame.tmNiv = adapte?.tmNiv || null;
-  currentGame.tmListe = adapte?.tmListe || null; currentGame.tmListe2 = adapte?.tmListe2 || null; currentGame.tmQuestion2 = adapte?.tmQuestion2 || null; currentGame.tmQuestion = adapte?.tmQuestion || null; currentGame.tmBilan = adapte?.tmBilan || null; currentGame.tmNat = adapte?.tmNat || null; currentGame.tmPrec = adapte?.tmPrec || null;
+  currentGame.tmListe = adapte?.tmListe || null; currentGame.tmListe2 = adapte?.tmListe2 || null; currentGame.tmQuestion2 = adapte?.tmQuestion2 || null; currentGame.tmQuestion = adapte?.tmQuestion || null; currentGame.tmBilan = adapte?.tmBilan || null; currentGame.tmNat = adapte?.tmNat || null;
   if (currentGame.sxTF) currentGame.tfNiv = adapte?.tfNiv || '43';
   if (currentGame.tm && currentGame.tmTexte !== undefined) currentGame.total = decoupeTM(TEXTES_TM[currentGame.tmTexte].texte).formes.length;
   else if (id === 'temps1') currentGame.total = 20;
@@ -2121,11 +2153,22 @@ const PHRASES_GV = [
   'Il/Pr.per=suj tremble/VA de/P froid/N=ccc .',
   'Le/D.def train/N=suj arrive/VA à/P la/D.def gare/N=ccl .',
   'Le/D.def boulanger/N=suj fabrique/VA le/D.def pain/N=cod la/D.def nuit/N=cct .',
+  /* v102 : les autres compléments circonstanciels, en 4e-3e */
+  'Pierre/NP=suj s\'entraîne/VA pour/P la/D.def victoire/N=ccb .',
+  'Fanny/NP=suj voyage/VA en/P train/N=ccmoy .',
+  'Paolo/NP=suj part/VA avec/P ses/D.pos amis/N=ccacc .',
+  'Le/D.def nageur/N=suj glisse/VA comme/P un/D.ind poisson/N=cccomp .',
+  'Les/D.def coureurs/N=suj avancent/VA malgré/P la/D.def fatigue/N=ccopp .',
+  'Nous/Pr.per=suj sortirons/VA en/P cas/N=cccond de/P soleil/N .',
+  'Le/D.def chat/N=suj sort/VA sans/P son/D.pos collier/N=ccacc .',
+  'Fanny/NP=suj écrit/VA avec/P un/D.ind stylo/N=ccmoy .',
+  'Nous/Pr.per=suj partons/VA malgré/P le/D.def froid/N=ccopp .',
+  'Pierre/NP=suj travaille/VA pour/P son/D.pos examen/N=ccb .',
 ];
 const PARSED_GV = PHRASES_GV.map(parsePhrase);
-const INFINITIFS = { est: 'être', semble: 'sembler', devient: 'devenir', paraît: 'paraître', reste: 'rester', viens: 'venir', dort: 'dormir', mange: 'manger', lit: 'lire', parlons: 'parler', jouent: 'jouer', pleure: 'pleurer', chante: 'chanter', apporte: 'apporter', vois: 'voir', parles: 'parler', marche: 'marcher', chantent: 'chanter', pense: 'penser', aboie: 'aboyer', partirons: 'partir', souffle: 'souffler', prête: 'prêter', tremble: 'trembler', arrive: 'arriver', fabrique: 'fabriquer' };
-const FN_GV = { suj: 'F.suj', cod: 'F.cod', coi: 'F.coi', cos: 'F.cos', att: 'F.att', ccl: 'F.ccl', cct: 'F.cct', ccm: 'F.ccm', ccc: 'F.ccc' };
-const CC_CODES = ['F.ccl', 'F.cct', 'F.ccm', 'F.ccc'];
+const INFINITIFS = { "s'entraîne": "s'entraîner", voyage: 'voyager', part: 'partir', glisse: 'glisser', avancent: 'avancer', sort: 'sortir', écrit: 'écrire', partons: 'partir', travaille: 'travailler', sortirons: 'sortir', est: 'être', semble: 'sembler', devient: 'devenir', paraît: 'paraître', reste: 'rester', viens: 'venir', dort: 'dormir', mange: 'manger', lit: 'lire', parlons: 'parler', jouent: 'jouer', pleure: 'pleurer', chante: 'chanter', apporte: 'apporter', vois: 'voir', parles: 'parler', marche: 'marcher', chantent: 'chanter', pense: 'penser', aboie: 'aboyer', partirons: 'partir', souffle: 'souffler', prête: 'prêter', tremble: 'trembler', arrive: 'arriver', fabrique: 'fabriquer' };
+const FN_GV = { suj: 'F.suj', cod: 'F.cod', coi: 'F.coi', cos: 'F.cos', att: 'F.att', ccl: 'F.ccl', cct: 'F.cct', ccm: 'F.ccm', ccc: 'F.ccc', ccb: 'F.ccb', ccsq: 'F.ccsq', ccmoy: 'F.ccmoy', cccomp: 'F.cccomp', cccond: 'F.cccond', ccopp: 'F.ccopp', ccacc: 'F.ccacc' };
+const CC_CODES = ['F.ccl', 'F.cct', 'F.ccm', 'F.ccc', 'F.ccb', 'F.ccsq', 'F.ccmoy', 'F.cccomp', 'F.cccond', 'F.ccopp', 'F.ccacc'];   /* v102 : ces jeux sont de 4e-3e : la liste complète */
 /* le groupe d'un mot : (petit mot) (déterminant) (adjectifs) mot (adjectifs) */
 function plageGV(mots, h) {
   const m = mots[h];
@@ -2153,7 +2196,7 @@ const motsGV = (q) => PARSED_GV[q.phrase];
 const motV = (q, i) => { const m = motsGV(q)[i]; return m.tag === 'NP' ? m.texte : m.texte.toLowerCase(); };
 const verbeV = (q) => `« ${motV(q, q.a.v)} »`;
 /* le nom d'une fonction, précis : « COD du verbe mange », « attribut du sujet ciel », « CC de temps du verbe viens » */
-const NOM_FN = { 'F.suj': 'sujet', 'F.cod': 'COD', 'F.coi': 'COI', 'F.cos': 'COS', 'F.att': 'attribut du sujet', 'F.ccl': 'CC de lieu', 'F.cct': 'CC de temps', 'F.ccm': 'CC de manière', 'F.ccc': 'CC de cause' };
+const NOM_FN = { 'F.suj': 'sujet', 'F.cod': 'COD', 'F.coi': 'COI', 'F.cos': 'COS', 'F.att': 'attribut du sujet', 'F.ccl': 'CC de lieu', 'F.cct': 'CC de temps', 'F.ccm': 'CC de manière', 'F.ccc': 'CC de cause', 'F.ccb': 'CC de but', 'F.ccsq': 'CC de conséquence', 'F.ccmoy': 'CC de moyen', 'F.cccomp': 'CC de comparaison', 'F.cccond': 'CC de condition (hypothèse)', 'F.ccopp': 'CC de opposition (concession)', 'F.ccacc': 'CC de accompagnement' };
 const fnPreciseV = (q, code) => (code === 'F.att' ? `attribut du sujet ${motV(q, q.a.suj.i)}` : `${NOM_FN[code]} du verbe ${INFINITIFS[motV(q, q.a.v)] || motV(q, q.a.v)}`);
 /* ------------------------------------------------------------
    v30 : consignes et bilans du jeu 3 qui montrent la méthode, appliquée à la phrase elle-même
@@ -2186,7 +2229,7 @@ function sujetInfos(q) {
   }
   const det = s.debut < s.i ? mots[s.debut].texte : '';
   const pluriel = PLURIEL_DET.test(det);
-  const fem = /^(la|une|ma|ta|sa|cette)$/i.test(det) || ['Léa'].includes(m.texte);
+  const fem = /^(la|une|ma|ta|sa|cette)$/i.test(det) || ['Léa', 'Fanny', 'Julie', 'Clara', 'Lina', 'Lou', 'Marie'].includes(m.texte);
   return { gn: texteV(q, s), pr: pluriel ? (fem ? 'elles' : 'ils') : fem ? 'elle' : 'il', pluriel };
 }
 /* « Où le lion marche-t-il ? », « Quand partirons-nous ? », « Où est-ce que je viens ? » */
@@ -2198,7 +2241,7 @@ function questionCirconstance(q, mot) {
   if (si.pronom) return `${mot} ${cl ? cl + ' ' : ''}${v}${t(si.pronom)}${si.pronom}${suite} ?`;
   return `${mot} ${si.gn} ${cl ? cl + ' ' : ''}${v}${t(si.pr)}${si.pr}${suite} ?`;
 }
-const MOT_CC = { 'F.ccl': 'Où', 'F.cct': 'Quand', 'F.ccm': 'Comment', 'F.ccc': 'Pourquoi' };
+const MOT_CC = { 'F.ccl': 'Où', 'F.cct': 'Quand', 'F.ccm': 'Comment', 'F.ccc': 'Pourquoi', 'F.ccb': 'Dans quel but', 'F.ccsq': 'Avec quelle conséquence', 'F.ccmoy': 'Par quel moyen', 'F.cccomp': 'Comme qui, comme quoi', 'F.cccond': 'À quelle condition', 'F.ccopp': 'Malgré quoi', 'F.ccacc': 'Avec qui, sans qui' };
 const CARTES_GV = {
   verbe: () => ({ vert: true, texte: 'Dans cette phrase, appuie sur le verbe.' }),
   verbenat: (q) => ({ vert: true, texte: `Quelle est la nature du verbe ${verbeV(q)} ?`, choix: ['VA', 'VE'] }),
@@ -2217,7 +2260,7 @@ const CARTES_GV = {
     return { vert: false, texte: `Le verbe « ${inf} » a-t-il aussi un mot de fonction COS, qui répondrait à la question « ${inf} quelque chose + à qui ? à quoi ? de qui ? de quoi ? » et qui désignerait un second objet (la personne ou la chose destinataire de l'action) ?`, choix: ['oui', 'non'] };
   },
   obj: (q) => ({ vert: false, texte: gnState.objet === 'F.att' ? `Appuie sur l'attribut du sujet « ${motV(q, q.a.suj.i)} ».` : `Appuie sur le ${NOM_FN[gnState.objet]} du verbe « ${infV(q)} ».` }),
-  ccq: (q) => ({ vert: false, texte: `Dans cette phrase, donne-t-on ${gnState.ccFaits.size ? 'd\'autres circonstances' : 'les circonstances'} de ${q.a.etat ? 'cette description' : 'cet événement'} (où, quand, comment, pourquoi) ?`, choix: ['oui', 'non'] }),
+  ccq: (q) => ({ vert: false, texte: `Dans cette phrase, donne-t-on ${gnState.ccFaits.size ? 'd\'autres circonstances' : 'les circonstances'} de ${q.a.etat ? 'cette description' : 'cet événement'} (où, quand, comment, pourquoi, dans quel but, par quel moyen, avec qui, malgré quoi…) ?`, choix: ['oui', 'non'] }),
   cc: () => ({ vert: false, texte: 'Appuie sur le mot qui donne cette circonstance : c\'est un complément circonstanciel.' }),
   cctype: (q) => ({
     vert: false, texte: `À quelle question répond « ${texteV(q, gnState.comp)} » ?`, choix: CC_CODES, une: true,
@@ -2339,7 +2382,7 @@ function resumeGV(q, html) {
   /* « une pomme », dont le mot principal est le nom commun « pomme » ; « aujourd'hui », un adverbe */
   const groupe = (c) => (c.fin > c.debut ? `${g(texteV(q, c))}, dont le mot principal est ${natArt(c.i).replace(/^une? /, 'le ')} ${g(motV(q, c.i))}` : `${g(texteV(q, c))}, ${natArt(c.i)}`);
   const inf = infV(q), sv = sujetVerbe(q), si = sujetInfos(q);
-  const POUR = { 'F.ccl': 'où', 'F.cct': 'quand', 'F.ccm': 'comment', 'F.ccc': 'pourquoi' };
+  const POUR = { 'F.ccl': 'où', 'F.cct': 'quand', 'F.ccm': 'comment', 'F.ccc': 'pourquoi', 'F.ccb': 'dans quel but', 'F.ccsq': 'avec quelle conséquence', 'F.ccmoy': 'par quel moyen', 'F.cccomp': 'comme qui, comme quoi', 'F.cccond': 'à quelle condition', 'F.ccopp': 'malgré quoi', 'F.ccacc': 'avec qui' };
   const cap = (x) => x.charAt(0).toUpperCase() + x.slice(1);
   if (a.etat) {
     const meta = DESCRIPTIONS[phraseTexte(mots)] || {};
@@ -2628,13 +2671,13 @@ const CARTES_TAB = {
   tobj: () => { const v = tabState.verbes[tabState.vi]; return { vert: false, texte: tabState.objet === 'F.att' ? 'Appuie sur l\'attribut du sujet.' : `Appuie sur le ${NOM_FN[tabState.objet]} du verbe « ${infT(v)} ».` }; },
   tccq: () => {
     const v = tabState.verbes[tabState.vi];
-    return { vert: false, texte: `${tabState.msg}« ${groupeVerbalT(v)} » : est-ce qu'on donne ${tabState.ccFait ? 'une autre circonstance' : 'une circonstance'} ? Où ? Quand ? Comment ? Pourquoi ?`, choix: ['oui', 'non'] };
+    return { vert: false, texte: `${tabState.msg}« ${groupeVerbalT(v)} » : est-ce qu'on donne ${tabState.ccFait ? 'une autre circonstance' : 'une circonstance'} ? Où ? Quand ? Comment ? Pourquoi ? Dans quel but ? Par quel moyen ? Avec qui ? Malgré quoi ?…`, choix: ['oui', 'non'] };
   },
   tcc: () => ({ vert: false, texte: `Appuie sur le mot qui donne cette circonstance : c'est un complément circonstanciel.` }),
   tcctype: () => {
     const gv = groupeVerbalT(tabState.verbes[tabState.vi]);
     return { vert: false, texte: `À quelle question répond « ${motT(tabState.courant)} » ?`, choix: CC_CODES, une: true,
-      labels: { 'F.ccl': `${gv}… où ? (CC de lieu)`, 'F.cct': `${gv}… quand ? (CC de temps)`, 'F.ccm': `${gv}… comment ? (CC de manière)`, 'F.ccc': `${gv}… pourquoi ? (CC de cause)` } };
+      labels: { 'F.ccl': `${gv}… où ? (CC de lieu)`, 'F.cct': `${gv}… quand ? (CC de temps)`, 'F.ccm': `${gv}… comment ? (CC de manière)`, 'F.ccc': `${gv}… pourquoi ? (CC de cause)`, 'F.ccb': `Dans quel but ? (CC de but)`, 'F.ccsq': `Avec quelle conséquence ? (CC de conséquence)`, 'F.ccmoy': `Par quel moyen ? (CC de moyen)`, 'F.cccomp': `Comme qui, comme quoi ? (CC de comparaison)`, 'F.cccond': `À quelle condition ? (CC de condition (hypothèse))`, 'F.ccopp': `Malgré quoi ? (CC de opposition (concession))`, 'F.ccacc': `Avec qui, sans qui ? (CC de accompagnement)` } };
   },
   tdetq: () => ({ vert: true, texte: `${tabState.msg}Passons au groupe du nom « ${motT(tabState.noms[tabState.ni])} ». Le nom « ${motT(tabState.noms[tabState.ni])} » a-t-il un déterminant ?`, choix: ['oui', 'non'] }),
   tdet: () => ({ vert: true, texte: `Appuie sur le déterminant du nom « ${motT(tabState.noms[tabState.ni])} ».` }),
@@ -2823,8 +2866,8 @@ function finishQuestionTab() {
    compte sa moitié « fonction » juste si l'enfant n'en a pas donné. Une case vide vaut zéro.
    ------------------------------------------------------------ */
 const NATS6 = ['N', 'NP', 'Pr', 'D', 'A', 'VA', 'VE', 'VINF', 'Av', 'P', 'CC', 'CS', 'I'];
-const FNS6 = ['aucune', 'F.suj', 'F.cod', 'F.coi', 'F.cos', 'F.att', 'F.ccl', 'F.cct', 'F.ccm', 'F.ccc', 'F.epi', 'F.app', 'F.cdn'];
-const LIB6 = { aucune: 'Pas de fonction', 'F.suj': 'Sujet', 'F.cod': 'COD', 'F.coi': 'COI', 'F.cos': 'COS', 'F.att': 'Attribut du sujet', 'F.ccl': 'CC de lieu', 'F.cct': 'CC de temps', 'F.ccm': 'CC de manière', 'F.ccc': 'CC de cause', 'F.epi': 'Épithète', 'F.app': 'Apposé', 'F.cdn': 'Complément du nom' };
+const FNS6 = ['aucune', 'F.suj', 'F.cod', 'F.coi', 'F.cos', 'F.att', 'F.ccl', 'F.cct', 'F.ccm', 'F.ccc', 'F.ccb', 'F.ccsq', 'F.ccmoy', 'F.cccomp', 'F.cccond', 'F.ccopp', 'F.ccacc', 'F.epi', 'F.app', 'F.cdn'];
+const LIB6 = { aucune: 'Pas de fonction', 'F.suj': 'Sujet', 'F.cod': 'COD', 'F.coi': 'COI', 'F.cos': 'COS', 'F.att': 'Attribut du sujet', 'F.ccl': 'CC de lieu', 'F.cct': 'CC de temps', 'F.ccm': 'CC de manière', 'F.ccc': 'CC de cause', 'F.ccb': 'CC de but', 'F.ccsq': 'CC de conséquence', 'F.ccmoy': 'CC de moyen', 'F.cccomp': 'CC de comparaison', 'F.cccond': 'CC de condition (hypothèse)', 'F.ccopp': 'CC de opposition (concession)', 'F.ccacc': 'CC de accompagnement', 'F.epi': 'Épithète', 'F.app': 'Apposé', 'F.cdn': 'Complément du nom' };
 const natLib6 = (code) => (code === 'VINF' ? 'Verbe à l\'infinitif' : code === 'D' ? 'Déterminant' : code === 'Pr' ? 'Pronom' : (NAT_LIB[code] || NATURE_BY_CODE[code]?.nom || code).replace(/&shy;/g, ''));
 const lienDe = (fn) => (fn === 'F.att' ? 'sujet' : ['F.epi', 'F.app', 'F.cdn'].includes(fn) ? 'nom' : 'verbe');
 const libre = { rep: {}, sel: null, attente: false, corrige: false };
@@ -3056,7 +3099,10 @@ function decoupeTM(src) {
   src.replace(/\{([^}|]+)\|([^}|]+)\|([^}|]+)(?:\|([^}|]+)(?:\|([^}|]+))?)?\}|([^\s{]+)/g, (m, f, tps, mode, vt, vm, w) => {
     if (f) {
       mots.push({ t: f, k: formes.length });
-      const x = { t: f, tps: `TPS.${tps}`, mode: `MODE.${mode}` };
+      /* v102 : « pron.nppers » : la nature (pronom), puis sa nature exacte (pronom personnel), demandée dans une seconde grille */
+      const [t0, np] = tps.split('.');
+      const x = { t: f, tps: `TPS.${t0}`, mode: `MODE.${mode}` };
+      if (np) x.np = `MODE.${np}`;
       /* v95 : une précision sur la fonction (« du verbe préparer ») */
       if (vt && vm === undefined) x.prec = vt;
       else if (vt) {
@@ -3078,8 +3124,11 @@ const TM_T = () => TEXTES_TM[game.questions[game.index].t];
 const formeTM = (i) => (i >= 100 ? TM_T().suite[i - 100] : tm.texte.formes[i]);
 const indicesPhase = () => (tm.phase === 1 ? tm.texte.formes.map((f, k) => k) : TM_T().suite.map((f, n) => 100 + n));
 /* v98 : precTM(f) : pour un déterminant ou un pronom, une seconde grille demande sa nature exacte */
-const precTM = (f) => (currentGame.tmPrec && f && currentGame.tmPrec[bonneTM(f, 'tps')]) || null;
-const CHAMPS_TM = (f) => (currentGame.valeurs ? ['tps', 'mode', 'vt', 'vm'] : precTM(f) ? ['tps', 'mode'] : currentGame.sansMode ? ['tps'] : ['tps', 'mode']);
+const PREC_TM = { 'TPS.det': ['detp', 'Quelle sorte de <strong>déterminant</strong> ?'], 'TPS.pron': ['pronp', 'Quelle sorte de <strong>pronom</strong> ?'] };
+const precTM = (f) => (f && f.np && PREC_TM[bonneTM(f, 'tps')]) || null;
+const CHAMPS_TM = (f) => { const c = currentGame.valeurs ? ['tps', 'mode', 'vt', 'vm'] : currentGame.sansMode ? ['tps'] : ['tps', 'mode']; if (precTM(f)) c.splice(1, 0, 'np'); return c; };
+/* v102 : chaque mot vaut 1 point ; avec la nature exacte, la nature compte pour moitié (un quart chacune), la fonction pour l'autre moitié */
+const poidsTM = (f, champ) => { const c = CHAMPS_TM(f); if (c.length === 1) return 1; if (c.length === 3 && c.includes('np')) return champ === 'mode' ? 0.5 : 0.25; return 1 / c.length; };
 const estFaite = (i) => !!tm.rep[i] && CHAMPS_TM(formeTM(i)).every((c) => tm.rep[i][c]);
 const accepte = (f, champ, code) => [].concat(f[champ]).includes(code);
 const bonneTM = (f, champ) => [].concat(f[champ])[0];
@@ -3110,9 +3159,9 @@ function poseLabelsTM(i) {
   const morceau = (c, texte) => { const juste = accepte(f, c, r[c]); return `<span class="morceau${juste ? '' : ' corrige'}">${juste ? '' : '✗ '}${texte}</span>`; };
   const aff = (c) => (accepte(f, c, r[c]) ? r[c] : bonneTM(f, c));
   /* v98 : déterminant ou pronom : une seule étiquette verte, « pronom personnel », marquée ✗ si une des deux réponses était fausse */
-  if (precTM(f) && r.mode) { const ok = accepte(f, 'tps', r.tps) && accepte(f, 'mode', r.mode); carre(i, `<span class="morceau${ok ? '' : ' corrige'}">${ok ? '' : '✗ '}${etiquetteTM(bonneTM(f, 'mode'))}</span>`, false); const lab = [...el.querySelectorAll('.labs .lab')].pop(); if (!accepte(f, 'mode', r.mode) || !accepte(f, 'tps', r.tps)) lab.classList.add('corrige'); return; }
   [['tps', 'vt', currentGame.sansMode || currentGame.tmListe ? couleurTM() : false], ['mode', 'vm', couleur2TM()]].forEach(([c, v, rouge]) => {
     if (!r[c]) return;
+    if (c === 'tps' && precTM(f) && r.np) { const ok = accepte(f, 'tps', r.tps) && accepte(f, 'np', r.np); carre(i, `<span class="morceau${ok ? '' : ' corrige'}">${ok ? '' : '✗ '}${etiquetteTM(bonneTM(f, 'np'))}</span>`, rouge); if (!ok) [...el.querySelectorAll('.labs .lab')].pop().classList.add('corrige'); return; }
     let html = morceau(c, etiquetteTM(aff(c)) + (c === 'tps' && f.prec ? ` ${f.prec}` : ''));
     /* v98 : la valeur dans un cadre bleu, à côté du temps ou du mode (cadre vert), comme les touches */
     if (r[v]) html = duoLab(html, morceau(v, (rouge && f.vmTexte && accepte(f, v, r[v]) ? f.vmTexte : (rouge ? SUITE_VM : SUITE_VT)[aff(v)]) || etiquetteTM(aff(v))));
@@ -3188,13 +3237,13 @@ function panneauTM() {
   const carte = (champ, rouge, question, cols) => `<div class="carte ${rouge === 'bleu' ? 'bleue' : rouge ? 'rouge' : 'verte'} active libre${champ.startsWith('v') ? ' carte-valeur' : ''}"><p>${question}</p><div class="carte-choix carte-choix-${cols}">${(champ === 'tps' && currentGame.tmListe ? TM_LISTES[currentGame.tmListe] : champ === 'mode' && currentGame.tmListe2 ? TM_LISTES[currentGame.tmListe2] : LISTE_TM[champ]).filter((x) => !currentGame.tmChoix?.[champ] || currentGame.tmChoix[champ].includes(x.code)).map((x) => b(x.code, rouge, champ)).join('')}</div></div>`;
   let html = carte('tps', couleurTM(), questionTM(f), currentGame.tmListe ? (TML().cols || 3) : currentGame.sansMode ? 2 : 3) + (currentGame.sansMode ? '' : carte('mode', couleur2TM(), currentGame.tmQuestion2 || 'Quel est son <strong>mode</strong> ?', TML().cols2 || 3));
   const P = precTM(f);
-  if (P && r.tps) html += `<div class="carte verte active libre"><p>${P[1]}</p><div class="carte-choix carte-choix-2">${TM_LISTES[P[0]].map((x) => b(x.code, false, 'mode')).join('')}</div></div>`;
+  if (P && r.tps) { const fin = html.indexOf('</div></div>') + 12; html = html.slice(0, fin) + `<div class="carte verte active libre"><p>${P[1]}</p><div class="carte-choix carte-choix-2">${TM_LISTES[P[0]].map((x) => b(x.code, false, 'np')).join('')}</div></div>` + html.slice(fin); }
   /* exercice 3 : les valeurs, une fois le temps et le mode donnés */
   if (currentGame.valeurs && r.tps && r.mode) {
     html += carte('vt', 'bleu', `Pourquoi ce temps ? Quelle est la <strong>valeur</strong> ${duTM(f.tps)} ici ?`, 2);
     html += carte('vm', 'bleu', `Pourquoi ce mode ? Quelle est la <strong>valeur</strong> ${duTM(f.mode)} ici ?`, 2);
   }
-  if (estFaite(i)) html += `<p class="sous tm-bilan">« ${esc(f.t)} » : ${natVueTM(f) ? natVueTM(f).toLowerCase() + ', ' : ''}${currentGame.sansMode ? (precTM(f) ? etiquetteTM(bonneTM(f, 'mode')) : etiquetteTM(f.tps)) + (f.prec ? ` ${f.prec}` : '') : `temps ${NOM_TM(f.tps).toLowerCase()}, mode ${NOM_TM(f.mode).toLowerCase()}`}.${f.vt ? ` Valeur du temps : ${etiquetteTM(bonneTM(f, 'vt'))} ; valeur du mode : ${etiquetteTM(bonneTM(f, 'vm'))}.` : ''}${f.ancien ? ` En français classique, on écrivait « ${esc(f.ancien)} » : ${f.pourquoi}` : ''}</p>`;
+  if (estFaite(i)) html += `<p class="sous tm-bilan">« ${esc(f.t)} » : ${natVueTM(f) ? natVueTM(f).toLowerCase() + ', ' : ''}${currentGame.sansMode ? (precTM(f) ? etiquetteTM(bonneTM(f, 'np')) : etiquetteTM(f.tps)) + (f.prec ? ` ${f.prec}` : '') : currentGame.tmListe2 ? `${etiquetteTM(precTM(f) ? bonneTM(f, 'np') : f.tps)}, ${etiquetteTM(bonneTM(f, 'mode'))}${f.prec ? ` ${f.prec}` : ''}` : `temps ${NOM_TM(f.tps).toLowerCase()}, mode ${NOM_TM(f.mode).toLowerCase()}`}.${f.vt ? ` Valeur du temps : ${etiquetteTM(bonneTM(f, 'vt'))} ; valeur du mode : ${etiquetteTM(bonneTM(f, 'vm'))}.` : ''}${f.ancien ? ` En français classique, on écrivait « ${esc(f.ancien)} » : ${f.pourquoi}` : ''}</p>`;
   $('nat-buttons-variables').innerHTML = nbspFr(html);
   document.querySelectorAll('[data-tm]').forEach((btn) => btn.addEventListener('click', () => repondTM(btn.dataset.tm, btn.dataset.champ)));
 }
@@ -3208,8 +3257,10 @@ function panneauPhraseTM() {
   let html = `<p class="sous tf-phrase-n">Phrase ${phs.indexOf(ph) + 1} sur ${phs.length} : ${G.length} ${G.length > 1 ? O[1] : O[0]} à étiqueter, un par encart.</p>`;
   G.forEach((j) => {
     const f = formeTM(j), r = tm.rep[j] || {}, fini = estFaite(j), actif = j === tm.sel && !fini;
-    const b = (code, champ) => { const rep = r[champ], cls = !rep ? '' : accepte(f, champ, code) && (code === rep || !accepte(f, champ, rep)) ? ' correct' : code === rep ? ' wrong' : ' faded'; const co = champ === 'mode' ? couleur2TM() : couleurTM(); return `<button type="button" class="nature-button${co === 'bleu' ? ' bleu-button' : co ? ' fonction-button' : ''}${cls}" data-tm="${code}" data-champ="${champ}" data-j="${j}"${rep ? ' disabled' : ''}>${NOM_TM(code)}</button>`; };
+    const b = (code, champ) => { const rep = r[champ], cls = !rep ? '' : accepte(f, champ, code) && (code === rep || !accepte(f, champ, rep)) ? ' correct' : code === rep ? ' wrong' : ' faded'; const co = champ === 'mode' ? couleur2TM() : champ === 'np' ? false : couleurTM(); return `<button type="button" class="nature-button${co === 'bleu' ? ' bleu-button' : co ? ' fonction-button' : ''}${cls}" data-tm="${code}" data-champ="${champ}" data-j="${j}"${rep ? ' disabled' : ''}>${NOM_TM(code)}</button>`; };
     html += `<div class="carte verte libre tf-encart${actif ? ' active' : ''}${fini ? ' faite' : ''}"><p>« ${esc(f.t)} » : ${currentGame.tmQuestion || 'quel est son <strong>temps</strong> ?'}</p><div class="carte-choix carte-choix-${cols}">${liste.map((x) => b(x.code, 'tps')).join('')}</div>`;
+    const P = precTM(f);   /* v102 : la nature exacte du déterminant ou du pronom */
+    if (P && r.tps) html += `<p class="tm-q2">${P[1]}</p><div class="carte-choix carte-choix-2">${TM_LISTES[P[0]].map((x) => b(x.code, 'np')).join('')}</div>`;
     if (!currentGame.sansMode) { const L2 = (currentGame.tmListe2 ? TM_LISTES[currentGame.tmListe2] : LISTE_TM.mode).filter((x) => !currentGame.tmChoix?.mode || currentGame.tmChoix.mode.includes(x.code)); html += `<p class="tm-q2">${currentGame.tmQuestion2 || 'Quel est son <strong>mode</strong> ?'}</p><div class="carte-choix carte-choix-${TML().cols2 || 3}">${L2.map((x) => b(x.code, 'mode')).join('')}</div>`; }
     html += '</div>';
   });
@@ -3235,7 +3286,7 @@ function repondTM(code, champ) {
   if (r[champ]) return;
   r[champ] = code;
   const bon = bonneTM(f, champ), juste = accepte(f, champ, code);
-  if (juste) game.score = Math.round((game.score + (currentGame.sansMode && !precTM(f) ? 1 : 0.5)) * 10) / 10;
+  if (juste) game.score = Math.round((game.score + poidsTM(f, champ)) * 100) / 100;
   else game.erreurs.push({ mot: f.t, bonne: etiquetteTM(bon), choisie: etiquetteTM(code), phrase: `texte « ${TM_T().titre} »` });
   const pn = game.parNature[bon] || (game.parNature[bon] = { c: 0, p: 0 }); pn.p += 1; if (juste) pn.c += 1;
   poseLabelsTM(i);
@@ -3536,7 +3587,7 @@ const TM_LISTES = {
   /* v90 : les mots en 4e – 3e */
   relfn: [{ code: 'TPS.rsuj', nom: 'Sujet' }, { code: 'TPS.rcod', nom: 'COD' }, { code: 'TPS.rcoi', nom: 'COI' }, { code: 'TPS.rcdn', nom: 'Complément du nom' }, { code: 'TPS.rcc', nom: 'Complément circonstanciel' }],
   fn9: [{ code: 'TPS.suj', nom: 'Sujet' }, { code: 'TPS.cod', nom: 'COD' }, { code: 'TPS.coi', nom: 'COI' }, { code: 'TPS.cos', nom: 'COS (complément d\'objet second)' }, { code: 'TPS.att', nom: 'Attribut du sujet' }, { code: 'TPS.attcod', nom: 'Attribut du COD' }, { code: 'TPS.cag', nom: 'Complément d\'agent' }, { code: 'TPS.ccirc', nom: 'Complément circonstanciel' }],
-  cc8: [{ code: 'TPS.cct', nom: 'CC de temps' }, { code: 'TPS.ccl', nom: 'CC de lieu' }, { code: 'TPS.ccm', nom: 'CC de manière' }, { code: 'TPS.ccmoy', nom: 'CC de moyen' }, { code: 'TPS.ccc', nom: 'CC de cause' }, { code: 'TPS.ccb', nom: 'CC de but' }, { code: 'TPS.ccacc', nom: 'CC d\'accompagnement' }, { code: 'TPS.ccconc', nom: 'CC d\'opposition' }],
+  cc8: [{ code: 'TPS.cct', nom: 'CC de temps' }, { code: 'TPS.ccl', nom: 'CC de lieu' }, { code: 'TPS.ccm', nom: 'CC de manière' }, { code: 'TPS.ccmoy', nom: 'CC de moyen' }, { code: 'TPS.ccc', nom: 'CC de cause' }, { code: 'TPS.ccb', nom: 'CC de but' }, { code: 'TPS.ccacc', nom: 'CC d\'accompagnement' }, { code: 'TPS.ccconc', nom: 'CC d\'opposition (concession)' }, { code: 'TPS.ccsq', nom: 'CC de conséquence' }, { code: 'TPS.cccomp', nom: 'CC de comparaison' }, { code: 'TPS.cccond', nom: 'CC de condition (hypothèse)' }],   /* v102 : la liste complète en 4e-3e */
   expn: [{ code: 'TPS.epi', nom: 'Épithète' }, { code: 'TPS.cdn', nom: 'Complément du nom' }, { code: 'TPS.app', nom: 'Apposition' }, { code: 'TPS.cant', nom: 'Complément de l\'antécédent' }],
   conno: [{ code: 'TPS.melio', nom: 'Mélioratif' }, { code: 'TPS.pejo', nom: 'Péjoratif' }, { code: 'TPS.neutre', nom: 'Neutre' }],
   /* v89 : la phrase en 4e – 3e */
@@ -3567,7 +3618,7 @@ const TM_LISTES = {
   /* v98 : la nature exacte d'un déterminant ou d'un pronom (exercice 1 des mots, 4e-3e) */
   detp: [{ code: 'MODE.partd', nom: 'Article défini' }, { code: 'MODE.parti', nom: 'Article indéfini' }, { code: 'MODE.partp', nom: 'Article partitif' }, { code: 'MODE.dposs', nom: 'Déterminant possessif' }, { code: 'MODE.ddem', nom: 'Déterminant démonstratif' }, { code: 'MODE.ddind', nom: 'Déterminant indéfini' }],
   pronp: [{ code: 'MODE.nppers', nom: 'Pronom personnel' }, { code: 'MODE.nprel', nom: 'Pronom relatif' }, { code: 'MODE.npind', nom: 'Pronom indéfini' }, { code: 'MODE.nppos', nom: 'Pronom possessif' }, { code: 'MODE.npdem', nom: 'Pronom démonstratif' }, { code: 'MODE.npint', nom: 'Pronom interrogatif' }],
-  nat10: [{ code: 'TPS.nc', nom: 'Nom commun' }, { code: 'TPS.np', nom: 'Nom propre' }, { code: 'TPS.det', nom: 'Déterminant' }, { code: 'TPS.adj', nom: 'Adjectif' }, { code: 'TPS.pron', nom: 'Pronom' }, { code: 'TPS.verbe', nom: 'Verbe' }, { code: 'TPS.adv', nom: 'Adverbe' }, { code: 'TPS.prep', nom: 'Préposition' }, { code: 'TPS.cc', nom: 'Conjonction de coordination' }, { code: 'TPS.csub', nom: 'Conjonction de subordination' }],
+  nat10: [{ code: 'TPS.nc', nom: 'Nom commun' }, { code: 'TPS.np', nom: 'Nom propre' }, { code: 'TPS.det', nom: 'Déterminant' }, { code: 'TPS.adj', nom: 'Adjectif qualificatif' }, { code: 'TPS.pron', nom: 'Pronom' }, { code: 'TPS.verbe', nom: 'Verbe' }, { code: 'TPS.adv', nom: 'Adverbe' }, { code: 'TPS.prep', nom: 'Préposition' }, { code: 'TPS.cc', nom: 'Conjonction de coordination' }, { code: 'TPS.csub', nom: 'Conjonction de subordination' }],
   pron6: [{ code: 'TPS.pper', nom: 'Pronom personnel' }, { code: 'TPS.ppos', nom: 'Pronom possessif' }, { code: 'TPS.pdem', nom: 'Pronom démonstratif' }, { code: 'TPS.prel', nom: 'Pronom relatif' }, { code: 'TPS.pind', nom: 'Pronom indéfini' }, { code: 'TPS.pint', nom: 'Pronom interrogatif' }],
   det7: [{ code: 'TPS.artd', nom: 'Article défini' }, { code: 'TPS.arti', nom: 'Article indéfini' }, { code: 'TPS.artp', nom: 'Article partitif' }, { code: 'TPS.poss', nom: 'Déterminant possessif' }, { code: 'TPS.dem', nom: 'Déterminant démonstratif' }, { code: 'TPS.dind', nom: 'Déterminant indéfini' }, { code: 'TPS.dnum', nom: 'Déterminant numéral' }],
   codcoi: [{ code: 'TPS.cod', nom: 'COD' }, { code: 'TPS.coi', nom: 'COI' }, { code: 'TPS.att', nom: 'Attribut du sujet' }],
@@ -3590,9 +3641,9 @@ const TM_LISTES = {
   cvcp: [{ code: 'TPS.cv', nom: 'Complément du verbe' }, { code: 'TPS.cp', nom: 'Complément de phrase' }],
   attcv: [{ code: 'TPS.att', nom: 'Attribut du sujet' }, { code: 'TPS.cv', nom: 'Complément du verbe' }],
   epcn: [{ code: 'TPS.epi', nom: 'Épithète' }, { code: 'TPS.cdn', nom: 'Complément du nom' }],
-  natf: [{ code: 'TPS.nc', nom: 'Nom commun' }, { code: 'TPS.np', nom: 'Nom propre' }, { code: 'TPS.adj', nom: 'Adjectif' }, { code: 'TPS.pron', nom: 'Pronom' }],
+  natf: [{ code: 'TPS.nc', nom: 'Nom commun' }, { code: 'TPS.np', nom: 'Nom propre' }, { code: 'TPS.adj', nom: 'Adjectif qualificatif' }, { code: 'TPS.pron', nom: 'Pronom' }],
   fn6: [{ code: 'MODE.suj', nom: 'Sujet' }, { code: 'MODE.cv', nom: 'Complément du verbe' }, { code: 'MODE.cp', nom: 'Complément de phrase' }, { code: 'MODE.att', nom: 'Attribut du sujet' }, { code: 'MODE.epi', nom: 'Épithète' }, { code: 'MODE.cdn', nom: 'Complément du nom' }],
-  nat5: [{ code: 'TPS.nc', nom: 'Nom commun' }, { code: 'TPS.np', nom: 'Nom propre' }, { code: 'TPS.det', nom: 'Déterminant' }, { code: 'TPS.adj', nom: 'Adjectif' }, { code: 'TPS.verbe', nom: 'Verbe' }, { code: 'TPS.pron', nom: 'Pronom' }],
+  nat5: [{ code: 'TPS.nc', nom: 'Nom commun' }, { code: 'TPS.np', nom: 'Nom propre' }, { code: 'TPS.det', nom: 'Déterminant' }, { code: 'TPS.adj', nom: 'Adjectif qualificatif' }, { code: 'TPS.verbe', nom: 'Verbe' }, { code: 'TPS.pron', nom: 'Pronom' }],
 };
 /* v74 : ce que l'on demande, et le nombre de colonnes d'étiquettes, selon la liste */
 const TM_LISTE_CFG = {
@@ -4222,7 +4273,7 @@ const TFCFG = {
   'c43-bilantps': { parPhrase: true, instr: 'Conjugue chaque verbe au bon temps, et demande-toi pourquoi', intro: "<strong>Bilan</strong> : tous les temps et les modes. Les verbes sont à l'infinitif. Regarde d'abord la situation : un <strong>récit</strong> (passé simple, imparfait, plus-que-parfait, conditionnel pour l'avenir vu du passé) ou quelqu'un qui <strong>parle</strong> ou écrit (présent, passé composé, futur). Pense aussi au <strong>subjonctif</strong> après <em>il faut que, je veux que, bien que, avant que</em>, et au système avec <em>si</em>. Après chaque bonne réponse, lis pourquoi ce temps a été choisi. Parfois, deux temps sont possibles.", q: (e) => `Écris le verbe ${esc(e.src)} <strong>au bon temps</strong>.`, regles: "Choisir un temps, c'est choisir une manière de raconter. Le <strong>passé simple</strong> fait avancer le récit ; l'<strong>imparfait</strong> installe le décor ; le <strong>plus-que-parfait</strong> et le <strong>passé antérieur</strong> remontent avant ; le <strong>conditionnel</strong> regarde l'avenir depuis le passé, ou imagine. Le <strong>passé composé</strong> et le <strong>présent</strong> appartiennent à celui qui parle. Le <strong>subjonctif</strong> présente l'action comme pensée, non comme réelle. Avec <em>si</em> : présent → futur, imparfait → conditionnel présent, plus-que-parfait → conditionnel passé. Quand rien n'impose un temps, deux réponses peuvent être justes : c'est alors le regard du narrateur qui décide." },
   'c43-homo': { parPhrase: true, choix: true, instr: 'Choisis la bonne orthographe grammaticale', intro: "Chaque mot entre parenthèses peut s'écrire de plusieurs façons qui se prononcent pareil. Ce n'est pas le dictionnaire qui peut t'aider : c'est un problème d'<strong>orthographe grammaticale</strong>. Pour le résoudre, réfléchis à la <strong>nature</strong> du mot (verbe, déterminant, pronom, préposition…). Appuie sur le mot, puis choisis la bonne forme : sous chacune, tu lis sa nature. Tu n'as qu'un essai. Pense aux tests de remplacement : <em>a</em> / <em>avait</em>, <em>est</em> / <em>était</em>, <em>sont</em> / <em>étaient</em>, <em>ont</em> / <em>avaient</em>, <em>peut</em> / <em>pouvait</em>, <em>qu'elle</em> / <em>qu'il</em>.", q: () => 'Choisis la bonne orthographe grammaticale : réfléchis à la nature du mot.', regles: "Les homophones grammaticaux se prononcent de la même façon mais n'ont ni la même nature ni le même sens. Pour choisir, on remplace : par l'imparfait pour reconnaître un verbe (<em>a → avait, est → était, sont → étaient, ont → avaient, peut → pouvait</em>), par un autre pronom (<em>qu'elle → qu'il</em>), par une expression de même sens (<em>ou → ou bien, quand → lorsque</em>)." },
   'c43-ppr': { accord: true, parPhrase: true, style: (e) => pourquoiPPR(e, true), q: (e) => `Accorde, si c'est nécessaire, le participe passé « ${esc(e.src.replace(/^\(|\)$/g, ''))} » de ce verbe pronominal.`, instr: 'Accorde les participes passés des verbes pronominaux', intro: "Les participes passés sont écrits au masculin singulier. Pour chacun, demande-toi si « se » est <strong>COD</strong> (elle a lavé qui ? elle-même : <em>elle s'est lavée</em>) ou s'il ne l'est pas (<em>elle s'est lavé les mains</em> : le COD, c'est « les mains »). Les verbes qui n'existent qu'à la forme pronominale (<em>s'enfuir, se souvenir, se moquer</em>) s'accordent avec le sujet.", regles: "Le participe passé d'un verbe pronominal s'accorde comme avec l'auxiliaire <em>avoir</em> : avec le <strong>COD</strong> s'il est placé avant. Si <em>se</em> est COD, on accorde avec lui, c'est-à-dire avec le sujet (<em>ils se sont regardés</em>). Si <em>se</em> est COI (<em>se parler, se téléphoner, se sourire, se succéder</em> : parler à…), pas d'accord (<em>ils se sont parlé</em>). Si le COD est après le verbe, pas d'accord (<em>elle s'est lavé les mains</em>) ; s'il est avant, on accorde avec lui (<em>les mains qu'elle s'est lavées</em>). Les verbes essentiellement pronominaux (<em>s'enfuir, se souvenir, se moquer, s'évanouir</em>) s'accordent avec le sujet." },
-  'c43-nomin': { phrase: true, instr: 'Transforme chaque phrase en groupe nominal', intro: "Transforme chaque phrase en <strong>groupe nominal</strong>, comme un titre de journal : le verbe devient un nom (<em>ouvrir → l'ouverture</em>, <em>partir → le départ</em>), et le sujet devient son complément (<em>Le gymnase ouvre. → Ouverture du gymnase.</em>). Il n'y a plus de verbe conjugué.", q: () => "Transforme cette phrase en <strong>groupe nominal</strong> : remplace le verbe par le nom de la même famille.", essais: ESSAIS_PH, regles: "La <strong>nominalisation</strong> transforme un verbe (ou un adjectif) en nom de la même famille : <em>partir → départ, arriver → arrivée, découvrir → découverte, inquiet → inquiétude</em>. La phrase devient un groupe nominal, sans verbe conjugué. <strong>Pourquoi ce choix ?</strong> D'abord, c'est le style des <strong>titres de journaux</strong> : <em>Le maire démissionne</em> devient <em>Démission du maire</em>, plus court, plus rapide à lire. C'est aussi le style des notes, des comptes rendus et des résumés (<em>Départ à huit heures. Visite des salles.</em>). Ensuite, la phrase nominale est plus <strong>frappante</strong> : on ne dit plus qui fait quoi, on nomme le fait, et l'idée est mise en valeur d'un seul coup, de façon décisive (<em>Victoire de Pierre !</em> frappe plus fort que <em>Pierre a gagné.</em>). Enfin, l'événement devient une idée, dont on peut parler comme d'une chose : <em>l'arrestation de Colomb</em>, <em>la découverte de son erreur</em>." },
+  'c43-nomin': { phrase: true, instr: 'Transforme chaque phrase en groupe nominal', intro: "Transforme chaque phrase en <strong>groupe nominal</strong>, comme un titre de journal : le verbe devient un nom de la même famille (<em>ouvrir → l'ouverture</em>, <em>partir → le départ</em>) ou un synonyme (<em>tomber → la chute</em>), et le sujet devient son complément (<em>Le gymnase ouvre. → Ouverture du gymnase.</em>). Il n'y a plus de verbe conjugué.", q: () => "Transforme cette phrase en <strong>groupe nominal</strong> : remplace le verbe par un nom de la même famille ou par un synonyme.", essais: ESSAIS_PH, regles: "La <strong>nominalisation</strong> transforme un verbe (ou un adjectif) en nom de la même famille (<em>partir → départ, arriver → arrivée, découvrir → découverte, inquiet → inquiétude</em>) ou en nom synonyme quand la famille n'en offre pas (<em>tomber → chute, augmenter → hausse</em>). Une famille de mots, ce sont les mots qui partagent le même radical. La phrase devient un groupe nominal, sans verbe conjugué. <strong>Pourquoi ce choix ?</strong> D'abord, c'est le style des <strong>titres de journaux</strong> : <em>Le maire démissionne</em> devient <em>Démission du maire</em>, plus court, plus rapide à lire. C'est aussi le style des notes, des comptes rendus et des résumés (<em>Départ à huit heures. Visite des salles.</em>). Ensuite, la phrase nominale est plus <strong>frappante</strong> : on ne dit plus qui fait quoi, on nomme le fait, et l'idée est mise en valeur d'un seul coup, de façon décisive (<em>Victoire de Pierre !</em> frappe plus fort que <em>Pierre a gagné.</em>). Enfin, l'événement devient une idée, dont on peut parler comme d'une chose : <em>l'arrestation de Colomb</em>, <em>la découverte de son erreur</em>." },
   'c43-passif': { phrase: true, instr: 'Mets chaque phrase à la forme passive', intro: "Mets chaque phrase soulignée à la <strong>forme passive</strong> : le COD devient le sujet, le sujet devient le complément d'agent, introduit par <em>par</em>, et le verbe se construit avec <em>être</em>, au même temps que dans la phrase de départ (<em>mange → est mangé, a mangé → a été mangé, mangea → fut mangé</em>). À la fin, le jeu t'explique ce que ce choix change dans le récit.", q: q43, essais: ESSAIS_PH, regles: "À la forme passive, le sujet subit l'action. Le verbe se construit avec <em>être</em>, au temps du verbe de départ, et le participe passé s'accorde avec le sujet ; celui qui agit devient le <strong>complément d'agent</strong>, introduit par <em>par</em>. <strong>Pourquoi ce choix ?</strong> La forme passive met en tête celui qui subit l'action, et le lecteur le regarde d'abord. <em>Le loup a dévoré l'agneau</em> : on suit le loup. <em>L'agneau a été dévoré par le loup</em> : on plaint l'agneau. C'est ainsi qu'on défend une victime. Parfois aussi, celui qui agit n'a pas d'importance, ou on ne le connaît pas : <em>le musée a été cambriolé</em>." },
   'c43-imps': { phrase: true, instr: 'Récris chaque phrase avec la tournure impersonnelle', intro: "Récris chaque phrase soulignée avec la <strong>tournure impersonnelle</strong> : elle commence par <em>il</em>, qui ne représente personne, et le sujet de départ passe après le verbe (<em>Deux hommes arrivent → Il arrive deux hommes</em>). Le verbe s'accorde avec <em>il</em> : il reste au singulier.", q: q43, essais: ESSAIS_PH, regles: "La tournure impersonnelle se construit avec <em>il</em>, un sujet qui ne représente personne. Le vrai sujet, celui qui fait l'action, passe après le verbe, qui reste au singulier. Pourquoi ce choix ? <em>Deux hommes arrivent</em> : la caméra se braque sur les deux hommes. <em>Il arrive deux hommes</em> : on s'intéresse d'abord à ce qui arrive ; les hommes passent derrière. C'est une question de point de vue, de focalisation. Autre exemple : <em>il tombe un grand silence sur la maison</em> met en avant le verbe <em>tomber</em> : le silence s'abat d'un coup, et la phrase devient dramatique." },
   'c43-ddi': { phrase: true, instr: 'Rapporte les paroles au discours indirect', intro: "Récris chaque phrase au <strong>discours indirect</strong>. Le verbe qui introduit les paroles est au passé : les temps changent (<em>je viendrai → il viendrait</em>, <em>j'ai mal → il avait mal</em>), ainsi que les mots de temps et de lieu (<em>hier → la veille, demain → le lendemain, ici → là</em>). Un ordre peut se rapporter avec <em>de</em> et l'infinitif, ou avec <em>que</em> et le subjonctif présent.", q: q43, essais: ESSAIS_PH, regles: "Quand le verbe introducteur est au passé, on applique la <strong>concordance des temps</strong> : le présent devient l'imparfait, le futur devient le conditionnel, le passé composé devient le plus-que-parfait. Les repères changent aussi : <em>hier → la veille</em>, <em>demain → le lendemain</em>, <em>ici → là</em>, <em>ce matin → ce matin-là</em>, <em>prochain → suivant</em>. Une question avec oui ou non se rapporte avec <em>si</em>. Un ordre se rapporte avec <em>de</em> et l'infinitif (<em>il lui demanda d'ouvrir la bouche</em>), ou avec <em>que</em> et le subjonctif (<em>il lui demanda qu'il ouvre la bouche</em>) : dans la langue d'aujourd'hui, le subjonctif présent remplace le subjonctif imparfait de la langue classique (<em>qu'il ouvrît</em>). <strong>Pourquoi choisir le discours indirect ?</strong> Les paroles passent par la voix du narrateur et perdent de leur force. <em>« Je ne viendrai pas ! » cria Pierre</em> : on entend la colère de Pierre. <em>Pierre dit qu'il ne viendrait pas</em> : la colère s'efface. Le narrateur peut aussi y glisser son jugement : <em>il répondit faiblement qu'il était d'accord</em>. C'est pourquoi on donne souvent le discours direct au personnage qu'on veut mettre en valeur." },
@@ -4973,6 +5024,52 @@ function repondTF(ecrit) {
     for (let d = 1; d <= N; d++) { const k = (i + d) % N; if (!tf.rep[k]) { clicTF(k, true); return; } }
   });
 }
+/* v102 : à la fin des exercices sur le participe passé, un bilan parlé : chaque cas de la règle, puis un ou deux
+   exemples pris dans le texte ; le participe cité clignote pendant que la voix lit la phrase. */
+const BILAN_PP = {
+  'c65-ppa': {
+    cle: (e) => { const x = e.expl || ''; return /^Avec être/.test(x) ? 'etre' : /^Verbe pronominal/.test(x) ? 'pron' : /^Le COD « [^»]+ » (reprend|est placé avant)/.test(x) ? 'avcod' : /^(Avec avoir|« M' »)/.test(x) ? 'avsans' : null; },
+    cas: [
+      ['etre', "Avec l'auxiliaire <strong>être</strong>, le participe passé s'accorde avec le <strong>sujet</strong>."],
+      ['avsans', "Avec l'auxiliaire <strong>avoir</strong>, le participe passé ne s'accorde jamais avec le sujet ; s'il n'y a pas de COD placé avant le verbe, il reste <strong>invariable</strong>."],
+      ['avcod', "Avec <strong>avoir</strong>, le participe passé s'accorde avec le <strong>COD placé avant</strong> le verbe : le pronom <em>que</em>, ou les pronoms <em>le, la, l', les, nous</em>."],
+      ['pron', "Pour un <strong>verbe pronominal</strong>, le participe passé s'accorde ici avec le sujet."],
+    ] },
+  'c43-ppr': {
+    cle: (e) => e.nat,
+    cas: [
+      ['ppress', "Les verbes qui n'existent qu'à la forme pronominale (<em>se fâcher, s'enfuir, s'évanouir</em>) : le participe s'accorde avec le <strong>sujet</strong>."],
+      ['pprcod', "Quand <em>se</em> est <strong>COD</strong> (<em>ils se sont regardés</em> : ils ont regardé qui ? eux-mêmes), le participe s'accorde avec le sujet."],
+      ['pprcoi', "Quand <em>se</em> est <strong>COI</strong> (<em>ils se sont parlé</em> : ils ont parlé à qui ? à eux-mêmes), le participe ne s'accorde pas."],
+      ['pprapr', "Quand le <strong>COD est placé après</strong> le verbe (<em>ils se sont serré la main</em>), le participe ne s'accorde pas."],
+      ['pprav', "Quand le <strong>COD est placé avant</strong> (<em>les excuses qu'ils se sont faites</em>), le participe s'accorde avec ce COD."],
+    ] },
+};
+function bilanParleTF() {
+  const B = BILAN_PP[currentGame.tf]; if (!B) return '';
+  const partie = game, etapes = [];
+  let html = '<div class="bilan-pp"><p><strong>Bilan : les cas de la règle, avec des exemples du texte</strong></p><ul>';
+  B.cas.forEach(([cle, regle]) => {
+    const ex = tf.elts.map((e, i) => i).filter((i) => B.cle(tf.elts[i]) === cle);
+    if (!ex.length) return;
+    const pris = [...ex.filter((i) => !(tf.rep[i]?.pts >= 1)), ...ex.filter((i) => tf.rep[i]?.pts >= 1)].slice(0, 2).sort((a, b) => a - b);
+    html += `<li>${regle} <em>${pris.map((i) => esc(phraseDe(wordEl(i)))).join(' — ')}</em></li>`;
+    etapes.push({ regle: regle.replace(/<[^>]+>/g, ''), pris });
+  });
+  html += '</ul></div>';
+  /* la voix : la règle, puis chaque exemple, le participe clignotant */
+  const suite = (k, j) => {
+    if (game !== partie || !game.texteFini || k >= etapes.length) { document.querySelectorAll('.tf-cite').forEach((x) => x.classList.remove('tf-cite')); return; }
+    const E = etapes[k];
+    if (j === -1) { dis(E.regle); quandVoixFinie(() => suite(k, 0)); return; }
+    if (j >= E.pris.length) { suite(k + 1, -1); return; }
+    const el = wordEl(E.pris[j]); document.querySelectorAll('.tf-cite').forEach((x) => x.classList.remove('tf-cite')); el?.classList.add('tf-cite');
+    dis(`Par exemple : ${phraseDe(el)}`);
+    quandVoixFinie(() => { el?.classList.remove('tf-cite'); suite(k, j + 1); });
+  };
+  quandVoixFinie(() => suite(0, -1));
+  return html;
+}
 function finTF() {
   boutonVoix(true);
   wordEl(tf.sel)?.classList.remove('choisie'); tf.sel = null;
@@ -4984,7 +5081,8 @@ function finTF() {
     : tf.registre === 'mod'
       ? 'Pour passer au <strong>système du passé en français contemporain</strong> : le présent devient un <strong>imparfait</strong> (décor, habitude, second plan) ou un <strong>passé composé</strong> (actions du premier plan) ; le passé composé devient un <strong>plus-que-parfait</strong> ; le futur devient <strong>aller à l\'imparfait + infinitif</strong> ; le subjonctif présent ne change pas. Les indicateurs de temps changent : <em>aujourd\'hui → ce jour-là, hier → la veille, demain → le lendemain</em>. Une vérité générale reste au présent.'
       : 'Pour passer au <strong>système du passé en français classique</strong> : le présent devient un <strong>imparfait</strong> (décor, habitude, second plan) ou un <strong>passé simple</strong> (actions du premier plan) ; le passé composé devient un <strong>plus-que-parfait</strong> ; le futur devient un <strong>conditionnel présent</strong> ; le subjonctif présent devient un <strong>subjonctif imparfait</strong>. Les indicateurs de temps changent : <em>aujourd\'hui → ce jour-là, hier → la veille, demain → le lendemain</em>. Une vérité générale reste au présent.';
-  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. ${regles} Les formes en orange montrent la bonne réponse, là où tu t'es trompé.`);
+  const bilanPP = bilanParleTF();
+  $('nat-correction-details').innerHTML = nbspFr(`Tu as ${fmtPts(game.score)} point${game.score >= 2 ? 's' : ''} sur ${total}. ${bilanPP ? '' : regles} Les formes en orange montrent la bonne réponse, là où tu t'es trompé.${bilanPP}`);
   $('nat-correction').classList.remove('hidden');
   $('nat-verdict-square').className = `verdict-square ${game.score >= total - 0.05 ? 'correct' : game.score < total / 2 ? 'wrong' : 'half'}`;
   $('nat-next-button').textContent = 'Voir mon résultat →';
@@ -6451,3 +6549,142 @@ $('fiche-modal').addEventListener('click', (e) => { if (e.target.id === 'fiche-m
 if (auth) wireAccount(); else { $('global-account-button').addEventListener('click', () => {}); }
 updateAccountBar();
 showPanel('welcome');
+
+/* ------------------------------------------------------------
+   v103 : ÉCOUTE CONTINUE DES TEXTES (pour le maître, pas pour l'élève)
+   On l'ouvre en ajoutant « ?ecoute » à l'adresse du site. La voix lit, à la suite, tous les textes des exercices
+   choisis, phrase par phrase, avec la même voix et les mêmes corrections de prononciation que dans les exercices.
+   Les textes sont lus tels qu'ils apparaissent une fois corrigés (la bonne forme à la place du mot à écrire).
+   « Noter » garde la phrase en cours dans une liste, à copier ensuite pour Claude.
+   ------------------------------------------------------------ */
+const ECOUTE = { pistes: [], k: 0, s: 0, joue: false, notes: [], gen: 0 };
+const NAT_SOURCE = /^(rlog|rcoo|rsub|radv|rprep)$/;   /* là, la réponse est un mot (« cause ») : on lit la phrase de départ */
+const TF_SOURCE = new Set(['ce-inf']);   /* exercices où l'on écrit l'infinitif : on lit la forme conjuguée du texte */
+function texteParle(moteur, t, cle) {
+  let x = String(t || '').replace(/\[[^\]]*\]\s*/g, '');
+  const expl = [];
+  x = x.replace(/\{([^{}]*)\}/g, (m, c) => {
+    const [corps, ex] = c.split('§'); if (ex) expl.push(ex.trim());
+    const nat = (corps.match(/^(\w+)::/) || [])[1];
+    const b = corps.replace(/^\w+::/, '');
+    if (b.includes('>')) {
+      const [src, ans] = b.split('>');
+      if ((nat && NAT_SOURCE.test(nat)) || TF_SOURCE.has(cle)) return src.replace(/^\(|\)$/g, '');
+      return ans.split('@')[0].split('//')[0].split(/;(?! )/)[0].trim();
+    }
+    if (moteur === 'sx') return b.split('|').slice(1).join('|');
+    return b.split('|')[0];
+  });
+  return { texte: x.replace(/\s+([.,!?;:»])/g, (m, p) => (/[!?;:»]/.test(p) ? ' ' + p : p)).replace(/\s+/g, ' ').trim(), expl };
+}
+function pistesEcoute(classes, parties) {
+  const P = [];
+  const NOMC = { ce: 'CE1-CE2', cm: 'CM1-CM2', 65: '6e-5e', 43: '4e-3e' };
+  classes.forEach((classe) => parties.forEach((partie) => {
+    const L0 = PARCOURS[partie].filter((e) => e.classes.includes(classe) && !e.avenir);
+    const L = [...L0.filter((e) => !e.bilan), ...L0.filter((e) => e.bilan)];
+    let n = 0, nb = 0;
+    L.forEach((e) => {
+      const nom = e.bilan ? `Bilan ${++nb}` : `Exercice ${++n}`;
+      const G = GAMES[e.jeu] || {}; let moteur, textes, cle = null;
+      if (G.tv) { moteur = 'tv'; textes = TROUVE[G.tv]; }
+      else if (G.tf) { moteur = 'tf'; cle = G.tf; textes = TRANSFOS[G.tf]; }
+      else if (G.sx) { moteur = 'sx'; textes = TEXTES_TF[e.tfNiv]; }
+      else if (e.jeu === 'tableau' || e.jeu === 'libre') { moteur = 'tab'; textes = TABLEAUX.map((T, i) => ({ titre: `tableau ${i + 1}`, texte: T.map((c) => c.t).join(' ') })); }
+      else if (e.jeu === 'fonctions') { moteur = 'gv'; const ph = PHRASES_GV.map((x) => x.split(' ').map((w) => w.split('/')[0]).join(' ')); textes = []; for (let i = 0; i < ph.length; i += 10) textes.push({ titre: `phrases ${i + 1} à ${Math.min(i + 10, ph.length)}`, texte: ph.slice(i, i + 10).join(' ') }); }
+      else if (G.texte !== undefined) { moteur = 'tm'; textes = [TEXTES_TM[G.texte]]; }
+      else if (e.tmNiv) { moteur = 'tm'; textes = TEXTES_TM.filter((x) => x.niv === e.tmNiv); }
+      (textes || []).forEach((t, i) => {
+        if (!t) return;
+        const { texte, expl } = texteParle(moteur, t.texte, cle);
+        if (!texte) return;
+        P.push({ ou: `${NOMC[classe]} · ${partie === 'temps' ? 'les temps' : partie === 'mots' ? 'les mots' : 'la phrase'} · ${nom} : ${e.titre} · texte ${i + 1} « ${t.titre} »`,
+          titre: t.titre, phrases: texte.split(/(?<=[.!?…»])\s+(?=[«—A-ZÀ-ÖØ-Ý0-9])/), expl });
+      });
+    });
+  }));
+  return P;
+}
+function direPuis(texte, suite) {
+  if (!('speechSynthesis' in window)) { setTimeout(suite, 300); return; }
+  const v = pickFrenchVoice('femme');
+  const u = new SpeechSynthesisUtterance(fixPronunciation(texte, v).replace(/…/g, ', '));
+  u.lang = 'fr-FR'; if (v) u.voice = v;
+  const st = VOICE_STYLES.phrase || VOICE_STYLES.good; u.rate = st.rate; u.pitch = st.pitch; u.volume = Math.max(volumeLevel, 3) / 5;
+  const g = ECOUTE.gen; let fait = false;
+  const fin = () => { if (fait) return; fait = true; if (g === ECOUTE.gen) setTimeout(suite, 250); };
+  u.onend = fin; u.onerror = fin;
+  speechSynthesis.speak(u);
+}
+function majEcoute() {
+  const p = ECOUTE.pistes[ECOUTE.k], z = $('ecoute-texte');
+  $('ecoute-ou').textContent = p ? `${ECOUTE.k + 1} / ${ECOUTE.pistes.length} — ${p.ou}` : 'Aucun texte.';
+  if (!p) { z.innerHTML = ''; return; }
+  const tout = [...p.phrases, ...($('ecoute-expl').checked ? p.expl.map((x) => '💬 ' + x) : [])];
+  z.innerHTML = tout.map((ph, j) => `<span class="ec-ph${j === ECOUTE.s ? ' ec-cur' : ''}" data-s="${j}">${esc(ph)}</span>`).join(' ');
+  z.querySelector('.ec-cur')?.scrollIntoView({ block: 'nearest' });
+  z.querySelectorAll('.ec-ph').forEach((s) => s.addEventListener('click', () => { ECOUTE.s = Number(s.dataset.s); if (ECOUTE.joue) lanceEcoute(); else majEcoute(); }));
+  $('ecoute-play').textContent = ECOUTE.joue ? '⏸ Pause' : '▶ Lire';
+}
+function phrasesEcoute() { const p = ECOUTE.pistes[ECOUTE.k]; return p ? [...p.phrases, ...($('ecoute-expl').checked ? p.expl : [])] : []; }
+function lanceEcoute() {
+  ECOUTE.gen++; speechSynthesis.cancel(); ECOUTE.joue = true;
+  const pas = () => {
+    const ph = phrasesEcoute();
+    if (ECOUTE.s >= ph.length) { ECOUTE.k++; ECOUTE.s = -1; }
+    if (ECOUTE.k >= ECOUTE.pistes.length) { ECOUTE.joue = false; ECOUTE.k = ECOUTE.pistes.length - 1; ECOUTE.s = 0; majEcoute(); return; }
+    majEcoute();
+    if (ECOUTE.s === -1) { direPuis(`Texte : ${ECOUTE.pistes[ECOUTE.k].titre}.`, () => { ECOUTE.s = 0; pas(); }); return; }
+    direPuis(phrasesEcoute()[ECOUTE.s], () => { ECOUTE.s++; pas(); });
+  };
+  pas();
+}
+function stopEcoute() { ECOUTE.gen++; ECOUTE.joue = false; if ('speechSynthesis' in window) speechSynthesis.cancel(); majEcoute(); }
+function ouvreEcoute() {
+  const d = document.createElement('div'); d.id = 'ecoute';
+  d.innerHTML = `<div class="ec-boite">
+    <h2>🎧 Écoute continue des textes <small>(pour le maître)</small></h2>
+    <div class="ec-reglages">
+      <label>Niveau <select id="ecoute-classe"><option value="ce,cm,65,43">Tous</option><option value="ce">CE1-CE2</option><option value="cm">CM1-CM2</option><option value="65">6e-5e</option><option value="43">4e-3e</option></select></label>
+      <label>Partie <select id="ecoute-partie"><option value="mots,temps,phrase">Toutes</option><option value="mots">Les mots</option><option value="temps">Les temps</option><option value="phrase">La phrase</option></select></label>
+      <label>À partir de <select id="ecoute-depart"></select></label>
+      <label><input type="checkbox" id="ecoute-expl"> lire aussi les explications des corrections</label>
+    </div>
+    <p id="ecoute-ou" class="ec-ou"></p>
+    <div id="ecoute-texte" class="ec-texte"></div>
+    <div class="ec-boutons">
+      <button id="ecoute-prev" class="secondary-button">⏮ Phrase précédente</button>
+      <button id="ecoute-play" class="primary-button">▶ Lire</button>
+      <button id="ecoute-next" class="secondary-button">Phrase suivante ⏭</button>
+      <button id="ecoute-ntexte" class="secondary-button">Texte suivant ⏭⏭</button>
+      <button id="ecoute-note" class="secondary-button">🚩 Noter cette phrase</button>
+    </div>
+    <p class="ec-aide">Cliquez sur une phrase pour la (ré)entendre. « Noter » garde la phrase en cours ; copiez ensuite la liste et envoyez-la à Claude avec la façon dont la voix la prononce.</p>
+    <textarea id="ecoute-notes" rows="5" placeholder="Les phrases notées s'ajoutent ici. Vous pouvez écrire à côté ce que la voix dit de travers."></textarea>
+    <div class="ec-boutons"><button id="ecoute-copie" class="secondary-button">📋 Copier la liste</button><button id="ecoute-ferme" class="secondary-button">Fermer</button></div>
+  </div>`;
+  document.body.appendChild(d);
+  const charge = () => {
+    stopEcoute();
+    ECOUTE.pistes = pistesEcoute($('ecoute-classe').value.split(','), $('ecoute-partie').value.split(','));
+    let der = '';
+    $('ecoute-depart').innerHTML = ECOUTE.pistes.map((p, k) => { const ex = p.ou.split(' · texte ')[0]; if (ex === der) return ''; der = ex; return `<option value="${k}">${esc(ex)}</option>`; }).join('');
+    ECOUTE.k = 0; ECOUTE.s = 0; majEcoute();
+  };
+  $('ecoute-classe').addEventListener('change', charge);
+  $('ecoute-partie').addEventListener('change', charge);
+  $('ecoute-depart').addEventListener('change', () => { stopEcoute(); ECOUTE.k = Number($('ecoute-depart').value); ECOUTE.s = 0; majEcoute(); });
+  $('ecoute-expl').addEventListener('change', () => { ECOUTE.s = 0; if (ECOUTE.joue) lanceEcoute(); else majEcoute(); });
+  $('ecoute-play').addEventListener('click', () => (ECOUTE.joue ? stopEcoute() : lanceEcoute()));
+  $('ecoute-prev').addEventListener('click', () => { ECOUTE.s = Math.max(0, ECOUTE.s - 1); if (ECOUTE.joue) lanceEcoute(); else majEcoute(); });
+  $('ecoute-next').addEventListener('click', () => { ECOUTE.s++; if (ECOUTE.s >= phrasesEcoute().length) { ECOUTE.k = Math.min(ECOUTE.k + 1, ECOUTE.pistes.length - 1); ECOUTE.s = 0; } if (ECOUTE.joue) lanceEcoute(); else majEcoute(); });
+  $('ecoute-ntexte').addEventListener('click', () => { ECOUTE.k = Math.min(ECOUTE.k + 1, ECOUTE.pistes.length - 1); ECOUTE.s = 0; if (ECOUTE.joue) lanceEcoute(); else majEcoute(); });
+  $('ecoute-note').addEventListener('click', () => {
+    const p = ECOUTE.pistes[ECOUTE.k]; const ph = phrasesEcoute()[Math.max(0, ECOUTE.s)] || '';
+    const ta = $('ecoute-notes'); ta.value += `${ta.value ? '\n' : ''}[${p ? p.ou : ''}] ${ph} → `; ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+  });
+  $('ecoute-copie').addEventListener('click', () => { const ta = $('ecoute-notes'); ta.select(); try { navigator.clipboard.writeText(ta.value); } catch (e) { document.execCommand('copy'); } $('ecoute-copie').textContent = '✓ Copié'; setTimeout(() => { $('ecoute-copie').textContent = '📋 Copier la liste'; }, 1500); });
+  $('ecoute-ferme').addEventListener('click', () => { stopEcoute(); d.remove(); });
+  charge();
+}
+if (/[?&#]ecoute\b/.test(location.search + location.hash)) ouvreEcoute();

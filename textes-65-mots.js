@@ -6,19 +6,19 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le phare",
-    "texte": "Le {vieux|adj|ind} gardien {monte|verbe|ind} {lentement|adv|ind} l'escalier {de|prep|ind} la tour, {car|cc|ind} la nuit {tombe|verbe|ind}. {Il|pron|ind} {allume|verbe|ind} la {grande|adj|ind} lampe {et|cc|ind} il regarde la mer."
+    "texte": "Le {vieux|adj|ind} gardien {monte|verbe|ind} {lentement|adv|ind} l'escalier {de|prep|ind} la tour, {car|cc|ind} la nuit {tombe|verbe|ind}. {Il|pron.nppers|ind} {allume|verbe|ind} la {grande|adj|ind} lampe {et|cc|ind} il regarde la mer."
    },
    {
     "titre": "Le départ",
-    "texte": "{Quand|csub|ind} le jour {se lève|verbe|ind}, {Marco|np|ind} {quitte|verbe|ind} {sa|det|ind} maison {et|cc|ind} {part|verbe|ind} {vers|prep|ind} le port. {Il|pron|ind} marche {vite|adv|ind}, mais il {semble|verbe|ind} {inquiet|adj|ind}. {Son|det|ind} bateau l'attend."
+    "texte": "{Quand|csub|ind} le jour {se lève|verbe|ind}, {Marco|np|ind} {quitte|verbe|ind} {sa|det.dposs|ind} maison {et|cc|ind} {part|verbe|ind} {vers|prep|ind} le port. {Il|pron.nppers|ind} marche {vite|adv|ind}, mais il {semble|verbe|ind} {inquiet|adj|ind}. {Son|det.dposs|ind} bateau l'attend."
    },
    {
     "titre": "La lettre",
-    "texte": "{Hier|adv|ind}, {Clara|np|ind} {a reçu|verbe|ind} une {longue|adj|ind} lettre {de|prep|ind} {son|det|ind} grand-père. {Elle|pron|ind} l'{a lue|verbe|ind} {attentivement|adv|ind}, {parce qu'|csub|ind} elle {attendait|verbe|ind} des nouvelles {depuis|prep|ind} des mois. Le vieil homme raconte sa vie à {Lisbonne|np|ind}. {Il|pron|ind} habite une {petite|adj|ind} maison {près de|prep|ind} la mer."
+    "texte": "{Hier|adv|ind}, {Clara|np|ind} {a reçu|verbe|ind} une {longue|adj|ind} lettre {de|prep|ind} {son|det.dposs|ind} grand-père. {Elle|pron.nppers|ind} l'{a lue|verbe|ind} {attentivement|adv|ind}, {parce qu'|csub|ind} elle {attendait|verbe|ind} des nouvelles {depuis|prep|ind} des mois. Le vieil homme raconte sa vie à {Lisbonne|np|ind}. {Il|pron.nppers|ind} habite une {petite|adj|ind} maison {près de|prep|ind} la mer."
    },
    {
     "titre": "L'atelier du peintre",
-    "texte": "{Dans|prep|ind} {son|det|ind} atelier, le peintre {travaille|verbe|ind} {silencieusement|adv|ind}. {Il|pron|ind} {mélange|verbe|ind} des couleurs {vives|adj|ind} {et|cc|ind} observe la lumière {qui|pron|ind} {entre|verbe|ind} {par|prep|ind} la verrière. {Lorsque|csub|ind} le soleil disparaît, il {pose|verbe|ind} {ses|det|ind} pinceaux, {car|cc|ind} il ne voit {plus|adv|ind} rien. {Demain|adv|ind}, {il|pron|ind} {terminera|verbe|ind} {ce|det|ind} tableau."
+    "texte": "{Dans|prep|ind} {son|det.dposs|ind} atelier, le peintre {travaille|verbe|ind} {silencieusement|adv|ind}. {Il|pron.nppers|ind} {mélange|verbe|ind} des couleurs {vives|adj|ind} {et|cc|ind} observe la lumière {qui|pron.nprel|ind} {entre|verbe|ind} {par|prep|ind} la verrière. {Lorsque|csub|ind} le soleil disparaît, il {pose|verbe|ind} {ses|det.dposs|ind} pinceaux, {car|cc|ind} il ne voit {plus|adv|ind} rien. {Demain|adv|ind}, {il|pron.nppers|ind} {terminera|verbe|ind} {ce|det.ddem|ind} tableau."
    }
   ]
  },
@@ -216,7 +216,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le chien",
-    "texte": "Mon {chien|nc|suj} adore les {promenades|nc|cod}. {Il|pron|suj} obéit à son {maître|nc|coi}. Il est {fidèle|adj|att}. Le {soir|nc|ccirc}, il dort dans le {salon|nc|ccirc}. Ses {oreilles|nc|suj} sont {douces|adj|att}. Il aime {Léa|np|cod}."
+    "texte": "Mon {chien|nc|suj} adore les {promenades|nc|cod}. {Il|pron.nppers|suj} obéit à son {maître|nc|coi}. Il est {fidèle|adj|att}. Le {soir|nc|ccirc}, il dort dans le {salon|nc|ccirc}. Ses {oreilles|nc|suj} sont {douces|adj|att}. Il aime {Léa|np|cod}."
    },
    {
     "titre": "La plage",
@@ -228,7 +228,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "La sorcière",
-    "texte": "Une {sorcière|nc|suj} {terrible|adj|epi} vivait dans la {forêt|nc|ccirc}. {Elle|pron|suj} préparait des {potions|nc|cod}. Les {villageois|nc|suj} la trouvaient {effrayante|adj|att}. {Personne|pron|suj} ne lui parlait. Un {jour|nc|ccirc}, {Hansel|np|suj} frappa à sa {porte|nc|ccirc}. La {sorcière|nc|suj} sourit. Elle lui offrit une {pomme|nc|cod}."
+    "texte": "Une {sorcière|nc|suj} {terrible|adj|epi} vivait dans la {forêt|nc|ccirc}. {Elle|pron.nppers|suj} préparait des {potions|nc|cod}. Les {villageois|nc|suj} la trouvaient {effrayante|adj|att}. {Personne|pron.npind|suj} ne lui parlait. Un {jour|nc|ccirc}, {Hansel|np|suj} frappa à sa {porte|nc|ccirc}. La {sorcière|nc|suj} sourit. Elle lui offrit une {pomme|nc|cod}."
    },
    {
     "titre": "Le peintre",
@@ -236,15 +236,15 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "La bibliothèque",
-    "texte": "La {bibliothèque|nc|suj} du {collège|nc|cdn} est {lumineuse|adj|att}. Les {élèves|nc|suj} y empruntent des {romans|nc|cod} {policiers|adj|epi}. La {documentaliste|nc|suj}, {femme|nc|app} {patiente|adj|epi}, conseille les {lecteurs|nc|cod}. Elle pense à leurs {goûts|nc|coi}. Le {mardi|nc|ccirc}, {elle|pron|suj} organise un {club|nc|cod} de {lecture|nc|cdn}."
+    "texte": "La {bibliothèque|nc|suj} du {collège|nc|cdn} est {lumineuse|adj|att}. Les {élèves|nc|suj} y empruntent des {romans|nc|cod} {policiers|adj|epi}. La {documentaliste|nc|suj}, {femme|nc|app} {patiente|adj|epi}, conseille les {lecteurs|nc|cod}. Elle pense à leurs {goûts|nc|coi}. Le {mardi|nc|ccirc}, {elle|pron.nppers|suj} organise un {club|nc|cod} de {lecture|nc|cdn}."
    },
    {
     "titre": "Le volcan",
-    "texte": "Le {Vésuve|np|suj} domine la {baie|nc|cod} de {Naples|np|cdn}. Ce {volcan|nc|suj} {redoutable|adj|epi} a détruit {Pompéi|np|cod}. Les {habitants|nc|suj} restent {inquiets|adj|att}. Des {savants|nc|suj} surveillent le {cratère|nc|cod} jour et {nuit|nc|ccirc}. {Ils|pron|suj} parlent souvent aux {journalistes|nc|coi}. La {montagne|nc|suj} paraît {calme|adj|att}."
+    "texte": "Le {Vésuve|np|suj} domine la {baie|nc|cod} de {Naples|np|cdn}. Ce {volcan|nc|suj} {redoutable|adj|epi} a détruit {Pompéi|np|cod}. Les {habitants|nc|suj} restent {inquiets|adj|att}. Des {savants|nc|suj} surveillent le {cratère|nc|cod} jour et {nuit|nc|ccirc}. {Ils|pron.nppers|suj} parlent souvent aux {journalistes|nc|coi}. La {montagne|nc|suj} paraît {calme|adj|att}."
    },
    {
     "titre": "Le cirque",
-    "texte": "Le {cirque|nc|suj} s'installe sur la {place|nc|ccirc} du {village|nc|cdn}. Les {artistes|nc|suj}, {acrobates|nc|app} et {clowns|nc|app}, répètent leur {numéro|nc|cod}. Le {dompteur|nc|suj} {courageux|adj|epi} entre dans la {cage|nc|ccirc}. Les {fauves|nc|suj} semblent {calmes|adj|att}. {Il|pron|suj} parle à ses {lions|nc|coi}. Le {soir|nc|ccirc}, le {public|nc|suj} applaudit."
+    "texte": "Le {cirque|nc|suj} s'installe sur la {place|nc|ccirc} du {village|nc|cdn}. Les {artistes|nc|suj}, {acrobates|nc|app} et {clowns|nc|app}, répètent leur {numéro|nc|cod}. Le {dompteur|nc|suj} {courageux|adj|epi} entre dans la {cage|nc|ccirc}. Les {fauves|nc|suj} semblent {calmes|adj|att}. {Il|pron.nppers|suj} parle à ses {lions|nc|coi}. Le {soir|nc|ccirc}, le {public|nc|suj} applaudit."
    },
    {
     "titre": "Le savant",
@@ -260,7 +260,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    },
    {
     "titre": "La cathédrale",
-    "texte": "La {cathédrale|nc|suj} de {Chartres|np|cdn}, {chef-d'œuvre|nc|app} {gothique|adj|epi}, domine la {plaine|nc|cod} de la {Beauce|np|cdn}. Ses {vitraux|nc|suj} {bleus|adj|epi} sont {célèbres|adj|att}. Les {pèlerins|nc|suj} y venaient du {monde|nc|ccirc} {entier|adj|epi}. Les {bâtisseurs|nc|suj} travaillèrent pendant des {années|nc|ccirc}. {Ils|pron|suj} sculptèrent des {statues|nc|cod} {admirables|adj|epi}. Aujourd'hui, les {touristes|nc|suj} restent {émerveillés|adj|att}. Les {cloches|nc|suj} sonnent."
+    "texte": "La {cathédrale|nc|suj} de {Chartres|np|cdn}, {chef-d'œuvre|nc|app} {gothique|adj|epi}, domine la {plaine|nc|cod} de la {Beauce|np|cdn}. Ses {vitraux|nc|suj} {bleus|adj|epi} sont {célèbres|adj|att}. Les {pèlerins|nc|suj} y venaient du {monde|nc|ccirc} {entier|adj|epi}. Les {bâtisseurs|nc|suj} travaillèrent pendant des {années|nc|ccirc}. {Ils|pron.nppers|suj} sculptèrent des {statues|nc|cod} {admirables|adj|epi}. Aujourd'hui, les {touristes|nc|suj} restent {émerveillés|adj|att}. Les {cloches|nc|suj} sonnent."
    }
   ]
  },

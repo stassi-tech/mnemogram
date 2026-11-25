@@ -69,7 +69,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Mon voisin",
-    "texte": "{Lea|art|ind} chienne de {mon|poss|ind} voisin aboie. {Cette|dem|ind} chienne est jolie. {Ma|poss|ind} sœur, elle, a {un|art|ind} lapin. {Les|dem|ind} enfants aiment jouer avec {des|art|ind} animaux. {Mon|poss|ind} chat est dans {la|art|ind} cour. {Ce|dem|ind} chat est trop gentil!."
+    "texte": "{La|art|ind} chienne de {mon|poss|ind} voisin aboie. {Cette|dem|ind} chienne est jolie. {Ma|poss|ind} sœur, elle, a {un|art|ind} lapin. {Ces|dem|ind} enfants aiment jouer avec {des|art|ind} animaux. {Mon|poss|ind} chat est dans {la|art|ind} cour. {Ce|dem|ind} chat est trop gentil !"
    },
    {
     "titre": "Dans la rue",
