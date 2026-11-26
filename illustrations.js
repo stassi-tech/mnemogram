@@ -350,10 +350,14 @@
   function majIllus() {
     const zone = document.getElementById('nat-illus'), zoneM = document.getElementById('nat-illus-m');
     if (!zone) return;
-    const h = document.querySelector('#nat-sentence .tm-titre');
-    const m = h && h.textContent.match(/«\s*(.+?)\s*»\s*$/);
-    const cle = cleJeu(), sc = m && cle && (window.MNEMO_SCENES || {})[cle + '|' + m[1]];
-    const id = sc ? cle + '|' + m[1] : '';
+    // Le titre du texte peut être dans le cadre de l'ardoise (.tm-titre) ou seulement dans la barre du haut (#nat-progress-label).
+    const sources = [...document.querySelectorAll('#nat-sentence .tm-titre'), document.getElementById('nat-progress-label')];
+    const cle = cleJeu(), S = window.MNEMO_SCENES || {};
+    let sc = null, id = '';
+    for (const h of sources) {
+      const m = h && h.textContent.match(/«\s*(.+?)\s*»/);
+      if (m && cle && S[cle + '|' + m[1]]) { sc = S[cle + '|' + m[1]]; id = cle + '|' + m[1]; break; }
+    }
     if (id === derniere) return;
     derniere = id;
     if (!sc) { zone.innerHTML = ''; zone.classList.add('hidden'); if (zoneM) { zoneM.innerHTML = ''; zoneM.classList.add('hidden'); } return; }
@@ -364,7 +368,10 @@
   function branche() {
     const cible = document.getElementById('nat-sentence');
     if (!cible) return;
-    new MutationObserver(() => majIllus()).observe(cible, { childList: true, subtree: false });
+    const obs = new MutationObserver(() => majIllus());
+    obs.observe(cible, { childList: true, subtree: true });
+    const lab = document.getElementById('nat-progress-label');
+    if (lab) obs.observe(lab, { childList: true, characterData: true, subtree: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', branche); else branche();
   window.majIllus = majIllus;

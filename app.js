@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v112';
+const APP_VERSION = 'v113';
 
 const $ = (id) => document.getElementById(id);
 
