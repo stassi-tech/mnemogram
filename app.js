@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v116';
+const APP_VERSION = 'v117';
 
 const $ = (id) => document.getElementById(id);
 
@@ -6986,12 +6986,35 @@ $('nat-next-button').addEventListener('click', nextQuestion);
 const prononceInf = (s) => (/^(fier|cher|hiver|mer|fer|ver|amer|hier|super)$/i.test(s.trim()) ? s : s.replace(/er\b/g, 'é'));
 function texteArdoise(racine) {
   const c = (racine || $('nat-sentence')).cloneNode(true);
-  c.querySelectorAll('.tm-titre, .labs, .lab, .ancien, .sx-lanes, .fit-tmp, .suite-tm, .gloses, .tf-bandes, .tf-op').forEach((x) => x.remove());
+  c.querySelectorAll('.tm-titre, .labs, .lab, .tv-labs, .tv-lab, .acc-fleches, .ancien, .sx-lanes, .fit-tmp, .suite-tm, .gloses, .tf-bandes, .tf-op, .tf-etiq').forEach((x) => x.remove());
   c.querySelectorAll('.dr-seg.transforme .dr-ancien').forEach((x) => x.remove());
   c.querySelectorAll('.tm-cadre.replie').forEach((x) => x.remove());
   c.querySelectorAll('.f').forEach((f) => { const m = f.textContent.trim().match(/^\((.+)\)$/); if (m) f.textContent = `, ${prononceInf(m[1])},`; });
   c.querySelectorAll('.w, .dr-mot, .tv-mot').forEach((x) => x.append(' '));
   return c.textContent.replace(/[()*]/g, '').replace(/\s+/g, ' ').replace(/ ([.,])/g, '$1').replace(/,\s*([.!?])/g, '$1').replace(/,,/g, ',').replace(/\b([A-Za-z]') /g, '$1').trim();
+}
+/* v116 : après la lecture du texte entier, la voix fait le bilan des étiquettes vertes (les natures, les temps) :
+   « Dans ce texte, on trouve sept noms communs : chat, chien… On trouve également trois noms propres : Léa… » */
+const PLUR_LAB = { nom: 'noms', commun: 'communs', propre: 'propres', adjectif: 'adjectifs', qualificatif: 'qualificatifs', article: 'articles', défini: 'définis', indéfini: 'indéfinis', déterminant: 'déterminants', possessif: 'possessifs', démonstratif: 'démonstratifs', pronom: 'pronoms', personnel: 'personnels', verbe: 'verbes', conjugué: 'conjugués', infinitif: 'infinitifs' };
+const NB_LETTRES = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf', 'vingt'];
+function bilanEtiquettes() {
+  const G = new Map();
+  document.querySelectorAll('#nat-sentence .w, #nat-sentence .tv-mot').forEach((w) => {
+    const lab = w.querySelector('.labs > .lab:not(.rouge):not(.bleu):not(.corrige), .tv-labs > .tv-lab:not(.rouge):not(.bleu)');
+    if (!lab) return;
+    const nom = lab.textContent.replace(/\s+/g, ' ').replace(/,.*$/, '').trim();
+    if (!nom || /^(forme|type|infinitif :)/i.test(nom) || nom.split(' ').length > 5) return;
+    const d = document.createElement('div'); d.appendChild(w.cloneNode(true));
+    let mot = texteArdoise(d).replace(/[.,!?;:«»]/g, '').trim();
+    if (!/nom propre/.test(nom)) mot = mot.charAt(0).toLowerCase() + mot.slice(1);   /* « Le », « Il » en début de phrase : on les dit en minuscule */
+    if (!mot || mot.split(' ').length > 4) return;
+    if (!G.has(nom)) G.set(nom, []);
+    const L = G.get(nom); if (!L.some((x) => x.toLowerCase() === mot.toLowerCase())) L.push(mot);
+  });
+  if (!G.size) return '';
+  const plur = (n) => n.split(' ').map((m, k) => (k < 3 && PLUR_LAB[m] ? PLUR_LAB[m] : m)).join(' ');
+  const enum_ = (L) => (L.length > 1 ? `${L.slice(0, -1).join(', ')} et ${L[L.length - 1]}` : L[0]);
+  return [...G.entries()].map(([nom, L], k) => `${k === 0 ? 'Dans ce texte, on trouve' : k === 1 ? 'On trouve également' : 'On trouve aussi'} ${L.length > 1 ? `${NB_LETTRES[L.length] || L.length} ${plur(nom)}` : `un seul ${nom}`.replace('un seul forme', 'une seule forme')} : ${enum_(L)}.`).join(' ');
 }
 /* v69 : la phrase autour d'un élément, telle qu'elle est écrite maintenant sur l'ardoise */
 function phraseDe(el) {
@@ -7033,7 +7056,9 @@ $('nat-listen-button').addEventListener('click', () => {
     if (!el && !game.texteFini && currentGame.tf && tf.registre) { const k = tf.elts.findIndex((x, j) => !tf.rep[j]); if (k >= 0) { clicTF(k); volumeLevel = prev; return; } }
     if (!el && !game.texteFini && currentGame.tm && svNatTM()) { const k = indicesPhase().find((j) => formeTM(j).ph === tm.sv.ph); speak(phraseDe(wordEl(k)), 'femme', 'phrase'); volumeLevel = prev; return; }
     if (!el && !game.texteFini && currentGame.tm) { const k = indicesPhase().find((j) => !estFaite(j)); if (k !== undefined) { clicFormeTM(k); volumeLevel = prev; return; } }
-    speak(el ? (currentGame.tf && tf.sel !== null && tf.elts[tf.sel]?.op ? luTF(tf.sel) : phraseDe(el)) : texteArdoise(), 'femme', 'phrase'); volumeLevel = prev; return;
+    if (el) speak(currentGame.tf && tf.sel !== null && tf.elts[tf.sel]?.op ? luTF(tf.sel) : phraseDe(el), 'femme', 'phrase');
+    else dis(texteArdoise(), bilanEtiquettes());   /* v116 : d'abord le texte en continu, puis le bilan des étiquettes */
+    volumeLevel = prev; return;
   }
   const q = game.questions[game.index]; if (!q) return;
   const prev = volumeLevel; if (!volumeLevel) { volumeLevel = 3; }
