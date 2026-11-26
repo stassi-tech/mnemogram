@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=113" />
+    <link rel="stylesheet" href="style.css?v=115" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -290,6 +290,9 @@
         <button type="button" class="modal-close-x" data-close="info-modal" aria-label="Fermer" title="Fermer">✕</button>
         <h2>Comment fonctionne l'application</h2>
         <p>MNEMOGRAM aide à mémoriser les notions fondamentales de la grammaire en jouant, dès 7 ans. Elle fonctionne sur ordinateur, tablette et smartphone.</p>
+        <h3>Pourquoi des bilans de cours ?</h3>
+        <p>MNEMOGRAM repose sur la <b>mémoire</b>. On croit souvent qu'un élève qui a refait beaucoup d'exercices d'application a forcément acquis les notions qu'ils mettent en jeu. Ce n'est pas si sûr. En calcul, on a beau faire des opérations, si l'on ne sait pas ses tables de multiplication, on bute ; en géométrie, il faut connaître ses définitions. En grammaire aussi, certaines choses s'apprennent par cœur : les natures de mots, la question qui fait trouver le sujet, les terminaisons des temps, les types et les formes de phrases.</p>
+        <p>Chaque partie se termine donc par deux sortes de bilans. Le <b>bilan de cours</b> pose des questions de cours, comme une interrogation orale : trois quiz, <b>facile</b> (on choisit la réponse), <b>moyen</b> (on choisit ou on écrit) et <b>difficile</b> (on écrit presque tout, et toutes les notions de la partie sont interrogées). Les questions sont tirées au hasard et changent à chaque fois : on peut refaire les quiz souvent, jusqu'à savoir son cours. Les <b>bilans d'application</b> vérifient ensuite, sur des textes, qu'on reconnaît ce qu'on a appris et qu'on sait l'utiliser.</p>
         <h3>Les jeux</h3>
         <ul>
           <li><b>Reconnaissance des natures de mots 1</b> : un mot clignote dans une phrase ; on choisit sa nature parmi les boutons verts (nom commun, verbe d'état ou d'action, adjectif qualificatif, déterminant, pronom, nom propre, adverbe, préposition, conjonctions, interjection, onomatopée).</li>
@@ -334,20 +337,21 @@
     </div>
 
     <!-- v76 : les textes des exercices, fabriqués par l'atelier à partir des fichiers Word (s'ils manquent, l'application garde ses textes) -->
-    <script defer src="illustrations.js?v=113"></script>
-    <script defer src="illus-ce.js?v=113"></script>
-    <script defer src="textes-ce-mots.js?v=113"></script>
-    <script defer src="textes-ce-temps.js?v=113"></script>
-    <script defer src="textes-ce-phrase.js?v=113"></script>
-    <script defer src="textes-cm-mots.js?v=113"></script>
-    <script defer src="textes-cm-temps.js?v=113"></script>
-    <script defer src="textes-cm-phrase.js?v=113"></script>
-    <script defer src="textes-65-mots.js?v=113"></script>
-    <script defer src="textes-65-temps.js?v=113"></script>
-    <script defer src="textes-65-phrase.js?v=113"></script>
-    <script defer src="textes-43-phrase.js?v=113"></script>
-    <script defer src="textes-43-mots.js?v=113"></script>
-    <script defer src="textes-43-temps.js?v=113"></script>
-    <script defer src="app.js?v=113"></script>
+    <script defer src="illustrations.js?v=115"></script>
+    <script defer src="illus-ce.js?v=115"></script>
+    <script defer src="textes-ce-mots.js?v=115"></script>
+    <script defer src="textes-ce-temps.js?v=115"></script>
+    <script defer src="textes-ce-phrase.js?v=115"></script>
+    <script defer src="textes-cm-mots.js?v=115"></script>
+    <script defer src="textes-cm-temps.js?v=115"></script>
+    <script defer src="textes-cm-phrase.js?v=115"></script>
+    <script defer src="textes-65-mots.js?v=115"></script>
+    <script defer src="textes-65-temps.js?v=115"></script>
+    <script defer src="textes-65-phrase.js?v=115"></script>
+    <script defer src="textes-43-phrase.js?v=115"></script>
+    <script defer src="textes-43-mots.js?v=115"></script>
+    <script defer src="textes-43-temps.js?v=115"></script>
+    <script defer src="app.js?v=115"></script>
+    <script defer src="quiz.js?v=115"></script>
   </body>
 </html>

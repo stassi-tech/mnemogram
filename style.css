@@ -889,3 +889,23 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .acc-fleches { position:absolute; left:0; top:0; pointer-events:none; overflow:visible; }
 .acc-fleches path { fill:none; stroke:#7fdcff; stroke-width:2.2; }
 .acc-fin { color:#fff; text-decoration:underline; text-decoration-color:#7fdcff; text-underline-offset:3px; }
+
+/* v114 : nature des mots au CE : verbe, puis sujet, puis autres mots */
+.sv-etape { margin: 6px 0 8px; }
+.sv-msg { color: #b3261e; font-weight: 600; }
+.game7 .w.forme.sv-faux .f { background: rgba(255, 90, 90, .45); border-radius: 4px; transition: background .2s; }
+
+/* v114 : dialogue avec des tirets */
+.br-dial { display: block; flex-basis: 100%; width: 100%; height: 0; }
+
+/* v115 : les bilans de cours (quiz) */
+.qz-cadre .qz-q { font-size: 1.15em; line-height: 1.5; margin-top: .6em; }
+.qz-liste { display: flex; flex-direction: column; gap: 8px; }
+.qz-ligne { display: flex; align-items: center; gap: 8px; }
+.qz-lab { min-width: 4.5em; font-weight: 700; color: #2d6a4f; }
+.qz-ligne .tf-input { flex: 1; }
+.qz-ok.oui { color: #2d8a4e; font-weight: 700; }
+.qz-ok.non { color: #b3261e; font-weight: 700; }
+.qz-suite { margin-top: 10px; width: 100%; }
+.home-mode-button.bilan.cours { border-style: dashed; }
+.qz-revoir { font-size: .75em; color: #ffe9a8; }

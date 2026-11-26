@@ -259,4 +259,35 @@ window.MNEMO_SCENES = Object.assign(window.MNEMO_SCENES || {}, {
     { decor: 'gare', el: [['valise', 30], ['lina', 55], ['papa', 80, null, 1, { bras: 'tend' }]] },
     { decor: 'ciel', el: [['nuage', 25, 60], ['avion', 55, 130], ['nuage', 80, 190]] },
     { decor: 'plage', el: [['soleil', 80, 34, .8], ['lina', 40, null, 1, { visage: 'rit', bras: 'haut' }], ['leo', 65, null, 1, { visage: 'rit' }]] }] },
+
+  /* ---------- v114 · Exercice 9 : placer les guillemets ---------- */
+  'ce-guill|Le goûter': { alt: 'Le goûter : Léo rentre affamé, maman montre les crêpes, Léo et Lina mangent', moments: [
+    { decor: 'maison', el: [['porte', 25], ['leo', 55, null, 1, { bras: 'haut', visage: 'crie' }], ['sac', 68, 190, .8], ['bulle', 55, 80, 1, { gauche: true, t: 'J\'ai faim !' }]] },
+    { decor: 'cuisine', el: [['maman', 40, null, 1, { bras: 'tend', visage: 'rit' }], ['table', 70], ['assiette', 70, 172], ['crepe', 70, 168]] },
+    { decor: 'cuisine', el: [['leo', 25, null, 1, { visage: 'rit' }], ['table', 50], ['crepe', 44, 168], ['crepe', 56, 168], ['lina', 75, null, 1, { visage: 'rit', bras: 'tend' }], ['bulle', 50, 70, 1, { gauche: true, t: 'Merci !' }]] }] },
+  'ce-guill|La cabane': { alt: 'La cabane : Léo passe la planche, papa aide, la cabane est finie', moments: [
+    { decor: 'jardin', el: [['arbre', 15], ['leo', 40, null, 1, { bras: 'tend' }], ['planche', 55, 160], ['lina', 72, null, 1, { bras: 'deux' }], ['bulle', 72, 80, 1, { gauche: true, t: 'Trop lourd !' }]] },
+    { decor: 'jardin', el: [['papa', 35, null, 1, { bras: 'leve' }], ['planche', 50, 130], ['leo', 70, null, .9], ['marteau', 78, 150]] },
+    { decor: 'jardin', el: [['cabane', 50], ['papa', 82, null, 1, { visage: 'rit' }], ['bulle', 82, 80, 1, { gauche: true, t: 'Magnifique !' }]] }] },
+  'ce-guill|Au marché': { alt: 'Au marché : le marchand crie, Lina regarde les fraises, grand-mère achète des pommes pour une tarte', moments: [
+    { decor: 'marche', el: [['etal', 50], ['marchand', 50, null, 1, { bras: 'haut' }], ['bulle', 22, 70, 1, { t: 'Belles pommes !' }]] },
+    { decor: 'marche', el: [['mamie', 18], ['lina', 40, null, .9, { bras: 'tend' }], ['etal', 82], ['bulle', 40, 90, 1, { t: 'Oh oui !' }]] },
+    { decor: 'cuisine', el: [['mamie', 30, null, 1, { visage: 'rit' }], ['panier', 55, 175], ['lina', 78, null, .9, { visage: 'rit', bras: 'haut' }], ['bulle', 78, 90, 1, { gauche: true, t: 'Une tarte !' }]] }] },
+  'ce-guill|Le chien perdu': { alt: 'Le chien perdu : Léo trouve un petit chien, Lina écrit une affiche, la dame retrouve son chien Biscuit', moments: [
+    { decor: 'rue', el: [['leo', 40, null, 1, { bras: 'tend' }], ['chien', 66, 204, .7, { c: '#c8874b' }], ['bulle', 40, 80, 1, { t: 'Tu es perdu ?' }]] },
+    { decor: 'maison', el: [['lina', 35, null, 1, { bras: 'leve' }], ['carte', 62, 130, 1.2], ['leo', 82, null, .9, { visage: 'rit' }]] },
+    { decor: 'rue', el: [['maman', 40, null, 1, { bras: 'deux', visage: 'rit' }], ['chien', 42, 150, .6, { c: '#c8874b' }], ['coeur', 42, 90], ['leo', 75, null, .9], ['bulle', 75, 80, 1, { gauche: true, t: 'Au revoir !' }]] }] },
+  /* ---------- v114 · Exercice 10 : le dialogue avec des tirets ---------- */
+  'ce-tirets|Au parc': { alt: 'Au parc : Léo pousse Lina sur la balançoire, puis c\'est le tour de Léo', moments: [
+    { decor: 'parc', el: [['balancoire', 50], ['lina', 50, 150, .8, { visage: 'rit', bras: 'haut' }], ['leo', 78, null, 1, { bras: 'tend' }], ['bulle', 50, 60, 1, { gauche: true, t: '— Plus haut !' }]] },
+    { decor: 'parc', el: [['balancoire', 50], ['leo', 50, 150, .8, { visage: 'rit' }], ['lina', 22, null, 1, { bras: 'tend', visage: 'rit' }], ['bulle', 22, 70, 1, { t: '— À ton tour !' }]] }] },
+  'ce-tirets|Le gâteau': { alt: 'Le gâteau : Léo prépare un gâteau pour maman, Lina casse les œufs', moments: [
+    { decor: 'cuisine', el: [['table', 50], ['saladier', 50, 168], ['leo', 30, null, 1, { bras: 'tend' }], ['lina', 78, null, 1], ['bulle', 78, 70, 1, { gauche: true, t: '— Je peux t\'aider ?' }]] },
+    { decor: 'cuisine', el: [['table', 50], ['oeufs', 44, 168], ['saladier', 58, 168], ['lina', 30, null, 1, { visage: 'peur', bras: 'tend' }], ['bulle', 30, 70, 1, { t: '— Oh non !' }], ['leo', 80, null, 1, { visage: 'rit' }]] }] },
+  'ce-tirets|La pluie': { alt: 'La pluie : Léo s\'ennuie à la fenêtre, le puzzle est incomplet, le chat a caché les pièces', moments: [
+    { decor: 'maison', el: [['fenetre', 50], ['pluie', 50], ['leo', 25, null, 1, { visage: 'triste' }], ['bulle', 25, 70, 1, { t: '— Je m\'ennuie…' }]] },
+    { decor: 'maison', el: [['boite', 40, 190], ['leo', 25, null, 1, { visage: 'rit', bras: 'tend' }], ['lina', 75, null, 1, { bras: 'deux' }], ['chat', 55, 204, .6, { c: '#555' }], ['bulle', 75, 70, 1, { gauche: true, t: '— C\'est le chat !' }]] }] },
+  'ce-tirets|La lettre': { alt: 'La lettre de mamie : Lina la lit à Léo, mamie les invite à la mer avec son chien Pirate', moments: [
+    { decor: 'maison', el: [['lina', 35, null, 1, { bras: 'tend', visage: 'rit' }], ['enveloppe', 50, 140], ['leo', 70, null, 1], ['bulle', 70, 70, 1, { gauche: true, t: '— Qu\'est-ce qu\'elle dit ?' }]] },
+    { decor: 'plage', el: [['mamie', 25], ['chien', 42, 204, .7, { c: '#333' }], ['leo', 65, null, .9, { visage: 'rit', bras: 'haut' }], ['lina', 85, null, .9, { visage: 'rit' }], ['crabe', 55, 210, .6], ['bulle', 75, 70, 1, { gauche: true, t: '— Vivement l\'été !' }]] }] },
 });

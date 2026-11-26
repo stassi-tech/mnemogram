@@ -5,7 +5,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v113';
+const APP_VERSION = 'v115';
 
 const $ = (id) => document.getElementById(id);
 
@@ -284,11 +284,16 @@ const GAMES = {
   'ce-types': { titre: "Les trois types de phrases", type: "Les trois types de phrases, niveau 42", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 42, nb: 1, tm: true, total: 10, partie: 'phrase' },
   'ce-int': { titre: "Transformer en phrase interrogative", type: "Transformer en phrase interrogative, niveau 43", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 43, nb: 1, tf: 'ce-int', total: 10, partie: 'phrase' },
   'ce-imper': { titre: "Transformer en phrase impérative", type: "Transformer en phrase impérative, niveau 44", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 44, nb: 1, tf: 'ce-imper', total: 10, partie: 'phrase' },
-  'ce-formes': { titre: "Forme affirmative ou forme négative", type: "Forme affirmative ou forme négative, niveau 45", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 45, nb: 1, tm: true, total: 10, partie: 'phrase' },
+  'ce-formes': { titre: "Les formes de phrases : affirmative, négative, exclamative", type: "Les formes de phrases, niveau 45", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 45, nb: 1, tm: true, total: 10, partie: 'phrase' },
   'ce-neg': { titre: "Transformer à la forme négative", type: "Transformer à la forme négative, niveau 46", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 46, nb: 1, tf: 'ce-neg', total: 10, partie: 'phrase' },
   'ce-paroles': { titre: "Les paroles des personnages", type: "Les paroles des personnages, niveau 47", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 47, nb: 1, tv: 'ce-paroles', total: 10, partie: 'phrase' },
-  'ce-svc': { titre: "Sujet, verbe, complément", type: "Sujet, verbe, complément, niveau 48", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 48, nb: 1, tm: true, total: 10, partie: 'phrase' },
-  'ce-ccp': { titre: "Les compléments de phrase", type: "Les compléments de phrase, niveau 49", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 49, nb: 1, tv: 'ce-ccp', total: 10, partie: 'phrase' },
+  'ce-svc': { titre: "Sujet, verbe, complément", type: "Sujet, verbe, complément, niveau 48", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 48, nb: 1, tm: true, total: 10, partie: 'mots' },
+  'ce-ccp': { titre: "Les compléments de phrase", type: "Les compléments de phrase, niveau 49", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 49, nb: 1, tv: 'ce-ccp', total: 10, partie: 'mots' },
+  'ce-qz-mots': { titre: "Les questions de cours sur les mots", type: "Bilan de cours, les mots CE, niveau 148", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 148, nb: 1, qz: 'ce-mots', total: 8, partie: 'mots' },
+  'ce-qz-temps': { titre: "Les questions de cours sur les temps", type: "Bilan de cours, les temps CE, niveau 149", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 149, nb: 1, qz: 'ce-temps', total: 8, partie: 'temps' },
+  'ce-qz-phrase': { titre: "Les questions de cours sur la phrase", type: "Bilan de cours, la phrase CE, niveau 150", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 150, nb: 1, qz: 'ce-phrase', total: 8, partie: 'phrase' },
+  'ce-guill': { titre: "Placer les guillemets", type: "Placer les guillemets, niveau 146", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 146, nb: 1, tv: 'ce-guill', total: 10, partie: 'phrase' },
+  'ce-tirets': { titre: "Le dialogue avec des tirets", type: "Le dialogue avec des tirets, niveau 147", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 147, nb: 1, tm: true, total: 10, partie: 'phrase' },
   'ce-transfo': { titre: "Transformer les phrases", type: "Transformer les phrases, niveau 50", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 50, nb: 1, tf: 'ce-transfo', total: 10, partie: 'phrase' },
   /* v79 : les mots au CM1 – CM2, en douze exercices */
   'cm-nat': { titre: "Les natures des mots variables", type: "Les natures des mots variables, niveau 51", rows: BUTTON_ROWS, reponse: (tag) => tag, niveau: 51, nb: 1, tm: true, total: 10, partie: 'mots' },
@@ -941,6 +946,10 @@ function fixPronunciation(text, voice) {
   /* v102 : les sigles se lisent lettre par lettre (COD et non « code », COI et non « quoi ») */
   const SIGLES = { COD: 'cé-o-dé', COI: 'cé-o-i', COS: 'cé-o-èss', CC: 'cé-cé', CCL: 'cé-cé-èl', GN: 'gé-ène', GNS: 'gé-ène-èss', GV: 'gé-vé', CDN: 'cé-dé-ène' };
   out = out.replace(/(?<![\p{L}])(COD|COI|COS|CCL|CC|GNS|GN|GV|CDN)(?![\p{L}])/gu, (m) => SIGLES[m]);
+  /* v114 : une terminaison écrite seule (« la marque du pluriel -s », « -ent ») s'épelle lettre par lettre :
+     sinon la voix lit « -s » comme un double « s ». */
+  const LETTRES = { a: 'a', b: 'bé', c: 'cé', d: 'dé', e: 'e', é: 'é', è: 'è', f: 'èf', g: 'gé', h: 'ache', i: 'i', j: 'ji', k: 'ka', l: 'èl', m: 'èm', n: 'ène', o: 'o', p: 'pé', q: 'ku', r: 'èr', s: 'èss', t: 'té', u: 'u', v: 'vé', x: 'iks', y: 'i grec', z: 'zèd' };
+  out = out.replace(/(^|[\s«(])-([a-zéè]{1,4})(?![\p{L}-])/gu, (m, av, t) => av + [...t].map((c) => LETTRES[c] || c).join(', '));
   /* v92 : sujet inversé après un verbe en -t ou -d : on écrit la liaison pour la voix (répondit-elle → répondi-t-elle) */
   out = out.replace(/(\p{L}{2,}?)[td]-(il|elle|on|ils|elles)(?![\p{L}])/giu, '$1-t-$2');
   return out;
@@ -986,6 +995,8 @@ const TOUS = ['ce', 'cm', '65', '43'];
 const PARTIES_NOM = { mots: 'Les mots', temps: 'Les temps et les modes', phrase: 'La phrase' };
 const PARCOURS = {
   mots: [
+    { jeu: 'ce-qz-mots', titre: 'Les questions de cours sur les mots', classes: ['ce'], bilan: true, cours: true,
+      consigne: '<strong>Bilan de cours</strong> : ici, pas de texte, mais des <strong>questions de cours</strong>, comme une interrogation orale. Faire beaucoup d\'exercices ne suffit pas : certaines choses doivent être <strong>sues par cœur</strong>, comme les tables de multiplication en calcul. Trois quiz : <strong>facile</strong> (8 questions, on choisit la réponse), <strong>moyen</strong> (12 questions, on choisit ou on écrit), <strong>difficile</strong> (20 questions, on écrit presque tout, et tout le cours y passe). Les questions sont tirées au hasard : refais les quiz souvent, ils changent à chaque fois. Chaque bonne réponse vaut 1 point.' },
     { jeu: 'ce-noms', titre: 'Trouver les noms communs et les noms propres', classes: ['ce'],
       consigne: 'Dans ce petit texte, touche tous les <strong>noms</strong>. Un nom désigne une personne, un animal, une chose ou une idée ; on peut mettre devant lui <em>le, la, un, une</em>. Les prénoms et les noms de villes (<em>Léa, Paris</em>) sont aussi des noms. Chaque nom trouvé vaut 1 point ; si tu touches un mot qui n\'est pas un nom, tu perds un demi-point.' },
     { jeu: 'ce-ncnp', titre: 'Nom commun ou nom propre', classes: ['ce'], tmNiv: 'ce-ncnp', sansMode: true, tmListe: 'ncnp',
@@ -1006,12 +1017,17 @@ const PARCOURS = {
       consigne: 'Dans ce petit texte, touche tous les <strong>pronoms personnels</strong> qui ont la <strong>fonction sujet</strong> : <em>je, tu, il, elle, on, nous, vous, ils, elles</em>. « Pronom personnel », c\'est leur nature ; « sujet », c\'est leur fonction. Ils remplacent le nom de celui qui fait l\'action. Attention : un pronom qui n\'est pas sujet (<em>il <strong>me</strong> regarde, je <strong>le</strong> vois</em>) ne compte pas. Chaque pronom trouvé vaut 1 point ; si tu touches un autre mot, tu perds un demi-point.' },
     { jeu: 'ce-sujets', titre: 'Trouver le sujet du verbe', classes: ['ce'],
       consigne: 'Dans ce petit texte, touche le <strong>sujet</strong> de chaque verbe. Pour le trouver, pose la question « <strong>Qui est-ce qui</strong>… ? » devant le verbe (<em>Qui est-ce qui dort ? Le chat</em>), puis touche <strong>un seul mot</strong> : le nom commun (<em>chat</em>), le nom propre (<em>Léo</em>) ou le pronom personnel (<em>il</em>). Parfois, il est placé <strong>après</strong> le verbe. Chaque sujet trouvé vaut 1 point ; si tu touches un autre mot, tu perds un demi-point.' },
-    { jeu: 'ce-nat5', titre: 'Nom commun, nom propre, déterminant, adjectif qualificatif, verbe ou pronom ?', classes: ['ce'], tmNiv: 'ce-nat5', sansMode: true, tmListe: 'nat5',
+    { jeu: 'ce-svc', tmNat: 'natvue', titre: 'Sujet, verbe, complément', classes: ['ce'], tmNiv: 'ce-svc', sansMode: true, tmListe: 'svc',
+      tmQuestion: 'est-ce le <strong>sujet</strong>, le <strong>verbe</strong> ou un <strong>complément</strong> ?', tmBilan: 'Dans une phrase, le <strong>verbe</strong> dit l\'action ; il change avec le moment. Le <strong>sujet</strong> dit <strong>qui</strong> fait l\'action : on le trouve avec « <em>Qui est-ce qui… ?</em> ». Le <strong>complément</strong> complète le verbe : <em>le chat attrape <strong>une souris</strong></em>.',
+      consigne: 'Des mots sont soulignés. Pour chacun, dis si c\'est le <strong>sujet</strong>, le <strong>verbe</strong> ou un <strong>complément</strong>. Commence par trouver le verbe, puis demande « Qui est-ce qui… ? » pour trouver le sujet. Chaque bonne réponse du premier coup vaut 1 point.' },
+    { jeu: 'ce-ccp', titre: 'Les compléments de phrase', classes: ['ce'],
+      consigne: 'Trouve les <strong>compléments de phrase</strong> : ils disent <strong>où</strong>, <strong>quand</strong> ou <strong>comment</strong> se passe l\'action. On peut les <strong>déplacer</strong> ou les <strong>supprimer</strong> : la phrase garde son sens (<em>Ce matin, je me lève → Je me lève ce matin → Je me lève</em>). Touche <strong>un seul mot</strong> : le nom commun (<em>matin</em>) ou l\'adverbe (<em>vite</em>). Chaque complément trouvé vaut 1 point ; si tu touches un autre mot, tu perds un demi-point.' },
+    { jeu: 'ce-nat5', titre: 'Nom commun, nom propre, déterminant, adjectif qualificatif, verbe ou pronom ?', classes: ['ce'], tmNiv: 'ce-nat5', sansMode: true, svNat: true, tmListe: 'nat5',
       tmQuestion: 'quelle est sa <strong>nature</strong> ?', tmBilan: 'Le <strong>nom commun</strong> désigne une personne, un animal, une chose (<em>un chat, une maison</em>) ; le <strong>nom propre</strong> désigne une personne ou un lieu unique et commence par une majuscule (<em>Léo, Paris</em>) ; le <strong>déterminant</strong> est le petit mot devant le nom (<em>le, une, mon, ce</em>) ; l\'<strong>adjectif</strong> dit comment est le nom ; le <strong>verbe</strong> dit ce qu\'on fait ou ce qui se passe, et il change avec le moment ; le <strong>pronom</strong> remplace un nom (<em>il, elle, nous, le, les</em>).',
-      consigne: 'Des mots sont soulignés. Pour chacun, dis quelle est sa <strong>nature</strong> : <strong>nom commun</strong>, <strong>nom propre</strong>, <strong>déterminant</strong>, <strong>adjectif</strong>, <strong>verbe</strong> ou <strong>pronom</strong>. Chaque bonne réponse du premier coup vaut 1 point.' },
-    { jeu: 'ce-bilannat', titre: 'Reconnaître la nature des mots', classes: ['ce'], bilan: true, tmNiv: 'ce-bilannat', sansMode: true, tmListe: 'nat5',
+      consigne: 'Pour chaque phrase, trois étapes, toujours dans cet ordre. <strong>1.</strong> Trouve d\'abord le <strong>verbe</strong> et touche-le. <strong>2.</strong> Trouve son <strong>sujet</strong> : pose la question « Qui est-ce qui… ? », touche <strong>un seul mot</strong>, puis dis sa <strong>nature</strong>. <strong>3.</strong> Donne la <strong>nature</strong> des autres mots soulignés : <strong>nom commun</strong>, <strong>nom propre</strong>, <strong>déterminant</strong>, <strong>adjectif qualificatif</strong>, <strong>verbe</strong> ou <strong>pronom</strong>. Chaque mot vaut 1 point s\'il est trouvé du premier coup.' },
+    { jeu: 'ce-bilannat', titre: 'Reconnaître la nature des mots', classes: ['ce'], bilan: true, tmNiv: 'ce-bilannat', sansMode: true, svNat: true, tmListe: 'nat5',
       tmQuestion: 'quelle est sa <strong>nature</strong> ?', tmBilan: 'Tu as reconnu les grandes natures de mots. Le <strong>nom commun</strong> désigne une personne, un animal, une chose ; le <strong>nom propre</strong> désigne un être ou un lieu unique, avec une majuscule ; le <strong>déterminant</strong> l\'annonce (<em>le, une, mon, ce</em>) ; l\'<strong>adjectif</strong> dit comment il est ; le <strong>verbe</strong> dit l\'action et change avec le moment ; le <strong>pronom</strong> remplace un nom.',
-      consigne: '<strong>Bilan</strong> : tout ce que tu as appris sur les mots. Des mots sont soulignés : pour chacun, dis s\'il est <strong>nom commun</strong>, <strong>nom propre</strong>, <strong>déterminant</strong>, <strong>adjectif</strong>, <strong>verbe</strong> ou <strong>pronom</strong>. Douze textes, du plus court au plus long. Chaque bonne réponse du premier coup vaut 1 point.' },
+      consigne: '<strong>Bilan</strong> : tout ce que tu as appris sur les mots. Pour chaque phrase, trois étapes, toujours dans cet ordre. <strong>1.</strong> Trouve d\'abord le <strong>verbe</strong> et touche-le. <strong>2.</strong> Trouve son <strong>sujet</strong> : pose la question « Qui est-ce qui… ? », touche <strong>un seul mot</strong>, puis dis sa <strong>nature</strong>. <strong>3.</strong> Donne la <strong>nature</strong> des autres mots soulignés : <strong>nom commun</strong>, <strong>nom propre</strong>, <strong>déterminant</strong>, <strong>adjectif qualificatif</strong>, <strong>verbe</strong> ou <strong>pronom</strong>. Douze textes, du plus court au plus long. Chaque mot vaut 1 point s\'il est trouvé du premier coup.' },
     { jeu: 'ce-bilanacc', titre: 'Accorder le groupe nominal et le verbe', classes: ['ce'], bilan: true },
     { jeu: 'cm-nat', titre: 'Les natures des mots variables', classes: ['cm'], tmNiv: 'cm-nat', sansMode: true, tmListe: 'nat5',
       tmQuestion: 'quelle est sa <strong>nature</strong> ?', tmBilan: 'Les mots <strong>variables</strong> changent de forme selon le genre, le nombre ou la personne : le <strong>nom commun</strong> et le <strong>nom propre</strong> (qui commence par une majuscule), le <strong>déterminant</strong>, l\'<strong>adjectif</strong>, le <strong>pronom</strong> et le <strong>verbe</strong>.',
@@ -1093,11 +1109,13 @@ const PARCOURS = {
     { jeu: 'libre', titre: 'Le tableau des 20 cases sans guide', classes: ['43'], bilan: true },
   ],
   temps: [
+    { jeu: 'ce-qz-temps', titre: 'Les questions de cours sur les temps et les modes', classes: ['ce'], bilan: true, cours: true,
+      consigne: '<strong>Bilan de cours</strong> : ici, pas de texte, mais des <strong>questions de cours</strong>, comme une interrogation orale. Faire beaucoup d\'exercices ne suffit pas : certaines choses doivent être <strong>sues par cœur</strong>, comme les tables de multiplication en calcul. Trois quiz : <strong>facile</strong> (8 questions, on choisit la réponse), <strong>moyen</strong> (12 questions, on choisit ou on écrit), <strong>difficile</strong> (20 questions, on écrit presque tout, et tout le cours y passe). Les questions sont tirées au hasard : refais les quiz souvent, ils changent à chaque fois. Chaque bonne réponse vaut 1 point.' },
     { jeu: 'ce-verbe', titre: 'Trouver le verbe conjugué', classes: ['ce'],
       consigne: 'Dans ce petit texte, touche tous les <strong>verbes conjugués</strong>. Pour les reconnaître, change le moment de la phrase : le mot qui change, c\'est le verbe (<em>il court → hier il courait</em>). Chaque verbe trouvé vaut 1 point ; si tu touches un mot qui n\'est pas un verbe conjugué, tu perds un demi-point.' },
     { jeu: 'ce-inf', titre: 'Trouver l\'infinitif du verbe', classes: ['ce'] },
     { jeu: 'ce-quand', titre: 'Passé, présent ou futur : quand se passe l\'action ?', classes: ['ce'], tmNiv: 'ce-quand', sansMode: true, tmListe: 'quand',
-      tmQuestion: 'quand se passe l\'action ?', tmBilan: 'Pour savoir <strong>quand se passe l\'action</strong>, on regarde les petits mots qui donnent le moment (<em>hier, aujourd\'hui, demain, autrefois, bientôt</em>) et la forme du verbe : <strong>passé</strong> (<em>il a fait, il faisait</em>), <strong>présent</strong> (<em>il fait</em>), <strong>futur</strong> (<em>il fera</em>).',
+      tmQuestion: 'quand se passe l\'action de ce verbe ?', tmBilan: 'Pour savoir <strong>quand se passe l\'action</strong>, on regarde les petits mots qui donnent le moment (<em>hier, aujourd\'hui, demain, autrefois, bientôt</em>) et la forme du verbe : <strong>passé</strong> (<em>il a fait, il faisait</em>), <strong>présent</strong> (<em>il fait</em>), <strong>futur</strong> (<em>il fera</em>).',
       consigne: 'Dans ce petit texte, des <strong>verbes</strong> sont soulignés. Pour chacun, dis <strong>quand se passe l\'action</strong> : dans le <strong>passé</strong>, au <strong>présent</strong> (maintenant) ou dans le <strong>futur</strong>. Aide-toi des mots <em>hier, aujourd\'hui, demain</em>. Chaque verbe vaut 1 point.' },
     { jeu: 'ce-pres', titre: 'Le présent', classes: ['ce'] },
     { jeu: 'ce-fut', titre: 'Le futur', classes: ['ce'] },
@@ -1124,7 +1142,7 @@ const PARCOURS = {
     { jeu: 'cm-cond', titre: 'Le conditionnel présent', classes: ['cm'] },
     { jeu: 'cm-imper', titre: 'L\'impératif présent', classes: ['cm'] },
     { jeu: 'cm-recit', titre: 'Les temps du récit au passé', classes: ['cm'], tmNiv: 'cm-recit', sansMode: true, tmListe: 'recit3',
-      tmQuestion: 'quel est son <strong>temps</strong> ?', tmBilan: 'Un récit au passé utilise trois temps. Le <strong>passé simple</strong> pour les actions principales, le <strong>premier plan</strong>. L\'<strong>imparfait</strong> pour le décor et les descriptions, l\'<strong>arrière-plan</strong>. Le <strong>plus-que-parfait</strong> pour ce qui s\'était passé <strong>avant</strong> : c\'est le passé du passé (<em>il avait reçu un cerf-volant</em>).',
+      tmQuestion: 'quel est le <strong>temps</strong> de ce verbe ?', tmBilan: 'Un récit au passé utilise trois temps. Le <strong>passé simple</strong> pour les actions principales, le <strong>premier plan</strong>. L\'<strong>imparfait</strong> pour le décor et les descriptions, l\'<strong>arrière-plan</strong>. Le <strong>plus-que-parfait</strong> pour ce qui s\'était passé <strong>avant</strong> : c\'est le passé du passé (<em>il avait reçu un cerf-volant</em>).',
       consigne: 'Voici un récit au passé. Des verbes sont soulignés : pour chacun, dis s\'il est à l\'<strong>imparfait</strong>, au <strong>passé simple</strong> ou au <strong>plus-que-parfait</strong>. Chaque bonne réponse du premier coup vaut 1 point.' },
     { jeu: 'temps1', titre: 'Reconnaître les temps et les modes', classes: ['cm'], bilan: true,
       tmNiv: 'cm', tmChoix: { tps: ['TPS.pres', 'TPS.imp', 'TPS.ps', 'TPS.fut', 'TPS.pc', 'TPS.pqp'], mode: ['MODE.ind', 'MODE.cond', 'MODE.imp'] },
@@ -1132,7 +1150,7 @@ const PARCOURS = {
     { jeu: 'cm-bontemps', titre: 'Écrire un récit au passé', classes: ['cm'], bilan: true },
     { jeu: 'c65-ps', titre: 'Le passé simple à toutes les personnes', classes: ['65'] },
     { jeu: 'c65-tcomp', titre: "Les temps composés de l'indicatif", classes: ['65'], tmNiv: 'c65-tcomp', sansMode: true, tmListe: 'tcomp4',
-      tmQuestion: "quel est son <strong>temps</strong> ?", tmBilan: "Chaque temps simple a son temps composé : on met l'<strong>auxiliaire</strong> (<em>avoir</em> ou <em>être</em>) à ce temps simple, puis le participe passé. Auxiliaire au présent : <strong>passé composé</strong> (<em>j'ai fini</em>). À l'imparfait : <strong>plus-que-parfait</strong> (<em>j'avais fini</em>). Au passé simple : <strong>passé antérieur</strong> (<em>j'eus fini</em>). Au futur : <strong>futur antérieur</strong> (<em>j'aurai fini</em>). Le temps composé dit toujours une action <strong>déjà accomplie</strong> par rapport à son temps simple.",
+      tmQuestion: "quel est le <strong>temps</strong> de ce verbe ?", tmBilan: "Chaque temps simple a son temps composé : on met l'<strong>auxiliaire</strong> (<em>avoir</em> ou <em>être</em>) à ce temps simple, puis le participe passé. Auxiliaire au présent : <strong>passé composé</strong> (<em>j'ai fini</em>). À l'imparfait : <strong>plus-que-parfait</strong> (<em>j'avais fini</em>). Au passé simple : <strong>passé antérieur</strong> (<em>j'eus fini</em>). Au futur : <strong>futur antérieur</strong> (<em>j'aurai fini</em>). Le temps composé dit toujours une action <strong>déjà accomplie</strong> par rapport à son temps simple.",
       consigne: "Des verbes à un temps composé sont soulignés. Pour chacun, regarde l'<strong>auxiliaire</strong> : à quel temps est-il conjugué ? Au présent, c'est un passé composé ; à l'imparfait, un plus-que-parfait ; au passé simple, un passé antérieur ; au futur, un futur antérieur. Chaque bonne réponse du premier coup vaut 1 point." },
     { jeu: 'c65-fa', titre: 'Le futur antérieur', classes: ['65'] },
     { jeu: 'c65-subj', titre: 'Le subjonctif présent', classes: ['65'] },
@@ -1179,6 +1197,8 @@ const PARCOURS = {
     { jeu: 'c43-bilantps', titre: "Choisir le temps, et savoir pourquoi", classes: ['43'], bilan: true },
   ],
   phrase: [
+    { jeu: 'ce-qz-phrase', titre: 'Les questions de cours sur la phrase', classes: ['ce'], bilan: true, cours: true,
+      consigne: '<strong>Bilan de cours</strong> : ici, pas de texte, mais des <strong>questions de cours</strong>, comme une interrogation orale. Faire beaucoup d\'exercices ne suffit pas : certaines choses doivent être <strong>sues par cœur</strong>, comme les tables de multiplication en calcul. Trois quiz : <strong>facile</strong> (8 questions, on choisit la réponse), <strong>moyen</strong> (12 questions, on choisit ou on écrit), <strong>difficile</strong> (20 questions, on écrit presque tout, et tout le cours y passe). Les questions sont tirées au hasard : refais les quiz souvent, ils changent à chaque fois. Chaque bonne réponse vaut 1 point.' },
     { jeu: 'ce-phr', titre: 'Phrase ou pas phrase ?', classes: ['ce'], tmNiv: 'ce-phr', sansMode: true, tmListe: 'phr',
       tmQuestion: 'est-ce une <strong>phrase</strong> ?', tmBilan: 'Une <strong>phrase</strong> est une suite de mots <strong>rangés dans le bon ordre</strong>, qui a du <strong>sens</strong>. À l\'écrit, elle commence par une <strong>majuscule</strong> et se termine par un <strong>point</strong> ( . ? ! ). Des mots mélangés, ou sans majuscule ni point, ne font pas une phrase.',
       consigne: 'Des groupes de mots sont soulignés. Pour chacun, dis si c\'est <strong>une phrase</strong> ou <strong>pas une phrase</strong>. Une phrase a du sens : ses mots sont dans le bon ordre. À l\'écrit, elle commence par une <strong>majuscule</strong> et finit par un <strong>point</strong>. Chaque bonne réponse du premier coup vaut 1 point.' },
@@ -1190,17 +1210,17 @@ const PARCOURS = {
       consigne: 'Des phrases sont soulignées. Pour chacune, dis son <strong>type</strong> : <strong>déclarative</strong> (on donne une information), <strong>interrogative</strong> (on pose une question) ou <strong>impérative</strong> (on donne un ordre ou un conseil). Chaque bonne réponse du premier coup vaut 1 point.' },
     { jeu: 'ce-int', titre: 'Transformer en phrase interrogative', classes: ['ce'] },
     { jeu: 'ce-imper', titre: 'Transformer en phrase impérative', classes: ['ce'] },
-    { jeu: 'ce-formes', titre: 'Forme affirmative ou forme négative', classes: ['ce'], tmNiv: 'ce-formes', sansMode: true, tmListe: 'formes2',
-      tmQuestion: 'quelle est sa <strong>forme</strong> ?', tmBilan: 'Une phrase à la <strong>forme négative</strong> dit le contraire d\'une phrase à la <strong>forme affirmative</strong>. La négation a <strong>deux mots</strong> qui entourent le verbe : <em>ne… pas</em>, <em>ne… plus</em>, <em>ne… jamais</em>, <em>ne… rien</em>, <em>personne ne…</em> Devant une voyelle, <em>ne</em> devient <em>n\'</em> (<em>il n\'a pas peur</em>).',
-      consigne: 'Des phrases sont soulignées. Pour chacune, dis si elle est à la <strong>forme affirmative</strong> ou à la <strong>forme négative</strong>. Cherche les deux mots de la négation autour du verbe : <em>ne… pas</em>, <em>ne… plus</em>, <em>ne… jamais</em>, <em>ne… rien</em>. Chaque bonne réponse du premier coup vaut 1 point.' },
+    { jeu: 'ce-formes', titre: 'Les formes de phrases : affirmative, négative, exclamative', classes: ['ce'], tmNiv: 'ce-formes', sansMode: true, tmListe: 'formes4ce',
+      tmQuestion: 'quelle est la <strong>forme</strong> de cette phrase ?', tmBilan: 'Une phrase a <strong>trois formes</strong> possibles. Elle est <strong>affirmative</strong> ou <strong>négative</strong> : la forme négative dit le contraire, avec <strong>deux mots</strong> autour du verbe (<em>ne… pas</em>, <em>ne… plus</em>, <em>ne… jamais</em>, <em>ne… rien</em>, <em>personne ne…</em>). Et elle peut être, en plus, <strong>exclamative</strong> : elle exprime un sentiment fort et finit par un point d\'exclamation. Cela fait quatre cas : <em>Il pleut.</em> (affirmative), <em>Il ne pleut pas.</em> (négative), <em>Il pleut si fort !</em> (affirmative et exclamative), <em>Il ne pleut pas du tout !</em> (négative et exclamative).',
+      consigne: 'Une phrase a <strong>trois formes</strong> : <strong>affirmative</strong>, <strong>négative</strong> (<em>ne… pas</em>, <em>ne… plus</em>, <em>ne… jamais</em>, <em>ne… rien</em> autour du verbe), et <strong>exclamative</strong> quand elle exprime un sentiment fort et finit par un point d\'exclamation. Une phrase exclamative est aussi affirmative ou négative : il y a donc <strong>quatre cas</strong>. Des phrases sont soulignées : pour chacune, choisis le bon cas. Chaque bonne réponse du premier coup vaut 1 point.' },
     { jeu: 'ce-neg', titre: 'Transformer à la forme négative', classes: ['ce'] },
     { jeu: 'ce-paroles', titre: 'Les paroles des personnages', classes: ['ce'],
       consigne: 'Dans une histoire, les personnages parlent. On écrit leurs paroles <strong>entre guillemets</strong> « … » : c\'est le <strong>discours direct</strong>. Touche toutes les <strong>paroles des personnages</strong>. Chaque parole trouvée vaut 1 point ; si tu touches un mot du récit, tu perds un demi-point.' },
-    { jeu: 'ce-svc', tmNat: 'natvue', titre: 'Sujet, verbe, complément', classes: ['ce'], tmNiv: 'ce-svc', sansMode: true, tmListe: 'svc',
-      tmQuestion: 'est-ce le <strong>sujet</strong>, le <strong>verbe</strong> ou un <strong>complément</strong> ?', tmBilan: 'Dans une phrase, le <strong>verbe</strong> dit l\'action ; il change avec le moment. Le <strong>sujet</strong> dit <strong>qui</strong> fait l\'action : on le trouve avec « <em>Qui est-ce qui… ?</em> ». Le <strong>complément</strong> complète le verbe : <em>le chat attrape <strong>une souris</strong></em>.',
-      consigne: 'Des mots sont soulignés. Pour chacun, dis si c\'est le <strong>sujet</strong>, le <strong>verbe</strong> ou un <strong>complément</strong>. Commence par trouver le verbe, puis demande « Qui est-ce qui… ? » pour trouver le sujet. Chaque bonne réponse du premier coup vaut 1 point.' },
-    { jeu: 'ce-ccp', titre: 'Les compléments de phrase', classes: ['ce'],
-      consigne: 'Trouve les <strong>compléments de phrase</strong> : ils disent <strong>où</strong>, <strong>quand</strong> ou <strong>comment</strong> se passe l\'action. On peut les <strong>déplacer</strong> ou les <strong>supprimer</strong> : la phrase garde son sens (<em>Ce matin, je me lève → Je me lève ce matin → Je me lève</em>). Touche <strong>un seul mot</strong> : le nom commun (<em>matin</em>) ou l\'adverbe (<em>vite</em>). Chaque complément trouvé vaut 1 point ; si tu touches un autre mot, tu perds un demi-point.' },
+    { jeu: 'ce-guill', titre: 'Placer les guillemets', classes: ['ce'],
+      consigne: 'Dans cette histoire, les personnages parlent, mais on a oublié les <strong>guillemets</strong> « … ». Touche les <strong>paroles</strong> de chaque personnage : les guillemets viendront les entourer. Les petits mots qui disent qui parle (<em>dit Léo, demande Lina</em>) font partie du récit : ne les touche pas. Chaque parole trouvée vaut 1 point ; si tu touches un mot du récit, tu perds un demi-point.' },
+    { jeu: 'ce-tirets', titre: 'Le dialogue avec des tirets', classes: ['ce'], tmNiv: 'ce-tirets', sansMode: true, tmListe: 'locut',
+      tmQuestion: 'qui parle ?', tmBilan: 'Dans un <strong>dialogue</strong>, on peut écrire les paroles sans guillemets à chaque fois : chaque <strong>réplique</strong> commence par un <strong>tiret</strong>, et chaque nouveau tiret annonce que <strong>l\'autre personnage</strong> répond. On n\'écrit pas toujours le nom de celui qui parle : on le devine, parce que les deux personnages parlent chacun à leur tour.',
+      consigne: 'Léo et Lina discutent. Leurs paroles ne sont pas entre guillemets : chaque <strong>réplique</strong> commence par un <strong>tiret</strong> (—), et le nom de celui qui parle n\'est pas toujours écrit. Chaque nouveau tiret annonce que l\'autre répond. Pour chaque réplique soulignée, dis <strong>qui parle</strong> : <strong>Léo</strong> ou <strong>Lina</strong>. Chaque bonne réponse du premier coup vaut 1 point.' },
     { jeu: 'formes', titre: 'Reconnaître le type et la forme des phrases', classes: ['ce'], tfNiv: 'ce', bilan: true,
       consigne: '<strong>Bilan</strong> : tout ce que tu as appris sur la phrase. Douze textes, du plus court au plus long. Sous chaque phrase du texte, deux bandes vierges sont déjà tracées. En <strong>bleu nuit</strong>, le <strong>type</strong> de la phrase : pourquoi parle-t-on ? Pour informer (<strong>déclarative</strong>), pour poser une question (<strong>interrogative</strong>), pour donner un ordre (<strong>impérative</strong>). En <strong>bleu franc</strong>, sa <strong>forme</strong> : <strong>affirmative</strong> ou <strong>négative</strong> (ne… pas), et <strong>exclamative</strong> si elle exprime un sentiment (!). Touche une bande, puis choisis à droite. Chaque bande juste vaut 1 point.' },
     { jeu: 'ce-transfo', titre: 'Transformer les phrases', classes: ['ce'], bilan: true },
@@ -1299,13 +1319,14 @@ function dessinePortail() {
     /* v66 : les bilans viennent à la fin de la liste, numérotés à part (Bilan 1, Bilan 2) */
     let n = 0, nb = 0;
     const L0 = PARCOURS[partie].map((e, k) => ({ e, k })).filter(({ e }) => e.classes.includes(classeAccueil));
-    const L = [...L0.filter(({ e }) => !e.bilan), ...L0.filter(({ e }) => e.bilan)];
+    const L = [...L0.filter(({ e }) => !e.bilan), ...L0.filter(({ e }) => e.bilan && e.cours), ...L0.filter(({ e }) => e.bilan && !e.cours)];
     const premierBilan = L.findIndex(({ e }) => e.bilan);
     const titreEx = n0 => `<p class="home-etape"><strong>Apprendre pas à pas</strong> : ${n0 >= 10 ? 'dix exercices' : 'des exercices'}, une notion à la fois, avec quatre textes de plus en plus longs.</p>`;
-    const titreBilan = '<p class="home-etape"><strong>Faire le bilan</strong> : le bilan 1 vérifie qu\'on <strong>reconnaît</strong> tout ce qu\'on a étudié ; le bilan 2, qu\'on sait l\'<strong>utiliser</strong> à bon escient. Douze textes chacun, du plus court au plus long.</p>';
+    const aCours = L.some(({ e }) => e.cours);
+    const titreBilan = `<p class="home-etape"><strong>Faire le bilan</strong> : ${aCours ? 'le <strong>bilan de cours</strong> vérifie qu\'on <strong>sait sa leçon par cœur</strong> (des quiz, facile, moyen, difficile, qui changent à chaque fois) ; ' : ''}le bilan d'application 1 vérifie qu'on <strong>reconnaît</strong> tout ce qu'on a étudié ; le bilan d'application 2, qu'on sait l'<strong>utiliser</strong> à bon escient. Douze textes chacun, du plus court au plus long.</p>`;
     const nEx = L.filter(({ e }) => !e.bilan).length;
     document.querySelector(`[data-liste="${partie}"]`).innerHTML = (premierBilan > 0 ? titreEx(nEx) : '') + L.map(({ e, k }, idx) => {
-      const nom = e.bilan ? `Bilan ${++nb}` : `Exercice ${++n}`;
+      const nom = e.cours ? 'Bilan de cours' : e.bilan ? `Bilan d'application ${++nb}` : `Exercice ${++n}`;
       return (idx === premierBilan && premierBilan > 0 ? titreBilan : '') + (e.avenir
         ? `<button type="button" class="home-mode-button avenir" disabled><span class="label"><strong>${nom}</strong><br>${e.titre}</span><span class="desc">bientôt</span></button>`
         : `<button type="button" class="home-mode-button${e.bilan ? ' bilan' : ''}" data-partie-ex="${partie}" data-k="${k}" data-nom="${nom}"><span class="label"><strong>${nom}</strong><br>${e.titre}</span></button>`);
@@ -1342,7 +1363,7 @@ function ajusteArdoise() {
     s.style.fontSize = `${m}px`;
     if (s.scrollHeight <= H && s.scrollWidth <= s.clientWidth + 2) lo = m; else hi = m;
   }
-  s.style.fontSize = `${Math.floor(lo)}px`;
+  s.style.fontSize = `${Math.max(Math.floor(lo), currentGame.tmListe === 'locut' ? 26 : 0)}px`;   /* v114 : un dialogue reste lisible, quitte à allonger l'ardoise */
   ajouts.forEach((x) => x.remove()); marques.forEach((x) => { x.textContent = ''; });
 }
 window.addEventListener('resize', () => { if (currentGame && isT1()) ajusteArdoise(); });
@@ -1416,6 +1437,7 @@ function buildNatureSequence() {
   return shuffle(liste);
 }
 function buildQuestions() {
+  if (currentGame.qz) { marqueTexte(texteChoisi); return [{ qz: true, t: texteChoisi, nonce: Date.now() }]; }
   if (currentGame.tv) { marqueTexte(texteChoisi); return [{ tv: true, t: texteChoisi }]; }
   if (currentGame.dr) { marqueTexte(texteChoisi); return [{ dr: true, t: texteChoisi }]; }
   if (currentGame.sx) { marqueTexte(texteChoisi); return [{ sx: true, t: texteChoisi }]; }
@@ -1477,9 +1499,9 @@ function buildNatureButtons() {
    le dernier joué ; les textes déjà faits portent une coche. On garde ces souvenirs dans le navigateur. */
 let texteChoisi = 0;
 const NIVEAU_TEXTE = (k, n = 20) => { const q = k / n; return q < 0.25 ? 'facile' : q < 0.5 ? 'moyen' : q < 0.75 ? 'difficile' : 'très difficile'; };
-const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : currentGame.tv ? currentGame.tv : currentGame.tf ? currentGame.tf : currentGame.dr ? 'phrase3' : currentGame.sxTF ? `formes-${currentGame.tfNiv}` : currentGame.sx ? (currentGame.sxFn ? 'phrase2' : 'phrase1') : currentGame.tmNiv ? `temps1-${currentGame.tmNiv}` : 'tableau'}`;
+const cleTextes = () => `mnemogram-textes-${currentGame === GAMES.libre ? 'libre' : currentGame.qz ? `qz-${currentGame.qz}` : currentGame.tv ? currentGame.tv : currentGame.tf ? currentGame.tf : currentGame.dr ? 'phrase3' : currentGame.sxTF ? `formes-${currentGame.tfNiv}` : currentGame.sx ? (currentGame.sxFn ? 'phrase2' : 'phrase1') : currentGame.tmNiv ? `temps1-${currentGame.tmNiv}` : 'tableau'}`;
 /* v47 : la liste des textes au choix : les tableaux (exercices 5 et 6 des mots) ou les textes à transformer */
-const listeTextes = () => (currentGame.tv ? TROUVE[currentGame.tv] : currentGame.tab ? TABLEAUX : currentGame.tf ? TRANSFOS[currentGame.tf] : currentGame.dr ? TEXTES_DR : currentGame.sxTF ? TEXTES_TF[currentGame.tfNiv] : currentGame.sx ? TEXTES_SX[currentGame.sxFn ? 'fn' : 'syn'] : currentGame.tmNiv ? TEXTES_TM.filter((x) => x.niv === currentGame.tmNiv).sort((x, y) => (x.texte.match(/\{/g) || []).length - (y.texte.match(/\{/g) || []).length) : null);
+const listeTextes = () => (currentGame.qz ? (window.QZ_TEXTES ? window.QZ_TEXTES(currentGame.qz) : null) : currentGame.tv ? TROUVE[currentGame.tv] : currentGame.tab ? TABLEAUX : currentGame.tf ? TRANSFOS[currentGame.tf] : currentGame.dr ? TEXTES_DR : currentGame.sxTF ? TEXTES_TF[currentGame.tfNiv] : currentGame.sx ? TEXTES_SX[currentGame.sxFn ? 'fn' : 'syn'] : currentGame.tmNiv ? TEXTES_TM.filter((x) => x.niv === currentGame.tmNiv).sort((x, y) => (x.texte.match(/\{/g) || []).length - (y.texte.match(/\{/g) || []).length) : null);
 function textesFaits() { try { return JSON.parse(localStorage.getItem(cleTextes()) || '{"faits":[],"dernier":-1}'); } catch (e) { return { faits: [], dernier: -1 }; } }
 function marqueTexte(k) {
   const m = textesFaits();
@@ -1501,11 +1523,13 @@ function choixTexte() {
       return `<button type="button" class="texte-num${k === texteChoisi ? ' choisi' : ''}${m.faits.includes(k) ? ' fait' : ''}" data-texte="${k}" title="${m.faits.includes(k) ? 'déjà fait' : 'pas encore fait'}">${k + 1}</button>`;
     }).join('')}</div>`).join('');
     $('nat-progress-label').textContent = `Texte n° ${texteChoisi + 1} (${NIV(texteChoisi)})`;
+    if (currentGame.qz) { currentGame.total = L[texteChoisi].nb; $('nat-score-label').textContent = scoreLabel(0); $('nat-progress-label').textContent = `${L[texteChoisi].titre} : ${L[texteChoisi].nb} questions`; }
     if (currentGame.tf) { currentGame.total = decoupeTF(L[texteChoisi].texte).elts.length; $('nat-score-label').textContent = scoreLabel(0); }
     if (currentGame.tv) { currentGame.total = (L[texteChoisi].texte.match(/\{/g) || []).length; $('nat-score-label').textContent = scoreLabel(0); }
     if (currentGame.tmNiv) { currentGame.total = decoupeTM(L[texteChoisi].texte).formes.length; $('nat-score-label').textContent = scoreLabel(0); }
     if (currentGame.dr) { currentGame.total = totalDR(L[texteChoisi]); $('nat-score-label').textContent = scoreLabel(0); }
     if (currentGame.sx) { const dd = decoupeSX(L[texteChoisi].texte); currentGame.total = dd.phrases.length + dd.props.length + (currentGame.sxFn || currentGame.sxTF ? dd.props.filter((p) => p.fn).length : 0); $('nat-score-label').textContent = scoreLabel(0); }
+    if (currentGame.qz) { box.innerHTML = `<p class="texte-titre">Choisis ton quiz : le <strong>${esc(L[texteChoisi].titre.toLowerCase())}</strong> (${L[texteChoisi].nb} questions) t'attend. Les quiz déjà faits sont cochés.</p><div class="texte-grille">${L.map((x, k) => `<div class="texte-groupe"><span class="texte-niveau">${NIV(k)}</span><button type="button" class="texte-num${k === texteChoisi ? ' choisi' : ''}${m.faits.includes(k) ? ' fait' : ''}" data-texte="${k}">${k + 1}</button></div>`).join('')}</div>`; box.querySelectorAll('[data-texte]').forEach((b) => b.addEventListener('click', () => { texteChoisi = Number(b.dataset.texte); dessine(); })); return; }
     box.innerHTML = `<p class="texte-titre">Choisis ton texte : le <strong>texte n° ${texteChoisi + 1}</strong>${L[texteChoisi].titre ? ` « ${esc(L[texteChoisi].titre)} »` : ''} (${NIV(texteChoisi)}) t'attend. Les textes déjà faits sont cochés.</p><div class="texte-grille">${groupes}</div>`;
     box.querySelectorAll('[data-texte]').forEach((b) => b.addEventListener('click', () => { texteChoisi = Number(b.dataset.texte); dessine(); }));
   };
@@ -1520,7 +1544,7 @@ function openGame(id) {
   /* v61 : temps et modes simplifiés selon le niveau : un autre texte, moins d'étiquettes, parfois pas de mode */
   currentGame.tmTexte = adapte?.tmTexte ? TEXTES_TM.findIndex((x) => x.cle === adapte.tmTexte) : undefined;
   currentGame.tmChoix = adapte?.tmChoix || null;
-  currentGame.sansMode = !!adapte?.sansMode;
+  currentGame.sansMode = !!adapte?.sansMode; currentGame.svNat = !!adapte?.svNat;
   currentGame.tmNiv = adapte?.tmNiv || null;
   currentGame.tmListe = adapte?.tmListe || null; currentGame.tmListe2 = adapte?.tmListe2 || null; currentGame.tmQuestion2 = adapte?.tmQuestion2 || null; currentGame.tmQuestion = adapte?.tmQuestion || null; currentGame.tmBilan = adapte?.tmBilan || null; currentGame.tmNat = adapte?.tmNat || null;
   if (currentGame.sxTF) currentGame.tfNiv = adapte?.tfNiv || '43';
@@ -1531,8 +1555,8 @@ function openGame(id) {
   /* v27 : le jeu 3 marche maintenant comme le jeu 4 (consignes, carrés verts et rouges sous les mots) */
   $('natures-panel').classList.toggle('game4', id === 'gn' || id === 'fonctions' || id === 'tableau' || id === 'libre');
   $('natures-panel').classList.toggle('game5', id === 'tableau' || id === 'libre');
-  ['game3', 'game4'].forEach((c) => { if (GAMES[id].tm || GAMES[id].tf || GAMES[id].sx || GAMES[id].dr || GAMES[id].tv) $('natures-panel').classList.add(c); });
-  $('natures-panel').classList.toggle('game7', !!(GAMES[id].tm || GAMES[id].tf || GAMES[id].sx || GAMES[id].dr || GAMES[id].tv));
+  ['game3', 'game4'].forEach((c) => { if (GAMES[id].tm || GAMES[id].tf || GAMES[id].sx || GAMES[id].dr || GAMES[id].tv || GAMES[id].qz) $('natures-panel').classList.add(c); });
+  $('natures-panel').classList.toggle('game7', !!(GAMES[id].tm || GAMES[id].tf || GAMES[id].sx || GAMES[id].dr || GAMES[id].tv || GAMES[id].qz));
   $('natures-panel').classList.toggle('game9', !!(GAMES[id].dr || GAMES[id].tv));
   $('natures-panel').classList.toggle('game8', !!GAMES[id].sx);
   /* v94 : type, forme et voix des phrases : ni nature ni fonction, donc trois nuances de bleu */
@@ -1611,7 +1635,7 @@ function showQuestion() {
   if (isG3()) { showQuestionGV(); return; }
   if (isG5()) { showQuestionTab(); return; }
   if (isG6()) { showQuestionLibre(); return; }
-  if (isT1()) { (currentGame.tv ? showQuestionTV : currentGame.dr ? showQuestionDR : currentGame.sx ? showQuestionSX : currentGame.tf ? showQuestionTF : showQuestionTM)(); return; }
+  if (isT1()) { (currentGame.qz ? window.showQuestionQZ : currentGame.tv ? showQuestionTV : currentGame.dr ? showQuestionDR : currentGame.sx ? showQuestionSX : currentGame.tf ? showQuestionTF : showQuestionTM)(); return; }
   const q = game.questions[game.index];
   game.essais = 0;
   $('nat-sentence').innerHTML = phraseHtml(PARSED[q.phrase], q.mots || q.mot);
@@ -3159,7 +3183,7 @@ function decoupeTM(src) {
   return { mots, formes };
 }
 const tm = { rep: {}, sel: null, texte: null, phase: 1 };
-const isT1 = () => !!(currentGame.tm || currentGame.tf || currentGame.sx || currentGame.dr || currentGame.tv);   /* v40 : tous les exercices des temps et des modes */
+const isT1 = () => !!(currentGame.tm || currentGame.tf || currentGame.sx || currentGame.dr || currentGame.tv || currentGame.qz);   /* v40 : tous les exercices des temps et des modes */
 /* les formes : 0…19 dans le premier cadre ; 100, 101… pour les formes modernes du second cadre */
 const TM_T = () => TEXTES_TM[game.questions[game.index].t];
 const formeTM = (i) => (i >= 100 ? TM_T().suite[i - 100] : tm.texte.formes[i]);
@@ -3176,6 +3200,8 @@ const bonneTM = (f, champ) => [].concat(f[champ])[0];
 /* « du présent », « de l'imparfait », « de l'indicatif » */
 const duTM = (code) => { const n = NOM_TM(code).toLowerCase(); return /^[aeiouéèi]/.test(n) ? `de l'${n}` : `du ${n}`; };
 const LISTE_TM = { tps: TEMPS_TM, mode: MODES_TM, vt: VT_TM, vm: VM_TM };
+/* v114 : l'étiquette du temps dit d'abord que c'est un verbe : « verbe au présent », « verbe à l'imparfait » */
+const verbeTemps = (t) => `verbe ${/^[aeiouyéèêh]/i.test(t) ? 'à l\'' : 'au '}${t}`;
 const etiquetteTM = (code) => (NATURE_BY_CODE[code]?.court || NOM_TM(code).replace(/^(\p{Lu})(?!\p{Lu})/u, (m) => m.toLowerCase()));
 /* les étiquettes d'une forme : le temps (vert) et le mode (rouge). v44 : dans l'exercice 3, la valeur ne fait pas
    une étiquette à part : elle prolonge celle du temps ou du mode (« présent d'habitude », « indicatif, mode de la réalité »).
@@ -3184,7 +3210,7 @@ const SUITE_VT = { 'VT.mom': 'd\'énonciation', 'VT.hab': 'd\'habitude', 'VT.des
 const SUITE_VM = { 'VM.reel': 'mode de la réalité', 'VM.souhait': 'mode du souhait', 'VM.hyp': 'mode de l\'hypothèse', 'VM.idee': 'mode de l\'idée, de la volonté', 'VM.ordre': 'mode de l\'ordre' };
 /* v95 : « Quelle est la fonction du nom commun « gâteau » ? » : la nature est donnée, on demande la fonction */
 function questionTM(f) {
-  const n = natVueTM(f), q = currentGame.tmQuestion || 'quel est son <strong>temps</strong> ?';
+  const n = natVueTM(f), q = currentGame.tmQuestion || 'quel est le <strong>temps</strong> de ce verbe ?';
   if (!n) return `« ${esc(f.t)} » : ${q}`;
   const nm = n.toLowerCase(), de = /^proposition/.test(nm) ? 'de la' : /^[aeiouyéèh]/.test(nm) ? "de l'" : 'du';
   return `Quelle est la <strong>fonction</strong> ${de}${de.endsWith("'") ? '' : ' '}${nm} « ${esc(f.t)} » ?`;
@@ -3203,7 +3229,7 @@ function poseLabelsTM(i) {
   [['tps', 'vt', currentGame.sansMode || currentGame.tmListe ? couleurTM(r.tps ? aff('tps') : undefined) : false], ['mode', 'vm', couleur2TM()]].forEach(([c, v, rouge]) => {
     if (!r[c]) return;
     if (c === 'tps' && precTM(f) && r.np) { const ok = accepte(f, 'tps', r.tps) && accepte(f, 'np', r.np); carre(i, `<span class="morceau${ok ? '' : ' corrige'}">${ok ? '' : '✗ '}${etiquetteTM(bonneTM(f, 'np'))}</span>`, rouge); if (!ok) [...el.querySelectorAll('.labs .lab')].pop().classList.add('corrige'); return; }
-    let html = morceau(c, (c === 'tps' && TML().lab ? TML().lab(etiquetteTM(aff(c))) : etiquetteTM(aff(c))) + (c === 'tps' && f.prec ? ` ${f.prec}` : ''));   /* v111 : « nom commun, masculin, singulier » */
+    let html = morceau(c, (c === 'tps' && TEMPS_TM.some((x) => x.code === aff(c)) && !TML().lab ? verbeTemps(etiquetteTM(aff(c))) : c === 'tps' && svNatTM() ? precSV(f, aff(c)) : c === 'tps' && TML().lab ? TML().lab(etiquetteTM(aff(c))) : etiquetteTM(aff(c))) + (c === 'tps' && f.prec ? ` ${f.prec}` : ''));   /* v111 : « nom commun, masculin, singulier » */
     /* v98 : la valeur dans un cadre bleu, à côté du temps ou du mode (cadre vert), comme les touches */
     if (r[v]) html = duoLab(html, morceau(v, (rouge && f.vmTexte && accepte(f, v, r[v]) ? f.vmTexte : (rouge ? SUITE_VM : SUITE_VT)[aff(v)]) || etiquetteTM(aff(v))));
     carre(i, html, r[v] ? false : rouge);
@@ -3211,6 +3237,7 @@ function poseLabelsTM(i) {
     if (r[v]) lab.classList.add('duo');
     if (!r[v] && !accepte(f, c, r[c])) lab.classList.add('corrige');
   });
+  if (svNatTM() && tm.sv.sujets[i] !== undefined && estFaite(i)) carre(i, `sujet du verbe ${infSV(formeTM(tm.sv.sujets[i]).t)}`, true);
 }
 const formesFaites = () => Object.keys(tm.rep).filter((k) => estFaite(Number(k))).length;
 const nbFormesTM = () => tm.texte.formes.length + (TM_T().suite ? TM_T().suite.length : 0);
@@ -3242,8 +3269,12 @@ function cadreTM(src, titre, n2) {
 function showQuestionTM() {
   const T = TM_T();
   tm.texte = decoupeTM(T.texte);
-  Object.assign(tm, { rep: {}, sel: null, phase: 1 });
+  Object.assign(tm, { rep: {}, sel: null, phase: 1, sv: null });
+  /* v114 : CE, nature des mots : pour chaque phrase, d'abord le verbe, puis le sujet, puis les autres mots */
+  if (currentGame.svNat && tm.texte.formes.length) tm.sv = { ph: tm.texte.formes[0].ph, etape: 'vb', vb: null, faux: 0, msg: '', sujets: {}, malus: {} };
   $('nat-sentence').innerHTML = cadreTM(T.texte, T.cadres ? T.cadres[0] : '');
+  /* v114 : un dialogue avec des tirets : chaque réplique va à la ligne, comme dans les livres */
+  if (currentGame.tmListe === 'locut') $('nat-sentence').querySelectorAll('.w.forme').forEach((w) => { if (/^\s*[—–]/.test(w.textContent)) w.insertAdjacentHTML('beforebegin', '<span class="br-dial"></span>'); });
   $('nat-character-stage').innerHTML = '';
   $('nat-correction').classList.add('hidden');
   $('nat-verdict-square').className = 'verdict-square';
@@ -3279,10 +3310,19 @@ function explType(f) {
   if (f.tps === 'TPS.imper') return `« ${t} » : elle est impérative, puisqu'elle donne un ordre ou un conseil ; le verbe est à l'impératif, sans sujet.`;
   return `« ${t} » : elle est déclarative, puisqu'elle apporte une information.${/!\s*$/.test(t) ? ' Le point d\'exclamation ne change pas son type : il montre seulement un sentiment, c\'est la forme exclamative.' : ''}`;
 }
+/* v114 : le dialogue avec des tirets : chaque tiret annonce que l'autre personnage prend la parole */
+function explLocut(f, i) {
+  const t = String(f.t || '').replace(/^[—–-]\s*/, '').trim(), qui = NOM_TM(f.tps), avant = i > 0 ? formeTM(i - 1) : null;
+  if (!avant) return `« ${t} » : c'est ${qui} qui parle en premier ; le récit nous l'a dit juste avant.`;
+  if (avant.tps !== f.tps) return `« ${t} » : c'est ${qui} qui parle. Un nouveau tiret annonce un changement : après ${NOM_TM(avant.tps)}, c'est l'autre personnage qui répond.`;
+  return `« ${t} » : c'est encore ${qui} qui parle ; le récit l'a dit entre les deux répliques.`;
+}
 function explForme(f) {
   const t = String(f.t || '').trim(), m = t.match(/\b(ne|n')\s*(?:\S+\s+){0,2}?(pas|plus|jamais|rien|personne)\b/i);
-  if (f.tps === 'TPS.neg') return `« ${t} » : elle est à la forme négative ; le verbe est encadré par la locution adverbiale « ne… ${m ? m[2].toLowerCase() : 'pas'} ».`;
-  return `« ${t} » : elle est à la forme affirmative ; il n'y a pas de « ne… pas » autour du verbe.`;
+  const neg = /^TPS\.(neg|fn|fne)$/.test(f.tps), excl = /^TPS\.(fae|fne)$/.test(f.tps);
+  const ex = excl ? ' Elle est aussi exclamative : elle exprime un sentiment fort (la surprise, la joie, la colère…) et se termine par un point d\'exclamation.' : '';
+  if (neg) return `« ${t} » : elle est à la forme négative ; le verbe est encadré par la locution adverbiale « ne… ${m ? m[2].toLowerCase() : 'pas'} ».${ex}`;
+  return `« ${t} » : elle est à la forme affirmative ; il n'y a pas de « ne… pas » autour du verbe.${ex}`;
 }
 function explPhr(f, i) {
   const t = String(f.t || '').trim(), maj = /^[A-ZÀ-ÖØ-Ý]/.test(t), fin = (t.match(/[.!?…]$/) || [''])[0];
@@ -3296,6 +3336,7 @@ function explPhr(f, i) {
   return `Ce n'est pas une phrase : ce groupe de mots ${manque.length ? manque.join(' et ') : 'n\'est pas construit comme une phrase'}.`;
 }
 function panneauTM() {
+  if (svNatTM() && (tm.sv.etape === 'vb' || tm.sv.etape === 'suj')) { panneauSvTM(); return; }
   const i = tm.sel, idx = indicesPhase(), N = idx.length, faites = idx.filter(estFaite).length;
   $('nat-instruction').textContent = tm.phase === 1 ? (TML().instr || 'Le temps et le mode de chaque forme verbale') : 'Les formes du français contemporain';
   const O = TML().obj || (TML().mots ? ['mot', 'mots'] : ['forme', 'formes verbales', true]), fait = (k) => `fait${O[2] ? 'e' : ''}${k > 1 ? 's' : ''}`;
@@ -3312,7 +3353,7 @@ function panneauTM() {
     return `<button type="button" class="nature-button${rouge === 'bleu' ? ' bleu-button' : rouge ? ' fonction-button' : ''}${cls}" data-tm="${code}" data-champ="${champ}"${fait ? ' disabled' : ''}>${NOM_TM(code)}</button>`;
   };
   const carte = (champ, rouge, question, cols) => `<div class="carte ${rouge === 'bleu' ? 'bleue' : rouge ? 'rouge' : 'verte'} active libre${champ.startsWith('v') ? ' carte-valeur' : ''}"><p>${question}</p><div class="carte-choix carte-choix-${cols}">${(champ === 'tps' && currentGame.tmListe ? TM_LISTES[currentGame.tmListe] : champ === 'mode' && currentGame.tmListe2 ? TM_LISTES[currentGame.tmListe2] : LISTE_TM[champ]).filter((x) => !currentGame.tmChoix?.[champ] || currentGame.tmChoix[champ].includes(x.code)).map((x) => b(x.code, rouge, champ)).join('')}</div></div>`;
-  let html = carte('tps', couleurTM(), questionTM(f), currentGame.tmListe ? (TML().cols || 3) : currentGame.sansMode ? 2 : 3) + (currentGame.sansMode ? '' : carte('mode', couleur2TM(), currentGame.tmQuestion2 || 'Quel est son <strong>mode</strong> ?', TML().cols2 || 3));
+  let html = carte('tps', couleurTM(), questionTM(f), currentGame.tmListe ? (TML().cols || 3) : currentGame.sansMode ? 2 : 3) + (currentGame.sansMode ? '' : carte('mode', couleur2TM(), currentGame.tmQuestion2 || 'Quel est le <strong>mode</strong> de ce verbe ?', TML().cols2 || 3));
   const P = precTM(f);
   if (P && r.tps) { const fin = html.indexOf('</div></div>') + 12; html = html.slice(0, fin) + `<div class="carte verte active libre"><p>${P[1]}</p><div class="carte-choix carte-choix-2">${TM_LISTES[P[0]].map((x) => b(x.code, false, 'np')).join('')}</div></div>` + html.slice(fin); }
   /* exercice 3 : les valeurs, une fois le temps et le mode donnés */
@@ -3328,21 +3369,26 @@ function panneauTM() {
 /* v77 : au CE, on travaille phrase par phrase : toutes les étiquettes d'une même phrase dans le même panneau */
 const parPhraseTM = () => tm.phase === 1 && !currentGame.valeurs && !TML().seul && /^(ce|cm|c65)(-|$)/.test(currentGame.tmNiv || '');
 function panneauPhraseTM() {
-  const ph = formeTM(tm.sel).ph, tous = indicesPhase(), G = tous.filter((j) => formeTM(j).ph === ph);
+  const ph = formeTM(tm.sel).ph, tous = indicesPhase();
+  let G = tous.filter((j) => formeTM(j).ph === ph), tete = '';
+  if (svNatTM()) {
+    if (tm.sv.etape === 'natsuj') { G = [tm.sel]; tete = `<p class="sv-etape"><strong>2. Le sujet</strong> du verbe « ${esc(formeTM(tm.sv.vb).t)} » est « ${esc(formeTM(tm.sel).t)} ». Quelle est sa <strong>nature</strong> ?</p>`; }
+    else tete = '<p class="sv-etape"><strong>3. Les autres mots</strong> : donne la <strong>nature</strong> de chacun, dans l\'ordre que tu veux.</p>';
+  }
   /* v111 : d'abord le verbe, puis le sujet, puis les compléments */
   if (TML().ordre) G.sort((a, b) => TML().ordre.indexOf(bonneTM(formeTM(a), 'tps')) - TML().ordre.indexOf(bonneTM(formeTM(b), 'tps')) || a - b);
   const phs = [...new Set(tous.map((j) => formeTM(j).ph))], O = TML().obj || (TML().mots ? ['mot', 'mots'] : ['verbe', 'verbes']);
   const liste = (currentGame.tmListe ? TM_LISTES[currentGame.tmListe] : LISTE_TM.tps).filter((x) => !currentGame.tmChoix?.tps || currentGame.tmChoix.tps.includes(x.code));
   const cols = currentGame.tmListe ? (TML().cols || 3) : 2;
-  let html = `<p class="sous tf-phrase-n">Phrase ${phs.indexOf(ph) + 1} sur ${phs.length} : ${G.length} ${G.length > 1 ? O[1] : O[0]} à étiqueter, un par encart.</p>`;
+  let html = svNatTM() ? `<p class="sous tf-phrase-n">Phrase ${phs.indexOf(ph) + 1} sur ${phs.length}</p>${tete}` : `<p class="sous tf-phrase-n">Phrase ${phs.indexOf(ph) + 1} sur ${phs.length} : ${G.length} ${G.length > 1 ? O[1] : O[0]} à étiqueter, un par encart.</p>`;
   G.forEach((j) => {
     const f = formeTM(j), r = tm.rep[j] || {}, fini = estFaite(j), actif = j === tm.sel && !fini;
     const b = (code, champ) => { const rep = r[champ], cls = !rep ? '' : accepte(f, champ, code) && (code === rep || !accepte(f, champ, rep)) ? ' correct' : code === rep ? ' wrong' : ' faded'; const co = champ === 'mode' ? couleur2TM() : champ === 'np' ? false : couleurTM(code); return `<button type="button" class="nature-button${co === 'bleu' ? ' bleu-button' : co ? ' fonction-button' : ''}${cls}" data-tm="${code}" data-champ="${champ}" data-j="${j}"${rep ? ' disabled' : ''}>${NOM_TM(code)}</button>`; };
-    html += `<div class="carte verte libre tf-encart${actif ? ' active' : ''}${fini ? ' faite' : ''}"><p>« ${esc(f.t)} » : ${currentGame.tmQuestion || 'quel est son <strong>temps</strong> ?'}</p><div class="carte-choix carte-choix-${cols}">${liste.map((x) => b(x.code, 'tps')).join('')}</div>`;
+    html += `<div class="carte verte libre tf-encart${actif ? ' active' : ''}${fini ? ' faite' : ''}"><p>« ${esc(f.t)} » : ${currentGame.tmQuestion || 'quel est le <strong>temps</strong> de ce verbe ?'}</p><div class="carte-choix carte-choix-${cols}">${liste.map((x) => b(x.code, 'tps')).join('')}</div>`;
     const P = precTM(f);   /* v102 : la nature exacte du déterminant ou du pronom */
     if (P && r.tps) html += `<p class="tm-q2">${P[1]}</p><div class="carte-choix carte-choix-2">${TM_LISTES[P[0]].map((x) => b(x.code, 'np')).join('')}</div>`;
     if (fini && TML().expl) html += `<p class="sous tm-bilan">${esc(TML().expl(f, j))}</p>`;   /* v111 : la justification propre à la phrase */
-    if (!currentGame.sansMode) { const L2 = (currentGame.tmListe2 ? TM_LISTES[currentGame.tmListe2] : LISTE_TM.mode).filter((x) => !currentGame.tmChoix?.mode || currentGame.tmChoix.mode.includes(x.code)); html += `<p class="tm-q2">${currentGame.tmQuestion2 || 'Quel est son <strong>mode</strong> ?'}</p><div class="carte-choix carte-choix-${TML().cols2 || 3}">${L2.map((x) => b(x.code, 'mode')).join('')}</div>`; }
+    if (!currentGame.sansMode) { const L2 = (currentGame.tmListe2 ? TM_LISTES[currentGame.tmListe2] : LISTE_TM.mode).filter((x) => !currentGame.tmChoix?.mode || currentGame.tmChoix.mode.includes(x.code)); html += `<p class="tm-q2">${currentGame.tmQuestion2 || 'Quel est le <strong>mode</strong> de ce verbe ?'}</p><div class="carte-choix carte-choix-${TML().cols2 || 3}">${L2.map((x) => b(x.code, 'mode')).join('')}</div>`; }
     html += '</div>';
   });
   $('nat-buttons-variables').innerHTML = nbspFr(html);
@@ -3353,12 +3399,105 @@ function panneauPhraseTM() {
   }));
 }
 function clicFormeTM(i) {
+  if (svNatTM() && !game.fini && indicesPhase().includes(i) && clicSvTM(i)) return;
   if (game.fini || i === tm.sel || !indicesPhase().includes(i)) return;
   const avant = tm.sel; tm.sel = i;
   if (avant !== null) wordEl(avant)?.classList.remove('choisie');
   wordEl(i)?.classList.add('choisie');
   panneauTM();
   if (!estFaite(i) && !(parPhraseTM() && avant !== null && formeTM(avant)?.ph === formeTM(i).ph)) dis(TML().seul ? formeTM(i).t : phraseDe(wordEl(i)));
+}
+/* v114 : CE, nature des mots. Pour chaque phrase : 1. l'enfant touche le verbe ; 2. il touche le sujet de ce verbe
+   (« Qui est-ce qui… ? ») et donne sa nature ; 3. il donne la nature des autres mots. L'habitude : toujours le verbe d'abord. */
+const svNatTM = () => !!(currentGame && currentGame.svNat && tm.sv && tm.phase === 1);
+const PRON_SUJ_SV = /^(je|j'|tu|il|elle|on|nous|vous|ils|elles)$/i;
+const INF_SV = { dort: 'dormir', ronronne: 'ronronner', chante: 'chanter', est: 'être', sont: 'être', sera: 'être', court: 'courir', cherche: 'chercher', jouons: 'jouer', rit: 'rire', visitent: 'visiter', voient: 'voir', donne: 'donner', donnera: 'donner', raconte: 'raconter', connaît: 'connaître', écoutons: 'écouter', viens: 'venir', brille: 'briller', scintillent: 'scintiller', regarde: 'regarder', regardons: 'regarder', chasse: 'chasser', 'se cache': 'se cacher', attend: 'attendre', prépare: 'préparer', mettons: 'mettre', apporte: 'apporter', construisent: 'construire', utilisent: 'utiliser', couvre: 'couvrir', faisons: 'faire', a: 'avoir', porte: 'porter', monte: 'monter', suit: 'suivre', souffle: 'souffler', plient: 'plier', fermes: 'fermer', tremble: 'trembler', tricote: 'tricoter', arrivent: 'arriver', éteignent: 'éteindre', remercie: 'remercier', reste: 'rester', sentent: 'sentir', lance: 'lancer', mord: 'mordre', tire: 'tirer', sourit: 'sourire', reviennent: 'revenir', observe: 'observer', trouve: 'trouver' };
+function infSV(t) {
+  const w = String(t || '').trim().toLowerCase();
+  if (INF_SV[w]) return INF_SV[w];
+  const se = w.match(/^(se |s')(.+)$/), base = se ? se[2] : w.split(/\s+/).pop();
+  const inf = INF_SV[base] || lemmeVerbe(base) || base.replace(/(ent|ons|ez|es|e)$/, '') + 'er';
+  return se ? (/^[aeiouyéèêh]/.test(inf) ? `s'${inf}` : `se ${inf}`) : inf;
+}
+/* le sujet d'un verbe : le dernier nom ou pronom personnel sujet placé avant lui dans la phrase (après le verbe précédent) */
+function sujetSvTM(v) {
+  const F = tm.texte.formes, ph = F[v].ph;
+  const vbs = F.map((f, k) => k).filter((k) => F[k].ph === ph && F[k].tps === 'TPS.verbe'), p = vbs.indexOf(v), deb = p > 0 ? vbs[p - 1] : -1;
+  for (let k = v - 1; k > deb; k--) {
+    const f = F[k]; if (f.ph !== ph) break;
+    if (f.tps === 'TPS.nc' || f.tps === 'TPS.np' || (f.tps === 'TPS.pron' && PRON_SUJ_SV.test(f.t.trim()))) return k;
+  }
+  return -1;
+}
+/* l'étiquette verte donne la nature précise : article défini, déterminant possessif, pronom personnel… */
+function precSV(f, code) {
+  const w = String(f.t || '').trim().toLowerCase();
+  if (code === 'TPS.det' && NAT_DET_TV[w]) return NAT_DET_TV[w];
+  if (code === 'TPS.pron' && /^(je|j'|tu|il|elle|on|nous|vous|ils|elles|moi|toi|lui|eux|me|m'|te|t'|se|s'|le|la|l'|les|leur)$/.test(w)) return 'pronom personnel';
+  return etiquetteTM(code);
+}
+function panneauSvTM() {
+  const s = tm.sv, F = tm.texte.formes, phs = [...new Set(F.map((f) => f.ph))];
+  $('nat-instruction').textContent = 'D\'abord le verbe, puis le sujet, puis les autres mots';
+  const dejaVb = F.some((f, k) => f.ph === s.ph && f.tps === 'TPS.verbe' && estFaite(k));
+  const msg = s.msg ? `<p class="sous sv-msg">${esc(s.msg)}</p>` : '';
+  let html = `<p class="sous tf-phrase-n">Phrase ${phs.indexOf(s.ph) + 1} sur ${phs.length}</p>`;
+  if (s.etape === 'vb') html += `<div class="carte verte active libre"><p><strong>1. Trouve ${dejaVb ? 'l\'autre' : 'le'} verbe</strong> de cette phrase et touche-le dans le texte. Le verbe se conjugue : il change si l'on dit « hier » ou « demain ».</p>${msg}</div>`;
+  else { const vb = F[s.vb].t; html += `<div class="carte rouge active libre"><p><strong>2. Trouve le sujet</strong> du verbe « ${esc(vb)} » : pose la question « Qui est-ce qui ${esc(vb.toLowerCase())} ? », puis touche <strong>un seul mot</strong> dans le texte.</p>${msg}</div>`; }
+  $('nat-buttons-variables').innerHTML = nbspFr(html);
+}
+function fauxSvTM(i) { const el = wordEl(i); if (!el) return; el.classList.add('sv-faux'); setTimeout(() => el.classList.remove('sv-faux'), 900); }
+function clicSvTM(i) {
+  const s = tm.sv, f = formeTM(i);
+  if (s.etape === 'autres') return f.ph !== s.ph;
+  if (s.etape === 'natsuj') return i !== tm.sel;
+  if (f.ph !== s.ph || estFaite(i)) return true;
+  const quoi = `texte « ${TM_T().titre} »`;
+  if (s.etape === 'vb') {
+    if (f.tps === 'TPS.verbe') {
+      tm.rep[i] = { tps: 'TPS.verbe' };
+      game.score = Math.round((game.score + (s.faux ? 0.5 : 1)) * 100) / 100;
+      const pn = game.parNature['TPS.verbe'] || (game.parNature['TPS.verbe'] = { c: 0, p: 0 }); pn.p += 1; if (!s.faux) pn.c += 1;
+      poseLabelsTM(i); wordEl(i)?.classList.add('remplie'); majScoreTM();
+      avanceSvTM();
+    } else {
+      s.faux += 1; s.msg = `« ${f.t} » n'est pas un verbe. Cherche le mot qui dit ce que l'on fait, ou ce que l'on est.`;
+      game.erreurs.push({ mot: f.t, bonne: 'le verbe est un autre mot', choisie: 'verbe', phrase: quoi });
+      fauxSvTM(i); panneauTM(); dis(s.msg);
+    }
+    return true;
+  }
+  /* étape 2 : le sujet */
+  const vb = formeTM(s.vb).t;
+  if (i === sujetSvTM(s.vb)) {
+    if (s.faux) s.malus[i] = true;
+    s.etape = 'natsuj'; s.sujets[i] = s.vb; s.faux = 0; s.msg = '';
+    tm.sel = i; wordEl(i)?.classList.add('choisie');
+    panneauTM();
+  } else {
+    s.faux += 1; s.msg = `« ${f.t} » n'est pas le sujet du verbe « ${vb} ». Pose la question : « Qui est-ce qui ${vb.toLowerCase()} ? »`;
+    game.erreurs.push({ mot: f.t, bonne: `pas le sujet de « ${vb} »`, choisie: 'sujet', phrase: quoi });
+    fauxSvTM(i); panneauTM(); dis(s.msg);
+  }
+  return true;
+}
+function avanceSvTM() {
+  const s = tm.sv, F = tm.texte.formes, idx = F.map((f, k) => k).filter((k) => F[k].ph === s.ph);
+  s.faux = 0; s.msg = '';
+  const lache = () => { if (tm.sel !== null) { wordEl(tm.sel)?.classList.remove('choisie'); tm.sel = null; } };
+  const vbs = idx.filter((k) => F[k].tps === 'TPS.verbe');
+  if (vbs.some((k) => !estFaite(k))) { lache(); s.etape = 'vb'; panneauTM(); return; }
+  const v = vbs.find((k) => { const su = sujetSvTM(k); return su >= 0 && !estFaite(su); });
+  if (v !== undefined) { lache(); s.etape = 'suj'; s.vb = v; panneauTM(); dis(`Qui est-ce qui ${F[v].t.toLowerCase()} ?`); return; }
+  const reste = idx.filter((k) => !estFaite(k));
+  if (reste.length) { s.etape = 'autres'; clicFormeTM(reste[0]); if (tm.sel === reste[0]) panneauTM(); return; }
+  lache();
+  if (indicesPhase().every(estFaite)) { setTimeout(finTM, 900); return; }
+  const phs = [...new Set(F.map((f) => f.ph))], suiv = phs[phs.indexOf(s.ph) + 1];
+  Object.assign(s, { ph: suiv, etape: 'vb', vb: null });
+  panneauTM();
+  const k0 = idx.length ? F.findIndex((f) => f.ph === suiv) : -1;
+  if (k0 >= 0) dis(phraseDe(wordEl(k0)));
 }
 function repondTM(code, champ) {
   const i = tm.sel; if (i === null || game.fini) return;
@@ -3367,7 +3506,7 @@ function repondTM(code, champ) {
   if (r[champ]) return;
   r[champ] = code;
   const bon = bonneTM(f, champ), juste = accepte(f, champ, code);
-  if (juste) game.score = Math.round((game.score + poidsTM(f, champ)) * 100) / 100;
+  if (juste) game.score = Math.round((game.score + poidsTM(f, champ) * (svNatTM() && tm.sv.malus[i] ? 0.5 : 1)) * 100) / 100;
   else game.erreurs.push({ mot: f.t, bonne: etiquetteTM(bon), choisie: etiquetteTM(code), phrase: `texte « ${TM_T().titre} »` });
   const pn = game.parNature[bon] || (game.parNature[bon] = { c: 0, p: 0 }); pn.p += 1; if (juste) pn.c += 1;
   poseLabelsTM(i);
@@ -3384,6 +3523,7 @@ function repondTM(code, champ) {
       if (tm.phase === 1 && TM_T().suite) { setTimeout(proposeSuiteTM, 1000); return; }
       setTimeout(finTM, tm.phase === 2 ? 2500 : 900); return;
     }
+    if (svNatTM()) { setTimeout(() => { if (tm.sel === i && !game.fini) avanceSvTM(); }, explTM ? Math.max(1300, explTM.length * 70) : 1100); return; }
     /* on passe à la forme suivante qui reste à faire */
     setTimeout(() => {
       if (tm.sel !== i) return;
@@ -3571,13 +3711,16 @@ const TVCFG = {
     fin: 'Pour trouver le <strong>sujet</strong>, on pose la question « <strong>Qui est-ce qui</strong>… ? » (ou « <strong>Qu\'est-ce qui</strong>… ? ») devant le verbe. Le sujet commande l\'accord du verbe : <em>le chat dort, les chats dorment</em>. On peut l\'encadrer avec « <strong>c\'est… qui</strong> » : <em>c\'est le chat qui dort</em>.' },
 };
 Object.assign(TVCFG, {
-  'ce-paroles': { instr: 'Trouve les paroles des personnages', u: ['parole', 'paroles'], carte: 'Touche toutes les <strong>paroles des personnages</strong>.', aide: 'Les paroles sont écrites <strong>entre guillemets</strong> « … ». Juste à côté, de petits mots disent qui parle (<em>dit Léo, demande-t-elle</em>) : ils font partie du récit, pas des paroles.', ok: 'Oui, ce sont des paroles d\'un personnage !',
+  'ce-paroles': { fem: true, instr: 'Trouve les paroles des personnages', u: ['parole', 'paroles'], carte: 'Touche toutes les <strong>paroles des personnages</strong>.', aide: 'Les paroles sont écrites <strong>entre guillemets</strong> « … ». Juste à côté, de petits mots disent qui parle (<em>dit Léo, demande-t-elle</em>) : ils font partie du récit, pas des paroles.', ok: 'Oui, ce sont des paroles d\'un personnage !',
     non: (w) => `Non : « ${esc(w)} » fait partie du récit, ce n'est pas une parole entre guillemets`,
     fin: 'Quand on écrit les paroles d\'un personnage telles qu\'il les a dites, on les met <strong>entre guillemets</strong> « … » : c\'est le <strong>discours direct</strong>. Un petit groupe de mots dit souvent qui parle et comment : <em>dit-il, demande-t-elle, crie Léo</em>. Dans un dialogue, chaque nouvelle réplique change de personnage.' },
   'ce-ccp': { instr: 'Trouve les compléments de phrase', u: ['complément', 'compléments'], carte: 'Touche le mot principal de chaque <strong>complément de phrase</strong> : un nom commun (<em>matin</em>) ou un adverbe (<em>vite</em>).', aide: 'Ils disent <strong>où</strong>, <strong>quand</strong> ou <strong>comment</strong> se passe l\'action. On peut les <strong>déplacer</strong> ou les <strong>supprimer</strong> : la phrase garde son sens. Dans <em>dans la cuisine</em>, touche seulement le nom commun <em>cuisine</em>.', ok: 'Oui, c\'est un complément de phrase !',
     non: (w) => `Non : « ${esc(w)} » ne fait pas partie d'un complément de phrase. Essaie de le déplacer ou de le supprimer`,
     fin: 'Les <strong>compléments de phrase</strong> disent <strong>où</strong> (<em>dans le jardin</em>), <strong>quand</strong> (<em>ce matin</em>) ou <strong>comment</strong> (<em>doucement</em>) se passe l\'action. On les reconnaît parce qu\'on peut les <strong>déplacer</strong> (<em>Ce matin, je me lève → Je me lève ce matin</em>) ou les <strong>supprimer</strong> (<em>Je me lève</em>). Placés en tête de phrase, ils sont souvent suivis d\'une virgule.' },
 });
+TVCFG['ce-guill'] = { guill: true, fem: true, instr: 'Place les guillemets autour des paroles', u: ['parole', 'paroles'], carte: 'Touche les <strong>paroles</strong> de chaque personnage : les guillemets « … » viendront les entourer.', aide: 'Cherche ce que dit le personnage, mot pour mot. Les petits mots qui disent qui parle et comment (<em>dit Léo, crie Lina, demande maman</em>) font partie du récit : ils restent en dehors des guillemets.', ok: 'Oui !',
+  non: (w) => `Non : « ${esc(w)} » fait partie du récit, ce n'est pas une parole d'un personnage`,
+  fin: 'On met les paroles d\'un personnage <strong>entre guillemets</strong> « … », telles qu\'il les a dites : c\'est le <strong>discours direct</strong>. Les mots qui disent qui parle (<em>dit Léo, crie Lina</em>) appartiennent au récit : ils restent hors des guillemets. Quand la parole vient juste après « : », elle commence par une majuscule.' };
 TVCFG['cm-paroles'] = { instr: 'Trouve les répliques du dialogue', u: ['réplique', 'répliques'], carte: 'Touche toutes les <strong>répliques</strong> des personnages.', aide: 'Dans un dialogue, chaque réplique commence par un <strong>tiret</strong> (—). Les petits groupes qui disent qui parle (<em>crie-t-il, demande Théo</em>) appartiennent au récit : ne les touche pas.', ok: 'Oui, c\'est une réplique !',
   non: (w) => `Non : « ${esc(w)} » fait partie du récit, pas des paroles d'un personnage`,
   fin: 'Dans un <strong>dialogue</strong>, chaque <strong>réplique</strong> commence par un tiret et va à la ligne dans les livres. Les incises (<em>dit-il, demande Théo, s\'écrie Malik</em>) disent qui parle et comment : elles font partie du récit. Le dialogue est une autre façon d\'écrire le <strong>discours direct</strong>, sans guillemets à chaque réplique.' };
@@ -3617,13 +3760,14 @@ function panneauTV(message) {
   const C = TVC();
   $('nat-instruction').textContent = C.instr;
   const n = Object.keys(tv.trouves).length;
-  $('nat-buttons-variables').innerHTML = nbspFr(`<div class="carte verte active libre"><p>${C.carte}</p><p class="sous">${C.aide}</p><p class="sous">${n} ${C.u[n > 1 ? 1 : 0]} sur ${tv.cibles} trouvé${n > 1 ? 's' : ''}.</p></div>${message ? `<p class="sous sx-aide">${message}</p>` : ''}`);
+  $('nat-buttons-variables').innerHTML = nbspFr(`<div class="carte verte active libre"><p>${C.carte}</p><p class="sous">${C.aide}</p><p class="sous">${n} ${C.u[n > 1 ? 1 : 0]} sur ${tv.cibles} trouvé${C.fem ? 'e' : ''}${n > 1 ? 's' : ''}.</p></div>${message ? `<p class="sous sx-aide">${message}</p>` : ''}`);
 }
 function clicTV(w) {
   if (w.dataset.k !== undefined) {
     if (tv.trouves[w.dataset.k]) return;
     tv.trouves[w.dataset.k] = true; w.classList.add('trouve-v');
     /* v111 : sous le mot trouvé, son étiquette : la nature en vert, la fonction en rouge (pas de commentaire dans l'encart) */
+    if (TVC().guill) w.textContent = `« ${w.textContent.trim()} »`;   /* v114 : les guillemets viennent entourer les paroles trouvées */
     const L = etiquettesTV(currentGame.tv, w.textContent, w.dataset.inf, w.dataset.nat);
     if (L.length) { w.innerHTML = `<span class="tv-tx">${esc(w.textContent)}</span><span class="tv-labs">${L.map(([t, rouge]) => `<span class="tv-lab${rouge === 'bleu' ? ' bleu' : rouge ? ' rouge' : ''}">${t}</span>`).join('')}</span>`; w.classList.add('tv-etiq'); }
     game.score = Math.round((game.score + 1) * 10) / 10; majTV();
@@ -3658,7 +3802,7 @@ function etiquettesTV(cle, mot, inf, nat) {
   if (cle === 'ce-sujets') return [[natSuj], [suj, true]];
   if (/sujet/.test(cle)) return [['sujet', true]];
   if (cle === 'ce-ccp') return [[{ nc: 'nom commun', np: 'nom propre', adv: 'adverbe', locadv: 'locution adverbiale', pp: 'pronom personnel' }[inf] || 'nom commun'], ['complément de phrase', true]];
-  if (/paroles/.test(cle)) return [['discours direct', 'bleu']];
+  if (/paroles|guill/.test(cle)) return [['discours direct', 'bleu']];
   return [];
 }
 function finTV() {
@@ -3738,6 +3882,8 @@ const TM_LISTES = {
   fn8: [{ code: 'MODE.suj', nom: 'Sujet' }, { code: 'MODE.cod', nom: 'COD' }, { code: 'MODE.coi', nom: 'COI' }, { code: 'MODE.att', nom: 'Attribut du sujet' }, { code: 'MODE.ccirc', nom: 'Complément circonstanciel' }, { code: 'MODE.epi', nom: 'Épithète' }, { code: 'MODE.cdn', nom: 'Complément du nom' }, { code: 'MODE.app', nom: 'Apposition' }],
   /* v81 : la phrase au CM */
   phnv: [{ code: 'TPS.pv', nom: 'Phrase verbale' }, { code: 'TPS.pn', nom: 'Phrase nominale' }],
+  formes4ce: [{ code: 'TPS.faf', nom: 'Affirmative' }, { code: 'TPS.fn', nom: 'Négative' }, { code: 'TPS.fae', nom: 'Affirmative et exclamative' }, { code: 'TPS.fne', nom: 'Négative et exclamative' }],
+  locut: [{ code: 'TPS.leo', nom: 'Léo' }, { code: 'TPS.lina', nom: 'Lina' }],
   formes4: [{ code: 'TPS.faf', nom: 'Affirmative' }, { code: 'TPS.fn', nom: 'Négative' }, { code: 'TPS.fae', nom: 'Affirmative et exclamative' }, { code: 'TPS.fne', nom: 'Négative et exclamative' }],
   simcomp: [{ code: 'TPS.psim', nom: 'Phrase simple' }, { code: 'TPS.pcomp', nom: 'Phrase complexe' }],
   jc: [{ code: 'TPS.jux', nom: 'Propositions juxtaposées' }, { code: 'TPS.coo', nom: 'Propositions coordonnées' }],
@@ -3758,7 +3904,7 @@ const TM_LISTES = {
 };
 /* v74 : ce que l'on demande, et le nombre de colonnes d'étiquettes, selon la liste */
 const TM_LISTE_CFG = {
-  quand: { coul: 'bleu', donne: '<strong>le moment de l\'action</strong>', cols: 3 }, groupes: { donne: 'son <strong>groupe</strong>', cols: 3 },
+  quand: { coul: 'bleu', donne: '<strong>le moment de l\'action</strong>', cols: 3 }, groupes: { donne: 'son <strong>groupe</strong>', cols: 3, lab: (t) => `verbe du ${t}` },
   ncnp: { donne: 's\'il est <strong>nom commun</strong> ou <strong>nom propre</strong>', cols: 2, mots: true, instr: 'Nom commun ou nom propre ?' },
   det3: { donne: 'la <strong>sorte de déterminant</strong>', cols: 1, mots: true, instr: 'Quelle sorte de déterminant ?' },
   genre: { donne: 'son <strong>genre</strong> et son <strong>nombre</strong>', cols: 2, mots: true, instr: 'Le genre et le nombre de chaque nom commun', lab: (t) => `nom commun,<br>${t.replace(' ', ', ')}` },
@@ -3816,6 +3962,8 @@ const TM_LISTE_CFG = {
   ponct: { coul: 'bleu', donne: 'le <strong>point</strong> qui la termine', cols: 1, obj: ['phrase', 'phrases', true], seul: true, instr: 'Quel point à la fin de la phrase ?', expl: explPonct },
   types: { coul: 'bleu', donne: 'son <strong>type</strong>', cols: 3, obj: ['phrase', 'phrases', true], instr: 'Le type de chaque phrase', expl: explType },
   formes2: { coul: 'bleu', donne: 'sa <strong>forme</strong>', cols: 2, obj: ['phrase', 'phrases', true], instr: 'La forme de chaque phrase', expl: explForme },
+  formes4ce: { donne: 'sa <strong>forme</strong>', cols: 2, obj: ['phrase', 'phrases', true], instr: 'La forme de chaque phrase', expl: explForme, lab: (t) => `forme ${t}` },
+  locut: { coul: 'bleu', donne: '<strong>qui parle</strong>', cols: 2, obj: ['réplique', 'répliques', true], instr: 'Qui parle ?', expl: explLocut, lab: (t) => `${t.charAt(0).toUpperCase()}${t.slice(1)} parle` },
   svc: { coul: 'rouge', verts: ['TPS.vb'], ordre: ['TPS.vb', 'TPS.suj', 'TPS.cpl'], donne: 'si c\'est le <strong>sujet</strong>, le <strong>verbe</strong> ou un <strong>complément</strong>', cols: 3, obj: ['mot', 'mots'], instr: 'Sujet, verbe ou complément ?' },
 };
 const TML = () => TM_LISTE_CFG[currentGame.tmListe] || {};
@@ -3841,17 +3989,17 @@ Object.values(TM_LISTES).flat().forEach((x) => { x.article = x.nom.toLowerCase()
   ["ce-genre", "En classe", "La {maîtresse|fs|ind} distribue les {cahiers|mp|ind} . Les {filles|fp|ind} écrivent la {date|fs|ind} . Un {élève|ms|ind} range ses {crayons|mp|ind} . Les {tables|fp|ind} sont propres. Le {tableau|ms|ind} est vert. Les {garçons|mp|ind} lisent une {poésie|fs|ind} . La {cloche|fs|ind} sonne la {récréation|fs|ind} . Le {directeur|ms|ind} passe."],
   ["ce-genre", "Dans la forêt", "Dans la {forêt|fs|ind} , les {arbres|mp|ind} perdent leurs {feuilles|fp|ind} . Un {écureuil|ms|ind} ramasse des {noisettes|fp|ind} . Les {champignons|mp|ind} poussent sous la {mousse|fs|ind} . Une {biche|fs|ind} et son {faon|ms|ind} traversent le {chemin|ms|ind} . Des {souris|fp|ind} se cachent sous les {racines|fp|ind} . Le {vent|ms|ind} fait tomber les {glands|mp|ind} . Une {chouette|fs|ind} dort dans un {creux|ms|ind} ."],
   ["ce-genre", "Au zoo", "Au {zoo|ms|ind} , les {visiteurs|mp|ind} admirent les {animaux|mp|ind} . Les {lionnes|fp|ind} dorment au soleil. Un {gorille|ms|ind} mange des {bananes|fp|ind} . Les {girafes|fp|ind} tendent leur long {cou|ms|ind} vers les {branches|fp|ind} . Un {gardien|ms|ind} nourrit les {phoques|mp|ind} . Ils attrapent des {poissons|mp|ind} au vol. Une {fillette|fs|ind} applaudit. Les {perroquets|mp|ind} répètent les {mots|mp|ind} des {gens|mp|ind} . Le {crocodile|ms|ind} ouvre sa {gueule|fs|ind} . Le {soir|ms|ind} , les {portes|fp|ind} se ferment."],
-  ["ce-nat5", "Le chat et ma sœur", "{Le|det|ind} {chat|nc|ind} {dort|verbe|ind} . {Il|pron|ind} {ronronne|verbe|ind} . {Ma|det|ind} {petite|adj|ind} {sœur|nc|ind} {chante|verbe|ind} . {Elle|pron|ind} est contente."],
-  ["ce-nat5", "Le grand chien", "{Un|det|ind} {grand|adj|ind} {chien|nc|ind} {court|verbe|ind} dans le jardin. {Il|pron|ind} {cherche|verbe|ind} {sa|det|ind} {balle|nc|ind} {rouge|adj|ind} . {Nous|pron|ind} {jouons|verbe|ind} avec {lui|pron|ind} . {Léo|np|ind} rit."],
+  ["ce-nat5", "Le chat et ma sœur", "{Le|det|ind} {chat|nc|ind} {dort|verbe|ind} . {Il|pron|ind} {ronronne|verbe|ind} . {Ma|det|ind} {petite|adj|ind} {sœur|nc|ind} {chante|verbe|ind} . {Elle|pron|ind} {est|verbe|ind} {contente|adj|ind}."],
+  ["ce-nat5", "Le grand chien", "{Un|det|ind} {grand|adj|ind} {chien|nc|ind} {court|verbe|ind} dans le jardin. {Il|pron|ind} {cherche|verbe|ind} {sa|det|ind} {balle|nc|ind} {rouge|adj|ind} . {Nous|pron|ind} {jouons|verbe|ind} avec {lui|pron|ind} . {Léo|np|ind} {rit|verbe|ind}."],
   ["ce-nat5", "À la ferme", "{Ce|det|ind} {matin|nc|ind} , {les|det|ind} {élèves|nc|ind} {visitent|verbe|ind} {une|det|ind} {ferme|nc|ind} . {Ils|pron|ind} {voient|verbe|ind} {des|det|ind} {vaches|nc|ind} {noires|adj|ind} . {Le|det|ind} {fermier|nc|ind} {est|verbe|ind} {gentil|adj|ind} . Il donne du lait."],
-  ["ce-nat5", "Grand-père raconte", "{Mon|det|ind} {vieux|adj|ind} {grand-père|nc|ind} {raconte|verbe|ind} {des|det|ind} {histoires|nc|ind} {étonnantes|adj|ind} . {Il|pron|ind} {connaît|verbe|ind} {les|det|ind} {animaux|nc|ind} {sauvages|adj|ind} . {Nous|pron|ind} {écoutons|verbe|ind} {ses|det|ind} {aventures|nc|ind} . {Elles|pron|ind} {sont|verbe|ind} {passionnantes|adj|ind} . {Tu|pron|ind} viens ?"],
+  ["ce-nat5", "Grand-père raconte", "{Mon|det|ind} {vieux|adj|ind} {grand-père|nc|ind} {raconte|verbe|ind} {des|det|ind} {histoires|nc|ind} {étonnantes|adj|ind} . {Il|pron|ind} {connaît|verbe|ind} {les|det|ind} {animaux|nc|ind} {sauvages|adj|ind} . {Nous|pron|ind} {écoutons|verbe|ind} {ses|det|ind} {aventures|nc|ind} . {Elles|pron|ind} {sont|verbe|ind} {passionnantes|adj|ind} . {Tu|pron|ind} {viens|verbe|ind} ?"],
   ["ce-bilannat", "La nuit", "{La|det|ind} {lune|nc|ind} {brille|verbe|ind} . {Les|det|ind} {étoiles|nc|ind} {scintillent|verbe|ind} . {Je|pron|ind} {regarde|verbe|ind} {le|det|ind} {ciel|nc|ind} ."],
   ["ce-bilannat", "Le chat et la souris", "{Mon|det|ind} {chat|nc|ind} {noir|adj|ind} {chasse|verbe|ind} {une|det|ind} {souris|nc|ind} . {Elle|pron|ind} {se cache|verbe|ind} . {Le|det|ind} {chat|nc|ind} {attend|verbe|ind} ."],
   ["ce-bilannat", "La soupe", "{Lucas|np|ind} {prépare|verbe|ind} {une|det|ind} {soupe|nc|ind} {chaude|adj|ind} . {Nous|pron|ind} {mettons|verbe|ind} {la|det|ind} {table|nc|ind} . {Ma|det|ind} {sœur|nc|ind} {apporte|verbe|ind} le pain."],
   ["ce-bilannat", "La cabane", "{Les|det|ind} {enfants|nc|ind} {construisent|verbe|ind} {une|det|ind} {cabane|nc|ind} . {Ils|pron|ind} {utilisent|verbe|ind} {des|det|ind} {branches|nc|ind} {sèches|adj|ind} . {Leur|det|ind} {cabane|nc|ind} {est|verbe|ind} solide."],
-  ["ce-bilannat", "Le bonhomme de neige", "{Ce|det|ind} {matin|nc|ind} , {la|det|ind} {neige|nc|ind} {couvre|verbe|ind} {le|det|ind} {jardin|nc|ind} . {Nous|pron|ind} {faisons|verbe|ind} {un|det|ind} {bonhomme|nc|ind} . {Il|pron|ind} a {un|det|ind} {nez|nc|ind} orange."],
+  ["ce-bilannat", "Le bonhomme de neige", "{Ce|det|ind} {matin|nc|ind} , {la|det|ind} {neige|nc|ind} {couvre|verbe|ind} {le|det|ind} {jardin|nc|ind} . {Nous|pron|ind} {faisons|verbe|ind} {un|det|ind} {bonhomme|nc|ind} . {Il|pron|ind} {a|verbe|ind} {un|det|ind} {nez|nc|ind} orange."],
   ["ce-bilannat", "Le petit âne", "{Le|det|ind} {petit|adj|ind} {âne|nc|ind} {porte|verbe|ind} {des|det|ind} {sacs|nc|ind} {lourds|adj|ind} . {Il|pron|ind} {monte|verbe|ind} {le|det|ind} {chemin|nc|ind} étroit. {Le|det|ind} {fermier|nc|ind} {le|pron|ind} {suit|verbe|ind} ."],
-  ["ce-bilannat", "La tempête", "{Une|det|ind} {tempête|nc|ind} {terrible|adj|ind} {souffle|verbe|ind} . {Les|det|ind} {arbres|nc|ind} {plient|verbe|ind} . {Tu|pron|ind} {fermes|verbe|ind} {les|det|ind} {volets|nc|ind} {bleus|adj|ind} . {Le|det|ind} {chat|nc|ind} tremble. {Il|pron|ind} a peur."],
+  ["ce-bilannat", "La tempête", "{Une|det|ind} {tempête|nc|ind} {terrible|adj|ind} {souffle|verbe|ind} . {Les|det|ind} {arbres|nc|ind} {plient|verbe|ind} . {Tu|pron|ind} {fermes|verbe|ind} {les|det|ind} {volets|nc|ind} {bleus|adj|ind} . {Le|det|ind} {chat|nc|ind} {tremble|verbe|ind}. {Il|pron|ind} {a|verbe|ind} peur."],
   ["ce-bilannat", "Le pull rouge", "{Ma|det|ind} {grand-mère|nc|ind} {tricote|verbe|ind} {un|det|ind} {pull|nc|ind} {rouge|adj|ind} . {Elle|pron|ind} {le|pron|ind} {donnera|verbe|ind} à {mon|det|ind} {frère|nc|ind} . {Ce|det|ind} {pull|nc|ind} {sera|verbe|ind} {chaud|adj|ind} et {doux|adj|ind} ."],
   ["ce-bilannat", "Les pompiers", "{Les|det|ind} {pompiers|nc|ind} {courageux|adj|ind} {arrivent|verbe|ind} . {Ils|pron|ind} {éteignent|verbe|ind} {le|det|ind} {feu|nc|ind} . {Un|det|ind} {voisin|nc|ind} {inquiet|adj|ind} {les|pron|ind} {remercie|verbe|ind} . {La|det|ind} {maison|nc|ind} {reste|verbe|ind} {intacte|adj|ind} ."],
   ["ce-bilannat", "Les crêpes", "{Ce|det|ind} {soir|nc|ind} , {nous|pron|ind} {regardons|verbe|ind} {un|det|ind} {film|nc|ind} {drôle|adj|ind} . {Mon|det|ind} {père|nc|ind} {rit|verbe|ind} . {Ma|det|ind} {mère|nc|ind} {prépare|verbe|ind} {des|det|ind} {crêpes|nc|ind} {sucrées|adj|ind} . {Elles|pron|ind} {sentent|verbe|ind} bon."],
@@ -4424,8 +4572,8 @@ const TFCFG = {
   'ce-neg': { phrase: true, instr: 'Mets chaque phrase à la forme négative', intro: 'Mets chaque phrase soulignée à la <strong>forme négative</strong> : entoure le verbe avec <strong>ne… pas</strong> (<em>Le chat mange. → Le chat ne mange pas.</em>). Devant une voyelle, <em>ne</em> devient <em>n\'</em>. Écris la phrase entière.', q: qOpTF, essais: ESSAIS_PH, regles: 'À la <strong>forme négative</strong>, deux mots entourent le verbe : <strong>ne</strong> avant, <strong>pas</strong> après (<em>il ne dort pas</em>). Devant une voyelle ou un h muet, <em>ne</em> devient <strong>n\'</strong> (<em>il n\'aime pas, je n\'entends pas</em>). On peut aussi dire <em>ne… plus</em>, <em>ne… jamais</em>, <em>ne… rien</em>.' },
   'ce-transfo': { phrase: true, instr: 'Transforme chaque phrase comme demandé', intro: 'Appuie sur une phrase soulignée : l\'encart (et la voix) te disent ce qu\'il faut en faire : la mettre à la forme <strong>négative</strong> ou <strong>affirmative</strong>, en faire une <strong>question</strong> (interrogative) ou un <strong>ordre</strong> (impérative). Écris la phrase entière. Une fois la phrase écrite, deux bandes apparaissent dessous : son <strong>type</strong> (en bleu) et sa <strong>forme</strong> (en vert).', q: qOpTF, essais: ESSAIS_PH, regles: 'Tu sais maintenant transformer une phrase. <strong>Négative</strong> : ne… pas autour du verbe (<em>il ne dort pas</em>). <strong>Affirmative</strong> : on enlève ne… pas. <strong>Interrogative</strong> : « est-ce que… ? » ou l\'inversion avec un trait d\'union (<em>viens-tu ?</em>). <strong>Impérative</strong> : sans sujet, et sans s pour les verbes en -er (<em>range ta chambre</em>).' },
   'ce-accord': { accord: true, parPhrase: true, q: qNatTF, instr: 'Accorde les mots du groupe nominal', intro: 'Les mots entre parenthèses sont écrits <strong>au masculin singulier</strong>, comme dans le dictionnaire. Appuie sur chacun et écris-le <strong>bien accordé</strong> avec le nom qu\'il accompagne : au <strong>féminin</strong> (souvent un <em>e</em>) ? au <strong>pluriel</strong> (souvent un <em>s</em>, parfois un <em>x</em>) ? Regarde le déterminant.', essais: 'on te dit ce qui ne va pas : le genre (masculin ou féminin), le nombre (singulier ou pluriel) ou l\'orthographe du mot.', regles: 'Dans le <strong>groupe nominal</strong>, le <strong>nom</strong> donne son genre et son nombre au <strong>déterminant</strong> et à l\'<strong>adjectif</strong>. Au <strong>féminin</strong>, on ajoute souvent un <em>e</em> (<em>petit → petite</em>), mais pas toujours : <em>vieux → vieille, blanc → blanche, gentil → gentille, beau → belle</em>. Au <strong>pluriel</strong>, on ajoute un <em>s</em> (<em>des chats</em>) ; les mots en <em>-eau</em> et <em>-eu</em> prennent un <em>x</em> (<em>des oiseaux, des jeux</em>), les mots en <em>-al</em> font <em>-aux</em> (<em>des chevaux</em>), et sept mots en <em>-ou</em> prennent un <em>x</em> : <em>bijou, caillou, chou, genou, hibou, joujou, pou</em>. Les mots terminés par <em>s</em> ou <em>x</em> ne changent pas (<em>gris, curieux</em>).' },
-  'ce-bilanacc': { accord: true, parPhrase: true, q: qNatTF, instr: 'Accorde les noms, les adjectifs et les verbes', intro: 'Les mots entre parenthèses sont écrits comme dans le dictionnaire : les noms et les adjectifs <strong>au masculin singulier</strong>, les verbes <strong>à l\'infinitif</strong>. Écris chacun <strong>bien accordé</strong> : les noms et les adjectifs avec le groupe nominal, les verbes <strong>au présent</strong>, avec leur sujet.', essais: 'on te dit ce qui ne va pas : le genre, le nombre, la terminaison du verbe (l\'accord avec le sujet) ou l\'orthographe.', regles: 'Deux accords à bien connaître. <strong>Dans le groupe nominal</strong>, le nom donne son genre et son nombre au déterminant et à l\'adjectif : <em>des fleurs rouges, une vieille dame</em>. <strong>Le verbe</strong> s\'accorde avec son <strong>sujet</strong> : <em>le chat dort, les chats dorment ; nous chantons, vous chantez</em>. Pour trouver le sujet, pose la question « Qui est-ce qui… ? ».' },
-  'ce-inf': { parPhrase: true, instr: 'Trouve l\'infinitif de chaque verbe', intro: 'Appuie sur un verbe souligné et écris son <strong>infinitif</strong> : son nom, comme dans le dictionnaire (<em>il mange → manger</em>).', q: (e) => `« ${esc(e.src)} » : quel est son <strong>infinitif</strong> ?`, regles: 'L\'<strong>infinitif</strong> est le nom du verbe : c\'est la forme qu\'on trouve dans le dictionnaire. Pour le trouver, on dit « il faut… » : <em>il faut manger, il faut finir, il faut prendre</em>. Au passé composé, c\'est le deuxième mot qui donne l\'infinitif : <em>nous avons regardé → regarder</em>.' },
+  'ce-bilanacc': { accord: true, parPhrase: true, svAcc: true, q: qNatTF, instr: 'Accorde les noms, les adjectifs et les verbes', intro: 'Les mots entre parenthèses sont écrits comme dans le dictionnaire : les noms et les adjectifs <strong>au masculin singulier</strong>, les verbes <strong>à l\'infinitif</strong>. Pour chaque phrase, trois étapes, toujours dans cet ordre. <strong>1.</strong> Trouve le <strong>verbe</strong> et touche-le. <strong>2.</strong> Trouve son <strong>sujet</strong> (« Qui est-ce qui… ? ») : touche <strong>un seul mot</strong>, puis dis sa <strong>nature</strong>. <strong>3.</strong> Écris le verbe <strong>au présent</strong>, accordé avec son sujet, puis les noms et les adjectifs <strong>bien accordés</strong> dans le groupe nominal.', essais: 'on te dit ce qui ne va pas : le genre, le nombre, la terminaison du verbe (l\'accord avec le sujet) ou l\'orthographe.', regles: 'Deux accords à bien connaître. <strong>Dans le groupe nominal</strong>, le nom donne son genre et son nombre au déterminant et à l\'adjectif : <em>des fleurs rouges, une vieille dame</em>. <strong>Le verbe</strong> s\'accorde avec son <strong>sujet</strong> : <em>le chat dort, les chats dorment ; nous chantons, vous chantez</em>. Pour trouver le sujet, pose la question « Qui est-ce qui… ? ».' },
+  'ce-inf': { parPhrase: true, garde: true, instr: 'Trouve l\'infinitif de chaque verbe', intro: 'Appuie sur un verbe souligné et écris son <strong>infinitif</strong> : son nom, comme dans le dictionnaire (<em>il mange → manger</em>).', q: (e) => `« ${esc(e.src)} » : quel est son <strong>infinitif</strong> ?`, regles: 'L\'<strong>infinitif</strong> est le nom du verbe : c\'est la forme qu\'on trouve dans le dictionnaire. Pour le trouver, on dit « il faut… » : <em>il faut manger, il faut finir, il faut prendre</em>. Au passé composé, c\'est le deuxième mot qui donne l\'infinitif : <em>nous avons regardé → regarder</em>.' },
   'ce-pres': { parPhrase: true, instr: 'Conjugue les verbes au présent', intro: 'Appuie sur un verbe entre parenthèses et écris-le au <strong>présent</strong>, avec la bonne terminaison.', q: (e) => `Écris le verbe ${esc(e.src)} au <strong>présent</strong>.`, regles: 'Au <strong>présent</strong>, les verbes en <em>-er</em> se terminent par <em>-e, -es, -e, -ons, -ez, -ent</em> (je chante, tu chantes, il chante, nous chantons, vous chantez, ils chantent). Les verbes comme <em>finir</em> : <em>-is, -is, -it, -issons, -issez, -issent</em>. <em>Aller, faire, dire, venir, prendre, voir, pouvoir, vouloir</em> sont irréguliers : il faut les apprendre par cœur.' },
   'ce-fut': { parPhrase: true, instr: 'Conjugue les verbes au futur', intro: 'Appuie sur un verbe entre parenthèses et écris-le au <strong>futur</strong>.', q: (e) => `Écris le verbe ${esc(e.src)} au <strong>futur</strong>.`, regles: 'Au <strong>futur</strong>, on garde en général l\'infinitif et on ajoute <em>-ai, -as, -a, -ons, -ez, -ont</em> : <em>je chanterai, tu finiras, nous partirons</em>. Attention aux verbes irréguliers : <em>être → je serai, avoir → j\'aurai, aller → j\'irai, faire → je ferai, venir → je viendrai, voir → je verrai, pouvoir → je pourrai, vouloir → je voudrai</em>.' },
   'ce-imp': { parPhrase: true, instr: 'Conjugue les verbes à l\'imparfait', intro: 'Appuie sur un verbe entre parenthèses et écris-le à l\'<strong>imparfait</strong>.', q: (e) => `Écris le verbe ${esc(e.src)} à l'<strong>imparfait</strong>.`, regles: 'À l\'<strong>imparfait</strong>, tous les verbes ont les mêmes terminaisons : <em>-ais, -ais, -ait, -ions, -iez, -aient</em> (je chantais, nous chantions, ils chantaient). On l\'emploie pour raconter ce qui durait ou ce qui se répétait autrefois.' },
@@ -4969,7 +5117,9 @@ function decoupeTF(src) {
 }
 function showQuestionTF() {
   const T = TF_T(), d = decoupeTF(T.texte);
-  Object.assign(tf, { essais: {}, message: '', elts: d.elts, rep: {}, sel: null, registre: currentGame.tf === 'pres2passe' ? null : 'cls' });
+  Object.assign(tf, { essais: {}, message: '', elts: d.elts, rep: {}, sel: null, registre: currentGame.tf === 'pres2passe' ? null : 'cls', sv: null });
+  /* v114 : CE, bilan des accords : pour chaque phrase, d'abord trouver le verbe, puis son sujet (et sa nature), puis écrire */
+  if (TFCFG[currentGame.tf]?.svAcc && d.elts.length) tf.sv = { ph: d.elts[0].ph, etape: 'vb', vb: null, faux: 0, msg: '', malus: {}, sujLab: {}, trouves: {} };
   currentGame.total = d.elts.length;
   $('nat-sentence').innerHTML = `<div class="tm-cadre"><h3 class="tm-titre">Texte n° ${game.questions[game.index].t + 1} : « ${esc(T.titre)} »</h3><div class="tm-texte">${d.items.map((m) => (m.k !== undefined
     ? `<span class="w forme tf${d.elts[m.k].op ? ' tf-phrase' : ''}" data-i="${m.k}">${TFCFG[currentGame.tf]?.montreOp && d.elts[m.k].op ? `<span class="tf-op">${OP_TF[d.elts[m.k].op]}</span>` : ''}<span class="ancien"></span><span class="tx">${m.pre}<span class="f">${esc(m.t)}</span>${m.suf}</span></span>`
@@ -4982,7 +5132,7 @@ function showQuestionTF() {
   $('nat-progress-label').textContent = `Texte n° ${game.questions[game.index].t + 1} (${NIVEAU_TEXTE(game.questions[game.index].t, TRANSFOS[currentGame.tf].length)})`;
   game.score = 0;
   majScoreTF(); panneauTF();
-  if (tf.registre) setTimeout(() => { if (tf.sel === null && !game.fini) clicTF(0); }, 350);
+  if (tf.registre && !tf.sv) setTimeout(() => { if (tf.sel === null && !game.fini) clicTF(0); }, 350);
   requestAnimationFrame(ajusteArdoise);
 }
 const tfFaits = () => Object.keys(tf.rep).length;
@@ -4992,6 +5142,7 @@ function majScoreTF() {
 }
 const versTF = () => (currentGame.tf === 'passe2pres' ? 'au système du présent' : tf.registre === 'mod' ? 'au passé, en français contemporain' : 'au passé, en français classique');
 function panneauTF() {
+  requestAnimationFrame(flechesTF);   /* v114 : les flèches suivent la phrase en cours */
   const N = tf.elts.length;
   const CF = TFCFG[currentGame.tf];
   $('nat-instruction').textContent = CF ? CF.instr : currentGame.tf === 'passe2pres' ? 'Réécris le texte au système du présent' : 'Réécris le texte au système du passé';
@@ -5000,6 +5151,7 @@ function panneauTF() {
     document.querySelectorAll('[data-reg]').forEach((b) => b.addEventListener('click', () => { tf.registre = b.dataset.reg; panneauTF(); clicTF(0); }));
     return;
   }
+  if (svTF() && tf.sv.etape !== 'ecrire') { panneauSvTF(); return; }
   if (tf.sel === null && CF) { $('nat-buttons-variables').innerHTML = nbspFr(`<div class="carte verte active libre"><p>${CF.intro}</p><p class="sous">${tfFaits()} sur ${N} déjà fait${tfFaits() > 1 ? 's' : ''}.</p></div>`); return; }
   if (tf.sel === null) {
     $('nat-buttons-variables').innerHTML = `<div class="carte verte active libre"><p>${N} mots ou groupes de mots sont soulignés : ils doivent changer pour que le texte soit ${versTF()}. Ce sont des <strong>formes verbales</strong> et des <strong>indicateurs de temps</strong> (<em>${currentGame.tf === 'passe2pres' ? 'ce jour-là → aujourd\'hui' : 'aujourd\'hui → ce jour-là'}</em>). Appuie sur l'un d'eux et écris ce qu'il devient.</p><p class="sous">${tfFaits()} sur ${N} déjà fait${tfFaits() > 1 ? 's' : ''}.</p></div>`;
@@ -5010,18 +5162,20 @@ function panneauTF() {
   let html = `<div class="carte verte active libre"><p>${CF ? CF.q(e) : `« <strong>${esc(e.src)}</strong> » : réécris-le ${versTF()}.`}</p>`;
   if (!r && tf.message) html += `<p class="tf-retour faux">${tf.message}</p>`;
   if (!r) html += `<form class="tf-form" autocomplete="off"><input type="text" class="tf-input" id="tf-input" autocapitalize="off" spellcheck="false" placeholder="écris ici…"><button type="submit" class="primary-button tf-ok">Valider</button></form>`;
-  else html += `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? '✔ Bravo !' : r.pts ? `✔ Juste ${r.essai === 1 ? 'au deuxième essai, après une erreur' : 'au troisième essai, après deux erreurs'} : un demi-point.` : `Non : tu as écrit « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
+  else html += `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? '✔ Bravo !' : r.pts ? `✔ Tu as répondu juste ${r.essai === 1 ? 'au deuxième essai, après une erreur' : 'au troisième essai, après deux erreurs'} : tu obtiens un demi-point.` : `Non : tu as écrit « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
   if (r && r.nuance) html += `<p class="sous tf-nuance">${r.nuance}</p>`;
   html += '</div>';
   $('nat-buttons-variables').innerHTML = nbspFr(html);
   const f = document.querySelector('.tf-form');
   if (f) { f.addEventListener('submit', (ev) => { ev.preventDefault(); repondTF($('tf-input').value); }); setTimeout(() => $('tf-input')?.focus(), 50); }
 }
-const retourTF = (r) => `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? `✔ Bravo : « ${esc(r.ecrit)} » !` : r.pts ? `✔ Juste ${r.essai === 1 ? 'au deuxième essai, après une erreur' : 'au troisième essai, après deux erreurs'} : un demi-point.` : `Non : tu as ${TFCFG[currentGame.tf]?.choix ? 'choisi' : 'écrit'} « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
+const retourTF = (r) => `<p class="tf-retour ${r.pts === 1 ? 'juste' : r.pts ? 'moitie' : 'faux'}">${r.pts === 1 ? `✔ Bravo : « ${esc(r.ecrit)} » !` : r.pts ? `✔ Tu as répondu juste ${r.essai === 1 ? 'au deuxième essai, après une erreur' : 'au troisième essai, après deux erreurs'} : tu obtiens un demi-point.` : `Non : tu as ${TFCFG[currentGame.tf]?.choix ? 'choisi' : 'écrit'} « ${esc(r.ecrit)} ». On écrit « ${esc(r.bon)} ».`}</p>`;
 function panneauPhraseTF(CF) {
   const ph = tf.elts[tf.sel].ph, G = tf.elts.map((e, j) => j).filter((j) => tf.elts[j].ph === ph);
+  if (svTF()) G.sort((a, b) => (tf.elts[b].nat === 'v') - (tf.elts[a].nat === 'v') || a - b);   /* v114 : le verbe d'abord */
   const NP = new Set(tf.elts.map((e) => e.ph)).size, nPh = [...new Set(tf.elts.map((e) => e.ph))].indexOf(ph) + 1;
   let html = `<p class="sous tf-phrase-n">Phrase ${nPh} sur ${NP} : ${G.length} mot${G.length > 1 ? 's' : ''} à ${CF.choix ? 'choisir' : 'écrire'}, un par encart.</p>`;
+  if (svTF()) html += '<p class="sv-etape"><strong>3. Écris</strong> le verbe accordé avec son sujet, puis les autres mots bien accordés.</p>';
   G.forEach((j) => {
     const e = tf.elts[j], r = tf.rep[j], actif = j === tf.sel && !r;
     html += `<div class="carte ${e.nat === 'v' ? 'rouge' : 'verte'} libre tf-encart${actif ? ' active' : ''}${r ? ' faite' : ''}" data-encart="${j}"><p>${CF.q(e)}</p>`;
@@ -5043,7 +5197,112 @@ function panneauPhraseTF(CF) {
   });
   setTimeout(() => document.querySelector(`.tf-input[data-j="${tf.sel}"]`)?.focus(), 50);
 }
+/* v114 : CE, bilan des accords. Pour chaque phrase : 1. l'enfant touche le verbe (à l'infinitif, entre parenthèses) ;
+   2. il touche son sujet (un seul mot) et dit sa nature ; 3. il écrit le verbe accordé, puis les autres mots. */
+const svTF = () => !!(currentGame && currentGame.tf && tf.sv);
+/* le sujet du verbe et sa nature, lus dans la justification (« Le nom commun « chats », sujet du verbe… ») */
+function sujetSvTF(v) {
+  const x = tf.elts[v]?.expl || '', m = x.match(/^(?:Le |La |L')?(nom commun|nom propre|pronom personnel)\s+« ([^»]+) »/i);
+  return m ? { nat: m[1].toLowerCase(), mot: m[2].trim() } : null;
+}
+/* le numéro de phrase de chaque mot de l'ardoise */
+function phMotsSvTF() {
+  const W = [...document.querySelectorAll('#nat-sentence .tm-texte .w')]; let cur = tf.elts[0]?.ph || 0, fin = false;
+  return W.map((w) => {
+    if (fin) { cur += 1; fin = false; }
+    if (w.dataset.i !== undefined) cur = tf.elts[Number(w.dataset.i)].ph;
+    if (/[.!?…]\s*»?$/.test((w.querySelector('.tx') || w).textContent.trim())) fin = true;
+    return { w, ph: cur };
+  });
+}
+const NATS_SV = [['nom commun', 'Nom commun'], ['nom propre', 'Nom propre'], ['pronom personnel', 'Pronom personnel'], ['déterminant', 'Déterminant'], ['adjectif qualificatif', 'Adjectif qualificatif'], ['verbe', 'Verbe']];
+function panneauSvTF() {
+  const s = tf.sv, phs = [...new Set(tf.elts.map((e) => e.ph))];
+  $('nat-instruction').textContent = 'D\'abord le verbe, puis le sujet, puis on écrit';
+  const msg = s.msg ? `<p class="sous sv-msg">${esc(s.msg)}</p>` : '';
+  let html = `<p class="sous tf-phrase-n">Phrase ${phs.indexOf(s.ph) + 1} sur ${phs.length}</p>`;
+  if (s.etape === 'vb') html += `<div class="carte verte active libre"><p><strong>1. Trouve le verbe</strong> de cette phrase et touche-le dans le texte. Il est entre parenthèses, à l'infinitif.</p>${msg}</div>`;
+  else {
+    const vb = tf.elts[s.vb].src.replace(/[()]/g, ''), S = sujetSvTF(s.vb);
+    if (s.etape === 'suj') html += `<div class="carte rouge active libre"><p><strong>2. Trouve le sujet</strong> du verbe « ${esc(vb)} » : pose la question « Qui est-ce qui… ? », puis touche <strong>un seul mot</strong> dans le texte.</p>${msg}</div>`;
+    else html += `<div class="carte verte active libre"><p><strong>2. Le sujet</strong> du verbe « ${esc(vb)} » est « ${esc(s.sujMot || S.mot)} ». Quelle est sa <strong>nature</strong> ?</p><div class="carte-choix carte-choix-3">${NATS_SV.map(([c, n]) => `<button type="button" class="nature-button" data-svnat="${c}">${n}</button>`).join('')}</div>${msg}</div>`;
+  }
+  $('nat-buttons-variables').innerHTML = nbspFr(html);
+  document.querySelectorAll('[data-svnat]').forEach((b) => b.addEventListener('click', () => natSvTF(b.dataset.svnat)));
+}
+function fauxSvTF(el) { if (!el) return; el.classList.add('sv-faux'); setTimeout(() => el.classList.remove('sv-faux'), 900); }
+const labsSvTF = (el, L) => { if (!el) return; el.querySelector('.labs')?.remove(); const labs = document.createElement('span'); labs.className = 'labs'; L.forEach(([t, r]) => { const c = document.createElement('span'); c.className = `lab${r ? ' rouge' : ''}`; c.textContent = t; labs.appendChild(c); }); el.appendChild(labs); };
+/* un clic pendant les étapes 1 et 2 : sur un mot entre parenthèses (i) ou sur un autre mot (w) */
+function clicSvTF(i, w) {
+  const s = tf.sv;
+  if (s.etape === 'ecrire') return i !== null ? tf.elts[i].ph !== s.ph : true;
+  if (s.etape === 'natsuj') return true;
+  const el = i !== null ? wordEl(i) : w, P = phMotsSvTF().find((x) => x.w === el);
+  if (!P || P.ph !== s.ph) return true;
+  const quoi = `texte « ${TF_T().titre} »`, mot = (el.querySelector('.tx') || el).textContent.replace(/[«»().,!?;:]/g, '').trim();
+  if (s.etape === 'vb') {
+    if (i !== null && tf.elts[i].nat === 'v' && !tf.rep[i]) {
+      if (s.faux) s.malus[i] = true;
+      s.vb = i; s.trouves[i] = true; labsSvTF(wordEl(i), [['verbe', false]]);
+      s.faux = 0; s.msg = '';
+      if (sujetSvTF(i)) { s.etape = 'suj'; panneauTF(); dis(`Qui est-ce qui ${prononceInf(tf.elts[i].src.replace(/[()]/g, ''))} ?`); }
+      else avanceSvTF();
+    } else {
+      s.faux += 1; s.msg = `« ${mot} » n'est pas le verbe. Le verbe est entre parenthèses, à l'infinitif : il dit ce que l'on fait, ou ce que l'on est.`;
+      game.erreurs.push({ mot, bonne: 'le verbe est un autre mot', choisie: 'verbe', phrase: quoi });
+      fauxSvTF(el); panneauTF(); dis(s.msg);
+    }
+    return true;
+  }
+  /* étape 2 : le sujet */
+  const S = sujetSvTF(s.vb), vb = tf.elts[s.vb].src.replace(/[()]/g, '');
+  const vise = S.mot.toLowerCase(), ecrit = (i !== null ? [mot, ...attendusTF(tf.elts[i])] : [mot]).map((x) => String(x).toLowerCase().trim());
+  if (ecrit.includes(vise) && !s.sujEl) {
+    s.sujEl = el; s.sujMot = mot; s.etape = 'natsuj'; s.msg = '';
+    el.classList.add('choisie');
+    panneauTF(); dis(`Quelle est la nature de « ${mot} » ?`);
+  } else {
+    s.faux += 1; s.msg = `« ${mot} » n'est pas le sujet du verbe « ${vb} ». Pose la question : « Qui est-ce qui… ? »`;
+    game.erreurs.push({ mot, bonne: `pas le sujet de « ${vb} »`, choisie: 'sujet', phrase: quoi });
+    fauxSvTF(el); panneauTF(); dis(s.msg);
+  }
+  return true;
+}
+function natSvTF(nat) {
+  const s = tf.sv, S = sujetSvTF(s.vb), el = s.sujEl, inf = tf.elts[s.vb].src.replace(/[()]/g, '').trim();
+  const juste = nat === S.nat;
+  if (!juste) { s.malus[s.vb] = true; game.erreurs.push({ mot: S.mot, bonne: S.nat, choisie: nat, phrase: `texte « ${TF_T().titre} »` }); }
+  const L = [[(juste ? '' : '✗ ') + S.nat, false], [`sujet du verbe ${inf}`, true]];
+  const i = el.dataset.i !== undefined ? Number(el.dataset.i) : null;
+  if (i !== null) { s.sujLab[i] = [[`sujet du verbe ${inf}`, true]]; if (!tf.rep[i]) labsSvTF(el, L); } else labsSvTF(el, L);
+  if (!juste) el.querySelector('.labs .lab')?.classList.add('corrige');
+  el.classList.remove('choisie'); s.sujEl = null; s.faux = 0;
+  s.msg = juste ? '' : `« ${s.sujMot || S.mot} » est un ${S.nat}.`;
+  if (!juste) dis(s.msg);
+  setTimeout(avanceSvTF, juste ? 300 : 1800);
+}
+function avanceSvTF() {
+  const s = tf.sv, idx = tf.elts.map((e, k) => k).filter((k) => tf.elts[k].ph === s.ph);
+  s.faux = 0; s.msg = '';
+  const reste = idx.filter((k) => !tf.rep[k]);
+  const vbs = reste.filter((k) => tf.elts[k].nat === 'v' && !s.trouves[k]);
+  if (vbs.length) { s.etape = 'vb'; if (tf.sel !== null) { wordEl(tf.sel)?.classList.remove('choisie'); tf.sel = null; } panneauTF(); return; }
+  if (reste.length) {
+    s.etape = 'ecrire';
+    const k = reste.sort((a, b) => (tf.elts[b].nat === 'v') - (tf.elts[a].nat === 'v') || a - b)[0];
+    if (tf.sel === null) { tf.sel = k; wordEl(k)?.classList.add('choisie'); panneauTF(); } else clicTF(k, true);
+    return;
+  }
+  const phs = [...new Set(tf.elts.map((e) => e.ph))], suiv = phs[phs.indexOf(s.ph) + 1];
+  if (suiv === undefined) return;
+  if (tf.sel !== null) { wordEl(tf.sel)?.classList.remove('choisie'); tf.sel = null; }
+  Object.assign(s, { ph: suiv, etape: 'vb', vb: null });
+  panneauTF();
+  const k0 = tf.elts.findIndex((e) => e.ph === suiv);
+  if (k0 >= 0) dis(phraseDe(wordEl(k0)));
+}
 function clicTF(i, auto) {
+  if (svTF() && !game.fini && clicSvTF(i, null)) return;
   if (game.fini || !tf.registre || i === tf.sel) return;
   const avant = tf.sel; tf.sel = i;
   if (avant !== null) wordEl(avant)?.classList.remove('choisie');
@@ -5122,11 +5381,16 @@ function labTempsTF(e) {
   if (!t) return '';
   /* au CE, le temps seul (« futur ») ; ensuite, le temps et le mode (« futur de l'indicatif ») */
   const nom = t.replace(/^(au|à l')\s*/, '');
-  if (/^ce-/.test(currentGame.tf || '')) return nom;
-  return /subjonctif|conditionnel|impératif/.test(nom) ? nom : `${nom} de l'indicatif`;
+  if (/^ce-/.test(currentGame.tf || '')) return verbeTemps(nom);
+  return verbeTemps(/subjonctif|conditionnel|impératif/.test(nom) ? nom : `${nom} de l'indicatif`);
 }
 function labTF(i) {
+  labTF0(i);
+  if (svTF() && tf.sv.sujLab[i]) tf.sv.sujLab[i].forEach(([t, r]) => carre(i, esc(t), r));
+}
+function labTF0(i) {
   const e = tf.elts[i];
+  if (TFCFG[currentGame.tf]?.garde) { if (tf.rep[i]) { wordEl(i)?.querySelector('.labs')?.remove(); carre(i, 'verbe conjugué', false); carre(i, `infinitif : ${esc(tf.rep[i].bon)}`, false); } return; }
   if (!e.lab) {
     if (e.nat) { const L = labNatTF(e, tf.rep[i]?.bon); if (L.length) { wordEl(i)?.querySelector('.labs')?.remove(); L.forEach(([t, r]) => carre(i, esc(t), !!r)); } return; }
     const t = labTempsTF(e); if (t) { wordEl(i)?.querySelector('.labs')?.remove(); carre(i, `<span class="p-vert">${esc(t)}</span>`, false); wordEl(i)?.querySelector('.labs .lab')?.classList.add('duo'); }
@@ -5157,9 +5421,12 @@ function flechesTF() {
     for (let d = 1; d < 12; d++) for (const k of (avant ? [k0 - d] : [k0 - d, k0 + d])) if (k >= 0 && k < J.length && J[k].t === mot && best < 0) best = k;
     return best; };
   const detDe = (kn) => { for (let k = kn - 1; k >= Math.max(0, kn - 3); k--) { if (DET_FL.test(J[k].t)) return k; if (J[k].i === null && !/^\p{L}/u.test(J[k].t)) return -1; } return -1; };
+  /* v114 : seulement les flèches de la phrase en cours : quand on passe à la phrase suivante, elles s'effacent */
+  const phC = tf.sel !== null && tf.elts[tf.sel] ? tf.elts[tf.sel].ph : tf.sv ? tf.sv.ph : null;
   J.forEach((j, k) => {
     if (j.i === null || !tf.rep[j.i]) return;
     const e = tf.elts[j.i]; if (!e || !e.nat || !e.expl) return;
+    if (e.ph !== phC) return;
     const f = j.el.querySelector('.f'); if (!f) return;
     const forme = f.textContent, src = String(e.src || '').replace(/[()]/g, '');
     /* la marque ajoutée : ce qui suit la partie commune entre le mot de départ et le mot accordé */
@@ -5200,6 +5467,7 @@ function flechesTF() {
 }
 window.addEventListener('resize', () => { if (currentGame && currentGame.tf && !game.fini) requestAnimationFrame(flechesTF); });
 function montreFormeTF(i, forme, classe) {
+  if (TFCFG[currentGame.tf]?.garde) return;   /* v114 : l'infinitif ne remplace pas le verbe dans le texte (« Lou se lever tôt » ne veut rien dire) : il s'écrit dans une étiquette */
   const e = tf.elts[i], el = wordEl(i);
   el.querySelector('.tf-bandes')?.remove();
   if (e.op && classe !== 'essai-faux') el.insertAdjacentHTML('beforeend', bandesPhraseTF(e, forme));
@@ -5251,7 +5519,7 @@ function repondTF(ecrit) {
     return;
   } else if (accents) bon = accents;
   tf.rep[i] = { ecrit: ecrit.trim(), pts, bon, essai };
-  game.score = Math.round((game.score + pts) * 10) / 10;
+  game.score = Math.round((game.score + pts * (svTF() && tf.sv.malus[i] ? 0.5 : 1)) * 100) / 100;
   if (pts < 1) game.erreurs.push({ mot: e.src, bonne: `« ${bon} »`, choisie: `« ${ecrit.trim()} »`, phrase: `texte « ${TF_T().titre} »` });
   /* dans le texte : l'ancienne forme barrée en petit au-dessus, la nouvelle à sa place */
   const el = wordEl(i);
@@ -5261,7 +5529,7 @@ function repondTF(ecrit) {
     const nuance = npQ || [PH ? '' : nuanceTF(i, exact, ok), e.expl || TFCFG[currentGame.tf]?.style?.(e, exact || ecrit.trim()) || ''].filter(Boolean).join(' ');
     const tyfo = e.op ? phraseTypeFormeTF(e, exact || ecrit.trim()) : '';
     tf.rep[i].nuance = [tyfo, nuance].filter(Boolean).join(' ');
-    const bravo = pts === 1 ? 'Bravo, c\'est juste !' : `Oui, c'est juste cette fois, après ${essai === 1 ? 'une erreur' : 'deux erreurs'} : un demi-point.`;
+    const bravo = pts === 1 ? 'Bravo, c\'est juste !' : `Tu as répondu juste ${essai === 1 ? 'au deuxième essai, après une erreur' : 'au troisième essai, après deux erreurs'}. Tu obtiens un demi-point.`;
     if (e.op) dis(bravo, `La phrase est maintenant : ${luTF(i)}`, tyfo.replace(/<[^>]+>/g, '').replace(/^La phrase est maintenant/, 'Elle est'), nuance && nuance.replace(/<[^>]+>/g, ''));
     else dis(phraseDe(el), bravo, nuance && nuance.replace(/<[^>]+>/g, ''));
   }
@@ -5282,6 +5550,7 @@ function repondTF(ecrit) {
   majScoreTF(); panneauTF();
   requestAnimationFrame(flechesTF);
   if (tfFaits() === tf.elts.length) { quandVoixFinie(finTF); return; }
+  if (svTF()) { quandVoixFinie(() => { if (tf.sel === i && !game.fini) avanceSvTF(); }); return; }
   quandVoixFinie(() => {
     if (tf.sel !== i || game.fini) return;
     const N = tf.elts.length;
@@ -6680,7 +6949,7 @@ initMosaic();
 buildNatureButtons();
 loadFiche();
 
-$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && isT1() && !currentGame.sx && !currentGame.dr && !currentGame.tv && w.dataset.i !== undefined) (currentGame.tf ? clicTF : clicFormeTM)(Number(w.dataset.i)); });
+$('nat-sentence').addEventListener('click', (e) => { const w = e.target.closest('.w'); if (w && isG4()) clicMotGN(Number(w.dataset.i), w); else if (w && isG3()) clicMotGV(Number(w.dataset.i), w); else if (w && isG5()) clicMotTab(Number(w.dataset.i), w); else if (w && isG6()) clicCaseLibre(Number(w.dataset.i)); else if (w && currentGame?.tf && svTF() && w.dataset.i === undefined) clicSvTF(null, w); else if (w && isT1() && !currentGame.sx && !currentGame.dr && !currentGame.tv && w.dataset.i !== undefined) (currentGame.tf ? clicTF : clicFormeTM)(Number(w.dataset.i)); });
 $('nat-start-button').addEventListener('click', startGame);
 $('nat-next-button').addEventListener('click', nextQuestion);
 /* v68 : la voix lit le texte tel qu'il est sur l'ardoise, avec les réponses déjà données : l'élève entend sa phrase,
@@ -6729,11 +6998,13 @@ function elementCourant() {
   return null;
 }
 $('nat-listen-button').addEventListener('click', () => {
+  if (currentGame && currentGame.qz) { const prev = volumeLevel; if (!volumeLevel) volumeLevel = 3; const q = document.querySelector('#nat-sentence .qz-q'); if (q) speak(q.textContent.replace(/…/g, ', '), 'femme', 'phrase'); volumeLevel = prev; return; }
   if (currentGame && (currentGame.tf || currentGame.tm || currentGame.dr || currentGame.tv || currentGame.sx)) {
     const prev = volumeLevel; if (!volumeLevel) volumeLevel = 3;
     let el = game.texteFini ? null : elementCourant();
     /* v71 : rien n'est choisi : la voix ne lit pas tout le texte, elle va à la première phrase qui reste à faire */
     if (!el && !game.texteFini && currentGame.tf && tf.registre) { const k = tf.elts.findIndex((x, j) => !tf.rep[j]); if (k >= 0) { clicTF(k); volumeLevel = prev; return; } }
+    if (!el && !game.texteFini && currentGame.tm && svNatTM()) { const k = indicesPhase().find((j) => formeTM(j).ph === tm.sv.ph); speak(phraseDe(wordEl(k)), 'femme', 'phrase'); volumeLevel = prev; return; }
     if (!el && !game.texteFini && currentGame.tm) { const k = indicesPhase().find((j) => !estFaite(j)); if (k !== undefined) { clicFormeTM(k); volumeLevel = prev; return; } }
     speak(el ? (currentGame.tf && tf.sel !== null && tf.elts[tf.sel]?.op ? luTF(tf.sel) : phraseDe(el)) : texteArdoise(), 'femme', 'phrase'); volumeLevel = prev; return;
   }
@@ -6846,7 +7117,7 @@ function pistesEcoute(classes, parties) {
   const P = [];
   const NOMC = { ce: 'CE1-CE2', cm: 'CM1-CM2', 65: '6e-5e', 43: '4e-3e' };
   classes.forEach((classe) => parties.forEach((partie) => {
-    const L0 = PARCOURS[partie].filter((e) => e.classes.includes(classe) && !e.avenir);
+    const L0 = PARCOURS[partie].filter((e) => e.classes.includes(classe) && !e.avenir && !e.cours);
     const L = [...L0.filter((e) => !e.bilan), ...L0.filter((e) => e.bilan)];
     let n = 0, nb = 0;
     L.forEach((e) => {

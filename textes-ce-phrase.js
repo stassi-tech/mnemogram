@@ -1,9 +1,26 @@
-/* textes-ce-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v37
-   à partir du Word « textes CE1-CE2 la phrase.docx », le 24/11/2026 09:30:11. Ne pas modifier à la main : corriger le Word. */
+/* textes-ce-phrase.js : textes des exercices de MNEMOGRAM, fabriqués par l'atelier de textes v40
+   à partir du Word « textes CE1-CE2 la phrase.docx », le 26/11/2026 09:41:58. Ne pas modifier à la main : corriger le Word. */
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "ce-phr": {
   "moteur": "tm",
-  "textes": [{"titre": "Au jardin", "texte": "{Le chat dort sur le lit.|ph|ind} {le chien dort dans sa niche|nph|ind} {Maman lit un livre.|ph|ind} {papa arrose les fleurs|nph|ind} {Le soleil brille !|ph|ind} {la neige tombe sur le toit|nph|ind} {Il fait beau aujourd'hui.|ph|ind} {mon frère joue au ballon|nph|ind} {Entends-tu les oiseaux ?|ph|ind} {Les oiseaux chantent.|ph|ind}"}, {"titre": "À l'école", "texte": "{La maîtresse écrit au tableau.|ph|ind} {le petit Tom ouvre son cahier|nph|ind} {Nous lisons une histoire…|ph|ind} {les élèves dessinent un arbre|nph|ind} {La cloche sonne !|ph|ind} {les enfants courent dans la cour.|nph|ind} {Lina saute à la corde.|ph|ind} {Hugo joue-t-il aux billes ?|ph|ind} {La récréation passe vite|nph|ind} {Les enfants remontent en classe.|ph|ind} {mon ami me prête sa gomme|nph|ind} {Je range mes crayons.|ph|ind} {Quelle belle journée !|ph|ind}"}, {"titre": "La mer", "texte": "{Nous partons à la mer.|ph|ind} {papa monte dans la voiture|nph|ind} {Le voyage est long… très long !|ph|ind} {ma sœur dort contre la vitre.|nph|ind} {Enfin ! nous voyons la plage.|ph|ind} {Le sable est chaud|nph|ind} {Je cours vers les vagues.|ph|ind} {Brr ! l'eau est froide !|ph|ind} {mon frère construit un château|nph|ind} {Maman lit sous le parasol.|ph|ind} {Entends-tu les mouettes ?|ph|ind} {un bateau passe au loin|nph|ind} {Quelle belle journée !|ph|ind}"}, {"titre": "La ferme", "texte": "{Le fermier se lève tôt.|ph|ind} {il trait les vaches|nph|ind} {Les poules picorent le grain.|ph|ind} {le coq chante très fort|nph|ind} {Oh ! regarde le petit veau.|ph|ind} {Le chien garde les moutons…|ph|ind} {Le cochon se roule dans la boue|nph|ind} {Ma cousine ramasse les œufs.|ph|ind} {Quel beau cheval !|ph|ind} {le fermier conduit le tracteur.|nph|ind} {Ah ! le chat chasse les souris.|ph|ind} {Les canards nagent sur la mare.|ph|ind} {Veux-tu du lait frais ?|ph|ind} {tout le monde est content|nph|ind}"}]
+  "textes": [
+   {
+    "titre": "Au jardin",
+    "texte": "{Le chat dort sur le lit.|ph|ind} {le chien dort dans sa niche|nph|ind} {Maman lit un livre.|ph|ind} {papa arrose les fleurs|nph|ind} {Le soleil brille !|ph|ind} {la neige tombe sur le toit|nph|ind} {Il fait beau aujourd'hui.|ph|ind} {mon frère joue au ballon|nph|ind} {Entends-tu les oiseaux ?|ph|ind} {Les oiseaux chantent.|ph|ind}"
+   },
+   {
+    "titre": "À l'école",
+    "texte": "{La maîtresse écrit au tableau.|ph|ind} {le petit Tom ouvre son cahier|nph|ind} {Nous lisons une histoire…|ph|ind} {les élèves dessinent un arbre|nph|ind} {La cloche sonne !|ph|ind} {les enfants courent dans la cour.|nph|ind} {Lina saute à la corde.|ph|ind} {Hugo joue-t-il aux billes ?|ph|ind} {La récréation passe vite|nph|ind} {Les enfants remontent en classe.|ph|ind} {mon ami me prête sa gomme|nph|ind} {Je range mes crayons.|ph|ind} {Quelle belle journée !|ph|ind}"
+   },
+   {
+    "titre": "La mer",
+    "texte": "{Nous partons à la mer.|ph|ind} {papa monte dans la voiture|nph|ind} {Le voyage est long… très long !|ph|ind} {ma sœur dort contre la vitre.|nph|ind} {Enfin ! nous voyons la plage.|ph|ind} {Le sable est chaud|nph|ind} {Je cours vers les vagues.|ph|ind} {Brr ! l'eau est froide !|ph|ind} {mon frère construit un château|nph|ind} {Maman lit sous le parasol.|ph|ind} {Entends-tu les mouettes ?|ph|ind} {un bateau passe au loin|nph|ind} {Quelle belle journée !|ph|ind}"
+   },
+   {
+    "titre": "La ferme",
+    "texte": "{Le fermier se lève tôt.|ph|ind} {il trait les vaches|nph|ind} {Les poules picorent le grain.|ph|ind} {le coq chante très fort|nph|ind} {Oh ! regarde le petit veau.|ph|ind} {Le chien garde les moutons…|ph|ind} {Le cochon se roule dans la boue|nph|ind} {Ma cousine ramasse les œufs.|ph|ind} {Quel beau cheval !|ph|ind} {le fermier conduit le tracteur.|nph|ind} {Ah ! le chat chasse les souris.|ph|ind} {Les canards nagent sur la mare.|ph|ind} {Veux-tu du lait frais ?|ph|ind} {tout le monde est content|nph|ind}"
+   }
+  ]
  },
  "ce-ponct": {
   "moteur": "tm",
@@ -94,19 +111,19 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
   "textes": [
    {
     "titre": "Le dragon",
-    "texte": "{Le dragon vit dans une grotte.|aff|ind} {Il ne sort pas le jour.|neg|ind} {Il crache du feu.|aff|ind} {Il n'a pas d'amis.|neg|ind} {Les villageois ont peur de lui.|aff|ind} {Personne ne s'approche de la grotte.|neg|ind} {Un jour, une petite fille arrive.|aff|ind} {Elle n'a pas peur.|neg|ind} {Elle lui offre une fleur.|aff|ind} {Le dragon ne crache plus de feu.|neg|ind}"
+    "texte": "{Le dragon vit dans une grotte.|faf|ind} {Il ne sort pas le jour.|fn|ind} {Il crache du feu.|faf|ind} {Comme il est grand !|fae|ind} {Il n'a pas d'amis.|fn|ind} {Les villageois ont peur de lui.|faf|ind} {Personne ne s'approche de la grotte.|fn|ind} {Un jour, une petite fille arrive.|faf|ind} {Elle n'a pas peur.|fn|ind} {Elle est vraiment courageuse !|fae|ind} {Elle lui offre une fleur.|faf|ind} {Le dragon ne crache plus de feu.|fn|ind} {Il n'est pas méchant du tout !|fne|ind}"
    },
    {
     "titre": "Le chat Minou",
-    "texte": "{Minou est un chat paresseux.|aff|ind} {Il ne chasse jamais les souris.|neg|ind} {Il dort toute la journée.|aff|ind} {Il n'aime pas la pluie.|neg|ind} {Il aime le lait tiède.|aff|ind} {Il ne boit pas d'eau.|neg|ind} {Le soir, il réclame des caresses.|aff|ind} {Il ronronne sur mes genoux.|aff|ind} {Il ne veut plus descendre.|neg|ind} {Ma mère rit.|aff|ind} {Elle ne le gronde jamais.|neg|ind} {Ce chat a de la chance.|aff|ind} {Il ne fait rien de la journée !|neg|ind}"
+    "texte": "{Minou est un chat paresseux.|faf|ind} {Il ne chasse jamais les souris.|fn|ind} {Il dort toute la journée.|faf|ind} {Il n'aime pas la pluie.|fn|ind} {Il aime le lait tiède.|faf|ind} {Il est vraiment trop gourmand !|fae|ind} {Il ne boit pas d'eau.|fn|ind} {Le soir, il réclame des caresses.|faf|ind} {Il ronronne sur mes genoux.|faf|ind} {Il ne veut plus descendre.|fn|ind} {Ma mère rit.|faf|ind} {Elle ne le gronde jamais.|fn|ind} {Ce chat a de la chance.|faf|ind} {Il ne fait rien de la journée !|fne|ind}"
    },
    {
     "titre": "La sortie au parc",
-    "texte": "{Ce matin, nous allons au parc.|aff|ind} {Il ne pleut pas.|neg|ind} {Le ciel est tout bleu.|aff|ind} {Mon petit frère ne veut pas marcher.|neg|ind} {Papa le porte sur ses épaules.|aff|ind} {Au parc, les balançoires sont libres.|aff|ind} {Personne ne joue au toboggan.|neg|ind} {Je monte tout en haut.|aff|ind} {Je n'ai pas peur.|neg|ind} {Ma sœur ne trouve plus son ballon.|neg|ind} {Il est sous un banc.|aff|ind} {Nous mangeons un sandwich.|aff|ind} {Mon frère ne mange rien.|neg|ind} {Il préfère les biscuits.|aff|ind} {Nous ne voulons pas partir.|neg|ind} {Il est déjà tard.|aff|ind}"
+    "texte": "{Ce matin, nous allons au parc.|faf|ind} {Il ne pleut pas.|fn|ind} {Le ciel est tout bleu.|faf|ind} {Il fait si beau !|fae|ind} {Mon petit frère ne veut pas marcher.|fn|ind} {Papa le porte sur ses épaules.|faf|ind} {Au parc, les balançoires sont libres.|faf|ind} {Personne ne joue au toboggan.|fn|ind} {Je monte tout en haut.|faf|ind} {Je n'ai pas peur.|fn|ind} {Ma sœur ne trouve plus son ballon.|fn|ind} {Il est sous un banc.|faf|ind} {Nous mangeons un sandwich.|faf|ind} {Mon frère ne mange rien.|fn|ind} {Il préfère les biscuits.|faf|ind} {Nous ne voulons pas partir.|fn|ind} {Il est déjà tard.|faf|ind} {Ce n'est pas juste !|fne|ind}"
    },
    {
     "titre": "Le robot",
-    "texte": "{Léo a construit un robot.|aff|ind} {Il s'appelle Bip.|aff|ind} {Bip ne parle pas.|neg|ind} {Il fait des petits bruits.|aff|ind} {Il ne marche pas très vite.|neg|ind} {Il roule sur des roues.|aff|ind} {Le matin, il range la chambre.|aff|ind} {Il ne range jamais les chaussettes !|neg|ind} {Il les cache sous le lit.|aff|ind} {Maman ne le sait pas.|neg|ind} {Bip n'aime pas l'eau.|neg|ind} {Il ne sort jamais sous la pluie.|neg|ind} {Il aime le soleil.|aff|ind} {Ses piles se rechargent à la lumière.|aff|ind} {Un jour, Bip ne s'allume plus.|neg|ind} {Léo est très triste.|aff|ind} {Il ne comprend pas.|neg|ind} {Il change les piles.|aff|ind} {Bip fait à nouveau bip !|aff|ind} {Léo n'est plus triste.|neg|ind}"
+    "texte": "{Léo a construit un robot.|faf|ind} {Il s'appelle Bip.|faf|ind} {Bip ne parle pas.|fn|ind} {Il fait des petits bruits.|faf|ind} {Il ne marche pas très vite.|fn|ind} {Il roule sur des roues.|faf|ind} {Le matin, il range la chambre.|faf|ind} {Il ne range jamais les chaussettes !|fne|ind} {Il les cache sous le lit.|faf|ind} {Maman ne le sait pas.|fn|ind} {Bip n'aime pas l'eau.|fn|ind} {Il ne sort jamais sous la pluie.|fn|ind} {Il aime le soleil.|faf|ind} {Ses piles se rechargent à la lumière.|faf|ind} {Un jour, Bip ne s'allume plus.|fn|ind} {Léo est très triste.|faf|ind} {Il n'a vraiment pas de chance !|fne|ind} {Il ne comprend pas.|fn|ind} {Il change les piles.|faf|ind} {Bip fait à nouveau bip !|fae|ind} {Léo n'est plus triste.|fn|ind}"
    }
   ]
  },
@@ -152,30 +169,47 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
    }
   ]
  },
- "ce-svc": {
-  "moteur": "tm",
+ "ce-guill": {
+  "moteur": "tv",
   "textes": [
    {
-    "titre": "Le chat",
-    "texte": "Le {chat|suj|nnc|du verbe attraper} {attrape|vb|nvb} une {souris|cpl|nnc|du verbe attraper}. Ma {sœur|suj|nnc|du verbe chanter} {chante|vb|nvb}. {Papa|suj|nnp|du verbe laver} {lave|vb|nvb} la {voiture|cpl|nnc|du verbe laver}. {Bébé|suj|nnp|du verbe dormir} {dort|vb|nvb}."
+    "titre": "Le goûter",
+    "texte": "Léo rentre de l'école. {Maman, j'ai faim !} crie Léo. Maman sourit. {Il y a des crêpes dans la cuisine}, répond maman. Lina arrive à son tour. {Moi aussi, je veux une crêpe !} dit Lina. {Il y en a pour tout le monde}, dit maman. Les enfants s'assoient. {Merci, maman !} disent les enfants."
    },
    {
-    "titre": "En classe",
-    "texte": "La {maîtresse|suj|nnc|du verbe lire} {lit|vb|nvb} une {histoire|cpl|nnc|du verbe lire}. Les {élèves|suj|nnc|du verbe écouter} {écoutent|vb|nvb}. {Tom|suj|nnp|du verbe dessiner} {dessine|vb|nvb} un {dragon|cpl|nnc|du verbe dessiner}. {Nous|suj|nppers|du verbe copier} {copions|vb|nvb} la {poésie|cpl|nnc|du verbe copier}. La {cloche|suj|nnc|du verbe sonner} {sonne|vb|nvb}."
+    "titre": "La cabane",
+    "texte": "Léo et Lina construisent une cabane dans le jardin. {Passe-moi la planche}, dit Léo. Lina la lui donne. {Elle est trop lourde !} dit-elle. Papa arrive. {Vous avez besoin d'aide ?} demande papa. {Oui, s'il te plaît !} répondent les enfants. Papa tient la planche. Léo plante un clou. {Attention à tes doigts !} crie Lina. {Ne t'inquiète pas}, dit Léo. Le soir, la cabane est finie. {Elle est magnifique !} dit papa."
    },
    {
-    "titre": "Au jardin",
-    "texte": "Mon {grand-père|suj|nnc|du verbe planter} {plante|vb|nvb} des {tomates|cpl|nnc|du verbe planter}. Le {chien|suj|nnc|du verbe creuser} {creuse|vb|nvb} un {trou|cpl|nnc|du verbe creuser}. Les {oiseaux|suj|nnc|du verbe manger} {mangent|vb|nvb} les {cerises|cpl|nnc|du verbe manger}. Ma {grand-mère|suj|nnc|du verbe cueillir} {cueille|vb|nvb} des {fleurs|cpl|nnc|du verbe cueillir}. Le {soleil|suj|nnc|du verbe briller} {brille|vb|nvb}. {Je|suj|nppers|du verbe chanter} {chante|vb|nvb}."
+    "titre": "Au marché",
+    "texte": "Le samedi, Lina va au marché avec sa grand-mère. Le marchand crie : {Belles pommes ! Belles poires !} Grand-mère s'arrête. {Je voudrais un kilo de pommes}, dit-elle. {Voilà, madame}, répond le marchand. Lina regarde les fraises. {Elles sont si rouges !} dit Lina. {Tu en veux ?} demande grand-mère. {Oh oui !} répond Lina. Le marchand pose une fraise dans la main de Lina. {C'est un cadeau}, dit-il. {Merci, monsieur !} répond Lina. Sur le chemin du retour, grand-mère demande : {Qu'est-ce qu'on fait avec les pommes ?} {Une tarte !} crie Lina."
    },
    {
-    "titre": "Le cirque",
-    "texte": "Le {clown|suj|nnc|du verbe faire} {fait|vb|nvb} des {grimaces|cpl|nnc|du verbe faire}. Les {enfants|suj|nnc|du verbe rire} {rient|vb|nvb}. Un {éléphant|suj|nnc|du verbe porter} {porte|vb|nvb} une {danseuse|cpl|nnc|du verbe porter}. Le {jongleur|suj|nnc|du verbe lancer} {lance|vb|nvb} cinq {balles|cpl|nnc|du verbe lancer}. {Nous|suj|nppers|du verbe applaudir} {applaudissons|vb|nvb}. Le {lion|suj|nnc|du verbe rugir} {rugit|vb|nvb}. Mon petit {frère|suj|nnc|du verbe rire} {rit|vb|nvb}. Le {dompteur|suj|nnc|du verbe saluer} {salue|vb|nvb} le {public|cpl|nnc|du verbe saluer}."
+    "titre": "Le chien perdu",
+    "texte": "Dans la rue, Léo trouve un petit chien. Il n'a pas de collier. {Tu es perdu ?} demande Léo. Le chien remue la queue. Léo court chez Lina. {Regarde ce que j'ai trouvé !} dit-il. {Comme il est mignon !} s'écrie Lina. {Il faut retrouver son maître}, dit Léo. Les enfants font une affiche. Lina écrit : {Chien trouvé, appelez Léo.} Le lendemain, une dame sonne à la porte. {Bonjour, c'est mon chien !} dit la dame. {Comment s'appelle-t-il ?} demande Lina. {Il s'appelle Biscuit}, répond la dame. Le chien saute dans ses bras. {Merci, les enfants !} dit-elle. {Au revoir, Biscuit !} crient Léo et Lina. Léo est un peu triste. {On le reverra}, dit Lina."
    }
   ]
  },
- "ce-ccp": {
-  "moteur": "tv",
-  "textes": [{"titre": "Le matin", "texte": "Ce {matin|nc} , je me lève {tôt|adv} . Dans la {cuisine|nc} , maman prépare le petit-déjeuner. Je mange {vite|adv} . À huit {heures|nc} , nous partons. Dans la {rue|nc} , il fait froid. Devant la {porte|nc} de l'école, je retrouve Tom. {Ensemble|adv} , nous entrons dans la {cour|nc} . La cloche sonne {bientôt|adv} ."}, {"titre": "Le pique-nique", "texte": "{Dimanche|nc} , nous allons pique-niquer au {bord|nc} du lac. Sous un grand {arbre|nc} , papa étale la nappe. Avec {soin|nc} , maman sort les sandwichs. Nous mangeons {lentement|adv} . Après le {repas|nc} , mon frère joue dans le {pré|nc} . Sur le {lac|nc} , des canards nagent. Je leur donne du pain {doucement|adv} . Le {soir|nc} , nous rentrons à la {maison|nc} . Dans la {voiture|nc} , ma sœur s'endort. Nous chantons tout {bas|adv} ."}, {"titre": "L'hiver", "texte": "En {hiver|nc} , la neige tombe sur le {village|nc} . Le {matin|nc} , les enfants sortent {vite|adv} . Dans le {jardin|nc} , ils font un bonhomme de neige. Avec deux {cailloux|nc} , ils lui font des yeux. Pendant ce {temps|nc} , papa déblaie l'allée avec une {pelle|nc} . Sur le {lac|nc} gelé, des enfants patinent. Ils glissent très {vite|adv} . {Soudain|adv} , Lina tombe. Elle se relève {aussitôt|adv} . À {midi|nc} , tout le monde rentre. Près de la {cheminée|nc} , nous buvons un chocolat chaud. {Dehors|adv} , la neige tombe {encore|adv} ."}, {"titre": "Le voyage en train", "texte": "{Samedi|nc} , nous partons en {train|nc} . À la {gare|nc} , il y a beaucoup de monde. Nous montons {rapidement|adv} dans le wagon. Par la {fenêtre|nc} , je regarde le paysage. {D'abord|locadv} , nous voyons des champs. {Puis|adv} , le train traverse une forêt. Dans le {wagon|nc} , un bébé pleure. Sa maman le berce {doucement|adv} . Vers {midi|nc} , nous mangeons nos sandwichs. Sur la {tablette|nc} , je pose mon jus de pomme. {Tout à coup|locadv} , le train entre dans un tunnel. Dans le {noir|nc} , ma sœur crie. Quelques {secondes|nc} plus tard, la lumière revient. {Enfin|adv} , nous arrivons à {Marseille|np} . Sur le {quai|nc} , mamie nous attend avec un grand {sourire|nc} . Le {soir|nc} , nous mangeons chez {elle|pp} ."}]
+ "ce-tirets": {
+  "moteur": "tm",
+  "textes": [
+   {
+    "titre": "Au parc",
+    "texte": "Léo et Lina sont au parc. Léo demande à Lina : {— Tu veux faire de la balançoire ?|leo|ind} {— Oui ! Pousse-moi fort !|lina|ind} {— Accroche-toi bien !|leo|ind} {— Plus haut, plus haut !|lina|ind} {— Je n'en peux plus !|leo|ind} {— À ton tour, alors !|lina|ind}"
+   },
+   {
+    "titre": "Le gâteau",
+    "texte": "Lina entre dans la cuisine. Léo est déjà là. Lina s'étonne : {— Qu'est-ce que tu fais ?|lina|ind} {— Je prépare un gâteau pour maman.|leo|ind} {— C'est son anniversaire ?|lina|ind} {— Oui, c'est demain.|leo|ind} {— Je peux t'aider ?|lina|ind} {— Bien sûr ! Casse les œufs.|leo|ind} Lina casse les œufs. Un morceau de coquille tombe dans le bol. {— Oh non !|lina|ind} {— Ce n'est pas grave, je l'enlève.|leo|ind}"
+   },
+   {
+    "titre": "La pluie",
+    "texte": "Il pleut. Léo regarde par la fenêtre. Il soupire : {— Je m'ennuie…|leo|ind} {— Moi aussi. On joue aux cartes ?|lina|ind} {— Non, je perds toujours.|leo|ind} {— Alors on fait un puzzle ?|lina|ind} {— Bonne idée ! Où est la boîte ?|leo|ind} {— Sous mon lit.|lina|ind} Léo va chercher la boîte. Il revient en riant. {— Il manque la moitié des pièces !|leo|ind} {— C'est le chat qui les a cachées !|lina|ind} {— Alors on cherche les pièces partout ?|leo|ind} {— D'accord, c'est un jeu de piste !|lina|ind}"
+   },
+   {
+    "titre": "La lettre",
+    "texte": "Lina a reçu une lettre. Elle la montre à Léo. {— Regarde, c'est une lettre de mamie !|lina|ind} {— Qu'est-ce qu'elle dit ?|leo|ind} {— Elle nous invite à la mer cet été.|lina|ind} {— À la mer ? Génial !|leo|ind} {— Elle a une maison près de la plage.|lina|ind} {— On pourra se baigner tous les jours ?|leo|ind} {— Oui, et pêcher des crabes.|lina|ind} Lina sourit et ajoute : {— Mamie a aussi un chien.|lina|ind} {— Un chien ? Comment s'appelle-t-il ?|leo|ind} {— Il s'appelle Pirate.|lina|ind} {— Vivement l'été !|leo|ind} {— Oui, vivement l'été !|lina|ind}"
+   }
+  ]
  },
  "formes-ce": {
   "moteur": "sx",
