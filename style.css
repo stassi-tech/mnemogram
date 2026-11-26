@@ -909,3 +909,5 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .qz-suite { margin-top: 10px; width: 100%; }
 .home-mode-button.bilan.cours { border-style: dashed; }
 .qz-revoir { font-size: .75em; color: #ffe9a8; }
+/* v115 : une fonction (sujet) se montre en rouge, comme les étiquettes de fonction */
+.qz-choix.correct.rouge { background: #b3261e; border-color: #8c1d17; color: #fff; }
