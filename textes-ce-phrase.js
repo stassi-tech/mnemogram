@@ -3,24 +3,7 @@
 window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  "ce-phr": {
   "moteur": "tm",
-  "textes": [
-   {
-    "titre": "Au jardin",
-    "texte": "{Le chat dort sur le lit.|ph|ind} {dort chien le niche sa dans|nph|ind} {Maman lit un livre.|ph|ind} {fleurs arrose papa les|nph|ind} {Le soleil brille.|ph|ind} {mange pomme une Léo|nph|ind} {Il fait beau aujourd'hui.|ph|ind} {la neige tombe sur le toit|nph|ind} {Mon frère joue au ballon.|ph|ind} {Les oiseaux chantent.|ph|ind}"
-   },
-   {
-    "titre": "À l'école",
-    "texte": "{La maîtresse écrit au tableau.|ph|ind} {cahier ouvre son Tom|nph|ind} {Nous lisons une histoire.|ph|ind} {les élèves dessinent un arbre|nph|ind} {La cloche sonne.|ph|ind} {cour la dans courent enfants les|nph|ind} {Lina saute à la corde.|ph|ind} {Hugo joue aux billes.|ph|ind} {récréation la vite passe|nph|ind} {Les enfants remontent en classe.|ph|ind} {mon ami me prête sa gomme|nph|ind} {Je range mes crayons.|ph|ind} {classe la sort maîtresse la|nph|ind}"
-   },
-   {
-    "titre": "La ferme",
-    "texte": "{Le fermier se lève tôt.|ph|ind} {vaches les trait il|nph|ind} {Les poules picorent le grain.|ph|ind} {le coq chante très fort|nph|ind} {Le chien garde les moutons.|ph|ind} {cochon boue le dans se roule|nph|ind} {Ma cousine ramasse les œufs.|ph|ind} {Le cheval mange du foin.|ph|ind} {tracteur le conduit fermier le|nph|ind} {Le chat chasse les souris.|ph|ind} {les canards nagent sur la mare|nph|ind} {Nous buvons du lait frais.|ph|ind} {lapins carottes des mangent les|nph|ind} {Le veau tète sa mère.|ph|ind} {Le soir, tout le monde dort.|ph|ind} {ferme silencieuse la est|nph|ind}"
-   },
-   {
-    "titre": "La mer",
-    "texte": "{Nous partons à la mer.|ph|ind} {voiture la dans monte papa|nph|ind} {Le voyage est long.|ph|ind} {ma sœur dort contre la vitre|nph|ind} {Enfin, nous voyons la plage.|ph|ind} {sable chaud le est|nph|ind} {Je cours vers les vagues.|ph|ind} {L'eau est froide !|ph|ind} {château un construit frère mon|nph|ind} {Maman lit sous le parasol.|ph|ind} {les mouettes crient dans le ciel|nph|ind} {Un bateau passe au loin.|ph|ind} {glace achète papa une nous|nph|ind} {Elle fond très vite.|ph|ind} {Je ramasse des coquillages.|ph|ind} {mer la monte doucement|nph|ind} {Nous rangeons nos affaires.|ph|ind} {le soleil se couche sur la mer|nph|ind} {Quelle belle journée !|ph|ind} {demain reviendrons nous|nph|ind}"
-   }
-  ]
+  "textes": [{"titre": "Au jardin", "texte": "{Le chat dort sur le lit.|ph|ind} {le chien dort dans sa niche|nph|ind} {Maman lit un livre.|ph|ind} {papa arrose les fleurs|nph|ind} {Le soleil brille !|ph|ind} {la neige tombe sur le toit|nph|ind} {Il fait beau aujourd'hui.|ph|ind} {mon frère joue au ballon|nph|ind} {Entends-tu les oiseaux ?|ph|ind} {Les oiseaux chantent.|ph|ind}"}, {"titre": "À l'école", "texte": "{La maîtresse écrit au tableau.|ph|ind} {le petit Tom ouvre son cahier|nph|ind} {Nous lisons une histoire…|ph|ind} {les élèves dessinent un arbre|nph|ind} {La cloche sonne !|ph|ind} {les enfants courent dans la cour.|nph|ind} {Lina saute à la corde.|ph|ind} {Hugo joue-t-il aux billes ?|ph|ind} {La récréation passe vite|nph|ind} {Les enfants remontent en classe.|ph|ind} {mon ami me prête sa gomme|nph|ind} {Je range mes crayons.|ph|ind} {Quelle belle journée !|ph|ind}"}, {"titre": "La mer", "texte": "{Nous partons à la mer.|ph|ind} {papa monte dans la voiture|nph|ind} {Le voyage est long… très long !|ph|ind} {ma sœur dort contre la vitre.|nph|ind} {Enfin ! nous voyons la plage.|ph|ind} {Le sable est chaud|nph|ind} {Je cours vers les vagues.|ph|ind} {Brr ! l'eau est froide !|ph|ind} {mon frère construit un château|nph|ind} {Maman lit sous le parasol.|ph|ind} {Entends-tu les mouettes ?|ph|ind} {un bateau passe au loin|nph|ind} {Quelle belle journée !|ph|ind}"}, {"titre": "La ferme", "texte": "{Le fermier se lève tôt.|ph|ind} {il trait les vaches|nph|ind} {Les poules picorent le grain.|ph|ind} {le coq chante très fort|nph|ind} {Oh ! regarde le petit veau.|ph|ind} {Le chien garde les moutons…|ph|ind} {Le cochon se roule dans la boue|nph|ind} {Ma cousine ramasse les œufs.|ph|ind} {Quel beau cheval !|ph|ind} {le fermier conduit le tracteur.|nph|ind} {Ah ! le chat chasse les souris.|ph|ind} {Les canards nagent sur la mare.|ph|ind} {Veux-tu du lait frais ?|ph|ind} {tout le monde est content|nph|ind}"}]
  },
  "ce-ponct": {
   "moteur": "tm",
@@ -192,24 +175,7 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  },
  "ce-ccp": {
   "moteur": "tv",
-  "textes": [
-   {
-    "titre": "Le matin",
-    "texte": "{Ce matin}, je me lève {tôt}. {Dans la cuisine}, maman prépare le petit-déjeuner. Je mange {vite}. {À huit heures}, nous partons. {Dans la rue}, il fait froid. {Devant l'école}, je retrouve Tom. {Ensemble}, nous entrons {dans la cour}. La cloche sonne {bientôt}."
-   },
-   {
-    "titre": "Le pique-nique",
-    "texte": "{Dimanche}, nous allons pique-niquer {au bord du lac}. {Sous un grand arbre}, papa étale la nappe. {Avec soin}, maman sort les sandwichs. Nous mangeons {lentement}. {Après le repas}, mon frère joue {dans l'herbe}. {Sur le lac}, des canards nagent. Je leur donne du pain {doucement}. {Le soir}, nous rentrons {à la maison}. {Dans la voiture}, ma sœur s'endort. Nous chantons {tout bas}."
-   },
-   {
-    "titre": "L'hiver",
-    "texte": "{En hiver}, la neige tombe {sur le village}. {Le matin}, les enfants sortent {en courant}. {Dans le jardin}, ils font un bonhomme de neige. {Avec deux cailloux}, ils lui font des yeux. {Pendant ce temps}, papa déblaie l'allée {avec une pelle}. {Sur le lac gelé}, des enfants patinent. Ils glissent {très vite}. {Soudain}, Lina tombe. Elle se relève {aussitôt}. {À midi}, tout le monde rentre. {Près de la cheminée}, nous buvons un chocolat chaud. {Dehors}, la neige tombe {encore}."
-   },
-   {
-    "titre": "Le voyage en train",
-    "texte": "{Samedi matin}, nous partons {en train}. {À la gare}, il y a beaucoup de monde. Nous montons {rapidement} dans le wagon. {Par la fenêtre}, je regarde le paysage. {D'abord}, nous voyons des champs. {Puis}, le train traverse une forêt. {Dans le wagon}, un bébé pleure. Sa maman le berce {doucement}. {Vers midi}, nous mangeons nos sandwichs. {Sur la tablette}, je pose mon jus de pomme. {Tout à coup}, le train entre dans un tunnel. {Dans le noir}, ma sœur crie. {Quelques secondes plus tard}, la lumière revient. {Enfin}, nous arrivons {à Marseille}. {Sur le quai}, mamie nous attend {avec un grand sourire}. {Le soir}, nous mangeons {chez elle}."
-   }
-  ]
+  "textes": [{"titre": "Le matin", "texte": "Ce {matin|nc} , je me lève {tôt|adv} . Dans la {cuisine|nc} , maman prépare le petit-déjeuner. Je mange {vite|adv} . À huit {heures|nc} , nous partons. Dans la {rue|nc} , il fait froid. Devant la {porte|nc} de l'école, je retrouve Tom. {Ensemble|adv} , nous entrons dans la {cour|nc} . La cloche sonne {bientôt|adv} ."}, {"titre": "Le pique-nique", "texte": "{Dimanche|nc} , nous allons pique-niquer au {bord|nc} du lac. Sous un grand {arbre|nc} , papa étale la nappe. Avec {soin|nc} , maman sort les sandwichs. Nous mangeons {lentement|adv} . Après le {repas|nc} , mon frère joue dans le {pré|nc} . Sur le {lac|nc} , des canards nagent. Je leur donne du pain {doucement|adv} . Le {soir|nc} , nous rentrons à la {maison|nc} . Dans la {voiture|nc} , ma sœur s'endort. Nous chantons tout {bas|adv} ."}, {"titre": "L'hiver", "texte": "En {hiver|nc} , la neige tombe sur le {village|nc} . Le {matin|nc} , les enfants sortent {vite|adv} . Dans le {jardin|nc} , ils font un bonhomme de neige. Avec deux {cailloux|nc} , ils lui font des yeux. Pendant ce {temps|nc} , papa déblaie l'allée avec une {pelle|nc} . Sur le {lac|nc} gelé, des enfants patinent. Ils glissent très {vite|adv} . {Soudain|adv} , Lina tombe. Elle se relève {aussitôt|adv} . À {midi|nc} , tout le monde rentre. Près de la {cheminée|nc} , nous buvons un chocolat chaud. {Dehors|adv} , la neige tombe {encore|adv} ."}, {"titre": "Le voyage en train", "texte": "{Samedi|nc} , nous partons en {train|nc} . À la {gare|nc} , il y a beaucoup de monde. Nous montons {rapidement|adv} dans le wagon. Par la {fenêtre|nc} , je regarde le paysage. {D'abord|locadv} , nous voyons des champs. {Puis|adv} , le train traverse une forêt. Dans le {wagon|nc} , un bébé pleure. Sa maman le berce {doucement|adv} . Vers {midi|nc} , nous mangeons nos sandwichs. Sur la {tablette|nc} , je pose mon jus de pomme. {Tout à coup|locadv} , le train entre dans un tunnel. Dans le {noir|nc} , ma sœur crie. Quelques {secondes|nc} plus tard, la lumière revient. {Enfin|adv} , nous arrivons à {Marseille|np} . Sur le {quai|nc} , mamie nous attend avec un grand {sourire|nc} . Le {soir|nc} , nous mangeons chez {elle|pp} ."}]
  },
  "formes-ce": {
   "moteur": "sx",

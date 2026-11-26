@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=107" />
+    <link rel="stylesheet" href="style.css?v=112" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -141,6 +141,7 @@
 
           <div class="quiz-grid hidden" id="nat-quiz-grid">
             <div class="artwork-column">
+              <div class="illus illus-m hidden" id="nat-illus-m" aria-hidden="true"></div>
               <figure class="artwork-card sentence-card" id="nat-sentence-card">
                 <p class="sentence" id="nat-sentence"></p>
                 <button type="button" class="listen-button" id="nat-listen-button" title="Écouter la phrase">🔊 Écouter la phrase</button>
@@ -148,6 +149,7 @@
               </figure>
             </div>
             <section class="answer-card" aria-label="Natures">
+              <div class="illus illus-d hidden" id="nat-illus"></div>
               <h2 id="nat-instruction">Quelle est la nature du mot qui clignote ?</h2>
               <div class="answer-columns">
                 <div class="nature-column" id="nat-nature-column">
@@ -332,18 +334,20 @@
     </div>
 
     <!-- v76 : les textes des exercices, fabriqués par l'atelier à partir des fichiers Word (s'ils manquent, l'application garde ses textes) -->
-    <script defer src="textes-ce-mots.js?v=107"></script>
-    <script defer src="textes-ce-temps.js?v=107"></script>
-    <script defer src="textes-ce-phrase.js?v=107"></script>
-    <script defer src="textes-cm-mots.js?v=107"></script>
-    <script defer src="textes-cm-temps.js?v=107"></script>
-    <script defer src="textes-cm-phrase.js?v=107"></script>
-    <script defer src="textes-65-mots.js?v=107"></script>
-    <script defer src="textes-65-temps.js?v=107"></script>
-    <script defer src="textes-65-phrase.js?v=107"></script>
-    <script defer src="textes-43-phrase.js?v=107"></script>
-    <script defer src="textes-43-mots.js?v=107"></script>
-    <script defer src="textes-43-temps.js?v=107"></script>
-    <script defer src="app.js?v=107"></script>
+    <script defer src="illustrations.js?v=112"></script>
+    <script defer src="illus-ce.js?v=112"></script>
+    <script defer src="textes-ce-mots.js?v=112"></script>
+    <script defer src="textes-ce-temps.js?v=112"></script>
+    <script defer src="textes-ce-phrase.js?v=112"></script>
+    <script defer src="textes-cm-mots.js?v=112"></script>
+    <script defer src="textes-cm-temps.js?v=112"></script>
+    <script defer src="textes-cm-phrase.js?v=112"></script>
+    <script defer src="textes-65-mots.js?v=112"></script>
+    <script defer src="textes-65-temps.js?v=112"></script>
+    <script defer src="textes-65-phrase.js?v=112"></script>
+    <script defer src="textes-43-phrase.js?v=112"></script>
+    <script defer src="textes-43-mots.js?v=112"></script>
+    <script defer src="textes-43-temps.js?v=112"></script>
+    <script defer src="app.js?v=112"></script>
   </body>
 </html>

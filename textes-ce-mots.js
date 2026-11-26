@@ -150,45 +150,11 @@ window.MNEMO_TEXTES = Object.assign(window.MNEMO_TEXTES || {}, {
  },
  "ce-prons": {
   "moteur": "tv",
-  "textes": [
-   {
-    "titre": "Les amis",
-    "texte": "{Je} m'appelle Lou. {Tu} t'appelles Tom. {Il} est mon voisin. {Elle} est ma sœur. {Nous} jouons ensemble. {Vous} venez avec nous ? {Ils} courent vite. {Elles} sautent à la corde. {On} rit beaucoup. {Tu} es mon ami."
-   },
-   {
-    "titre": "La piscine",
-    "texte": "Ce matin, {nous} allons à la piscine. {Je} prends mon maillot. Maman dit : « {Tu} n'oublies pas ta serviette ? » Papa conduit. {Il} chante dans la voiture. Ma sœur rit. {Elle} trouve papa drôle. À la piscine, {nous} retrouvons nos cousins. {Ils} nagent déjà. « {Vous} êtes en retard ! » crie Léo. {On} se dépêche. {Je} plonge. L'eau est froide ! {Elle} me fait frissonner. {Il} faut nager vite. {Nous} sortons à midi."
-   },
-   {
-    "titre": "La fête de la classe",
-    "texte": "Les enfants préparent une fête. {Ils} décorent la classe. Léa et Zoé gonflent des ballons. {Elles} les accrochent au plafond. Tom apporte un gâteau. {Il} l'a fait avec sa maman. « {Je} peux le goûter ? » demande Hugo. « {Tu} attendras la fête ! » répond Tom. La maîtresse arrive. {Elle} sourit. {Elle} met de la musique. « {Vous} avez bien travaillé ! {Je} suis fière de vous. » {Nous} chantons une chanson. {On} danse aussi. {Je} danse avec Léa. « {Tu} danses bien ! » dit Zoé. Les parents arrivent. {Ils} applaudissent. {Nous} mangeons le gâteau. {Il} est délicieux !"
-   },
-   {
-    "titre": "Au cirque",
-    "texte": "Hier, {nous} sommes allés au cirque. {Je} me suis assis au premier rang. Mon père s'est assis à côté de moi. {Il} avait acheté des bonbons. {Nous} avons attendu un peu. Puis les clowns sont arrivés. {Ils} portaient des chaussures géantes. {Ils} sont tombés plusieurs fois. {On} a beaucoup ri. Ensuite, une acrobate est entrée. {Elle} est montée sur un fil. {Elle} a marché sans tomber. « {Vous} avez peur ? » nous a demandé le présentateur. « {Nous} avons un peu peur ! » a répondu ma sœur. Les lions ont rugi. {Ils} étaient impressionnants. Ma sœur a fermé les yeux. {Je} lui ai dit : « {Tu} peux regarder ! {Ils} sont dans une cage. » {Elle} a ouvert les yeux. À la fin, {nous} avons applaudi. {Nous} sommes rentrés tard. {Je} dormais dans la voiture. {Il} faisait nuit."
-   }
-  ]
+  "textes": [{"titre": "Les amis", "texte": "{Je|s'appeler} m'appelle Lou. {Tu|s'appeler} t'appelles Tom. {Il|être} est mon voisin. {Elle|être} est ma sœur. {Nous|jouer} jouons ensemble. {Vous|venir} venez avec nous ? {Ils|courir} courent vite. {Elles|sauter} sautent à la corde. {On|rire} rit beaucoup. {Tu|être} es mon ami."}, {"titre": "La piscine", "texte": "Ce matin, {nous|aller} allons à la piscine. {Je|prendre} prends mon maillot. Maman dit : « {Tu|oublier} n'oublies pas ta serviette ? » Papa conduit. {Il|chanter} chante dans la voiture. Ma sœur rit. {Elle|trouver} trouve papa drôle. À la piscine, {nous|retrouver} retrouvons nos cousins. {Ils|nager} nagent déjà. « {Vous|être} êtes en retard ! » crie Léo. {On|se dépêcher} se dépêche. {Je|plonger} plonge. L'eau est froide ! {Elle|faire} me fait frissonner. {Il|falloir} faut nager vite. {Nous|sortir} sortons à midi."}, {"titre": "La fête de la classe", "texte": "Les enfants préparent une fête. {Ils|décorer} décorent la classe. Léa et Zoé gonflent des ballons. {Elles|accrocher} les accrochent au plafond. Tom apporte un gâteau. {Il|faire} l'a fait avec sa maman. « {Je|pouvoir} peux le goûter ? » demande Hugo. « {Tu|attendre} attendras la fête ! » répond Tom. La maîtresse arrive. {Elle|sourire} sourit. {Elle|mettre} met de la musique. « {Vous|travailler} avez bien travaillé ! {Je|être} suis fière de vous. » {Nous|chanter} chantons une chanson. {On|danser} danse aussi. {Je|danser} danse avec Léa. « {Tu|danser} danses bien ! » dit Zoé. Les parents arrivent. {Ils|applaudir} applaudissent. {Nous|manger} mangeons le gâteau. {Il|être} est délicieux !"}, {"titre": "Au cirque", "texte": "Hier, {nous|aller} sommes allés au cirque. {Je|s'asseoir} me suis assis au premier rang. Mon père s'est assis à côté de moi. {Il|acheter} avait acheté des bonbons. {Nous|attendre} avons attendu un peu. Puis les clowns sont arrivés. {Ils|porter} portaient des chaussures géantes. {Ils|tomber} sont tombés plusieurs fois. {On|rire} a beaucoup ri. Ensuite, une acrobate est entrée. {Elle|monter} est montée sur un fil. {Elle|marcher} a marché sans tomber. « {Vous|avoir} avez peur ? » nous a demandé le présentateur. « {Nous|avoir} avons un peu peur ! » a répondu ma sœur. Les lions ont rugi. {Ils|être} étaient impressionnants. Ma sœur a fermé les yeux. {Je|dire} lui ai dit : « {Tu|pouvoir} peux regarder ! {Ils|être} sont dans une cage. » {Elle|ouvrir} a ouvert les yeux. À la fin, {nous|applaudir} avons applaudi. {Nous|rentrer} sommes rentrés tard. {Je|dormir} dormais dans la voiture. {Il|faire} faisait nuit."}]
  },
  "ce-sujets": {
   "moteur": "tv",
-  "textes": [
-   {
-    "titre": "Petites phrases",
-    "texte": "{Le chat} dort. {Les oiseaux} chantent. {Maman} cuisine. {Mon frère} joue. {Le soleil} brille. {Tu} lis un livre. {Les enfants} courent dans la cour. {Papa} répare le vélo. {La pluie} tombe. {Nous} rentrons à la maison."
-   },
-   {
-    "titre": "En classe",
-    "texte": "{La maîtresse} écrit au tableau. {Les élèves} recopient la leçon. {Léo} lève le doigt. {Il} pose une question. {Sa voisine} répond. {Le directeur} entre dans la classe. {Tout le monde} se lève. {Il} salue les élèves. {La cloche} sonne. {Les enfants} sortent. {Mon ami Tom} m'attend. {Nous} jouons aux billes. {La récréation} passe vite."
-   },
-   {
-    "titre": "À la plage",
-    "texte": "{Le petit chien de Léa} aboie. {Les grandes vagues} frappent les rochers. Dans le ciel volent {des mouettes}. {Mes cousins} construisent un château. {Le vent} souffle fort. {Ma sœur et moi} cherchons des coquillages. {Papa} lit sous le parasol. Sur la plage courent {des enfants}. {Le marchand de glaces} passe. {Il} crie : « Glaces ! » {Maman} achète trois glaces. {Nous} les mangeons vite. {Le soleil} chauffe le sable. {Les nuages} arrivent. {L'orage} approche. {Nous} rentrons."
-   },
-   {
-    "titre": "Le jardin de grand-père",
-    "texte": "Chaque matin, {mon grand-père} se lève tôt. {Il} boit son café. Puis {il} part au jardin. Dans le potager poussent {des salades}. {Les tomates} rougissent au soleil. {Les limaces}, la nuit, mangent les feuilles. {Grand-père} les chasse. {Ma grand-mère} cueille des fraises. {Elle} en fait de la confiture. {Le chat de la voisine} se promène. {Il} saute sur le mur. Sur le mur dorment {des lézards}. {Ils} s'enfuient. {Le chien} aboie. « {Tu} vas te taire ! » crie {grand-mère}. {Les oiseaux} s'envolent. {Nous} arrivons pour le déjeuner. {Toute la famille} se met à table. {On} mange la salade du jardin."
-   }
-  ]
+  "textes": [{"titre": "Petites phrases", "texte": "Le {chat|dormir} dort. Les {oiseaux|chanter} chantent. {Maman|cuisiner|np} cuisine. Mon {frère|jouer} joue. Le {soleil|briller} brille. {Tu|lire} lis un livre. Les {enfants|courir} courent dans la cour. {Papa|réparer|np} répare le vélo. La {pluie|tomber} tombe. {Nous|rentrer} rentrons à la maison."}, {"titre": "En classe", "texte": "La {maîtresse|écrire} écrit au tableau. Les {élèves|recopier} recopient la leçon. {Léo|lever|np} lève le doigt. {Il|poser} pose une question. Sa {voisine|répondre} répond. Le {directeur|entrer} entre dans la classe. Toute la {classe|se lever} se lève. {Il|saluer} salue les élèves. La {cloche|sonner} sonne. Les {enfants|sortir} sortent. {Tom|attendre|np} m'attend. {Nous|jouer} jouons aux billes. La {récréation|passer} passe vite."}, {"titre": "À la plage", "texte": "Le petit {chien|aboyer} de Léa aboie. Les grandes {vagues|frapper} frappent les rochers. Dans le ciel volent des {mouettes|voler} . Mes {cousins|construire} construisent un château. Le {vent|souffler} souffle fort. Ma {sœur|chercher} et {moi|chercher} cherchons des coquillages. {Papa|lire|np} lit sous le parasol. Sur la plage courent des {enfants|courir} . Le {marchand|passer} de glaces passe. {Il|crier} crie : « Glaces ! » {Maman|acheter|np} achète trois glaces. {Nous|manger} les mangeons vite. Le {soleil|chauffer} chauffe le sable. Les {nuages|arriver} arrivent. Un {orage|approcher} approche. {Nous|rentrer} rentrons."}, {"titre": "Le jardin de grand-père", "texte": "Chaque matin, mon {grand-père|se lever} se lève tôt. {Il|boire} boit son café. Puis {il|partir} part au jardin. Dans le potager poussent des {salades|pousser} . Les {tomates|rougir} rougissent au soleil. Les {limaces|manger} , la nuit, mangent les feuilles. {Grand-père|chasser|np} les chasse. Ma {grand-mère|cueillir} cueille des fraises. {Elle|faire} en fait de la confiture. Le {chat|se promener} de la voisine se promène. {Il|sauter} saute sur le mur. Sur le mur dorment des {lézards|dormir} . {Ils|s'enfuir} s'enfuient. Le {chien|aboyer} aboie. « {Tu|aller} vas te taire ! » crie {grand-mère|crier|np} . Les {oiseaux|s'envoler} s'envolent. {Nous|arriver} arrivons pour le déjeuner. Toute la {famille|se mettre} se met à table. {On|manger} mange la salade du jardin."}]
  },
  "ce-nat5": {
   "moteur": "tm",

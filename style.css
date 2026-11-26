@@ -624,6 +624,8 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .game7 .sentence .w.trou .ancien { font-size:.6em; text-decoration:line-through; opacity:.9; line-height:1; margin-bottom:2px; }
 .game7 .sentence .w.trou .f { color:#ffe9a8; }
 .game7 .sentence .w.forme-corrigee .f { color:#ffc27a; }
+/* v109 : phrase transformée corrigée : en blanc, comme une réponse juste */
+.game7 .sentence .w.tf.remplie.forme-corrigee.ph-op .f, .game7 .sentence .w.tf.remplie.forme-corrigee.ph-op .tx { color:#fff; text-decoration-color:transparent; }
 .carte.neutre { background:#f3f1ea; border-color:#8a7a5c; }
 .carte.neutre p { color:#3a3328; }
 .nature-button.forme-button { background:#5a4a32; border-color:#3a2f1e; color:#fff; }
@@ -802,6 +804,10 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 .tf-bande { flex:1; text-align:center; border-radius:5px; padding:2px 6px; font-family:Arial,sans-serif; font-weight:bold; white-space:nowrap; }
 .tf-bande.type { background:#2f5fb3; color:#fff; }
 .tf-bande.forme { background:#2e8b57; color:#fff; }
+/* v108 : le type (bleu) et la forme (vert) nommés dans l'encart de correction */
+.tf-etiq { display:inline-block; border-radius:5px; padding:0 6px; font-weight:bold; color:#fff; white-space:nowrap; }
+.tf-etiq.type { background:#2f5fb3; }
+.tf-etiq.forme { background:#2e8b57; }
 .tm-q2 { margin:10px 0 6px; }
 
 /* v92 : le bleu pour ce qui n'est ni une nature ni une fonction (la modalisation) */
@@ -861,3 +867,25 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 #ecoute .ec-boutons { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 6px; }
 #ecoute .ec-aide { font-size:.88em; color:#666; margin:4px 0 8px; }
 #ecoute textarea { width:100%; box-sizing:border-box; font-size:.95em; padding:8px; border-radius:6px; border:1px solid #bbb; }
+
+/* v110 : l'illustration du texte : à côté de l'ardoise (en haut de la colonne de droite) ; au-dessus du texte sur téléphone */
+.illus { margin:0 0 14px; }
+.illus .illus-svg { display:block; width:100%; height:auto; }
+.illus-m { display:none; }
+@media (max-width:900px) {
+  .illus-d { display:none !important; }
+  .illus-m:not(.hidden) { display:block; margin:0; padding:8px 8px 0; background:var(--paper); }
+}
+
+/* v111 : sous le mot trouvé (« trouver les noms… »), l'étiquette : nature en vert, fonction en rouge */
+.tv-mot.tv-etiq { display:inline-flex; flex-direction:column; align-items:center; vertical-align:top; }
+.tv-labs { display:flex; flex-direction:column; align-items:center; gap:2px; margin-top:2px; }
+.tv-lab { font-family:Arial,sans-serif; font-size:.42em; font-weight:bold; line-height:1.3; color:#fff; background:var(--nat-green, #2e8b57); border-radius:4px; padding:1px 5px; white-space:nowrap; font-style:normal; }
+.tv-lab.rouge { background:#c0392b; }
+.tv-lab.bleu { background:#2f5fb3; }
+
+/* v111 : les flèches d'accord, au-dessus du texte, de celui qui commande vers la marque ajoutée */
+#nat-sentence .tm-texte { position:relative; }
+.acc-fleches { position:absolute; left:0; top:0; pointer-events:none; overflow:visible; }
+.acc-fleches path { fill:none; stroke:#7fdcff; stroke-width:2.2; }
+.acc-fin { color:#fff; text-decoration:underline; text-decoration-color:#7fdcff; text-underline-offset:3px; }
