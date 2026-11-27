@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Atelier de prononciation — MNEMOGRAM</title>
+<title>Atelier de prononciation — MNEMOGRAM, MNEMOMATHS, MNEMOSCIENCES</title>
 <style>
 :root{--bg:#f6f4ef;--card:#fff;--ink:#222;--muted:#6b6b6b;--line:#ddd7c8;--acc:#1c3a8a;--ok:#1f7a4d;--bad:#c0392b;--fix:#1c3a8a;--cur:#fff0b3}
 *{box-sizing:border-box}
@@ -189,7 +189,7 @@ details summary{cursor:pointer;font-weight:600}
   </aside>
 
   <main>
-    <h1>Atelier de prononciation MNEMOGRAM <small style="font-size:.6em;font-weight:600;color:var(--muted);margin-left:6px" title="Numéro de version de cet outil : il augmente à chaque modification">v1</small></h1>
+    <h1>Atelier de prononciation <span style="font-size:.7em">MNEMOGRAM · MNEMOMATHS · MNEMOSCIENCES</span> <small style="font-size:.6em;font-weight:600;color:var(--muted);margin-left:6px" title="Numéro de version de cet outil : il augmente à chaque modification">v2</small></h1>
     <p class="sub">Choisissez une voix : elle lit toute la liste. Quand un mot est mal dit, appuyez sur <b>Stop</b> (ou sur la barre Espace). Ce mot s'ouvre alors ici pour être corrigé.</p>
     <div class="novoice" id="novoice">Aucune voix française n'est disponible dans ce navigateur pour le moment (réessayez dans quelques secondes, ou utilisez Chrome / Edge).</div>
 
@@ -220,6 +220,7 @@ details summary{cursor:pointer;font-weight:600}
     <div class="autosave" id="syncBox">
       <b>Synchronisation téléphone ⇄ ordinateur</b>
       <span class="st" id="syncState"></span>
+      <div class="help" id="pubState" style="margin-top:4px"></div>
       <div id="syncIn" style="display:flex;gap:6px;flex-wrap:wrap">
         <input type="text" id="syncEmail" name="mn-sync-id" inputmode="email" placeholder="e-mail du compte (Mnemart ou MNEMOGRAM)" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other" style="flex:1 1 150px;min-width:0">
         <span style="position:relative;flex:1 1 130px;min-width:0;display:flex">
@@ -1104,8 +1105,44 @@ async function pushNow(){
         await syncRef.set(Object.assign({ b64:b64enc(j) }, meta));
       }
     }
-    lastPushed = j; setSyncLabel('ok', 'mise à jour à ' + new Date().toTimeString().slice(0,5) + ', ' + Math.max(1, Math.round(sent/1024)) + ' Ko envoyés');
+    lastPushed = j; publishNow(); setSyncLabel('ok', 'mise à jour à ' + new Date().toTimeString().slice(0,5) + ', ' + Math.max(1, Math.round(sent/1024)) + ' Ko envoyés');
   } catch(e){ setSyncLabel(e && e.code==='permission-denied' ? 'noaccess' : 'err', errTxt('envoi des essais (' + j.length + ' caractères)', e)); }
+}
+/* v2 : PUBLICATION POUR LES TROIS APPLICATIONS (MNEMOGRAM, MNEMOMATHS, MNEMOSCIENCES)
+   Pourquoi : jusqu'ici, les réglages restaient dans l'atelier, et Claude devait les recopier à la main dans
+   chaque application (« Copier pour Claude »). Désormais, dès que l'atelier est connecté au compte, il publie
+   les écritures dans un document PUBLIC de Firebase (prononciations/commun) : tout le monde peut le lire,
+   seul le compte de Stéphane peut l'écrire. Les trois applications le lisent au démarrage et l'ajoutent à
+   leurs propres tables : un mot réglé ici est donc bien dit partout, sans nouvelle version des applications.
+   On publie : l'écriture commune de chaque mot (quand elle diffère du mot écrit), et pour chaque voix les
+   écritures qui lui sont propres ('' = lire le mot tel quel pour cette voix). */
+let lastPub = '';
+function pubTable(){
+  const keys = listKeys(), c = {}, v = {};
+  const own = (P,k)=> Object.prototype.hasOwnProperty.call(P.val,k);
+  keys.forEach(k=>{ if (k.endsWith('*')) return; const w = inherited(k); if (w && w !== k) c[k] = w; });
+  Object.keys(S.v||{}).forEach(n=>{
+    if (n === '_') return;
+    const P = S.v[n], t = {};
+    keys.forEach(k=>{ if (k.endsWith('*')) return; if (P.st[k] !== 'bad' && own(P,k) && P.val[k] !== inherited(k)) t[k] = P.val[k]; });
+    if (Object.keys(t).length) v[n] = t;
+  });
+  return { c, v };
+}
+function setPubLabel(txt, warn){ const el = $('pubState'); if (!el) return; el.textContent = txt; el.style.color = warn ? '#b03a2e' : 'var(--muted)'; }
+async function publishNow(){
+  if (!fbDb || !syncUser) { setPubLabel('📢 Connectez-vous ci-dessous : les mots réglés seront alors publiés pour les trois applications.'); return; }
+  const t = pubTable(), j = JSON.stringify(t); if (j === lastPub) return;
+  try {
+    await fbDb.collection('prononciations').doc('commun').set({ c:t.c, v:t.v, maj:firebase.firestore.FieldValue.serverTimestamp() });
+    lastPub = j;
+    const nv = Object.values(t.v).reduce((a,o)=>a+Object.keys(o).length, 0);
+    setPubLabel('📢 Publié pour MNEMOGRAM, MNEMOMATHS et MNEMOSCIENCES à ' + new Date().toTimeString().slice(0,5) + ' : ' + Object.keys(t.c).length + ' écritures communes' + (nv ? ', ' + nv + ' propres à une voix' : '') + '.');
+  } catch(e){
+    setPubLabel(e && e.code==='permission-denied'
+      ? '📢 Publication refusée : il faut ajouter dans Firebase la règle « prononciations » (voir l\'explication de Claude).'
+      : '📢 ' + errTxt('publication pour les trois applications', e), true);
+  }
 }
 function schedulePush(){ clearTimeout(pushT); pushT = setTimeout(pushNow, 900); }
 function applyRemote(json){
@@ -1124,6 +1161,7 @@ async function startSync(user){
     if (snap.exists) { const rj = await remoteJson(snap.data()); if (rj) { lastPushed = rj; applyRemote(lastPushed); } }
     step = 'envoi des essais';
     await pushNow();
+    publishNow();
     syncUnsub = syncRef.onSnapshot(async s=>{
       if (s.metadata.hasPendingWrites || !s.exists) return;
       const j = await remoteJson(s.data()); if (!j || j === lastPushed) return;
@@ -1136,10 +1174,10 @@ function initSync(){
   if (typeof firebase === 'undefined') { setSyncLabel('err', 'bibliothèque Firebase non chargée (connexion internet ?)'); return; }
   try { firebase.initializeApp(SYNC_CFG); fbAuth = firebase.auth(); fbDb = firebase.firestore(); }
   catch(e){ setSyncLabel('err', e.message); return; }
-  setSyncLabel('off');
+  setSyncLabel('off'); publishNow();
   fbAuth.onAuthStateChanged(u=>{
     if (syncUnsub) { syncUnsub(); syncUnsub = null; }
-    if (u) startSync(u); else { syncUser = null; syncRef = null; setSyncLabel('off'); }
+    if (u) startSync(u); else { syncUser = null; syncRef = null; setSyncLabel('off'); publishNow(); }
   });
   $('syncLogin').onclick = async ()=>{
     const em = $('syncEmail').value.trim(), pw = $('syncPass').value;

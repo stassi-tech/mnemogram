@@ -6,7 +6,8 @@
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
 /* v118 : sur smartphone, le bandeau ne garde que ←, 🏠, le volume et ☰ ; les autres icônes passent dans le menu ☰. */
-const APP_VERSION = 'v118';
+/* v119 : la voix utilise aussi les écritures publiées par l'atelier de prononciation (commun aux trois applications). */
+const APP_VERSION = 'v119';
 
 const $ = (id) => document.getElementById(id);
 
@@ -915,8 +916,31 @@ const sansAccents = (t) => String(t || '').toLowerCase().normalize('NFD').replac
 function pronOverrides(voice) {
   const name = sansAccents(voice?.name);
   if (!name) return null;
-  const hit = Object.keys(PRON_PAR_VOIX).find((part) => name.includes(sansAccents(part)));
-  return hit ? PRON_PAR_VOIX[hit] : null;
+  /* toutes les entrées qui correspondent à cette voix, de la plus vague (« hortense ») à la plus précise
+     (« Microsoft Hortense - French (France) », nom complet donné par l'atelier) : la plus précise l'emporte */
+  const hits = Object.keys(PRON_PAR_VOIX).filter((part) => name.includes(sansAccents(part))).sort((a, b) => a.length - b.length);
+  return hits.length ? Object.assign({}, ...hits.map((h) => PRON_PAR_VOIX[h])) : null;
+}
+/* ATELIER DE PRONONCIATION COMMUN AUX TROIS APPLICATIONS (MNEMOGRAM, MNEMOMATHS, MNEMOSCIENCES)
+   Quand Stéphane règle un mot dans l'atelier, l'atelier publie ses écritures dans Firebase
+   (document public prononciations/commun). Chaque application les ajoute à ses propres tables :
+   d'abord la copie gardée sur l'appareil (pour le hors connexion), puis la version à jour dès que
+   Firebase répond. Pas besoin de passer par une nouvelle version de l'application. */
+const PRON_CLE_LOCALE = 'mnemo-prononciations-publiees';
+function appliquePronPubliee(d) {
+  if (!d || typeof d !== 'object') return;
+  Object.assign(PRON_COMMUNE, d.c || {});
+  Object.entries(d.v || {}).forEach(([voix, table]) => { PRON_PAR_VOIX[voix] = Object.assign({}, PRON_PAR_VOIX[voix] || {}, table); });
+}
+try { appliquePronPubliee(JSON.parse(localStorage.getItem(PRON_CLE_LOCALE) || 'null')); } catch (e) {}
+function chargePronPubliee(base) {
+  if (!base) return;
+  base.collection('prononciations').doc('commun').get().then((s) => {
+    if (!s.exists) return;
+    const d = s.data(), garde = { c: d.c || {}, v: d.v || {} };
+    appliquePronPubliee(garde);
+    try { localStorage.setItem(PRON_CLE_LOCALE, JSON.stringify(garde)); } catch (e) {}
+  }).catch((e) => console.warn('Prononciations publiées', e.code || e));
 }
 const reEsc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /* v104 : quelques règles générales, valables pour tous les textes, avant la table des mots */
@@ -6360,6 +6384,8 @@ if (firebaseReady) {
     try { db.settings({ experimentalAutoDetectLongPolling: true }); } catch (e) {}
   } catch (e) { console.warn('Firebase', e); }
 }
+/* les écritures publiées par l'atelier de prononciation (voir appliquePronPubliee) */
+chargePronPubliee(db);
 
 /* Champs de la fiche (servent à l'inscription ET à « Mon compte ») */
 function lienOptions(sel) {
