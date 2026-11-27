@@ -5,7 +5,8 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v117';
+/* v118 : sur smartphone, le bandeau ne garde que ←, 🏠, le volume et ☰ ; les autres icônes passent dans le menu ☰. */
+const APP_VERSION = 'v118';
 
 const $ = (id) => document.getElementById(id);
 
@@ -7276,3 +7277,45 @@ function ouvreEcoute() {
   charge();
 }
 if (/[?&#]ecoute\b/.test(location.search + location.hash)) ouvreEcoute();
+
+/* ---------- MENU ☰ SUR SMARTPHONE (comme dans Mnemart) ----------
+   Sur un petit écran, le bandeau du haut ne garde que la flèche de retour, la maison, le volume
+   et le menu ☰ ; les autres icônes (plein écran, fiches, ambiance, aide, contact, compte, sortie)
+   passent dans ce menu. Le menu est construit à partir des boutons du bandeau eux-mêmes : chaque
+   entrée « appuie » sur le bouton d'origine, il n'y a donc qu'une seule logique pour chaque action.
+   Sur ordinateur, rien ne change (le CSS cache le ☰ et laisse les icônes à leur place). */
+(function menuSmartphone() {
+  const centre = document.querySelector('#global-topbar .topbar-zone-center');
+  if (!centre) return;
+  const garder = ['global-back-button', 'global-home-button'];
+  const ranges = [...centre.querySelectorAll('button.global-topbar-button')].filter((b) => !garder.includes(b.id));
+  ranges.forEach((b) => b.classList.add('dans-le-menu'));
+  const ouvrir = document.createElement('button');
+  ouvrir.type = 'button'; ouvrir.id = 'hamburger-button'; ouvrir.className = 'global-topbar-button hamburger-button';
+  ouvrir.textContent = '☰'; ouvrir.setAttribute('aria-label', 'Menu'); ouvrir.title = 'Menu';
+  const volume = document.getElementById('global-volume-bars');
+  if (volume) volume.after(ouvrir); else centre.appendChild(ouvrir);
+  const menu = document.createElement('div');
+  menu.id = 'hamburger-menu'; menu.className = 'hamburger-menu hidden'; menu.setAttribute('role', 'menu');
+  document.getElementById('global-topbar').appendChild(menu);
+  const fermer = () => menu.classList.add('hidden');
+  /* les entrées sont refaites à chaque ouverture : un bouton caché à ce moment-là (par exemple
+     « Quitter la session » quand personne n'est connecté) n'apparaît pas dans le menu */
+  ouvrir.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    if (!menu.classList.contains('hidden')) { fermer(); return; }
+    menu.innerHTML = '';
+    ranges.filter((b) => !b.classList.contains('hidden') && b.style.display !== 'none').forEach((b) => {
+      const it = document.createElement('button');
+      it.type = 'button'; it.className = 'hamburger-item'; it.setAttribute('role', 'menuitem');
+      it.innerHTML = `<span class="hamburger-icone">${b.textContent.trim()}</span>${b.getAttribute('aria-label') || b.title}`;
+      /* stopPropagation : sinon ce clic remonterait jusqu'à la page et serait pris pour un « clic
+         à l'extérieur », qui refermerait aussitôt le panneau qu'on vient d'ouvrir (ambiance…) */
+      it.addEventListener('click', (e) => { e.stopPropagation(); fermer(); b.click(); });
+      menu.appendChild(it);
+    });
+    menu.classList.remove('hidden');
+  });
+  document.addEventListener('click', (ev) => { if (!menu.contains(ev.target)) fermer(); });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') fermer(); });
+})();
